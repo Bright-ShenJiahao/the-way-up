@@ -70,11 +70,12 @@ function genMap() {
 function topBar() {
   return `<div id="top"><span class="hp">❤ ${R.hp}/${R.maxHp}</span><span class="gold">● ${R.gold}</span><span class="fl">第 ${R.floor} 层 · 翠绿之地</span>
   <div class="relics">${R.relics.map(id => `<img src="${RELICS[id].img}" title="${esc(RELICS[id].name + '：' + RELICS[id].desc)}">`).join('')}</div>
-  <span class="sp"></span><button class="tb" id="tbdeck">牌组 (${R.deck.length})</button><button class="tb" id="tbtips" title="开关规则提示">提示：${TIPS ? '开' : '关'}</button><button class="tb" id="tbmute">${audio.muted ? '🔇' : '🔊'}</button></div>`;
+  <span class="sp"></span><button class="tb" id="tbdeck">牌组 (${R.deck.length})</button><button class="tb" id="tbtips" title="开关规则提示">提示：${TIPS ? '开' : '关'}</button><button class="tb" id="tbfs" title="全屏">⛶</button><button class="tb" id="tbmute">${audio.muted ? '🔇' : '🔊'}</button></div>`;
 }
 function bindTop() {
   $('#tbdeck')?.addEventListener('click', () => showPile('牌组', R.deck));
   $('#tbtips')?.addEventListener('click', () => { TIPS = !TIPS; try { localStorage.setItem('tipsOff', TIPS ? '0' : '1'); } catch (e) {} B && !B.over ? render() : (R && mapScreen()); });
+  $('#tbfs')?.addEventListener('click', () => { const d = document.documentElement; (document.fullscreenElement ? document.exitFullscreen() : (d.requestFullscreen || d.webkitRequestFullscreen).call(d)).then?.(() => screen.orientation?.lock?.('landscape').catch(() => {})).catch?.(() => {}); });
   $('#tbmute')?.addEventListener('click', () => { dispatchEvent(new KeyboardEvent('keydown', { key: 'm' })); setTimeout(() => { const b = $('#tbmute'); if (b) b.textContent = audio.muted ? '🔇' : '🔊'; }, 30); });
 }
 const BGS = ['battle_forest', 'battle_birch', 'battle_castle'];
@@ -351,9 +352,10 @@ function heroFrame() {
   if (hst.n === 'idle' && C.idle) { const j = Math.floor((performance.now() - hst.t) / C.idleMs) % C.idle.length; return `assets/${cdir()}/idle${C.idle[j]}.png`; }
   return `assets/${cdir()}/${hst.n}${k}.png`;
 }
-(function loop() { const h = view.querySelector('#hero .spr'); if (h) { const f = heroFrame(); if (!h.src.endsWith(f)) h.src = f; }
-  if (B) view.querySelectorAll('.enemy.hd .spr').forEach(img => { const e = B.en.find(x => x.id === img.dataset.eid); if (e) { const f = eFrame(e); if (!img.src.endsWith(f)) img.src = f; } });
-  requestAnimationFrame(loop); })();
+let lastT = 0;
+(function loop(t) { requestAnimationFrame(loop); if (!B || t - lastT < 80) return; lastT = t; const h = view.querySelector('#hero .spr'); if (h) { const f = heroFrame(); if (!h.src.endsWith(f)) h.src = f; }
+  view.querySelectorAll('.enemy.hd .spr').forEach(img => { const e = B.en.find(x => x.id === img.dataset.eid); if (e) { const f = eFrame(e); if (!img.src.endsWith(f)) img.src = f; } });
+})(0);
 function heroAnim(c) { heroAnimCls = c; }
 async function endTurn() {
   if (B.busy || B.over || B.anim) return; B.busy = true; B.sel = -1; B.hitSet = new Set();
