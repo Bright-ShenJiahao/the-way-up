@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>通往顶端 The Way Up: Otherworld Deck</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:#0d0f0c;overflow:hidden;font-family:"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;color:#f1ead8;user-select:none}
+#view{position:absolute;inset:0}
+#stage{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;overflow:hidden;background:#1d2a1a}
+img.px{image-rendering:pixelated}
+button{font-family:inherit;cursor:pointer}
+.btn{background:linear-gradient(#6b4f2a,#4a3519);color:#ffe9b8;border:2px solid #c9a35a;border-radius:8px;padding:10px 22px;font-size:18px;box-shadow:0 3px 0 #2a1d0c}
+.btn:hover{filter:brightness(1.2)}.btn:disabled{filter:grayscale(1) brightness(.6);cursor:default}
+/* 背景 */
+.bg{position:absolute;inset:0;background:#1a2414}
+.bg .full{position:absolute;left:0;top:0;width:1280px;height:720px}
+.bg .light{position:absolute;inset:0;background:radial-gradient(ellipse 60% 55% at 22% 18%,rgba(255,220,140,.28),transparent 70%);mix-blend-mode:screen}
+.bg .vig{position:absolute;inset:0;background:radial-gradient(ellipse 75% 70% at 50% 52%,transparent 45%,rgba(8,6,2,.72))}
+.bg.dim .full{filter:brightness(.8) saturate(.82)}
+#fore{position:absolute;inset:0;pointer-events:none;z-index:5}
+#fore img{position:absolute;filter:blur(2px) brightness(.55) saturate(.9)}
+/* 顶栏 */
+#top{position:absolute;left:0;right:0;top:0;height:46px;background:rgba(10,12,8,.82);border-bottom:2px solid #6b5530;display:flex;align-items:center;gap:22px;padding:0 16px;font-size:18px;z-index:20}
+#top .hp{color:#ff7a6a}#top .gold{color:#ffd35a}#top .fl{color:#c8d8b0}
+#top .relics{display:flex;gap:4px;margin-left:8px}
+#top .relics img{width:36px;height:36px;cursor:help}
+#top .sp{flex:1}
+#top .tb{background:#3a2d18;border:1px solid #a88a50;color:#ffe9b8;border-radius:6px;padding:4px 12px;font-size:15px}
+/* 卡牌 */
+.card{position:relative;width:150px;height:216px;flex:none;cursor:pointer;transition:transform .12s,filter .12s;filter:drop-shadow(0 4px 6px rgba(0,0,0,.6))}
+.card .frame{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.card .art{position:absolute;left:12%;top:9.5%;width:76%;height:41%;z-index:1;background:radial-gradient(circle at 50% 45%,#3b3226,#15110c);display:flex;align-items:center;justify-content:center}
+.card.t-atk .art{background:radial-gradient(circle at 50% 45%,#4a2820,#160c09)}.card.t-skill .art{background:radial-gradient(circle at 50% 45%,#1f3d30,#0a1510)}.card.t-power .art{background:radial-gradient(circle at 50% 45%,#3a2a58,#120c1e)}
+.card .art img{width:72%;height:auto}
+.card .cname{position:absolute;left:14%;right:14%;top:51%;height:12%;z-index:3;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;color:#3a2410;white-space:nowrap}
+.card.up .cname{color:#1d6b1d}
+.card .cdesc{position:absolute;left:11.5%;right:11.5%;top:64%;bottom:9%;z-index:1;background:rgba(18,13,8,.9);display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;line-height:1.3;padding:3px 7px;color:#f4ecd8}
+.card .cost{position:absolute;left:3%;top:1.6%;width:25%;height:17.3%;z-index:4;border-radius:50%;background:radial-gradient(circle at 40% 35%,#ffc070,#d0560e 70%);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:22px;color:#fff;text-shadow:0 1px 2px #000,0 0 2px #000}
+.card .cost.no{background:radial-gradient(circle at 40% 35%,#9a9a9a,#454545 70%);color:#ff9a8a}
+.card .ctype{display:none}
+/* 战斗 */
+#hero{position:absolute;left:180px;bottom:200px;text-align:center}
+.unit{position:relative;display:flex;flex-direction:column;align-items:center}
+.unit .sprw{position:relative;display:block}
+.unit .spr{display:block;transform-origin:50% 100%;position:relative;z-index:1;filter:drop-shadow(1px 0 0 #140d06) drop-shadow(-1px 0 0 #140d06) drop-shadow(0 1px 0 #140d06) drop-shadow(0 -1px 0 #140d06) drop-shadow(0 0 8px rgba(255,236,190,.35))}
+.unit .shd{position:absolute;left:50%;bottom:-12px;width:110%;height:30px;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(0,0,0,.8),rgba(0,0,0,.35) 60%,transparent);z-index:0}
+.unit.enemy .spr{transform:scaleX(-1)}
+.unit.enemy.hd .spr{transform:none;flex:none;max-width:none}
+.unit.enemy.hd .sprw{width:150px;display:flex;justify-content:center}
+.unit.enemy.hd.dead{animation:die .5s .7s forwards}
+.unit .bar{width:130px;height:14px;background:#2a0d0d;border:1px solid #000;border-radius:7px;position:relative;margin-top:6px;overflow:hidden}
+.unit .bar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(#e04a3a,#a02018)}
+.unit .bar.blk{border-color:#6ab0ff}.unit .bar.blk i{background:linear-gradient(#6aa0e0,#3a60a0)}
+.unit .bar span{position:absolute;inset:0;font-size:11px;line-height:13px;text-align:center;color:#fff;text-shadow:0 1px 1px #000}
+.unit .blkv{position:absolute;left:-16px;bottom:-3px;width:26px;height:26px;background:#3a70c0;border:2px solid #bde;border-radius:50% 50% 45% 45%;font-size:13px;font-weight:bold;display:flex;align-items:center;justify-content:center;z-index:2}
+.sts{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;max-width:150px;margin-top:3px;min-height:18px}
+.sts b{font-size:11px;padding:1px 4px;border-radius:4px;background:rgba(0,0,0,.6);border:1px solid;cursor:help;font-weight:normal}
+.uname{font-size:13px;color:#ffe9b8;margin-top:2px;text-shadow:0 1px 2px #000;opacity:0;transition:opacity .15s}
+.unit:hover .uname{opacity:1}
+#enemies{position:absolute;right:200px;bottom:200px;display:flex;align-items:flex-end;gap:20px}
+.enemy{cursor:default}
+.enemy.tg{cursor:crosshair}.enemy.tg:hover .spr{filter:drop-shadow(1px 0 0 #140d06) drop-shadow(-1px 0 0 #140d06) drop-shadow(0 0 10px #f44) brightness(1.15)}
+.intent img{width:28px;height:28px;vertical-align:middle;margin-right:2px}
+.intent{height:34px;font-size:20px;font-weight:bold;color:#fff;text-shadow:0 0 3px #000,0 0 3px #000;white-space:nowrap;margin-bottom:4px;cursor:help}
+.intent small{font-size:12px;color:#ffe9b8;margin-left:3px}
+.unit.hit .sprw{animation:hit .3s}
+@keyframes hit{0%,100%{translate:0}25%{translate:-8px 0;filter:brightness(2) sepia(1) hue-rotate(-40deg)}75%{translate:6px 0}}
+.unit.lunge .sprw{animation:lunge .35s}
+@keyframes lunge{50%{translate:-40px 0}}
+#hero.lunge .sprw{animation:lunge2 .3s}
+@keyframes lunge2{50%{translate:40px 0}}
+.unit.dead{animation:die .5s forwards}
+@keyframes die{to{opacity:0;filter:grayscale(1)}}
+.bob{animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{50%{translate:0 -3px}}
+#energy{position:absolute;left:26px;bottom:140px;width:118px;height:108px;background:url(assets/ui2/orb_full.png) center/contain no-repeat;display:flex;align-items:center;justify-content:center;padding-bottom:12px;font-size:30px;font-weight:bold;color:#fff;text-shadow:0 2px 3px #000,0 0 4px #000}
+#energy.empty{background-image:url(assets/ui2/orb_empty.png)}
+.pile{position:absolute;bottom:14px;width:96px;height:90px;background:center/contain no-repeat;cursor:pointer;font-size:0}
+.pile b{position:absolute;right:4px;bottom:2px;min-width:30px;height:30px;padding:0 6px;border-radius:15px;background:#2a1a0c;border:2px solid #d8b060;font-size:17px;color:#fff;display:flex;align-items:center;justify-content:center}
+#drawp{background-image:url(assets/ui2/pile_draw.png)}#discp{background-image:url(assets/ui2/pile_disc.png)}#exhp{background-image:url(assets/ui2/pile_exh.png)}
+#drawp{left:30px}#discp{right:24px}#exhp{right:126px}
+#endturn{position:absolute;right:22px;bottom:150px;width:190px;height:62px;background:url(assets/ui2/btn.png) center/100% 100% no-repeat;border:none;box-shadow:none;color:#ffe9b8;font-size:18px;font-weight:bold;text-shadow:0 2px 2px #000}
+#endturn:hover{background-image:url(assets/ui2/btn_hover.png);filter:none}
+#endturn:disabled{background-image:url(assets/ui2/btn_off.png);filter:none;color:#bbb}
+#hand{position:absolute;left:150px;right:150px;bottom:0;height:260px}
+#hand .card{position:absolute;bottom:-78px}
+#hand .card:hover{z-index:50!important;transform:translateY(-100px) scale(1.12) rotate(0deg)!important}
+#hand .card.sel{box-shadow:0 0 18px 4px #ffd35a}
+#hand .card.off{filter:brightness(.7)}
+#tip{position:absolute;left:50%;top:70px;transform:translateX(-50%);background:rgba(0,0,0,.7);padding:6px 16px;border-radius:8px;font-size:16px;color:#ffd35a;pointer-events:none}
+#banner{position:absolute;left:0;right:0;top:260px;text-align:center;font-size:44px;font-weight:bold;color:#ffe9b8;text-shadow:0 3px 8px #000;pointer-events:none;animation:ban 1.1s forwards}
+@keyframes ban{0%{opacity:0;transform:scale(.8)}20%,70%{opacity:1;transform:scale(1)}100%{opacity:0}}
+.fxn{position:absolute;font-size:46px;font-weight:bold;pointer-events:none;text-shadow:0 2px 3px #000,0 0 2px #000;animation:fxn .9s forwards;z-index:60}
+.fxn.dmg{color:#fff}.fxn.blk{color:#8cf}.fxn.heal{color:#7f7}.fxn.st{color:#ffd35a;font-size:20px}
+@keyframes fxn{0%{transform:translate(-50%,0) scale(1.3)}100%{transform:translate(-50%,-70px);opacity:0}}
+#hand,#energy,#endturn,.pile{z-index:10}
+.spark{position:absolute;width:7px;height:7px;background:#ffd35a;box-shadow:0 0 6px #ffb020;pointer-events:none;z-index:59;animation:spark .55s ease-out forwards}
+@keyframes spark{to{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0}}
+.slashfx{position:absolute;width:150px;pointer-events:none;z-index:58;animation:slashfx .35s ease-out forwards}
+@keyframes slashfx{0%{opacity:0;scale:.6}30%{opacity:1;scale:1.1}100%{opacity:0;scale:1.2}}
+.shake{animation:shake .28s}
+@keyframes shake{20%{translate:-8px 4px}40%{translate:7px -5px}60%{translate:-5px 3px}80%{translate:4px -2px}}
+/* 提示 */
+.kw{color:#ffd35a;cursor:help;border-bottom:1px dotted #ffd35a}
+.unit .blkv.low{background:#a02a1a;border-color:#ffb0a0}.unit .blkv.ok{background:#2a8a3a;border-color:#b0ffb8}
+.inc{font-size:12px;margin-top:2px;padding:1px 6px;border-radius:4px;background:rgba(0,0,0,.6)}.inc.low{color:#ff8a7a}.inc.ok{color:#8aff9a}
+/* 通用面板 */
+.panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(20,16,10,.93);border:3px solid #a88a50;border-radius:14px;padding:26px 34px;text-align:center;min-width:420px}
+.panel h2{font-size:30px;margin-bottom:14px;color:#ffe9b8}
+.panel p{font-size:17px;line-height:1.6;margin-bottom:12px}
+.row{display:flex;gap:18px;justify-content:center;align-items:flex-start;flex-wrap:wrap}
+.opt{display:block;width:100%;margin:8px 0;text-align:left;font-size:17px}
+.reward{display:flex;align-items:center;gap:12px;width:360px;margin:8px auto;padding:8px 14px;background:#3a2d18;border:2px solid #a88a50;border-radius:8px;font-size:17px;cursor:pointer;color:#ffe9b8}
+.reward:hover{filter:brightness(1.25)}.reward img{width:38px;height:38px}
+.overlay{position:absolute;inset:0;background:rgba(8,6,3,.94);z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
+.overlay h2{font-size:28px;color:#ffe9b8}
+.grid{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;max-width:1180px;max-height:560px;overflow:auto;padding:14px}
+.grid .card:hover,.row .card:hover{transform:translateY(-8px) scale(1.04)}
+/* 地图 */
+#map{position:absolute;left:0;right:0;top:46px;bottom:0;overflow-y:auto;background:#2a1c10}
+#mapin{position:relative;width:1000px;margin:0 auto;background:url(assets/bg/map_parchment.jpg) center/100% 100% no-repeat}
+#map svg{position:absolute;left:0;top:0}
+.node{position:absolute;width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:bold;color:#4a3519}
+.node img{width:56px;height:56px;object-fit:contain;filter:drop-shadow(0 1px 1px rgba(60,30,0,.5))}
+.node.done{opacity:.45}
+.node.cur{box-shadow:0 0 0 3px #8a1a10}
+.node.av{cursor:pointer;animation:pulse 1s infinite}
+.node.av:hover{transform:scale(1.2)}
+@keyframes pulse{50%{transform:scale(1.15);filter:drop-shadow(0 0 6px #c08020)}}
+.node.boss{width:130px;height:130px;margin:-65px 0 0 -65px}
+.node.boss img{width:126px;height:126px}
+#legend{position:fixed;right:20px;top:80px;background:rgba(0,0,0,.6);padding:10px 14px;border-radius:8px;font-size:14px;line-height:2}
+#legend img{width:22px;vertical-align:middle;margin-right:6px}
+.shopitem .card{zoom:.86}
+.shopitem{display:flex;flex-direction:column;align-items:center;gap:6px}
+.price{color:#ffd35a;font-size:16px}.price.no{color:#a66}
+.relicbig{width:100px;height:130px;display:flex;flex-direction:column;align-items:center;cursor:pointer;font-size:14px}
+.relicbig img{width:72px;height:72px}
+#dbg{position:absolute;left:6px;top:52px;z-index:90;display:flex;flex-wrap:wrap;gap:4px;width:300px}
+#dbg button{font-size:12px;padding:3px 6px;background:#222;color:#0f0;border:1px solid #0f0;border-radius:4px;opacity:.75}
+</style>
+</head>
+<body>
+<div id="stage"><div id="view"></div><div id="fx"></div></div>
+<script type="module" src="src/game.js"></script>
+</body>
+</html>
