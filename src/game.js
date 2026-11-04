@@ -159,8 +159,8 @@ const A_ = n => (R && R.asc || 0) >= n;
 const ONLINE = !/githack|localhost|127\.0\.0\.1|^file/.test(location.href); // 试玩链接上没有后台
 const CHARINFO = {
   miko: { diff: 1, tip: '结界越叠越厚，每回合自动加格挡。防守稳，最适合新手。' },
-  hero: { diff: 2, tip: '先攒光弹，再一口气打出去。节奏清楚，爆发很爽。' },
-  witch: { diff: 2, tip: '随机药瓶 + 剧毒，慢慢把敌人磨死。每局手感都不一样。' },
+  hero: { diff: 2, tip: '打牌攒光弹，回合结束自动扫射。光弹越多打得越猛，规则最简单。' },
+  witch: { diff: 2, tip: '随机炼金瓶 + 剧毒，慢慢把敌人磨死。每局手感都不一样。' },
   heroine: { diff: 3, tip: '给敌人叠共鸣，满 10 层爆音。要算层数，玩好了伤害最高。' },
 };
 const ORDER = ['miko', 'hero', 'witch', 'heroine'];
@@ -331,7 +331,8 @@ function battle(keys, kind) {
 const TUT = ['每回合有 3 点<b>能量</b>（左下角的球），出牌要花能量，卡牌左上角的数字就是费用。',
   '敌人头上的图标是它<b>下回合要做的事</b>：剑是攻击，数字是伤害；盾是加格挡。鼠标移上去可以看详细说明。',
   '<b>格挡</b>能挡住伤害，但只挡这一轮，你的回合开始时会清零。血条下面会提示你这回合还会受到多少伤害。',
-  '有的攻击牌要选目标：点牌，再点敌人。出完牌，点右边的「结束回合」。'];
+  '有的攻击牌要选目标：点牌，再点敌人。出完牌，点右边的「结束回合」。',
+  '左上角是<b>药水栏</b>（最多 3 瓶）：点一下就用，不花能量；需要目标的药水，点完再点敌人。打完战斗有机会掉药水。<br>所有规则都能在主菜单的「图鉴 → 概念说明」里查到。'];
 function tutorial() {
   if (!TIPS || !B) return; let done = false; try { done = localStorage.getItem('tutDone') === '1'; } catch (e) {} if (done) return;
   let i = 0; const o = overlay(''); o.style.background = 'rgba(0,0,0,.55)';
@@ -492,7 +493,7 @@ function eFrame(e) {
   if (a && a.n === 'hurt' && dt < 320) return `assets/enemies2/${k}/hurt0.png`;
   return `assets/enemies2/${k}/idle${Math.floor(now / 480) % 2}.png`;
 }
-const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 林拓', h: 241, desc: '掌机 · 光弹' }, witch: { dir: 'witch2', name: '魔女 · 莉泽', h: 235, desc: '药瓶 · 剧毒' }, miko: { dir: 'miko2', name: '巫女 · 千早', h: 257, desc: '和弓 · 结界' }, heroine: { dir: 'heroine2', name: '穿越者 · 苏音', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 } };
+const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 林拓', h: 241, desc: '掌机 · 光弹' }, witch: { dir: 'witch2', name: '魔女 · 莉泽', h: 235, desc: '炼金瓶 · 剧毒' }, miko: { dir: 'miko2', name: '巫女 · 千早', h: 257, desc: '和弓 · 结界' }, heroine: { dir: 'heroine2', name: '穿越者 · 苏音', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 } };
 const cdir = () => CHARS[(R && R.char) || 'hero'].dir;
 const HA = { idle: [4, 200, 1], shoot: [4, 75, 0], hurt: [2, 130, 0], block: [1, 380, 0], down: [3, 220, 2] }; // 帧数, 每帧毫秒, 1=循环 2=停在最后
 let hst = { n: 'idle', t: 0 };
