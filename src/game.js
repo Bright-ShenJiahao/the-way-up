@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=mob11042100';
-import { createAudio } from './audio.js?v=mob11042100';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=mob11042100';
+import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=mob11042115';
+import { createAudio } from './audio.js?v=mob11042115';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=mob11042115';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -625,7 +625,7 @@ function render() {
       <div class="sprw" ${ENEMIES[e.key].hdw ? `style="width:${ENEMIES[e.key].hdw}px"` : ''}>${hd ? `<img class="spr" decoding="async" data-eid="${e.id}" src="${eFrame(e)}" style="height:${hd}px${ENEMIES[e.key].tint ? ';filter:' + ENEMIES[e.key].tint : ''}">` : `<img class="spr px" data-k="${e.key}" src="assets/enemies/${e.key}/${img}.png" style="zoom:${h}">`}<i class="shd"></i></div>
       ${barHTML(e.hp, e.max, e.block)}${stsHTML(e.st)}<div class="uname">${e.d.name}</div></div>`;
   }).join('');
-  const HZ = TOUCH ? 1.32 : 1, energy = B.p.energy, n = B.hand.length, W = TOUCH ? (SW - 560) / HZ : SW - 300, cw = 150, gap = Math.min(cw + 6, (W - cw) / Math.max(1, n - 1));
+  const HZ = TOUCH ? 1.45 : 1, energy = B.p.energy, n = B.hand.length, W = TOUCH ? (SW - 560) / HZ : SW - 300, cw = 150, gap = Math.min(cw + 6, (W - cw) / Math.max(1, n - 1));
   const x0 = TOUCH ? (SW / HZ - (gap * (n - 1) + cw)) / 2 : (W - (gap * (n - 1) + cw)) / 2;
   const hand = B.hand.map((c, i) => {
     const mid = (n - 1) / 2, rot = (i - mid) * 3, dy = Math.abs(i - mid) * Math.abs(i - mid) * 2.2, sel = B.sel === i;
