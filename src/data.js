@@ -10,7 +10,7 @@ export const CARDS = {
   load: { ch: 'hero', name: '装填', type: 'skill', rar: 'start', cost: [1, 0], icon: 'gb', tgt: 'self',
     desc: () => `得到 3 发光弹。抽 1 张牌。`, play: g => { g.ammo(3); g.draw(1); } },
   charge: { ch: 'hero', name: '蓄力射', type: 'atk', rar: 'start', cost: [1, 1], icon: 'p_arc', tgt: 'one',
-    desc: u => `打出所有光弹，每发造成 ${v(u, 5, 7)} 点伤害。`, play: (g, u, t) => g.fire(t, g.spend(99), v(u, 5, 7)) },
+    desc: u => `造成 ${v(u, 6, 8)} 点伤害，再打出所有光弹，每发 ${v(u, 5, 7)} 点。`, play: (g, u, t) => { g.attack(t, v(u, 6, 8)); g.fire(t, g.spend(99), v(u, 5, 7)); } },
   recharge: { ch: 'hero', name: '充电', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_crystal', tgt: 'self',
     desc: u => `得到 ${v(u, 3, 4)} 发光弹。`, play: (g, u) => g.ammo(v(u, 3, 4)) },
   point: { ch: 'hero', name: '点射', type: 'atk', rar: 'c', cost: [0, 0], icon: 'p_crit', tgt: 'one',
@@ -182,7 +182,7 @@ export const STARTER = STARTERS.hero;
 export const RELICS = {
   gameboy: { ch: 'hero', name: '掌机', icon: 'gb', rar: 'start', desc: '战斗开始时得到 3 发光弹，之后每回合开始再得到 1 发。战斗结束时回复 6 点生命。' },
   phones: { ch: 'heroine', name: '粉色耳机', icon: 'ic_bell', rar: 'start', desc: '战斗开始时给予所有敌人 4 层共鸣，之后每回合开始再给 1 层。战斗结束时回复 6 点生命。' },
-  cauldron: { ch: 'witch', name: '魔女的坩埚', icon: 'pot', rar: 'start', desc: '战斗开始时随机获得 2 瓶药。战斗结束时回复 6 点生命。' },
+  cauldron: { ch: 'witch', name: '魔女的坩埚', icon: 'pot', rar: 'start', desc: '战斗开始时随机获得 1 瓶药。战斗结束时回复 6 点生命。' },
   toad: { ch: 'witch', name: '蟾蜍干', icon: 'b_curse', rar: 'c', desc: '每次给予中毒时，额外 +1 层。' },
   hat: { ch: 'witch', name: '魔女帽', icon: 'sk_shadow', rar: 'u', desc: '每使用 1 瓶药，获得 2 点格挡。' },
   suzu: { ch: 'miko', name: '神乐铃', icon: 'ic_bell', rar: 'start', desc: '战斗开始时结界 +2。战斗结束时回复 6 点生命。' },

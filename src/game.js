@@ -408,7 +408,7 @@ function startTurn(first) {
   B.p.noDraw = 0;
   if (B.p.st.rage) addSt(B.p, 'str', B.p.st.rage);
   B.p.pot = 0;
-  if (first && has('cauldron')) G.potion(2);
+  if (first && has('cauldron')) G.potion(1);
   if (B.p.st.satchel) G.potion(B.p.st.satchel);
   if (B.p.st.plague) alive().forEach(e => G.poison(e, B.p.st.plague));
   if (B.p.st.kagura) G.kek(B.p.st.kagura);
