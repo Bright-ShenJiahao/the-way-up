@@ -1,9 +1,17 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
 import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js';
 import { createAudio } from './audio.js';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
+watch(stage); window.__i18nMissing = missing;
+let SCREEN = 'title';
+const LANGS = [['zh', '中文'], ['en', 'English'], ['ja', '日本語']];
+const langBar = () => `<div class="langbar" data-noi18n>${LANGS.map(([k, n]) => `<b class="${getLanguage() === k ? 'on' : ''}" data-lang="${k}">${n}</b>`).join('')}</div>`;
+const bindLang = after => view.querySelectorAll('[data-lang]').forEach(el => el.onclick = () => { setLanguage(el.dataset.lang); after && after(); });
+const applyStatic = () => { document.title = tr('通往顶端') + ' The Way Up: Otherworld Deck'; const r = document.querySelector('#rot div:nth-child(2)'); if (r) r.textContent = getLanguage() === 'zh' ? '请把手机横过来玩' : tr('请把手机横过来玩'); };
+onLanguageChange(applyStatic); applyStatic();
 const DEBUG = /[?&]debug/.test(location.search) || location.hash === '#debug';
 const audio = createAudio();
 let SET = { shake: 1, fast: 0, kwtip: 1 }; try { Object.assign(SET, JSON.parse(localStorage.getItem('tw_set') || '{}')); } catch (e) {}
@@ -25,7 +33,7 @@ const KW = { '格挡': '抵挡受到的伤害。你的回合开始时清零。',
   '力量': '每次攻击伤害增加等同于力量的数值。', '敏捷': '每次获得格挡时额外增加等同于敏捷的数值。', '消耗': '打出后移出本场战斗，不进弃牌堆。',
   '荆棘': '被攻击时，对攻击者造成等同于层数的伤害。', '能量': '出牌要花能量，每回合开始恢复为 3 点。',
   '光弹': '林拓的掌机子弹。回合结束时自动射出，每发对随机敌人造成 3 点伤害，然后清零。最多 10 发。', '共鸣': '叠在敌人身上，到 10 层自动爆音。', '中毒': '敌人行动前受到等同层数的伤害（无视格挡），然后减 1 层。', '炼金瓶': '魔女的 0 费一次性牌，由其他牌生成，用完消耗。', '药水': '所有角色通用的一次性道具，最多带 3 瓶，战斗中点左上角的药水就能用，不花能量。', '结界': '叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。', '爆音': '共鸣满 10 层时，对该敌人造成 24 点伤害，之后保留 3 层（多出的层数也保留）。' };
-const kwify = t => TIPS ? t.replace(new RegExp(Object.keys(KW).join('|'), 'g'), m => `<span class="kw" title="${KW[m]}">${m}</span>`) : t;
+const kwify = s => { if (!TIPS) return s; const names = Object.keys(KW).map(k => [tr(k), tr(KW[k])]).sort((a, b) => b[0].length - a[0].length); const re = new RegExp(names.map(n => n[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'g'); const m2 = Object.fromEntries(names); return s.replace(re, m => `<span class="kw" title="${m2[m]}">${m}</span>`); };
 let R = null; // 当前一局
 let uidN = 1;
 const mkCard = (id, up = 0) => ({ id, up, uid: uidN++ });
@@ -97,7 +105,7 @@ function cardHTML(c, extra = '', energy = 99) {
   const d = CARDS[c.id], cost = cardCost(c), no = cost !== 'X' && cost > energy;
   const rr = d.rar === 'start' || d.rar === 'gen' ? 'c' : d.rar;
   return `<div class="card t-${d.type} r-${d.rar} ${c.up ? 'up' : ''} ${extra}" data-uid="${c.uid}" data-cid="${c.id}" data-up="${c.up ? 1 : 0}">
-   <div class="art"><img src="${d.img}"></div><div class="cdesc"><span>${kwify(d.desc(c.up))}</span></div><img class="frame" src="assets/ui2/frame_${d.type}_${rr}.png">
+   <div class="art"><img src="${d.img}"></div><div class="cdesc" data-noi18n><span>${kwify(d.desc(c.up))}</span></div><img class="frame" src="assets/ui2/frame_${d.type}_${rr}.png">
    <div class="cost ${no ? 'no' : ''}">${cost}</div><div class="cname">${d.name}${c.up ? '+' : ''}</div></div>`;
 }
 function overlay(html) { const o = document.createElement('div'); o.className = 'overlay'; o.innerHTML = html; stage.appendChild(o); return o; }
@@ -170,7 +178,8 @@ function title() {
    <div class="tlogo"><h1>通往顶端</h1><p class="en">THE WAY UP</p><p class="en2">OTHERWORLD DECK</p></div>
    <div class="tbox"><input id="nm" class="inp" maxlength="8" placeholder="输入你的名字" value="${esc(LS('tw_name'))}">
     <input id="pin" class="inp sm" maxlength="6" inputmode="numeric" placeholder="口令（可选，4～6 位数字）" value="${esc(LS('tw_pin'))}">
-    <button class="btn big" id="enter">进入游戏</button><p class="tkeys">设了口令，别人就不能用你的名字上排行榜</p></div>`;
+    <button class="btn big" id="enter">进入游戏</button><p class="tkeys">设了口令，别人就不能用你的名字上排行榜</p>${langBar()}</div>`;
+  bindLang(title); SCREEN = 'title';
   const go = () => { const n = $('#nm').value.trim(); if (!n) { tip('先输入名字'); $('#nm').focus(); return; } LS('tw_name', n); LS('tw_pin', $('#pin').value.trim()); mainMenu(); };
   $('#enter').onclick = go; $('#nm').onkeydown = $('#pin').onkeydown = e => { if (e.key === 'Enter') go(); };
 }
@@ -183,7 +192,8 @@ function mainMenu() {
     ${sv ? `<button class="btn mm" id="cont">继续冒险<small>${CHARS[sv.char || 'hero'].name} · 第 ${sv.floor} 层</small></button>` : ''}
     <button class="btn mm" id="start">新的冒险</button><button class="btn mm" id="book">图鉴</button>
     <button class="btn mm" id="rank">排行榜</button><button class="btn mm" id="set">设置</button>
-    <button class="btn mm sm2" id="back">返回标题</button></div>`;
+    <button class="btn mm sm2" id="back">返回标题</button>${langBar()}</div>`;
+  bindLang(mainMenu); SCREEN = 'menu';
   $('#start').onclick = () => askName(() => { if (!sv) return pickChar();
     const y = overlay(`<h2>开始新的冒险？</h2><p>当前存档（${CHARS[sv.char || 'hero'].name} · 第 ${sv.floor} 层）会被放弃。</p><div class="row"><button class="btn red" id="y1">放弃旧档，重新开始</button><button class="btn" id="y0">取消</button></div>`);
     y.querySelector('#y0').onclick = () => y.remove(); y.querySelector('#y1').onclick = () => { y.remove(); clearSave(); pickChar(); }; });
@@ -209,10 +219,12 @@ function settings(inRun) {
     <div class="sbox"><h3>偏好</h3>${ck('tips', '显示规则提示', TIPS)}${ck('shake', '屏幕震动', SET.shake)}${ck('fast', '加速模式（动画快一倍）', SET.fast)}${ck('kwtip', '卡牌关键词说明框', SET.kwtip)}</div>
     <div class="sbox"><h3>玩家</h3><label class="sl"><span>名字</span><input id="snm" class="inp sm" maxlength="8" value="${esc(LS('tw_name'))}"></label>
      <label class="sl"><span>口令</span><input id="spin" class="inp sm" maxlength="6" inputmode="numeric" value="${esc(LS('tw_pin'))}" placeholder="可不填"></label></div>
+    <div class="sbox"><h3>语言 / Language</h3>${langBar()}</div>
     <div class="sbox"><h3>其他</h3><button class="btn" id="sfs">全屏 / 退出全屏</button>${inRun ? '<button class="btn red" id="sab">放弃这局</button><button class="btn" id="ssq">保存并退出</button>' : ''}</div>
    </div></div>
    <div class="tp" data-p="k" style="display:none"><table class="keys">${[['选择第 1～9 张手牌', '1 ～ 9'], ['第 10 张手牌', '0'], ['结束回合', 'E'], ['取消选择', 'Esc'], ['静音', 'M'], ['选择目标', '点击敌人']].map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table></div>
    <button class="btn" id="sx">返回</button></div>`);
+  o.querySelectorAll('[data-lang]').forEach(el => el.onclick = () => { setLanguage(el.dataset.lang); o.remove(); if (inRun && R) { if (B && !B.over) render(); else if (SCREEN === 'map') mapScreen(); else tip(tr('离开当前界面后完全生效')); } else if (SCREEN === 'menu') mainMenu(); settings(inRun); });
   o.querySelectorAll('.tabs b').forEach(t => t.onclick = () => { o.querySelectorAll('.tabs b').forEach(x => x.classList.toggle('on', x === t)); o.querySelectorAll('.tp').forEach(p => p.style.display = p.dataset.p === t.dataset.t ? '' : 'none'); });
   o.querySelectorAll('[data-v]').forEach(r => r.oninput = () => { audio.setVol(r.dataset.v, r.value / 100); r.nextElementSibling.textContent = r.value + '%'; });
   o.querySelectorAll('[data-s]').forEach(c => c.onchange = () => { const k = c.dataset.s;
@@ -263,7 +275,7 @@ function available() {
   if (R.pos.r === ROWS - 1) return ['boss'];
   const cur = R.map[R.pos.r][R.pos.c]; return cur.next.map(c => R.map[R.pos.r + 1][c]);
 }
-function mapScreen() {
+function mapScreen() { SCREEN = 'map';
   audio.setMode('menu'); delete R.pending; delete R.pendEnc; save();
   const av = available(), H = ROWS * 92 + 320;
   let lines = '';
@@ -366,7 +378,7 @@ function hurt(tgt, amt, attacker) {
   return left;
 }
 function dismount(e) { // 骑狼兵半血落马：变成野狼 + 一只小兵
-  e.key = 'wolf'; e.d = ENEMIES.wolf; e.name = '野狼'; e.anim = null; e.move = e.d.ai(e, BE);
+  e.key = 'wolf'; e.d = ENEMIES.wolf; e.name = ENEMIES.wolf.name; e.anim = null; e.move = e.d.ai(e, BE);
   const g = mkEnemy('goblin'); g.hp = g.max = 8; g.move = g.d.ai(g, BE); B.en.splice(B.en.indexOf(e) + 1, 0, g);
   fx(e.id, '落马！', 'st');
 }
@@ -588,7 +600,7 @@ function render() {
     return `<div class="unit enemy ${hd ? 'hd' : ''} ${tg ? 'tg' : ''} ${hs.has(e.id) ? 'hit' : ''} ${B.lunge === e.id ? 'lunge' : ''} ${e.dead ? 'dead' : ''}" data-id="${e.id}" data-eid="${e.id}">
       ${e.dead ? '<div class="intent"></div>' : intentHTML(e)}
       <div class="sprw" ${ENEMIES[e.key].hdw ? `style="width:${ENEMIES[e.key].hdw}px"` : ''}>${hd ? `<img class="spr" decoding="sync" data-eid="${e.id}" src="${eFrame(e)}" style="height:${hd}px">` : `<img class="spr px" data-k="${e.key}" src="assets/enemies/${e.key}/${img}.png" style="zoom:${h}">`}<i class="shd"></i></div>
-      ${barHTML(e.hp, e.max, e.block)}${stsHTML(e.st)}<div class="uname">${e.name}</div></div>`;
+      ${barHTML(e.hp, e.max, e.block)}${stsHTML(e.st)}<div class="uname">${e.d.name}</div></div>`;
   }).join('');
   const energy = B.p.energy, n = B.hand.length, W = 980, cw = 150, gap = Math.min(cw + 6, (W - cw) / Math.max(1, n - 1));
   const x0 = (W - (gap * (n - 1) + cw)) / 2;
@@ -780,7 +792,7 @@ function endScreen(win) {
 const KWS = { '结界': '叠在自己身上，每回合开始按层数自动获得格挡，整场战斗不消失。', '光弹': '回合结束时自动射出，每发打随机敌人 3 点伤害，然后清零。',
   '共鸣': '叠在敌人身上，满 10 层自动「爆音」。', '爆音': '共鸣满 10 层时爆炸，造成 24 点伤害，之后保留 3 层。',
   '中毒': '敌人行动前掉等于层数的血（无视格挡），然后层数 -1。', '炼金瓶': '由其他牌生成的 0 费牌，用一次就没了。' };
-function kwList(c) { const d = CARDS[c.id], t = d.desc(c.up) + (d.potion ? '炼金瓶' : '') + (d.type === 'power' ? '能力' : ''); const all = Object.assign({}, KW, KWS, { '能力': '打出后整场战斗持续生效。' }); return Object.keys(all).filter(k => t.includes(k)).map(k => [k, all[k]]); }
+function kwList(c) { const d = CARDS[c.id], s = d.desc(c.up) + (d.potion ? tr('炼金瓶') : '') + (d.type === 'power' ? tr('能力') : ''); const all = Object.assign({}, KW, KWS, { '能力': '打出后整场战斗持续生效。' }); return Object.keys(all).filter(k => s.includes(tr(k))).map(k => [tr(k), tr(all[k])]); }
 let kwTimer = 0;
 function kwShow(el) { if (!SET.kwtip) return; const c = { id: el.dataset.cid, up: +el.dataset.up }; if (!CARDS[c.id]) return; const L = kwList(c); kwHide(); if (!L.length) return;
   const s = stage._s || 1, sr = stage.getBoundingClientRect(), r = el.getBoundingClientRect(), b = document.createElement('div'); b.id = 'kwtip';

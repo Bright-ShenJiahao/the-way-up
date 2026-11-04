@@ -1,3 +1,4 @@
+import { tr } from './i18n.js';
 // 数据：卡牌 / 遗物 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
 const I = n => n.includes('/') ? `assets/${n}.png` : `assets/icons/${n}.png`;
@@ -379,3 +380,13 @@ export const EVENTS = [
       { t: '帮忙：失去 6 生命，获得一张稀有牌（三选一）', go: (R, A) => { A.hurt(6); A.rareCard(); return '商人感激地塞给你几张卡。'; } },
       { t: '离开', go: () => '你转身离开。' }] },
 ];
+
+/* 多语言：名字和说明在读取时翻译（存档里只存 id，不受影响） */
+const tx = (o, k) => { const z = o[k]; Object.defineProperty(o, k, { get: () => tr(z), enumerable: true, configurable: true }); };
+const tf = (o, k) => { const z = o[k]; if (typeof z === 'function') o[k] = (...a) => tr(z(...a)); };
+for (const c of Object.values(CARDS)) { tx(c, 'name'); tf(c, 'desc'); }
+for (const r of Object.values(RELICS)) { tx(r, 'name'); tx(r, 'desc'); }
+for (const x of Object.values(POTIONS)) { tx(x, 'name'); tx(x, 'desc'); }
+for (const e of Object.values(ENEMIES)) { tx(e, 'name'); for (const m of Object.values(e.moves)) tx(m, 'n'); }
+for (const st of Object.values(STATUS)) { tx(st, 0); tx(st, 1); }
+for (const ev of EVENTS) { tx(ev, 'title'); tx(ev, 'text'); for (const o of ev.opts) { tx(o, 't'); tf(o, 'go'); } }
