@@ -166,7 +166,7 @@ function run(char) {
     R.floor++;
     if (node === 'fight') { const pool = fights < 3 ? ENCOUNTERS.easy : ENCOUNTERS.hard; fights++; const enc = pickOne(pool); if (!battle(enc, 'fight')) return { win: false, floor: R.floor, at: enc.join('+') }; reward(); }
     else if (node === 'elite') { const enc = pickOne(ENCOUNTERS.elite); if (!battle(enc, 'elite')) return { win: false, floor: R.floor, at: '精英:' + enc.join('+') }; reward(); relic(); }
-    else if (node === 'boss') { if (!battle(['gob_king'], 'boss')) return { win: false, floor: R.floor, at: 'Boss' }; return { win: true, floor: R.floor, hp: R.hp }; }
+    else if (node === 'boss') { const bk = pickOne(ENCOUNTERS.boss)[0]; if (!battle([bk], 'boss')) return { win: false, floor: R.floor, at: 'Boss:' + bk }; return { win: true, floor: R.floor, hp: R.hp }; }
     else if (node === 'rest') { if (R.hp < R.maxHp * .55) heal(Math.floor(R.maxHp * .3)); else { const c = R.deck.find(c => !c.up && CARDS[c.id].rar !== 'start') || R.deck.find(c => !c.up); if (c) c.up = 1; } }
     else if (node === 'event') { heal(10); }
     else if (node === 'shop') { const i = R.deck.findIndex(c => c.id === 'defend'); if (i >= 0) R.deck.splice(i, 1); }
@@ -176,7 +176,7 @@ const lines = [`# 平衡测试结果（每个角色 ${N} 局，机器人简单�
 const detail = [];
 for (const ch of ['miko', 'hero', 'witch', 'heroine']) {
   let w = 0, fl = 0, hp = 0, rb = 0; const at = {};
-  for (let i = 0; i < N; i++) { const r = run(ch); fl += r.floor; if (r.win || r.at === 'Boss') rb++; if (r.win) { w++; hp += r.hp; } else at[r.at] = (at[r.at] || 0) + 1; }
+  for (let i = 0; i < N; i++) { const r = run(ch); fl += r.floor; if (r.win || (r.at || '').startsWith('Boss')) rb++; if (r.win) { w++; hp += r.hp; } else at[r.at] = (at[r.at] || 0) + 1; }
   const top = Object.entries(at).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k, v]) => `${k}(${v})`).join('、');
   lines.push(`| ${ch} | ${(w / N * 100).toFixed(1)}% | ${(rb / N * 100).toFixed(0)}% | ${rb ? (w / rb * 100).toFixed(0) : 0}% | ${w ? (hp / w).toFixed(0) : '-'} | ${top} |`);
 }

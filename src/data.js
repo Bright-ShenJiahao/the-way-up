@@ -1,4 +1,4 @@
-import { tr } from './i18n.js?v=i18n11041843';
+import { tr } from './i18n.js?v=boss11041900';
 // 数据：卡牌 / 遗物 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
 const I = n => n.includes('/') ? `assets/${n}.png` : `assets/icons/${n}.png`;
@@ -306,6 +306,16 @@ export const ENEMIES = {
       cut: { n: '王之斩', i: 'atk', d: 18 }, order: { n: '号令', i: 'buff', f: (e, B) => { B.alive().forEach(a => B.addSt(a, 'str', 2)); B.eBlock(e, 12); } },
       fury: { n: '暴怒连斩', i: 'atk', d: 6, x: 3 } },
     ai: (e, B) => { const m = cycle(e, ['call', 'cut', 'order', 'fury']); return m === 'call' && B.alive().length >= 3 ? 'cut' : m; } },
+  gob_archshaman: { name: '哥布林大祭司', art: 'gob_shaman', tint: 'hue-rotate(250deg) saturate(1.4)', hp: [160, 160], sc: 2.9, hd: 330, hdw: 250, boss: 1,
+    moves: { bolt: { n: '暗影弹', i: 'atk', d: 13 }, hex: { n: '大诅咒', i: 'atkdebuff', d: 6, f: (e, B) => { B.applyP('vuln', 2); B.applyP('weak', 2); } },
+      totem: { n: '召唤图腾', i: 'summon', f: (e, B) => { if (B.alive().length < 3) B.summon('gob_mage', 0); B.alive().forEach(a => B.healE(a, 8)); } },
+      rite: { n: '血祭', i: 'buff', f: (e, B) => { B.addSt(e, 'str', 3); B.eBlock(e, 15); } } },
+    ai: (e, B) => { const m = cycle(e, ['totem', 'bolt', 'hex', 'rite', 'bolt']); return m === 'totem' && B.alive().length >= 3 ? 'bolt' : m; } },
+  gob_warlord: { name: '狼骑统领', art: 'gob_wolf', tint: 'hue-rotate(320deg) saturate(1.5) brightness(.9)', hp: [155, 155], sc: 2.9, hd: 330, hdw: 300, boss: 1,
+    moves: { maul: { n: '狼群撕咬', i: 'atk', d: 7, x: 2 }, howl: { n: '战嚎', i: 'atkdebuff', d: 8, f: (e, B) => B.applyP('weak', 2) },
+      pack: { n: '呼唤狼群', i: 'summon', f: (e, B) => { for (let k = 0; k < 2 && B.alive().length < 3; k++) B.summon('wolf', 0); } },
+      charge: { n: '冲锋', i: 'atk', d: 18 } },
+    ai: (e, B) => { const m = cycle(e, ['pack', 'maul', 'howl', 'charge']); return m === 'pack' && B.alive().length >= 3 ? 'maul' : m; } },
 };
 
 export const ENCOUNTERS = {
@@ -313,7 +323,7 @@ export const ENCOUNTERS = {
   hard: [['gob_wolf'], ['gob_bomb', 'gob_bomb', 'goblin'], ['gob_thrower', 'gob_thrower'], ['gob_kid', 'gob_blade'],
     ['gob_archer', 'gob_shield', 'gob_archer'], ['goblin', 'gob_wolf'], ['gob_mage', 'goblin'], ['gob_shield', 'gob_mage'], ['gob_giant'], ['gob_kid', 'gob_giant']],
   elite: [['gob_kid', 'gob_shaman', 'gob_kid'], ['gob_paladin'], ['gob_hero']],
-  boss: [['gob_king']],
+  boss: [['gob_king'], ['gob_archshaman'], ['gob_warlord']],
 };
 
 // ---- 事件 ---- opts: {t 文本, ok(R) 可选条件, go(R, api) 执行，返回结果文本}

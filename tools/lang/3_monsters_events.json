@@ -1,550 +1,586 @@
 {
-"哥布林小兵": [
-"Goblin Grunt",
-"ゴブリン兵"
-],
-"哥布林小鬼": [
-"Goblin Imp",
-"ゴブリン小鬼"
-],
-"哥布林刀手": [
-"Goblin Blade",
-"ゴブリン剣士"
-],
-"哥布林弓手": [
-"Goblin Archer",
-"ゴブリン弓兵"
-],
-"哥布林盾兵": [
-"Goblin Shield",
-"ゴブリン盾兵"
-],
-"哥布林骑狼兵": [
-"Wolf Rider",
-"狼騎兵"
-],
-"哥布林炸弹兵": [
-"Goblin Bomber",
-"ゴブリン爆弾兵"
-],
-"哥布林法师": [
-"Goblin Mage",
-"ゴブリン魔術師"
-],
-"哥布林投石手": [
-"Goblin Slinger",
-"ゴブリン投石兵"
-],
-"哥布林萨满": [
-"Goblin Shaman",
-"ゴブリン呪術師"
-],
-"巨型哥布林": [
-"Giant Goblin",
-"巨大ゴブリン"
-],
-"野狼": [
-"Wolf",
-"狼"
-],
-"哥布林圣骑士": [
-"Goblin Paladin",
-"ゴブリン聖騎士"
-],
-"哥布林勇者": [
-"Goblin Hero",
-"ゴブリン勇者"
-],
-"哥布林大王": [
-"Goblin King",
-"ゴブリン王"
-],
-"戳刺": [
-"Stab",
-"突き"
-],
-"扔石头": [
-"Rock Toss",
-"石投げ"
-],
-"撕咬": [
-"Bite",
-"噛みつき"
-],
-"尖叫": [
-"Shriek",
-"金切り声"
-],
-"斩击": [
-"Slash",
-"斬撃"
-],
-"磨刀": [
-"Sharpen",
-"研ぐ"
-],
-"劈挡": [
-"Parry Cut",
-"受け斬り"
-],
-"射击": [
-"Shoot",
-"射撃"
-],
-"瞄准": [
-"Aim",
-"狙う"
-],
-"举盾": [
-"Raise Shield",
-"盾構え"
-],
-"盾撞": [
-"Shield Bash",
-"盾撃"
-],
-"嚎叫": [
-"Howl",
-"遠吠え"
-],
-"投掷": [
-"Throw",
-"投げる"
-],
-"自爆": [
-"Self-Destruct",
-"自爆"
-],
-"火球": [
-"Fireball",
-"火球"
-],
-"邪火": [
-"Hex Fire",
-"邪炎"
-],
-"乱投": [
-"Pelt",
-"乱れ投げ"
-],
-"蓄力": [
-"Wind Up",
-"溜め"
-],
-"暗影弹": [
-"Shadow Bolt",
-"闇弾"
-],
-"诅咒": [
-"Curse",
-"呪い"
-],
-"治疗图腾": [
-"Healing Totem",
-"癒しのトーテム"
-],
-"怒吼": [
-"Roar",
-"咆哮"
-],
-"重砸": [
-"Smash",
-"叩きつけ"
-],
-"圣光守护": [
-"Holy Guard",
-"聖なる守り"
-],
-"圣光斩": [
-"Holy Slash",
-"聖光斬"
-],
-"圣盾": [
-"Aegis",
-"聖盾"
-],
-"连斩": [
-"Combo",
-"連斬"
-],
-"破甲": [
-"Armor Break",
-"鎧砕き"
-],
-"重劈": [
-"Cleave",
-"大振り"
-],
-"召唤": [
-"Summon",
-"召喚"
-],
-"王之斩": [
-"Royal Slash",
-"王の斬撃"
-],
-"号令": [
-"Rally",
-"号令"
-],
-"暴怒连斩": [
-"Rage Combo",
-"怒涛の連斬"
-],
-"Boss：哥布林大王": [
-"Boss: Goblin King",
-"ボス：ゴブリン王"
-],
-"哥布林地下赌场": [
-"Goblin Casino",
-"ゴブリン賭場"
-],
-"树洞里传来骰子声，一群哥布林围着破木桌吆喝：“大还是小？”": [
-"Dice rattle in a tree hollow. Goblins crowd a table: \"High or low?\"",
-"木のうろからサイコロの音。ゴブリンたちが叫ぶ「丁か半か！」"
-],
-"押 {0} 金币：{1} 赢得 {2} 金币": [
-"Bet {0} Gold: {1} chance to win {2}",
-"{0}ゴールド賭ける：{1}で{2}ゴールド"
-],
-"掀桌子：失去 {0} 生命，抢到一瓶药水": [
-"Flip the table: lose {0} HP, grab a potion",
-"ちゃぶ台返し：HP{0}失い、ポーションを奪う"
-],
-"满堂哗然，你抱走了一大袋金币！": [
-"The room gasps as you haul off a bag of Gold!",
-"場がどよめく。大量のゴールドを手に入れた！"
-],
-"庄家哥布林咧嘴一笑，收走了你的钱。": [
-"The dealer grins and takes your money.",
-"胴元のゴブリンがニヤリ。お金を取られた。"
-],
-"一阵混战，你顺走了「{0}」。": [
-"In the brawl, you swipe {0}.",
-"どさくさに紛れて「{0}」を手に入れた。"
-],
-"赌狗没有好下场。": [
-"Gamblers never win.",
-"賭け事はほどほどに。"
-],
-"被困的矮人工匠": [
-"Trapped Dwarf",
-"罠にかかったドワーフ"
-],
-"一个矮人被哥布林的陷阱夹住了脚，正骂骂咧咧地挣扎。": [
-"A dwarf, foot caught in a goblin trap, struggles and swears.",
-"ドワーフがゴブリンの罠に足を挟まれ、悪態をついている。"
-],
-"救他：失去 {0} 生命，他帮你升级两张牌": [
-"Help him: lose {0} HP, he upgrades 2 cards",
-"助ける：HP{0}失い、カード2枚を強化してくれる"
-],
-"向他买东西：花 {0} 金币，获得一个随机遗物": [
-"Buy from him: pay {0} Gold for a random relic",
-"買い物：{0}ゴールドでランダムなレリック"
-],
-"矮人拍拍你：“好家伙，我欠你一次！”": [
-"The dwarf claps your back: \"I owe you one!\"",
-"ドワーフ「恩に着るぜ！」"
-],
-"他从背包里翻出一件「{0}」。": [
-"He digs out {0} from his pack.",
-"彼は荷物から「{0}」を取り出した。"
-],
-"你假装没听见。": [
-"You pretend not to hear.",
-"聞こえないふりをした。"
-],
-"神社遗迹": [
-"Shrine Ruins",
-"神社の跡"
-],
-"林间立着一座倒塌的小神社，铃绳还挂在梁上。": [
-"A collapsed shrine stands in the woods, its bell rope still hanging.",
-"森に崩れた小さな神社。鈴緒がまだ下がっている。"
-],
-"（巫女）重新祭拜：最大生命 {0}，回满生命": [
-"(Miko) Worship: Max HP {0}, full heal",
-"（巫女）参拝し直す：最大HP{0}、全回復"
-],
-"摇铃祈福：回复 {0} 生命": [
-"Ring the bell: heal {0} HP",
-"鈴を鳴らす：HPを{0}回復"
-],
-"捡走香火钱：获得 {0} 金币，失去 {1} 生命": [
-"Take the offerings: gain {0} Gold, lose {1} HP",
-"お賽銭を取る：{0}ゴールド、HP{1}失う"
-],
-"铃声响起，熟悉的神力流遍全身。": [
-"The bell rings. Familiar power flows through you.",
-"鈴が鳴り、懐かしい神力が満ちる。"
-],
-"清脆的铃声让人安心。": [
-"The clear chime calms you.",
-"澄んだ鈴の音に心が落ち着く。"
-],
-"一阵阴风刮过，你打了个寒战。": [
-"A cold wind blows. You shiver.",
-"冷たい風が吹き、身震いした。"
-],
-"魔女的旧实验室": [
-"Old Witch Lab",
-"魔女の古い工房"
-],
-"一间被藤蔓吞没的小屋，桌上堆满落灰的瓶瓶罐罐。": [
-"A vine-covered hut, its table full of dusty bottles.",
-"ツタに覆われた小屋。机にほこりまみれの瓶が並ぶ。"
-],
-"（魔女）翻找笔记：获得一张稀有牌": [
-"(Witch) Search the notes: get a rare card",
-"（魔女）ノートを探す：レアカード入手"
-],
-"喝下可疑的药：{0} 最大生命 {1}，{2} 失去 {3} 生命": [
-"Drink a strange brew: {0} Max HP {1}, {2} lose {3} HP",
-"怪しい薬を飲む：{0}で最大HP{1}、{2}でHP{3}失う"
-],
-"带走两瓶药水": [
-"Take two potions",
-"ポーションを2本持っていく"
-],
-"原来是师父留下的配方！": [
-"It's your master's old recipe!",
-"師匠のレシピだ！"
-],
-"浑身发热……你感觉更强壮了。": [
-"You feel hot... and stronger.",
-"体が熱い…強くなった気がする。"
-],
-"一阵剧痛，你吐了个昏天黑地。": [
-"Sharp pain. You throw up.",
-"激痛。吐いてしまった。"
-],
-"你收起了「{0}」和「{1}」。": [
-"You take {0} and {1}.",
-"「{0}」と「{1}」を手に入れた。"
-],
-"掉线的掌机": [
-"Lost Handheld",
-"オフラインのゲーム機"
-],
-"路边草丛里躺着一台和你很像的掌机，屏幕还在闪。": [
-"A handheld like yours lies in the grass, screen flickering.",
-"草むらに自分のとそっくりなゲーム機。画面が点滅している。"
-],
-"（林拓）插上卡带：获得一张稀有牌": [
-"(Lin) Insert a cartridge: get a rare card",
-"（リン）カセットを挿す：レアカード入手"
-],
-"戴上耳机听一听（苏音）：最大生命 {0}": [
-"Listen with headphones (Suin): Max HP {0}",
-"ヘッドホンで聴く（スイン）：最大HP{0}"
-],
-"拆了卖零件：获得 {0} 金币": [
-"Strip it for parts: gain {0} Gold",
-"分解して売る：{0}ゴールド"
-],
-"“新关卡已解锁。”": [
-"\"New stage unlocked.\"",
-"「新ステージ解放」"
-],
-"是你最喜欢的那首歌。": [
-"It's your favorite song.",
-"大好きなあの曲だ。"
-],
-"哥布林商人一定会喜欢这些零件。": [
-"The goblin merchant will love these parts.",
-"ゴブリン商人が喜びそうな部品だ。"
-],
-"哥布林的晚餐": [
-"Goblin Dinner",
-"ゴブリンの夕食"
-],
-"营地里一锅肉汤正咕嘟作响，哥布林们都不见了。": [
-"A pot of stew bubbles in the camp. The goblins are gone.",
-"野営地で鍋がぐつぐつ。ゴブリンたちの姿はない。"
-],
-"偷喝一碗：回复 {0} 生命": [
-"Sneak a bowl: heal {0} HP",
-"一杯いただく：HPを{0}回復"
-],
-"在汤里下毒再走：移除一张牌": [
-"Poison the stew: remove a card",
-"鍋に毒を入れる：カードを1枚削除"
-],
-"味道……出乎意料地不错。": [
-"It tastes... surprisingly good.",
-"味は…意外とイケる。"
-],
-"你轻手轻脚地离开了。": [
-"You tiptoe away.",
-"こっそり立ち去った。"
-],
-"你不吃来路不明的东西。": [
-"You don't eat mystery food.",
-"得体の知れない物は食べない。"
-],
-"迷路的商队": [
-"Lost Caravan",
-"迷子の隊商"
-],
-"一辆翻倒的马车，箱子散了一地，车夫早已逃走。": [
-"An overturned wagon, crates everywhere. The driver fled long ago.",
-"横転した馬車。木箱が散らばり、御者は逃げた後だ。"
-],
-"搜刮箱子：获得 {0} 金币和一瓶药水": [
-"Loot the crates: {0} Gold and a potion",
-"木箱を漁る：{0}ゴールドとポーション"
-],
-"把马车扶正：失去 {0} 生命，获得一个随机遗物": [
-"Right the wagon: lose {0} HP, get a random relic",
-"馬車を起こす：HPを{0}失い、ランダムなレリックを1つ獲得"
-],
-"你找到了金币，还有一瓶「{0}」。": [
-"You find Gold and {0}.",
-"ゴールドと「{0}」を見つけた。"
-],
-"车底压着一件「{0}」。": [
-"Under the wagon lies {0}.",
-"馬車の下に「{0}」があった。"
-],
-"林中泉水": [
-"Forest Spring",
-"森の泉"
-],
-"树林深处有一汪清澈的泉水，水面泛着微光。": [
-"Deep in the woods, a clear spring shimmers.",
-"森の奥に澄んだ泉。水面がきらめいている。"
-],
-"饮水：回复 {0} 最大生命": [
-"Drink: heal {0} of Max HP",
-"飲む：最大HPの{0}回復"
-],
-"净身：移除一张牌": [
-"Bathe: remove a card",
-"身を清める：カードを1枚削除"
-],
-"泉水甘甜，伤口在慢慢愈合。": [
-"The water is sweet. Your wounds close.",
-"甘い水。傷が癒えていく。"
-],
-"你把杂念洗进了泉水里。": [
-"You wash away your doubts.",
-"雑念を泉に流した。"
-],
-"你没有停留。": [
-"You move on.",
-"立ち止まらずに進んだ。"
-],
-"赌徒哥布林": [
-"Gambler Goblin",
-"博打ゴブリン"
-],
-"一只戴眼罩的哥布林蹲在树桩上抛骰子：“来一把？赢了翻倍！”": [
-"An eyepatched goblin rolls dice on a stump: \"Wanna play? Win double!\"",
-"眼帯のゴブリンが切り株でサイコロを振る「一勝負どうだ？勝てば倍だ！」"
-],
-"下注 {0} 金币：{1} 赢得 {2} 金币": [
-"Bet {0} Gold: {1} chance to win {2}",
-"{0}ゴールド賭ける：{1}で{2}ゴールド"
-],
-"揍它一顿：失去 {0} 生命，获得 {1} 金币": [
-"Beat it up: lose {0} HP, gain {1} Gold",
-"ぶん殴る：HP{0}失い、{1}ゴールド"
-],
-"骰子停在六点，你赢了！": [
-"A six! You win!",
-"6の目、あなたの勝ち！"
-],
-"骰子停在一点。哥布林笑得前仰后合。": [
-"A one. The goblin howls with laughter.",
-"1の目。ゴブリンは大笑い。"
-],
-"它挠了你几下，扔下钱袋跑了。": [
-"It scratches you, drops its purse and runs.",
-"引っかかれたが、財布を落として逃げていった。"
-],
-"你不跟哥布林赌钱。": [
-"You don't gamble with goblins.",
-"ゴブリンとは賭けない。"
-],
-"古老祭坛": [
-"Ancient Altar",
-"古の祭壇"
-],
-"长满青苔的石台上刻着符文，中央的凹槽像在等待鲜血。": [
-"Runes cover a mossy altar. The groove in the middle seems to thirst for blood.",
-"苔むした石台に刻まれた紋様。中央の溝が血を待っている。"
-],
-"献血：失去 {0} 生命，获得一个随机遗物": [
-"Offer blood: lose {0} HP, get a random relic",
-"血を捧げる：HP{0}失い、ランダムなレリック"
-],
-"符文亮起，祭坛上多了一件「{0}」。": [
-"The runes glow. {0} appears on the altar.",
-"紋様が光り、祭壇に「{0}」が現れた。"
-],
-"你绕开了祭坛。": [
-"You walk around the altar.",
-"祭壇を避けて通った。"
-],
-"流浪铁匠": [
-"Wandering Smith",
-"旅の鍛冶屋"
-],
-"路边一个背着铁砧的矮人朝你招手：“兄弟，武器要打磨吗？”": [
-"A dwarf with an anvil on his back waves: \"Need your gear sharpened?\"",
-"金床を背負ったドワーフが手招き「武器、研いでくかい？」"
-],
-"打磨：升级一张牌": [
-"Sharpen: upgrade a card",
-"研ぐ：カードを1枚強化"
-],
-"叮叮当当，焕然一新。": [
-"Clang, clang. Good as new.",
-"カンカン、新品同様だ。"
-],
-"掌机的信号": [
-"Handheld Signal",
-"ゲーム機の信号"
-],
-"口袋里的掌机突然震动，屏幕上滚过一串乱码……": [
-"The handheld in your pocket buzzes. Glitched text scrolls by...",
-"ポケットのゲーム機が震え、文字化けが流れる…"
-],
-"接收：随机变化一张牌": [
-"Accept: transform a random card",
-"受信する：ランダムにカードを変化"
-],
-"调大音量：获得 {0} 金币，最大生命 {1}": [
-"Turn it up: gain {0} Gold, Max HP {1}",
-"音量を上げる：{0}ゴールド、最大HP{1}"
-],
-"关机": [
-"Turn it off",
-"電源を切る"
-],
-"你的一张牌被改写成了别的东西。": [
-"One of your cards was rewritten.",
-"カードが1枚書き換えられた。"
-],
-"刺耳的电流声之后，掌机吐出了几枚金币。": [
-"After a harsh buzz, the handheld spits out some coins.",
-"耳障りなノイズの後、ゲーム機がコインを吐き出した。"
-],
-"受伤的商队": [
-"Wounded Merchant",
-"負傷した商人"
-],
-"一辆翻倒的马车旁，商人捂着伤口：“救救我，我有好东西给你。”": [
-"By a fallen wagon, a merchant clutches a wound: \"Help me, I'll make it worth it.\"",
-"倒れた馬車の横で商人が傷を押さえる「助けてくれ、いい物をやる」"
-],
-"帮忙：失去 {0} 生命，获得一张稀有牌（三选一）": [
-"Help: lose {0} HP, pick 1 of 3 rare cards",
-"助ける：HP{0}失い、レアカード3枚から1枚"
-],
-"商人感激地塞给你几张卡。": [
-"The grateful merchant hands you some cards.",
-"商人は感謝してカードを渡してきた。"
-]
+ "哥布林小兵": [
+  "Goblin Grunt",
+  "ゴブリン兵"
+ ],
+ "哥布林小鬼": [
+  "Goblin Imp",
+  "ゴブリン小鬼"
+ ],
+ "哥布林刀手": [
+  "Goblin Blade",
+  "ゴブリン剣士"
+ ],
+ "哥布林弓手": [
+  "Goblin Archer",
+  "ゴブリン弓兵"
+ ],
+ "哥布林盾兵": [
+  "Goblin Shield",
+  "ゴブリン盾兵"
+ ],
+ "哥布林骑狼兵": [
+  "Wolf Rider",
+  "狼騎兵"
+ ],
+ "哥布林炸弹兵": [
+  "Goblin Bomber",
+  "ゴブリン爆弾兵"
+ ],
+ "哥布林法师": [
+  "Goblin Mage",
+  "ゴブリン魔術師"
+ ],
+ "哥布林投石手": [
+  "Goblin Slinger",
+  "ゴブリン投石兵"
+ ],
+ "哥布林萨满": [
+  "Goblin Shaman",
+  "ゴブリン呪術師"
+ ],
+ "巨型哥布林": [
+  "Giant Goblin",
+  "巨大ゴブリン"
+ ],
+ "野狼": [
+  "Wolf",
+  "狼"
+ ],
+ "哥布林圣骑士": [
+  "Goblin Paladin",
+  "ゴブリン聖騎士"
+ ],
+ "哥布林勇者": [
+  "Goblin Hero",
+  "ゴブリン勇者"
+ ],
+ "哥布林大王": [
+  "Goblin King",
+  "ゴブリン王"
+ ],
+ "戳刺": [
+  "Stab",
+  "突き"
+ ],
+ "扔石头": [
+  "Rock Toss",
+  "石投げ"
+ ],
+ "撕咬": [
+  "Bite",
+  "噛みつき"
+ ],
+ "尖叫": [
+  "Shriek",
+  "金切り声"
+ ],
+ "斩击": [
+  "Slash",
+  "斬撃"
+ ],
+ "磨刀": [
+  "Sharpen",
+  "研ぐ"
+ ],
+ "劈挡": [
+  "Parry Cut",
+  "受け斬り"
+ ],
+ "射击": [
+  "Shoot",
+  "射撃"
+ ],
+ "瞄准": [
+  "Aim",
+  "狙う"
+ ],
+ "举盾": [
+  "Raise Shield",
+  "盾構え"
+ ],
+ "盾撞": [
+  "Shield Bash",
+  "盾撃"
+ ],
+ "嚎叫": [
+  "Howl",
+  "遠吠え"
+ ],
+ "投掷": [
+  "Throw",
+  "投げる"
+ ],
+ "自爆": [
+  "Self-Destruct",
+  "自爆"
+ ],
+ "火球": [
+  "Fireball",
+  "火球"
+ ],
+ "邪火": [
+  "Hex Fire",
+  "邪炎"
+ ],
+ "乱投": [
+  "Pelt",
+  "乱れ投げ"
+ ],
+ "蓄力": [
+  "Wind Up",
+  "溜め"
+ ],
+ "暗影弹": [
+  "Shadow Bolt",
+  "闇弾"
+ ],
+ "诅咒": [
+  "Curse",
+  "呪い"
+ ],
+ "治疗图腾": [
+  "Healing Totem",
+  "癒しのトーテム"
+ ],
+ "怒吼": [
+  "Roar",
+  "咆哮"
+ ],
+ "重砸": [
+  "Smash",
+  "叩きつけ"
+ ],
+ "圣光守护": [
+  "Holy Guard",
+  "聖なる守り"
+ ],
+ "圣光斩": [
+  "Holy Slash",
+  "聖光斬"
+ ],
+ "圣盾": [
+  "Aegis",
+  "聖盾"
+ ],
+ "连斩": [
+  "Combo",
+  "連斬"
+ ],
+ "破甲": [
+  "Armor Break",
+  "鎧砕き"
+ ],
+ "重劈": [
+  "Cleave",
+  "大振り"
+ ],
+ "召唤": [
+  "Summon",
+  "召喚"
+ ],
+ "王之斩": [
+  "Royal Slash",
+  "王の斬撃"
+ ],
+ "号令": [
+  "Rally",
+  "号令"
+ ],
+ "暴怒连斩": [
+  "Rage Combo",
+  "怒涛の連斬"
+ ],
+ "Boss：哥布林大王": [
+  "Boss: Goblin King",
+  "ボス：ゴブリン王"
+ ],
+ "哥布林地下赌场": [
+  "Goblin Casino",
+  "ゴブリン賭場"
+ ],
+ "树洞里传来骰子声，一群哥布林围着破木桌吆喝：“大还是小？”": [
+  "Dice rattle in a tree hollow. Goblins crowd a table: \"High or low?\"",
+  "木のうろからサイコロの音。ゴブリンたちが叫ぶ「丁か半か！」"
+ ],
+ "押 {0} 金币：{1} 赢得 {2} 金币": [
+  "Bet {0} Gold: {1} chance to win {2}",
+  "{0}ゴールド賭ける：{1}で{2}ゴールド"
+ ],
+ "掀桌子：失去 {0} 生命，抢到一瓶药水": [
+  "Flip the table: lose {0} HP, grab a potion",
+  "ちゃぶ台返し：HP{0}失い、ポーションを奪う"
+ ],
+ "满堂哗然，你抱走了一大袋金币！": [
+  "The room gasps as you haul off a bag of Gold!",
+  "場がどよめく。大量のゴールドを手に入れた！"
+ ],
+ "庄家哥布林咧嘴一笑，收走了你的钱。": [
+  "The dealer grins and takes your money.",
+  "胴元のゴブリンがニヤリ。お金を取られた。"
+ ],
+ "一阵混战，你顺走了「{0}」。": [
+  "In the brawl, you swipe {0}.",
+  "どさくさに紛れて「{0}」を手に入れた。"
+ ],
+ "赌狗没有好下场。": [
+  "Gamblers never win.",
+  "賭け事はほどほどに。"
+ ],
+ "被困的矮人工匠": [
+  "Trapped Dwarf",
+  "罠にかかったドワーフ"
+ ],
+ "一个矮人被哥布林的陷阱夹住了脚，正骂骂咧咧地挣扎。": [
+  "A dwarf, foot caught in a goblin trap, struggles and swears.",
+  "ドワーフがゴブリンの罠に足を挟まれ、悪態をついている。"
+ ],
+ "救他：失去 {0} 生命，他帮你升级两张牌": [
+  "Help him: lose {0} HP, he upgrades 2 cards",
+  "助ける：HP{0}失い、カード2枚を強化してくれる"
+ ],
+ "向他买东西：花 {0} 金币，获得一个随机遗物": [
+  "Buy from him: pay {0} Gold for a random relic",
+  "買い物：{0}ゴールドでランダムなレリック"
+ ],
+ "矮人拍拍你：“好家伙，我欠你一次！”": [
+  "The dwarf claps your back: \"I owe you one!\"",
+  "ドワーフ「恩に着るぜ！」"
+ ],
+ "他从背包里翻出一件「{0}」。": [
+  "He digs out {0} from his pack.",
+  "彼は荷物から「{0}」を取り出した。"
+ ],
+ "你假装没听见。": [
+  "You pretend not to hear.",
+  "聞こえないふりをした。"
+ ],
+ "神社遗迹": [
+  "Shrine Ruins",
+  "神社の跡"
+ ],
+ "林间立着一座倒塌的小神社，铃绳还挂在梁上。": [
+  "A collapsed shrine stands in the woods, its bell rope still hanging.",
+  "森に崩れた小さな神社。鈴緒がまだ下がっている。"
+ ],
+ "（巫女）重新祭拜：最大生命 {0}，回满生命": [
+  "(Miko) Worship: Max HP {0}, full heal",
+  "（巫女）参拝し直す：最大HP{0}、全回復"
+ ],
+ "摇铃祈福：回复 {0} 生命": [
+  "Ring the bell: heal {0} HP",
+  "鈴を鳴らす：HPを{0}回復"
+ ],
+ "捡走香火钱：获得 {0} 金币，失去 {1} 生命": [
+  "Take the offerings: gain {0} Gold, lose {1} HP",
+  "お賽銭を取る：{0}ゴールド、HP{1}失う"
+ ],
+ "铃声响起，熟悉的神力流遍全身。": [
+  "The bell rings. Familiar power flows through you.",
+  "鈴が鳴り、懐かしい神力が満ちる。"
+ ],
+ "清脆的铃声让人安心。": [
+  "The clear chime calms you.",
+  "澄んだ鈴の音に心が落ち着く。"
+ ],
+ "一阵阴风刮过，你打了个寒战。": [
+  "A cold wind blows. You shiver.",
+  "冷たい風が吹き、身震いした。"
+ ],
+ "魔女的旧实验室": [
+  "Old Witch Lab",
+  "魔女の古い工房"
+ ],
+ "一间被藤蔓吞没的小屋，桌上堆满落灰的瓶瓶罐罐。": [
+  "A vine-covered hut, its table full of dusty bottles.",
+  "ツタに覆われた小屋。机にほこりまみれの瓶が並ぶ。"
+ ],
+ "（魔女）翻找笔记：获得一张稀有牌": [
+  "(Witch) Search the notes: get a rare card",
+  "（魔女）ノートを探す：レアカード入手"
+ ],
+ "喝下可疑的药：{0} 最大生命 {1}，{2} 失去 {3} 生命": [
+  "Drink a strange brew: {0} Max HP {1}, {2} lose {3} HP",
+  "怪しい薬を飲む：{0}で最大HP{1}、{2}でHP{3}失う"
+ ],
+ "带走两瓶药水": [
+  "Take two potions",
+  "ポーションを2本持っていく"
+ ],
+ "原来是师父留下的配方！": [
+  "It's your master's old recipe!",
+  "師匠のレシピだ！"
+ ],
+ "浑身发热……你感觉更强壮了。": [
+  "You feel hot... and stronger.",
+  "体が熱い…強くなった気がする。"
+ ],
+ "一阵剧痛，你吐了个昏天黑地。": [
+  "Sharp pain. You throw up.",
+  "激痛。吐いてしまった。"
+ ],
+ "你收起了「{0}」和「{1}」。": [
+  "You take {0} and {1}.",
+  "「{0}」と「{1}」を手に入れた。"
+ ],
+ "掉线的掌机": [
+  "Lost Handheld",
+  "オフラインのゲーム機"
+ ],
+ "路边草丛里躺着一台和你很像的掌机，屏幕还在闪。": [
+  "A handheld like yours lies in the grass, screen flickering.",
+  "草むらに自分のとそっくりなゲーム機。画面が点滅している。"
+ ],
+ "（林拓）插上卡带：获得一张稀有牌": [
+  "(Lin) Insert a cartridge: get a rare card",
+  "（リン）カセットを挿す：レアカード入手"
+ ],
+ "戴上耳机听一听（苏音）：最大生命 {0}": [
+  "Listen with headphones (Suin): Max HP {0}",
+  "ヘッドホンで聴く（スイン）：最大HP{0}"
+ ],
+ "拆了卖零件：获得 {0} 金币": [
+  "Strip it for parts: gain {0} Gold",
+  "分解して売る：{0}ゴールド"
+ ],
+ "“新关卡已解锁。”": [
+  "\"New stage unlocked.\"",
+  "「新ステージ解放」"
+ ],
+ "是你最喜欢的那首歌。": [
+  "It's your favorite song.",
+  "大好きなあの曲だ。"
+ ],
+ "哥布林商人一定会喜欢这些零件。": [
+  "The goblin merchant will love these parts.",
+  "ゴブリン商人が喜びそうな部品だ。"
+ ],
+ "哥布林的晚餐": [
+  "Goblin Dinner",
+  "ゴブリンの夕食"
+ ],
+ "营地里一锅肉汤正咕嘟作响，哥布林们都不见了。": [
+  "A pot of stew bubbles in the camp. The goblins are gone.",
+  "野営地で鍋がぐつぐつ。ゴブリンたちの姿はない。"
+ ],
+ "偷喝一碗：回复 {0} 生命": [
+  "Sneak a bowl: heal {0} HP",
+  "一杯いただく：HPを{0}回復"
+ ],
+ "在汤里下毒再走：移除一张牌": [
+  "Poison the stew: remove a card",
+  "鍋に毒を入れる：カードを1枚削除"
+ ],
+ "味道……出乎意料地不错。": [
+  "It tastes... surprisingly good.",
+  "味は…意外とイケる。"
+ ],
+ "你轻手轻脚地离开了。": [
+  "You tiptoe away.",
+  "こっそり立ち去った。"
+ ],
+ "你不吃来路不明的东西。": [
+  "You don't eat mystery food.",
+  "得体の知れない物は食べない。"
+ ],
+ "迷路的商队": [
+  "Lost Caravan",
+  "迷子の隊商"
+ ],
+ "一辆翻倒的马车，箱子散了一地，车夫早已逃走。": [
+  "An overturned wagon, crates everywhere. The driver fled long ago.",
+  "横転した馬車。木箱が散らばり、御者は逃げた後だ。"
+ ],
+ "搜刮箱子：获得 {0} 金币和一瓶药水": [
+  "Loot the crates: {0} Gold and a potion",
+  "木箱を漁る：{0}ゴールドとポーション"
+ ],
+ "把马车扶正：失去 {0} 生命，获得一个随机遗物": [
+  "Right the wagon: lose {0} HP, get a random relic",
+  "馬車を起こす：HPを{0}失い、ランダムなレリックを1つ獲得"
+ ],
+ "你找到了金币，还有一瓶「{0}」。": [
+  "You find Gold and {0}.",
+  "ゴールドと「{0}」を見つけた。"
+ ],
+ "车底压着一件「{0}」。": [
+  "Under the wagon lies {0}.",
+  "馬車の下に「{0}」があった。"
+ ],
+ "林中泉水": [
+  "Forest Spring",
+  "森の泉"
+ ],
+ "树林深处有一汪清澈的泉水，水面泛着微光。": [
+  "Deep in the woods, a clear spring shimmers.",
+  "森の奥に澄んだ泉。水面がきらめいている。"
+ ],
+ "饮水：回复 {0} 最大生命": [
+  "Drink: heal {0} of Max HP",
+  "飲む：最大HPの{0}回復"
+ ],
+ "净身：移除一张牌": [
+  "Bathe: remove a card",
+  "身を清める：カードを1枚削除"
+ ],
+ "泉水甘甜，伤口在慢慢愈合。": [
+  "The water is sweet. Your wounds close.",
+  "甘い水。傷が癒えていく。"
+ ],
+ "你把杂念洗进了泉水里。": [
+  "You wash away your doubts.",
+  "雑念を泉に流した。"
+ ],
+ "你没有停留。": [
+  "You move on.",
+  "立ち止まらずに進んだ。"
+ ],
+ "赌徒哥布林": [
+  "Gambler Goblin",
+  "博打ゴブリン"
+ ],
+ "一只戴眼罩的哥布林蹲在树桩上抛骰子：“来一把？赢了翻倍！”": [
+  "An eyepatched goblin rolls dice on a stump: \"Wanna play? Win double!\"",
+  "眼帯のゴブリンが切り株でサイコロを振る「一勝負どうだ？勝てば倍だ！」"
+ ],
+ "下注 {0} 金币：{1} 赢得 {2} 金币": [
+  "Bet {0} Gold: {1} chance to win {2}",
+  "{0}ゴールド賭ける：{1}で{2}ゴールド"
+ ],
+ "揍它一顿：失去 {0} 生命，获得 {1} 金币": [
+  "Beat it up: lose {0} HP, gain {1} Gold",
+  "ぶん殴る：HP{0}失い、{1}ゴールド"
+ ],
+ "骰子停在六点，你赢了！": [
+  "A six! You win!",
+  "6の目、あなたの勝ち！"
+ ],
+ "骰子停在一点。哥布林笑得前仰后合。": [
+  "A one. The goblin howls with laughter.",
+  "1の目。ゴブリンは大笑い。"
+ ],
+ "它挠了你几下，扔下钱袋跑了。": [
+  "It scratches you, drops its purse and runs.",
+  "引っかかれたが、財布を落として逃げていった。"
+ ],
+ "你不跟哥布林赌钱。": [
+  "You don't gamble with goblins.",
+  "ゴブリンとは賭けない。"
+ ],
+ "古老祭坛": [
+  "Ancient Altar",
+  "古の祭壇"
+ ],
+ "长满青苔的石台上刻着符文，中央的凹槽像在等待鲜血。": [
+  "Runes cover a mossy altar. The groove in the middle seems to thirst for blood.",
+  "苔むした石台に刻まれた紋様。中央の溝が血を待っている。"
+ ],
+ "献血：失去 {0} 生命，获得一个随机遗物": [
+  "Offer blood: lose {0} HP, get a random relic",
+  "血を捧げる：HP{0}失い、ランダムなレリック"
+ ],
+ "符文亮起，祭坛上多了一件「{0}」。": [
+  "The runes glow. {0} appears on the altar.",
+  "紋様が光り、祭壇に「{0}」が現れた。"
+ ],
+ "你绕开了祭坛。": [
+  "You walk around the altar.",
+  "祭壇を避けて通った。"
+ ],
+ "流浪铁匠": [
+  "Wandering Smith",
+  "旅の鍛冶屋"
+ ],
+ "路边一个背着铁砧的矮人朝你招手：“兄弟，武器要打磨吗？”": [
+  "A dwarf with an anvil on his back waves: \"Need your gear sharpened?\"",
+  "金床を背負ったドワーフが手招き「武器、研いでくかい？」"
+ ],
+ "打磨：升级一张牌": [
+  "Sharpen: upgrade a card",
+  "研ぐ：カードを1枚強化"
+ ],
+ "叮叮当当，焕然一新。": [
+  "Clang, clang. Good as new.",
+  "カンカン、新品同様だ。"
+ ],
+ "掌机的信号": [
+  "Handheld Signal",
+  "ゲーム機の信号"
+ ],
+ "口袋里的掌机突然震动，屏幕上滚过一串乱码……": [
+  "The handheld in your pocket buzzes. Glitched text scrolls by...",
+  "ポケットのゲーム機が震え、文字化けが流れる…"
+ ],
+ "接收：随机变化一张牌": [
+  "Accept: transform a random card",
+  "受信する：ランダムにカードを変化"
+ ],
+ "调大音量：获得 {0} 金币，最大生命 {1}": [
+  "Turn it up: gain {0} Gold, Max HP {1}",
+  "音量を上げる：{0}ゴールド、最大HP{1}"
+ ],
+ "关机": [
+  "Turn it off",
+  "電源を切る"
+ ],
+ "你的一张牌被改写成了别的东西。": [
+  "One of your cards was rewritten.",
+  "カードが1枚書き換えられた。"
+ ],
+ "刺耳的电流声之后，掌机吐出了几枚金币。": [
+  "After a harsh buzz, the handheld spits out some coins.",
+  "耳障りなノイズの後、ゲーム機がコインを吐き出した。"
+ ],
+ "受伤的商队": [
+  "Wounded Merchant",
+  "負傷した商人"
+ ],
+ "一辆翻倒的马车旁，商人捂着伤口：“救救我，我有好东西给你。”": [
+  "By a fallen wagon, a merchant clutches a wound: \"Help me, I'll make it worth it.\"",
+  "倒れた馬車の横で商人が傷を押さえる「助けてくれ、いい物をやる」"
+ ],
+ "帮忙：失去 {0} 生命，获得一张稀有牌（三选一）": [
+  "Help: lose {0} HP, pick 1 of 3 rare cards",
+  "助ける：HP{0}失い、レアカード3枚から1枚"
+ ],
+ "商人感激地塞给你几张卡。": [
+  "The grateful merchant hands you some cards.",
+  "商人は感謝してカードを渡してきた。"
+ ],
+ "哥布林大祭司": [
+  "Goblin High Priest",
+  "ゴブリン大司祭"
+ ],
+ "大诅咒": [
+  "Great Curse",
+  "大呪い"
+ ],
+ "召唤图腾": [
+  "Summon Totem",
+  "トーテム召喚"
+ ],
+ "血祭": [
+  "Blood Rite",
+  "血の儀式"
+ ],
+ "狼骑统领": [
+  "Wolf Warlord",
+  "狼騎将軍"
+ ],
+ "狼群撕咬": [
+  "Pack Maul",
+  "群れの牙"
+ ],
+ "战嚎": [
+  "War Howl",
+  "雄叫び"
+ ],
+ "呼唤狼群": [
+  "Call the Pack",
+  "群れを呼ぶ"
+ ],
+ "冲锋": [
+  "Charge",
+  "突撃"
+ ]
 }
