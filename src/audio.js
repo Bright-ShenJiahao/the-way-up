@@ -10,7 +10,7 @@ export function createAudio(){
   rv.buffer=b;const wet=ac.createGain();wet.gain.value=.22;musicBus.connect(rv);rv.connect(wet);wet.connect(master);T.rv=rv}
  const T={};
  const unlock=()=>{init();if(ac.state==='suspended')ac.resume();if(!started){started=true;next=ac.currentTime+.1;tick()}};
- addEventListener('pointerdown',unlock);addEventListener('keydown',e=>{unlock();if(e.key==='m'||e.key==='M'){on=!on;try{localStorage.setItem('mute',on?'0':'1')}catch(_){}if(master)master.gain.setTargetAtTime(on?.9:0,ac.currentTime,.05)}});
+ addEventListener('pointerdown',unlock);addEventListener('keydown',e=>{unlock();if(e.target&&e.target.tagName==='INPUT')return;if(e.key==='m'||e.key==='M'){on=!on;try{localStorage.setItem('mute',on?'0':'1')}catch(_){}if(master)master.gain.setTargetAtTime(on?.9:0,ac.currentTime,.05)}});
  const hz=m=>440*Math.pow(2,(m-69)/12);
  function tone(t,m,d,{type='triangle',vol=.2,bus=musicBus,att=.01,rel=.25,det=0,lp=0}={}){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=hz(m);o.detune.value=det;
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+att);g.gain.setTargetAtTime(0,t+d,rel/3);let n=o;if(lp){const f=ac.createBiquadFilter();f.frequency.value=lp;o.connect(f);n=f}n.connect(g);g.connect(bus);o.start(t);o.stop(t+d+rel+.1)}

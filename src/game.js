@@ -136,22 +136,59 @@ function rollRelic(rars = ['c', 'c', 'c', 'u', 'u', 'r'], crown = false) {
 function gainRelic(id) { if (!id) return; R.relics.push(id); if (id === 'herb') { R.maxHp += 10; R.hp += 10; } audio.level(); }
 
 // ---------- 标题 ----------
+// ---------- 玩家名字 / 口令（存在浏览器里） ----------
+const LS = (k, v) => { try { if (v === undefined) return localStorage.getItem(k) || ''; localStorage.setItem(k, v); } catch (e) { return ''; } };
+const ONLINE = !/githack|localhost|127\.0\.0\.1|^file/.test(location.href); // 试玩链接上没有后台
+const CHARINFO = {
+  miko: { diff: 1, tip: '结界越叠越厚，每回合自动加格挡。防守稳，最适合新手。' },
+  hero: { diff: 2, tip: '先攒光弹，再一口气打出去。节奏清楚，爆发很爽。' },
+  witch: { diff: 2, tip: '随机药瓶 + 剧毒，慢慢把敌人磨死。每局手感都不一样。' },
+  heroine: { diff: 3, tip: '给敌人叠共鸣，满 10 层爆音。要算层数，玩好了伤害最高。' },
+};
+const ORDER = ['miko', 'hero', 'witch', 'heroine'];
 function title() {
   audio.setMode('menu');
-  const sv = load();
-  view.innerHTML = `${bgHTML()}<div class="panel" style="top:46%">
-   <h2 style="font-size:44px;margin-bottom:2px">通往顶端</h2><p style="font-size:22px;letter-spacing:4px;color:#ffd35a;margin-bottom:2px">THE WAY UP</p><p style="font-size:14px;letter-spacing:3px;color:#c8b890;margin-bottom:8px">OTHERWORLD DECK</p><p style="color:#c8d8b0">穿越者的掌机里，藏着一副会战斗的卡牌。</p>
-   <img src="assets/hero2/portrait.png" style="height:170px;margin:6px 0 14px">
-   <div class="row">${sv ? '<button class="btn" id="cont">继续冒险</button>' : ''}<button class="btn" id="start">${sv ? '新的冒险' : '开始冒险'}</button></div>
-   <p style="font-size:13px;color:#998;margin:16px 0 0">快捷键：数字键选牌 · E 结束回合 · Esc 取消 · M 静音</p></div>`;
-  $('#start').onclick = pickChar;
-  $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending) enterNode(R.pending); else mapScreen(); });
+  const sv = load(), nm = LS('tw_name');
+  view.innerHTML = `<div class="bg" style="background:url(assets/bg/title.jpg) center/cover,url(assets/bg/battle_castle.jpg) center/cover"></div><div class="tshade"></div>
+   <div class="tlogo"><h1>通往顶端</h1><p class="en">THE WAY UP</p><p class="en2">OTHERWORLD DECK</p></div>
+   <div class="tbox">
+    <input id="nm" maxlength="8" placeholder="输入你的名字" value="${nm.replace(/"/g, '')}">
+    <input id="pin" maxlength="6" inputmode="numeric" placeholder="口令（可选，4～6 位数字）" value="${LS('tw_pin')}">
+    <div class="row">${sv ? '<button class="btn big" id="cont">继续冒险</button>' : ''}<button class="btn big" id="start">${sv ? '新的冒险' : '开始冒险'}</button></div>
+    <button class="btn" id="rank">排行榜</button>
+    <p class="tkeys">设了口令，别人就不能用你的名字上榜 · 数字键选牌 · E 结束回合 · M 静音</p>
+   </div>`;
+  const keep = () => { LS('tw_name', $('#nm').value.trim()); LS('tw_pin', $('#pin').value.trim()); };
+  const need = () => { keep(); if (!$('#nm').value.trim()) { tip('先输入名字'); $('#nm').focus(); return false; } return true; };
+  $('#start').onclick = () => { if (need()) pickChar(); };
+  $('#cont')?.addEventListener('click', () => { if (!need()) return; R = sv; if (R.pending) enterNode(R.pending); else mapScreen(); });
+  $('#rank').onclick = () => { keep(); rankBoard(); };
+}
+function rankBoard() {
+  const o = overlay(`<h2>排行榜</h2><div id="rk" class="rk">读取中……</div><button class="btn" id="rkx">关闭</button>`);
+  o.querySelector('#rkx').onclick = () => o.remove();
+  const box = o.querySelector('#rk');
+  if (!ONLINE) { box.innerHTML = '<p>排行榜要在正式网站上才能用（试玩链接没有后台）。</p>'; return; }
+  fetch('/api/scores', { cache: 'no-store' }).then(r => r.json()).then(d => {
+    if (!d.ok || !d.list.length) { box.innerHTML = '<p>还没有人上榜，快来当第一名！</p>'; return; }
+    const me = LS('tw_name');
+    box.innerHTML = `<table><tr><th>#</th><th>名字</th><th>角色</th><th>到达</th><th>击杀</th><th>积分</th></tr>${d.list.map((r, i) => `<tr class="${r.name === me ? 'me' : ''}"><td>${i + 1}</td><td>${r.name}</td><td><img src="assets/${CHARS[r.char].dir}/portrait.png"></td><td>${r.win ? '<b class="win">通关</b>' : '第 ' + r.floor + ' 层'}</td><td>${r.kills}</td><td><b>${r.score}</b></td></tr>`).join('')}</table>`;
+  }).catch(() => { box.innerHTML = '<p>暂时连不上排行榜，稍后再试。</p>'; });
+}
+function submitScore(win) {
+  const name = LS('tw_name'); if (DEBUG || !ONLINE || !name) return Promise.resolve(null);
+  return fetch('/api/scores', { method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ name, pin: LS('tw_pin'), char: R.char, floor: R.floor, kills: R.kills || 0, elites: R.elites || 0, win, hp: Math.max(0, R.hp) }) })
+    .then(r => r.json()).catch(() => null);
 }
 
 function pickChar() {
-  view.innerHTML = `${bgHTML()}<div class="panel" style="top:48%"><h2>选择角色</h2><div class="row">${Object.entries(CHARS).map(([k, c]) => `<div class="reward" data-c="${k}" style="width:260px;flex-direction:column;padding:16px"><img src="assets/${c.dir}/portrait.png" style="width:160px;height:auto"><b style="font-size:20px">${c.name}</b><span>${c.desc}</span></div>`).join('')}</div>
-   <p style="font-size:13px;color:#998;margin-top:12px">目前两位共用同一套卡牌，专属卡以后加入</p></div>`;
+  view.innerHTML = `${bgHTML()}<div class="panel csel"><h2>选择角色</h2><div class="row">${ORDER.map(k => { const c = CHARS[k], i = CHARINFO[k];
+    return `<div class="reward cc" data-c="${k}"><img src="assets/${c.dir}/portrait.png"><b>${c.name}</b><span class="cd">${c.desc}</span>
+     <span class="diff">上手难度 <i>${'★'.repeat(i.diff)}${'☆'.repeat(3 - i.diff)}</i> ${['', '简单', '普通', '困难'][i.diff]}</span><span class="ct">${i.tip}</span></div>`; }).join('')}</div>
+   <button class="btn" id="back">返回</button></div>`;
   view.querySelectorAll('[data-c]').forEach(el => el.onclick = () => { newRun(el.dataset.c); save(); mapScreen(); });
+  $('#back').onclick = title;
 }
 // ---------- 地图 ----------
 const NODEICON = Object.fromEntries(['fight', 'elite', 'event', 'rest', 'shop', 'treasure'].map(k => [k, `<img src="assets/ui2/node_${k}.png">`]));
@@ -265,7 +302,7 @@ function dismount(e) { // 骑狼兵半血落马：变成野狼 + 一只小兵
 }
 const VSZ = { gob_kid: 1.45, gob_bomb: 1.25, gob_giant: .6, gob_king: .55, gob_hero: .85, gob_paladin: .85, gob_shaman: 1.15 };
 function gv(e, k) { if (e.key === 'wolf') { if (k === 'atk' || k === 'die') audio.gob(k === 'die' ? 'howl' : 'growl'); return; } audio.gob(k, VSZ[e.key] || 1); }
-function killE(e) { gv(e, 'die'); eAct(e, 'down'); e.dead = true; e.hp = 0; audio.kill(); if (has('fang')) { healP(3); } }
+function killE(e) { gv(e, 'die'); if (R) R.kills = (R.kills || 0) + 1; eAct(e, 'down'); e.dead = true; e.hp = 0; audio.kill(); if (has('fang')) { healP(3); } }
 function boom(t) { // 爆音
   const d = 15 + (B.p.st.dist ? 5 : 0) + (has('mic') ? 6 : 0);
   if (B.p.st.dist) t.st.res = Math.floor(t.st.res / 2) || undefined; else delete t.st.res; if (!t.st.res) delete t.st.res;
@@ -436,6 +473,7 @@ async function checkEnd() {
   if (!alive().length) {
     B.over = true; render(); await sleep(600);
     if (has('gameboy') || has('phones') || has('suzu') || has('cauldron')) R.hp = Math.min(R.maxHp, R.hp + 6);
+    if (B.kind === 'elite') R.elites = (R.elites || 0) + 1;
     if (B.kind === 'boss') { clearSave(); return endScreen(true); }
     rewardScreen(); return true;
   }
@@ -520,7 +558,7 @@ function flushFx() {
   B.fx = [];
 }
 setInterval(() => { frame++; if (!B || B.over) return; view.querySelectorAll('.enemy:not(.dead):not(.hd) .spr').forEach(img => img.src = `assets/enemies/${img.dataset.k}/${frame % 2 ? 'b' : 'a'}.png`); }, 520);
-addEventListener('keydown', e => {
+addEventListener('keydown', e => { if (e.target && e.target.tagName === 'INPUT') return;
   if (!B || B.over || document.querySelector('.overlay') || !view.querySelector('#hand')) return;
   if (e.key === 'e' || e.key === 'E') endTurn();
   else if (e.key === 'Escape') { B.sel = -1; render(); }
@@ -618,8 +656,11 @@ function endScreen(win) {
   B = null; audio.setMode('menu');
   view.innerHTML = `${bgHTML()}<div class="panel"><h2>${win ? '第一幕通关！' : '你倒下了……'}</h2>
    <p>${win ? `${ENEMIES[R.boss].name}倒下了，翠绿之地恢复了平静。<br>（后续幕数待制作）` : `倒在了翠绿之地第 ${R.floor} 层。`}</p>
-   <p>牌组 ${R.deck.length} 张 · 遗物 ${R.relics.length} 个 · 金币 ${R.gold}</p><button class="btn" id="again">回到标题</button></div>`;
-  $('#again').onclick = title;
+   <p>到达第 ${R.floor} 层 · 击杀 ${R.kills || 0} · 精英 ${R.elites || 0} · 牌组 ${R.deck.length} 张 · 遗物 ${R.relics.length} 个</p>
+   <p id="sc" style="color:#ffd35a">${DEBUG ? '调试模式，成绩不记录' : !ONLINE ? '试玩链接不记录成绩' : LS('tw_name') ? '正在提交成绩……' : ''}</p>
+   <div class="row"><button class="btn" id="again">回到标题</button><button class="btn" id="rk2">排行榜</button></div></div>`;
+  $('#again').onclick = title; $('#rk2').onclick = rankBoard;
+  submitScore(win).then(d => { const el = $('#sc'); if (!el || !d) return; el.textContent = d.ok ? `本局积分 ${d.score}，已记入排行榜` : `没能上榜：${d.error}`; });
 }
 
 // ---------- 调试 ----------

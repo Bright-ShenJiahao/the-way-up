@@ -1,0 +1,13 @@
+[build]
+  publish = "."
+  # 只有 main 分支部署；preview 分支用 raw.githack 试玩，不花 Netlify 构建时间
+  ignore = "test \"$BRANCH\" != \"main\""
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, must-revalidate"
