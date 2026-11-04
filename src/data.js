@@ -174,7 +174,7 @@ export const STARTER = STARTERS.hero;
 
 export const RELICS = {
   gameboy: { ch: 'hero', name: '掌机', icon: 'gb', rar: 'start', desc: '每回合开始时得到 1 发光弹。战斗结束时回复 6 点生命。' },
-  phones: { ch: 'heroine', name: '粉色耳机', icon: 'ic_bell', rar: 'start', desc: '战斗开始时给予所有敌人 4 层共鸣，之后每回合开始再给 2 层。战斗结束时回复 6 点生命。' },
+  phones: { ch: 'heroine', name: '粉色耳机', icon: 'ic_bell', rar: 'start', desc: '战斗开始时给予所有敌人 4 层共鸣，之后每回合开始再给 1 层。战斗结束时回复 6 点生命。' },
   cauldron: { ch: 'witch', name: '魔女的坩埚', icon: 'pot', rar: 'start', desc: '战斗开始时随机获得 1 瓶药。战斗结束时回复 6 点生命。' },
   toad: { ch: 'witch', name: '蟾蜍干', icon: 'b_curse', rar: 'c', desc: '每次给予中毒时，额外 +1 层。' },
   hat: { ch: 'witch', name: '魔女帽', icon: 'sk_shadow', rar: 'u', desc: '每使用 1 瓶药，获得 2 点格挡。' },
@@ -208,7 +208,7 @@ export const STATUS = {
   rage: ['狂暴', '回合开始获得力量', '#ff4040'], keep: ['不动如山', '格挡不消失', '#d0b060'],
   regen: ['再生', '回合结束回复生命', '#50d080'], enrage: ['激怒', '你每打出一张技能牌，它获得力量', '#ff7030'],
   ritual: ['战意', '回合结束获得力量', '#ff9050'], fuse: ['引信', '归零时自爆', '#ffcc00'],
-  ammo: ['光弹', '回合结束时自动射出，每发对随机敌人造成 3 点伤害，然后清零（最多 10 发）', '#60d0ff'], res: ['共鸣', '叠到 10 层时爆音，造成 20 点伤害，之后保留 3 层（多出的也保留）', '#ff80c0'],
+  ammo: ['光弹', '回合结束时自动射出，每发对随机敌人造成 3 点伤害，然后清零（最多 10 发）', '#60d0ff'], res: ['共鸣', '叠到 10 层时爆音，造成 24 点伤害，之后保留 3 层（多出的也保留）', '#ff80c0'],
   gen: ['扩容', '回合开始得到光弹', '#60d0ff'], rapid: ['连发', '回合结束射出光弹时获得格挡', '#60d0ff'], dual: ['双持', '每发光弹伤害增加', '#60d0ff'],
   lowf: ['低频', '回合开始给所有敌人共鸣', '#ff80c0'], dist: ['失真', '爆音后保留一半共鸣', '#ff80c0'], concert: ['演唱会', '出牌时给所有敌人共鸣', '#ff80c0'],
   kek: ['结界', '回合开始时按层数获得格挡', '#ffd060'], kagura: ['神乐舞', '回合开始结界 +1', '#ffd060'], shinboku: ['御神木', '结界格挡翻倍', '#ffd060'],
