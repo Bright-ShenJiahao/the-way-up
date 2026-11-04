@@ -71,6 +71,34 @@ export const CARDS = {
   concert: { ch: 'heroine', name: '演唱会', type: 'power', rar: 'r', cost: [3, 2], icon: 'sk_fairy', tgt: 'self',
     desc: () => `每打出 1 张牌，给予所有敌人 1 层共鸣。`, play: g => g.self('concert', 1) },
 
+  // ======== 巫女 · 结界 ========
+  arrow: { ch: 'miko', name: '射箭', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_bow', tgt: 'one',
+    desc: u => `造成 ${v(u, 6, 9)} 点伤害。`, play: (g, u, t) => g.attack(t, v(u, 6, 9)) },
+  kekkai: { ch: 'miko', name: '张设结界', type: 'skill', rar: 'start', cost: [1, 0], icon: 'sk_sigil', tgt: 'self',
+    desc: () => `结界 +1。`, play: g => g.kek(1) },
+  hama: { ch: 'miko', name: '破魔箭', type: 'atk', rar: 'start', cost: [2, 2], icon: 'sk_holyorb', tgt: 'one',
+    desc: u => `造成 8 点伤害，每层结界 +${v(u, 3, 4)}。`, play: (g, u, t) => g.attack(t, 8 + (g.p.st.kek || 0) * v(u, 3, 4)) },
+  fuda: { ch: 'miko', name: '符咒', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_rune', tgt: 'self',
+    desc: u => `结界 +1。抽 ${v(u, 1, 2)} 张牌。`, play: (g, u) => { g.kek(1); g.draw(v(u, 1, 2)); } },
+  shime: { ch: 'miko', name: '注连绳', type: 'skill', rar: 'c', cost: [2, 2], icon: 'ic_whip', tgt: 'self',
+    desc: u => `结界 +${v(u, 2, 3)}。`, play: (g, u) => g.kek(v(u, 2, 3)) },
+  purify: { ch: 'miko', name: '净化', type: 'skill', rar: 'c', cost: [1, 1], icon: 'holywater', tgt: 'self',
+    desc: u => `清除自身虚弱和易伤。获得 ${v(u, 4, 7)} 点格挡，结界 +1。`, play: (g, u) => { delete g.p.st.weak; delete g.p.st.vuln; g.block(v(u, 4, 7)); g.kek(1); } },
+  gofu: { ch: 'miko', name: '护身符', type: 'skill', rar: 'c', cost: [1, 1], icon: 'm_ward', tgt: 'self',
+    desc: u => `获得 5 点格挡，每层结界再 +${v(u, 2, 3)}。`, play: (g, u) => g.block(5 + (g.p.st.kek || 0) * v(u, 2, 3)) },
+  twinarrow: { ch: 'miko', name: '连射', type: 'atk', rar: 'c', cost: [1, 1], icon: 'ic_xbow', tgt: 'one',
+    desc: u => `造成 ${v(u, 4, 6)} 点伤害 2 次。`, play: (g, u, t) => g.attack(t, v(u, 4, 6), 2) },
+  piercing: { ch: 'miko', name: '穿云箭', type: 'atk', rar: 'c', cost: [1, 1], icon: 'sk_hawk', tgt: 'one',
+    desc: u => `移除目标的格挡，造成 ${v(u, 9, 12)} 点伤害。`, play: (g, u, t) => { t.block = 0; g.attack(t, v(u, 9, 12)); } },
+  yumihari: { ch: 'miko', name: '弓张月', type: 'atk', rar: 'u', cost: [1, 0], icon: 'p_arc', tgt: 'one',
+    desc: () => `造成等同于你当前格挡值的伤害。`, play: (g, u, t) => g.attack(t, g.p.block) },
+  mangetsu: { ch: 'miko', name: '破魔·满月', type: 'atk', rar: 'u', cost: [2, 2], icon: 'ic_gods', tgt: 'one',
+    desc: u => `消耗全部结界，每层造成 ${v(u, 8, 10)} 点伤害。`, play: (g, u, t) => { const n = g.p.st.kek || 0; delete g.p.st.kek; if (n) g.attack(t, n * v(u, 8, 10)); } },
+  kagura: { ch: 'miko', name: '神乐舞', type: 'power', rar: 'u', cost: [1, 0], icon: 'sk_fairy', tgt: 'self',
+    desc: () => `每回合开始时，结界 +1。`, play: g => g.self('kagura', 1) },
+  shinboku: { ch: 'miko', name: '御神木', type: 'power', rar: 'r', cost: [2, 1], icon: 'sk_treant', tgt: 'self',
+    desc: () => `结界每回合提供的格挡翻倍。`, play: g => g.self('shinboku', 1) },
+
   // ======== 共用 ========
   defend: { name: '闪避', type: 'skill', rar: 'start', cost: [1, 1], icon: 'p_dodge', tgt: 'self',
     desc: u => `获得 ${v(u, 5, 8)} 点格挡。`, play: (g, u) => g.block(v(u, 5, 8)) },
@@ -95,9 +123,10 @@ export const CARDS = {
   regen: { name: '生命之泉', type: 'power', rar: 'r', cost: [1, 1], icon: 'b_regen', tgt: 'self',
     desc: u => `每回合结束时，回复 ${v(u, 2, 3)} 点生命。`, play: (g, u) => g.self('regen', v(u, 2, 3)) },
 };
-for (const [k, c] of Object.entries(CARDS)) { c.id = k; if (c.ch) c.icon = 'icons2/' + k; c.img = I(c.icon); }
+for (const [k, c] of Object.entries(CARDS)) { c.id = k; if (c.ch === 'hero' || c.ch === 'heroine') c.icon = 'icons2/' + k; c.img = I(c.icon); }
 export const STARTERS = {
   hero: ['shoot', 'shoot', 'shoot', 'shoot', 'defend', 'defend', 'defend', 'defend', 'load', 'charge'],
+  miko: ['arrow', 'arrow', 'arrow', 'arrow', 'defend', 'defend', 'defend', 'defend', 'kekkai', 'hama'],
   heroine: ['note', 'note', 'note', 'note', 'defend', 'defend', 'defend', 'defend', 'spread', 'high'],
 };
 export const STARTER = STARTERS.hero;
@@ -105,6 +134,9 @@ export const STARTER = STARTERS.hero;
 export const RELICS = {
   gameboy: { ch: 'hero', name: '掌机', icon: 'gb', rar: 'start', desc: '战斗开始时得到 3 发光弹。战斗结束时回复 6 点生命。' },
   phones: { ch: 'heroine', name: '粉色耳机', icon: 'ic_bell', rar: 'start', desc: '战斗开始时给予所有敌人 3 层共鸣。战斗结束时回复 6 点生命。' },
+  suzu: { ch: 'miko', name: '神乐铃', icon: 'ic_bell', rar: 'start', desc: '战斗开始时结界 +2。战斗结束时回复 6 点生命。' },
+  omamori: { ch: 'miko', name: '御守', icon: 'm_ward', rar: 'c', desc: '每场战斗开始时，结界 +1。' },
+  hamaya: { ch: 'miko', name: '破魔矢', icon: 'ic_bow', rar: 'u', desc: '回合开始时，若结界不少于 3 层，抽 1 张牌。' },
   spare: { ch: 'hero', name: '备用电池', icon: 'ic_crystal', rar: 'c', desc: '回合开始时，若没有光弹，得到 2 发。' },
   pad: { ch: 'hero', name: '连发手柄', icon: 'sk_mgun', rar: 'u', desc: '每打出 4 发光弹，抽 1 张牌。' },
   metro: { ch: 'heroine', name: '节拍器', icon: 'ic_hexa', rar: 'c', desc: '每次爆音，获得 1 点能量。' },
@@ -135,6 +167,7 @@ export const STATUS = {
   ammo: ['光弹', '男主的子弹，最多 10 发', '#60d0ff'], res: ['共鸣', '叠到 10 层时爆音，造成 15 点伤害', '#ff80c0'],
   gen: ['扩容', '回合开始得到光弹', '#60d0ff'], rapid: ['连发', '打出光弹时获得格挡', '#60d0ff'], dual: ['双持', '光弹伤害增加', '#60d0ff'],
   lowf: ['低频', '回合开始给所有敌人共鸣', '#ff80c0'], dist: ['失真', '爆音后保留一半共鸣', '#ff80c0'], concert: ['演唱会', '出牌时给所有敌人共鸣', '#ff80c0'],
+  kek: ['结界', '回合开始时按层数获得格挡', '#ffd060'], kagura: ['神乐舞', '回合开始结界 +1', '#ffd060'], shinboku: ['御神木', '结界格挡翻倍', '#ffd060'],
   heal: ['自愈', '回合结束回复生命', '#50d080'], aegis: ['圣盾', '免疫所有伤害', '#ffe070'],
 };
 
