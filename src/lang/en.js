@@ -467,6 +467,7 @@ export default {
 "抽 {0} 张牌。": "Draw {0}.",
 "死亡时自动使用：回复 {0} 最大生命。不能主动使用。": "Used automatically when you die: heal {0} of Max HP. Can't be used manually.",
 "每场战斗开始时，随机一张耗能不少于 {0} 的手牌，本场耗能减少 {1}。": "At battle start, a random card in hand costing {0}+ costs {1} less this battle.",
+"造成 {0} 点伤害，本回合每用过 {1} 个炼金瓶，再打 {2} 次。": "Deal {0} damage, plus {2} more hit per {1} Flask used this turn.",
 "哥布林小兵": "Goblin Grunt",
 "哥布林小鬼": "Goblin Imp",
 "哥布林刀手": "Goblin Blade",
