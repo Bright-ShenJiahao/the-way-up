@@ -96,7 +96,7 @@ function cardCost(c) { const d = CARDS[c.id]; if (c.free) return 0; const k = d.
 function cardHTML(c, extra = '', energy = 99) {
   const d = CARDS[c.id], cost = cardCost(c), no = cost !== 'X' && cost > energy;
   const rr = d.rar === 'start' || d.rar === 'gen' ? 'c' : d.rar;
-  return `<div class="card t-${d.type} r-${d.rar} ${c.up ? 'up' : ''} ${extra}" data-uid="${c.uid}" title="${TYPE[d.type]}">
+  return `<div class="card t-${d.type} r-${d.rar} ${c.up ? 'up' : ''} ${extra}" data-uid="${c.uid}" data-cid="${c.id}" data-up="${c.up ? 1 : 0}">
    <div class="art"><img src="${d.img}"></div><div class="cdesc"><span>${kwify(d.desc(c.up))}</span></div><img class="frame" src="assets/ui2/frame_${d.type}_${rr}.png">
    <div class="cost ${no ? 'no' : ''}">${cost}</div><div class="cname">${d.name}${c.up ? '+' : ''}</div></div>`;
 }
@@ -775,6 +775,23 @@ function endScreen(win) {
 }
 
 
+
+// ---------- 卡牌关键词说明框（悬停 / 手机长按；设置里「显示规则提示」可关闭） ----------
+const KWS = { '结界': '叠在自己身上，每回合开始按层数自动获得格挡，整场战斗不消失。', '光弹': '回合结束时自动射出，每发打随机敌人 3 点伤害，然后清零。',
+  '共鸣': '叠在敌人身上，满 10 层自动「爆音」。', '爆音': '共鸣满 10 层时爆炸，造成 24 点伤害，之后保留 3 层。',
+  '中毒': '敌人行动前掉等于层数的血（无视格挡），然后层数 -1。', '炼金瓶': '由其他牌生成的 0 费牌，用一次就没了。' };
+function kwList(c) { const d = CARDS[c.id], t = d.desc(c.up) + (d.potion ? '炼金瓶' : '') + (d.type === 'power' ? '能力' : ''); const all = Object.assign({}, KW, KWS, { '能力': '打出后整场战斗持续生效。' }); return Object.keys(all).filter(k => t.includes(k)).map(k => [k, all[k]]); }
+let kwTimer = 0;
+function kwShow(el) { if (!TIPS) return; const c = { id: el.dataset.cid, up: +el.dataset.up }; if (!CARDS[c.id]) return; const L = kwList(c); kwHide(); if (!L.length) return;
+  const s = stage._s || 1, sr = stage.getBoundingClientRect(), r = el.getBoundingClientRect(), b = document.createElement('div'); b.id = 'kwtip';
+  b.innerHTML = L.map(([k, v]) => `<p><b>${k}</b>${v}</p>`).join('') + '<i>设置里可关闭提示</i>'; stage.appendChild(b);
+  let x = (r.right - sr.left) / s + 8, y = (r.top - sr.top) / s; if (x + 230 > 1280) x = (r.left - sr.left) / s - 238; y = Math.max(50, Math.min(y, 720 - b.offsetHeight - 8)); b.style.left = x + 'px'; b.style.top = y + 'px'; }
+function kwHide() { clearTimeout(kwTimer); $('#kwtip')?.remove(); }
+stage.addEventListener('mouseover', e => { const el = e.target.closest && e.target.closest('.card[data-cid]'); if (el && e.pointerType !== 'touch') kwShow(el); });
+stage.addEventListener('mouseout', e => { const el = e.target.closest && e.target.closest('.card[data-cid]'); if (el && !el.contains(e.relatedTarget)) kwHide(); });
+stage.addEventListener('touchstart', e => { const el = e.target.closest && e.target.closest('.card[data-cid]'); if (el) kwTimer = setTimeout(() => kwShow(el), 380); }, { passive: true });
+stage.addEventListener('touchend', () => { clearTimeout(kwTimer); setTimeout(kwHide, 1500); });
+stage.addEventListener('click', () => kwHide(), true);
 
 // ---------- 药水 ----------
 function gainPotion(id) { R.potions = R.potions || []; if (R.potions.length >= 3) { tip('药水栏满了'); return false; } R.potions.push(id); audio.gem(); return true; }
