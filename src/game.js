@@ -1,5 +1,5 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { CARDS, STARTER, RELICS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js';
+import { CARDS, STARTERS, RELICS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js';
 import { createAudio } from './audio.js';
 
 const $ = s => document.querySelector(s);
@@ -21,18 +21,20 @@ stage.addEventListener('scroll', () => { stage.scrollTop = 0; stage.scrollLeft =
 let TIPS = true; try { TIPS = localStorage.getItem('tipsOff') !== '1'; } catch (e) {}
 const KW = { '格挡': '抵挡受到的伤害。你的回合开始时清零。', '易伤': '受到的攻击伤害 +50%，每回合减 1 层。', '虚弱': '造成的攻击伤害 -25%，每回合减 1 层。',
   '力量': '每次攻击伤害增加等同于力量的数值。', '敏捷': '每次获得格挡时额外增加等同于敏捷的数值。', '消耗': '打出后移出本场战斗，不进弃牌堆。',
-  '荆棘': '被攻击时，对攻击者造成等同于层数的伤害。', '能量': '出牌要花能量，每回合开始恢复为 3 点。' };
+  '荆棘': '被攻击时，对攻击者造成等同于层数的伤害。', '能量': '出牌要花能量，每回合开始恢复为 3 点。',
+  '光弹': '男主的子弹，最多存 10 发，整场战斗保留。', '共鸣': '叠在敌人身上，到 10 层自动爆音。', '爆音': '共鸣满 10 层时，对该敌人造成 15 点伤害并清空共鸣。' };
 const kwify = t => TIPS ? t.replace(new RegExp(Object.keys(KW).join('|'), 'g'), m => `<span class="kw" title="${KW[m]}">${m}</span>`) : t;
 let R = null; // 当前一局
 let uidN = 1;
 const mkCard = (id, up = 0) => ({ id, up, uid: uidN++ });
 function newRun(char = 'hero') {
-  R = { char, hp: 80, maxHp: 80, gold: 99, deck: STARTER.map(id => mkCard(id)), relics: ['gameboy'], map: genMap(), pos: null,
+  R = { char, hp: 80, maxHp: 80, gold: 99, deck: STARTERS[char].map(id => mkCard(id)), relics: [char === 'heroine' ? 'phones' : 'gameboy'], map: genMap(), pos: null,
     floor: 0, fights: 0, removeCost: 75, boss: pickOne(ENCOUNTERS.boss)[0], feather: 0 };
 }
 const has = id => R.relics.includes(id);
-function save() { try { localStorage.setItem('isekai_cards_run', JSON.stringify(R)); } catch (e) {} }
-function clearSave() { try { localStorage.removeItem('isekai_cards_run'); } catch (e) {} }
+const mine = d => !d.ch || d.ch === (R.char || 'hero');
+function save() { try { localStorage.setItem('theway_run_v2', JSON.stringify(R)); } catch (e) {} }
+function clearSave() { try { localStorage.removeItem('theway_run_v2'); } catch (e) {} }
 function load() { try { const s = JSON.parse(localStorage.getItem('isekai_cards_run')); if (s) { uidN = 1 + Math.max(0, ...s.deck.map(c => c.uid)); } return s; } catch (e) { return null; } }
 
 // ---------- 地图生成 ----------
@@ -108,7 +110,7 @@ function pickDeck(mode, done) {
     const i = R.deck.findIndex(c => c.uid == el.dataset.uid), c = R.deck[i];
     if (mode === 'remove') R.deck.splice(i, 1);
     if (mode === 'upgrade') c.up = 1;
-    if (mode === 'transform') { const pool = Object.values(CARDS).filter(d => d.rar !== 'start' && d.id !== c.id); R.deck[i] = mkCard(pickOne(pool).id); }
+    if (mode === 'transform') { const pool = Object.values(CARDS).filter(d => d.rar !== 'start' && mine(d) && d.id !== c.id); R.deck[i] = mkCard(pickOne(pool).id); }
     audio.level(); o.remove(); done && done(true);
   });
 }
@@ -117,7 +119,7 @@ function rollCards(n, rareBonus = 0, onlyRare = false) {
   const out = [];
   while (out.length < n) {
     const x = Math.random(); const rar = onlyRare ? 'r' : x < .03 + rareBonus ? 'r' : x < .4 + rareBonus ? 'u' : 'c';
-    const pool = Object.values(CARDS).filter(d => d.rar === rar && !out.includes(d.id));
+    const pool = Object.values(CARDS).filter(d => d.rar === rar && mine(d) && !out.includes(d.id));
     if (pool.length) out.push(pickOne(pool).id);
   }
   return out.map(id => mkCard(id));
@@ -128,8 +130,8 @@ function chooseCard(cards, done, title = '选择一张牌加入牌组') {
   o.querySelectorAll('.card').forEach(el => el.onclick = () => { R.deck.push(cards.find(c => c.uid == el.dataset.uid)); audio.level(); o.remove(); done(true); });
 }
 function rollRelic(rars = ['c', 'c', 'c', 'u', 'u', 'r'], crown = false) {
-  for (let k = 0; k < 30; k++) { const r = pickOne(rars); const pool = Object.values(RELICS).filter(x => x.rar === r && !has(x.id) && (crown || x.id !== 'crown')); if (pool.length) return pickOne(pool).id; }
-  const pool = Object.values(RELICS).filter(x => x.rar !== 'start' && !has(x.id) && (crown || x.id !== 'crown')); return pool.length ? pickOne(pool).id : null;
+  for (let k = 0; k < 30; k++) { const r = pickOne(rars); const pool = Object.values(RELICS).filter(x => x.rar === r && mine(x) && !has(x.id) && (crown || x.id !== 'crown')); if (pool.length) return pickOne(pool).id; }
+  const pool = Object.values(RELICS).filter(x => x.rar !== 'start' && mine(x) && !has(x.id) && (crown || x.id !== 'crown')); return pool.length ? pickOne(pool).id : null;
 }
 function gainRelic(id) { if (!id) return; R.relics.push(id); if (id === 'herb') { R.maxHp += 10; R.hp += 10; } audio.level(); }
 
@@ -208,6 +210,8 @@ function battle(keys, kind) {
   B = { kind, bg, en: keys.map(mkEnemy), p: { block: 0, energy: 0, st: {}, noDraw: 0 }, draw: shuffle(R.deck.map(c => ({ ...c }))), hand: [], disc: [], exh: [], turn: 0, atkCnt: 0, sel: -1, busy: false, fx: [], over: false };
   audio.setMode(kind === 'boss' ? 'boss' : 'battle'); if (kind === 'boss') audio.boss();
   if (has('charm')) B.p.st.str = 1;
+  if (has('gameboy')) B.p.st.ammo = 3;
+  if (has('phones')) B.en.forEach(e => e.st.res = 3);
   if (has('spikes')) B.p.st.thorns = 3;
   if (has('wardrum')) B.en.forEach(e => e.st.vuln = 1);
   B.en.forEach(e => e.move = e.d.ai(e, BE));
@@ -256,6 +260,10 @@ function dismount(e) { // 骑狼兵半血落马：变成野狼 + 一只小兵
   fx(e.id, '落马！', 'st');
 }
 function killE(e) { eAct(e, 'down'); e.dead = true; e.hp = 0; audio.kill(); if (has('fang')) { healP(3); } }
+function boom(t) { // 爆音
+  const d = 15 + (B.p.st.dist ? 5 : 0) + (has('mic') ? 6 : 0);
+  if (B.p.st.dist) t.st.res = Math.floor(t.st.res / 2) || undefined; else delete t.st.res; if (!t.st.res) delete t.st.res;
+  fx(t.id, '爆音！', 'st'); hurt(t, d); if (has('metro')) B.p.energy++; }
 function healP(n) { if (n <= 0) return; R.hp = Math.min(R.maxHp, R.hp + n); fx('hero', `+${n}`, 'heal'); }
 function addSt(t, k, n) { t.st[k] = (t.st[k] || 0) + n; if (t.st[k] === 0) delete t.st[k]; }
 
@@ -272,6 +280,17 @@ const G = {
   draw(n) { drawCards(n); }, energy(n) { B.p.energy += n; },
   loseHp(n) { R.hp -= n; fx('hero', `-${n}`, 'dmg'); B.hitSet.add('hero'); },
   heal(n) { healP(n); },
+  ammo(n) { const a = Math.min(10, (B.p.st.ammo || 0) + n); if (a !== B.p.st.ammo) { B.p.st.ammo = a; fx('hero', `光弹+${n}`, 'st'); } },
+  spend(n) { const k = Math.min(n, B.p.st.ammo || 0); if (!k) return 0; addSt(B.p, 'ammo', -k); if (B.p.st.rapid) G.block(B.p.st.rapid * k, true);
+    B.shots = (B.shots || 0) + k; if (has('pad')) { while (B.shots >= 4) { B.shots -= 4; drawCards(1); } } return k; },
+  fire(t, k, dmg) { if (k) G.attack(t, dmg + (B.p.st.dual || 0), k); },
+  fireAll(k, dmg) { if (k) G.attackAll(dmg + (B.p.st.dual || 0), k); },
+  fireRandom(k, dmg) { if (k) G.attackRandom(dmg + (B.p.st.dual || 0), k); },
+  res(t, n) { if (!t || t.dead || n <= 0) return; addSt(t, 'res', n); fx(t.id, `共鸣+${n}`, 'st'); if (t.st.res >= 10) boom(t); },
+  resAll(n) { alive().forEach(e => G.res(e, n)); },
+  resRandom(n) { const a = alive(); if (a.length) G.res(pickOne(a), n); },
+  resTotal() { return alive().reduce((s, e) => s + (e.st.res || 0), 0); },
+  eachEnemy(f) { alive().forEach(f); },
   addCard(id, up, pile) { B[pile === 'discard' ? 'disc' : 'draw'].push(mkCard(id, up)); },
 };
 // 敌人用的接口
@@ -298,6 +317,9 @@ function startTurn(first) {
   B.p.energy = 3 + (has('crown') ? 1 : 0) + (first && has('hourglass') ? 1 : 0);
   B.p.noDraw = 0;
   if (B.p.st.rage) addSt(B.p, 'str', B.p.st.rage);
+  if (B.p.st.gen) G.ammo(B.p.st.gen);
+  if (has('spare') && !B.p.st.ammo) G.ammo(2);
+  if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
   drawCards(5 + (first && has('scroll') ? 2 : 0));
   if (first && has('dice') && B.hand.length) { const c = pickOne(B.hand); c.free = 1; }
@@ -315,6 +337,7 @@ async function playCard(i, tgt) {
   B.anim = false; B.hitSet = new Set();
   d.play(G, c.up, tgt, c);
   if (d.type === 'atk') { B.atkCnt++; if (has('quiver') && B.atkCnt % 3 === 0) for (const e of alive()) hurt(e, 5); heroAct('shoot'); }
+  if (B.p.st.concert) G.resAll(B.p.st.concert);
   if (d.type === 'skill') alive().forEach(e => { if (e.st.enrage) BE.addSt(e, 'str', e.st.enrage); });
   if (d.type === 'power') {} else if (d.exhaust) B.exh.push(c); else B.disc.push(c);
   render(); await checkEnd();
@@ -393,7 +416,7 @@ async function checkEnd() {
   if (R.hp <= 0) { B.over = true; heroAct('down'); render(); await sleep(1400); clearSave(); return endScreen(false); }
   if (!alive().length) {
     B.over = true; render(); await sleep(600);
-    if (has('gameboy')) R.hp = Math.min(R.maxHp, R.hp + 6);
+    if (has('gameboy') || has('phones')) R.hp = Math.min(R.maxHp, R.hp + 6);
     if (B.kind === 'boss') { clearSave(); return endScreen(true); }
     rewardScreen(); return true;
   }
