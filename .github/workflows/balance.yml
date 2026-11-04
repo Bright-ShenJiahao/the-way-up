@@ -1,0 +1,21 @@
+name: balance
+on:
+  workflow_dispatch:
+  push:
+    branches: [preview]
+    paths: ['src/data.js', 'tools/sim.mjs']
+permissions:
+  contents: write
+jobs:
+  sim:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node tools/sim.mjs 400 | tee -a $GITHUB_STEP_SUMMARY
+      - name: 把结果提交回 preview 分支
+        run: |
+          git config user.name "balance-bot"; git config user.email "bot@users.noreply.github.com"
+          git add data/balance.md; git commit -m "平衡测试结果 [skip ci]" || exit 0
+          git pull --rebase origin preview && git push origin HEAD:preview

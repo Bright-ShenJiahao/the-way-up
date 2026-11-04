@@ -700,7 +700,7 @@ function endScreen(win) {
   const rows = [[`攀登的层数 (${R.floor})`, R.floor * 20], [`击杀的敌人 (${k})`, k * 3], [`击败的精英 (${el})`, el * 25], [`打败 Boss (${win ? 1 : 0})`, win ? 300 : 0], [`通关时剩余生命 (${win ? hp : 0})`, win ? hp * 2 : 0]];
   const total = rows.reduce((a, r) => a + r[1], 0);
   view.innerHTML = `${bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
-   <p class="endsub">${win ? `${ENEMIES[R.boss].name}倒下了，翠绿之地恢复了平静。` : `${CHARS[R.char || 'hero'].name}倒在了翠绿之地第 ${R.floor} 层。`}</p>
+   <p class="endsub">${win ? `${ENEMIES[R.boss].name}倒下了，翠绿之地恢复了平静。<br><b style="color:#ffe08a">第一章完 · 感谢游玩！</b>更多内容制作中，欢迎把感想告诉作者。` : `${CHARS[R.char || 'hero'].name}倒在了翠绿之地第 ${R.floor} 层。`}</p>
    <table class="score">${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}<tr class="tot"><td>分数</td><td>${total}</td></tr></table>
    <p id="sc" class="endsub" style="color:#ffd35a">${DEBUG ? '调试模式，成绩不记录' : !ONLINE ? '试玩链接不记录成绩' : LS('tw_name') ? '正在提交成绩……' : ''}</p>
    <div class="row"><button class="btn big" id="again">主菜单</button><button class="btn" id="rk2">排行榜</button></div></div>`;
