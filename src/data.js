@@ -174,8 +174,8 @@ export const STARTERS = {
 export const STARTER = STARTERS.hero;
 
 export const RELICS = {
-  gameboy: { ch: 'hero', name: '掌机', icon: 'gb', rar: 'start', desc: '战斗开始时得到 4 发光弹。战斗结束时回复 6 点生命。' },
-  phones: { ch: 'heroine', name: '粉色耳机', icon: 'ic_bell', rar: 'start', desc: '战斗开始时给予所有敌人 4 层共鸣。战斗结束时回复 6 点生命。' },
+  gameboy: { ch: 'hero', name: '掌机', icon: 'gb', rar: 'start', desc: '战斗开始时得到 3 发光弹，之后每回合开始再得到 1 发。战斗结束时回复 6 点生命。' },
+  phones: { ch: 'heroine', name: '粉色耳机', icon: 'ic_bell', rar: 'start', desc: '战斗开始时给予所有敌人 4 层共鸣，之后每回合开始再给 1 层。战斗结束时回复 6 点生命。' },
   cauldron: { ch: 'witch', name: '魔女的坩埚', icon: 'pot', rar: 'start', desc: '战斗开始时随机获得 2 瓶药。战斗结束时回复 6 点生命。' },
   toad: { ch: 'witch', name: '蟾蜍干', icon: 'b_curse', rar: 'c', desc: '每次给予中毒时，额外 +1 层。' },
   hat: { ch: 'witch', name: '魔女帽', icon: 'sk_shadow', rar: 'u', desc: '每使用 1 瓶药，获得 2 点格挡。' },

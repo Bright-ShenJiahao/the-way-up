@@ -292,7 +292,7 @@ function battle(keys, kind) {
   B = { kind, bg, en: keys.map(mkEnemy), p: { block: 0, energy: 0, st: {}, noDraw: 0 }, draw: shuffle(R.deck.map(c => ({ ...c }))), hand: [], disc: [], exh: [], turn: 0, atkCnt: 0, sel: -1, busy: false, fx: [], over: false };
   audio.setMode(kind === 'boss' ? 'boss' : kind === 'elite' ? 'elite' : 'battle'); setTimeout(() => B && B.en[0] && gv(B.en[0], 'laugh'), 500); if (kind === 'boss') audio.boss();
   if (has('charm')) B.p.st.str = 1;
-  if (has('gameboy')) B.p.st.ammo = 4;
+  if (has('gameboy')) B.p.st.ammo = 3;
   if (has('suzu')) B.p.st.kek = 2 + (has('omamori') ? 1 : 0); else if (has('omamori')) B.p.st.kek = 1;
   if (has('phones')) B.en.forEach(e => e.st.res = 4);
   if (has('spikes')) B.p.st.thorns = 3;
@@ -413,7 +413,7 @@ function startTurn(first) {
   if (B.p.st.kagura) G.kek(B.p.st.kagura);
   if (B.p.st.kek) G.block(B.p.st.kek * (B.p.st.shinboku ? 2 : 1), true);
   if (has('hamaya') && (B.p.st.kek || 0) >= 3) drawCards(1);
-  if (B.p.st.gen) G.ammo(B.p.st.gen);
+  if (B.p.st.gen) G.ammo(B.p.st.gen); if (!first && has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(1);
   if (has('spare') && !B.p.st.ammo) G.ammo(2);
   if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
