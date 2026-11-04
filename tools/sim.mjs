@@ -69,7 +69,7 @@ function startTurn(first) {
   if (B.p.st.plague) alive().forEach(e => G.poison(e, B.p.st.plague));
   if (B.p.st.kagura) G.kek(B.p.st.kagura); if (B.p.st.kek) G.block(B.p.st.kek * (B.p.st.shinboku ? 2 : 1), true);
   if (has('hamaya') && (B.p.st.kek || 0) >= 3) drawCards(1);
-  B.p.oc = 0; B.p.aoe = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (!first && has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(1); if (B.p.st.lowf) G.resAll(B.p.st.lowf);
+  B.p.oc = 0; B.p.aoe = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(1); if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
   drawCards(5 + (first && has('scroll') ? 2 : 0));
 }
@@ -137,7 +137,7 @@ function endTurn() {
 }
 function battle(keys, kind) {
   B = { kind, en: keys.map(mkE), p: { block: 0, energy: 0, st: {}, noDraw: 0 }, draw: shuffle(R.deck.map(c => ({ ...c }))), hand: [], disc: [], exh: [], turn: 0, atk: 0 };
-  if (has('charm')) B.p.st.str = 1; if (has('gameboy')) B.p.st.ammo = 3;
+  if (has('charm')) B.p.st.str = 1; 
   if (has('suzu')) B.p.st.kek = 2 + (has('omamori') ? 1 : 0); else if (has('omamori')) B.p.st.kek = 1;
   if (has('phones')) B.en.forEach(e => e.st.res = 4); if (has('spikes')) B.p.st.thorns = 3; if (has('wardrum')) B.en.forEach(e => e.st.vuln = 1);
   B.en.filter(e => e.key === 'gob_bomb').forEach((e, i) => e.st.fuse = 3 + i);
