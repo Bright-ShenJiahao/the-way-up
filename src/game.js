@@ -170,7 +170,7 @@ function mainMenu() {
     const y = overlay(`<h2>开始新的冒险？</h2><p>当前存档（${CHARS[sv.char || 'hero'].name} · 第 ${sv.floor} 层）会被放弃。</p><div class="row"><button class="btn red" id="y1">放弃旧档，重新开始</button><button class="btn" id="y0">取消</button></div>`);
     y.querySelector('#y0').onclick = () => y.remove(); y.querySelector('#y1').onclick = () => { y.remove(); clearSave(); pickChar(); }; });
   $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending) enterNode(R.pending); else mapScreen(); });
-  $('#book').onclick = () => tip('图鉴马上就来');
+  $('#book').onclick = () => book();
   $('#rank').onclick = rankBoard; $('#set').onclick = () => settings(false); $('#back').onclick = title;
 }
 function askName(done) {
@@ -706,6 +706,43 @@ function endScreen(win) {
    <div class="row"><button class="btn big" id="again">主菜单</button><button class="btn" id="rk2">排行榜</button></div></div>`;
   $('#again').onclick = mainMenu; $('#rk2').onclick = rankBoard;
   submitScore(win).then(d => { const e = $('#sc'); if (!e || !d) return; e.textContent = d.ok ? `已记入排行榜（${LS('tw_name')}）` : `没能上榜：${d.error}`; });
+}
+
+
+// ---------- 图鉴 ----------
+const INTENT = { atk: '攻击', def: '防御', buff: '强化', debuff: '削弱', atkdef: '攻击+防御', atkdebuff: '攻击+削弱', summon: '召唤', unknown: '未知' };
+const CONCEPTS = [
+  ['基础', [['能量', '出牌要花能量，每回合开始恢复为 3 点。卡牌左上角的数字就是耗能。'], ['生命', '降到 0 就输了。大部分遗物和营火可以回血。'], ['格挡', KW['格挡']], ['抽牌', '每回合开始抽 5 张牌。抽牌堆空了，会把弃牌堆洗回来。'], ['回合', '你出完牌按「结束回合」，敌人按头上的意图行动。']]],
+  ['卡牌种类', [['攻击牌', '红色卡框，主要用来造成伤害。'], ['技能牌', '绿色卡框，格挡、抽牌、加状态等。'], ['能力牌', '蓝色卡框，打出后整场战斗持续生效，不进弃牌堆。'], ['消耗', KW['消耗']], ['升级', '在营火可以升级卡牌，数值变强或耗能降低，名字后面多一个 +。'], ['稀有度', '普通 / 罕见 / 稀有，越稀有越强，奖励里越难出现。']]],
+  ['状态', ['str', 'dex', 'vuln', 'weak', 'thorns', 'metal', 'regen', 'poison'].map(k => [STATUS[k][0], KW[STATUS[k][0]] || STATUS[k][1]])],
+  ['角色机制', [['光弹', KW['光弹']], ['共鸣', KW['共鸣']], ['爆音', KW['爆音']], ['结界', KW['结界']], ['药瓶', KW['药瓶']], ['中毒', KW['中毒']]]],
+  ['地图', [['战斗', '普通的哥布林小队，赢了给金币和卡牌。'], ['精英', '强敌，赢了额外给一个遗物。'], ['未知', '随机事件，可能是好事也可能有代价。'], ['营火', '休息回血，或者升级一张卡。'], ['商店', '花金币买卡、买遗物、删卡。'], ['宝箱', '直接拿遗物和金币。'], ['Boss', '每章最后的大头目，打赢就通关。']]],
+  ['分数', [['排行榜积分', '层数×20 + 击杀×3 + 精英×25；通关再加 300，以及剩余生命×2。同一个名字只记最高的一局，调试模式不记录。']]],
+];
+function book(tab = 'card', sub = 'miko', up = 0) {
+  const tabs = [['card', '卡牌'], ['relic', '遗物'], ['mon', '怪物'], ['rule', '概念说明']];
+  let body = '';
+  if (tab === 'card') {
+    const subs = [...ORDER.map(k => [k, CHARS[k].name]), ['all', '共用']];
+    const list = Object.values(CARDS).filter(d => sub === 'all' ? !d.ch : d.ch === sub).sort((a, b) => ('start c u r gen'.indexOf(a.rar)) - ('start c u r gen'.indexOf(b.rar)));
+    body = `<div class="bsub">${subs.map(([k, n]) => `<b class="${k === sub ? 'on' : ''}" data-sub="${k}">${n}</b>`).join('')}<label class="ck"><input type="checkbox" id="bup" ${up ? 'checked' : ''}><span>查看升级后</span></label></div>
+     <div class="bgrid cards">${list.map(d => `<div class="bc">${cardHTML({ id: d.id, up, uid: 0 })}<small>${{ start: '初始', c: '普通', u: '罕见', r: '稀有', gen: '药瓶（由其他牌生成）' }[d.rar]}</small></div>`).join('')}</div>`;
+  } else if (tab === 'relic') {
+    const who = r => r.ch ? CHARS[r.ch].name + ' 专属' : '通用';
+    body = `<div class="bgrid">${Object.values(RELICS).map(r => `<div class="bi"><img src="${r.img}"><div><b>${r.name}</b><small>${who(r)} · ${{ start: '初始', c: '普通', u: '罕见', r: '稀有' }[r.rar]}</small><p>${kwify(r.desc)}</p></div></div>`).join('')}</div>`;
+  } else if (tab === 'mon') {
+    const hpOf = k => [].concat(ENEMIES[k].hp)[0], elite = new Set(ENCOUNTERS.elite.map(g => g.reduce((x, y) => hpOf(y) > hpOf(x) ? y : x))), boss = new Set(ENCOUNTERS.boss.flat());
+    body = `<div class="bgrid">${Object.entries(ENEMIES).map(([k, e]) => `<div class="bi mon"><img src="assets/enemies2/${k}/portrait.png" onerror="this.src='assets/enemies2/${k}/idle0.png'"><div><b>${e.name}</b><small>${boss.has(k) ? 'Boss' : elite.has(k) ? '精英' : '普通'} · 生命 ${Array.isArray(e.hp) ? e.hp.join('～') : e.hp}</small>
+      <p>${Object.values(e.moves).map(m => `<span class="mv">${m.n}</span>${INTENT[m.i] || ''}${m.d ? ' ' + m.d + (m.x > 1 ? '×' + m.x : '') : ''}`).join('　')}</p></div></div>`).join('')}</div>`;
+  } else {
+    body = `<div class="rules">${CONCEPTS.map(([h, rows]) => `<h3>${h}</h3><table>${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>`).join('')}</div>`;
+  }
+  let o = $('#bookov'); if (!o) { o = overlay(''); o.id = 'bookov'; }
+  o.innerHTML = `<div class="bookw"><div class="tabs">${tabs.map(([k, n]) => `<b class="${k === tab ? 'on' : ''}" data-t="${k}">${n}</b>`).join('')}</div><div class="bbody">${body}</div><button class="btn" id="bx">返回</button></div>`;
+  o.querySelectorAll('[data-t]').forEach(b => b.onclick = () => book(b.dataset.t, sub, up));
+  o.querySelectorAll('[data-sub]').forEach(b => b.onclick = () => book(tab, b.dataset.sub, up));
+  o.querySelector('#bup')?.addEventListener('change', e => book(tab, sub, e.target.checked ? 1 : 0));
+  o.querySelector('#bx').onclick = () => o.remove();
 }
 
 // ---------- 调试 ----------
