@@ -93,6 +93,8 @@ function botTurn() {
       else s = 4;
       if (o.k === 0) s += 2; if (d.potion) s += 3;
       if (/打出所有光弹|满格炮/.test(d.desc(0)) && (B.p.st.ammo || 0) < 4) s -= 6;
+      if (/用掉|打出所有光弹/.test(d.desc(0)) && !(B.p.st.ammo || 0)) s -= 10;
+      if (d.id === 'eshield' && need <= 0) s -= 10;
       if (/消耗全部结界/.test(d.desc(0)) && (B.p.st.kek || 0) < 4) s -= 6;
       if ((d.id === 'crack' || d.id === 'deadly' || d.id === 'catalyst') && !alive().some(e => (e.st.res || e.st.poison || 0) >= 5)) s -= 6;
       return s; };
