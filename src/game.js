@@ -35,7 +35,7 @@ const has = id => R.relics.includes(id);
 const mine = d => !d.ch || d.ch === (R.char || 'hero');
 function save() { try { localStorage.setItem('theway_run_v2', JSON.stringify(R)); } catch (e) {} }
 function clearSave() { try { localStorage.removeItem('theway_run_v2'); } catch (e) {} }
-function load() { try { const s = JSON.parse(localStorage.getItem('isekai_cards_run')); if (s) { uidN = 1 + Math.max(0, ...s.deck.map(c => c.uid)); } return s; } catch (e) { return null; } }
+function load() { try { const s = JSON.parse(localStorage.getItem('theway_run_v2')); if (s) { uidN = 1 + Math.max(0, ...s.deck.map(c => c.uid)); } return s; } catch (e) { return null; } }
 
 // ---------- 地图生成 ----------
 const ROWS = 15, COLS = 7;
@@ -145,7 +145,7 @@ function title() {
    <div class="row">${sv ? '<button class="btn" id="cont">继续冒险</button>' : ''}<button class="btn" id="start">${sv ? '新的冒险' : '开始冒险'}</button></div>
    <p style="font-size:13px;color:#998;margin:16px 0 0">快捷键：数字键选牌 · E 结束回合 · Esc 取消 · M 静音</p></div>`;
   $('#start').onclick = pickChar;
-  $('#cont')?.addEventListener('click', () => { R = sv; mapScreen(); });
+  $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending) enterNode(R.pending); else mapScreen(); });
 }
 
 function pickChar() {
@@ -162,7 +162,7 @@ function available() {
   const cur = R.map[R.pos.r][R.pos.c]; return cur.next.map(c => R.map[R.pos.r + 1][c]);
 }
 function mapScreen() {
-  audio.setMode('menu'); save();
+  audio.setMode('menu'); delete R.pending; delete R.pendEnc; save();
   const av = available(), H = ROWS * 92 + 320;
   let lines = '';
   for (const row of R.map) for (const nd of row) if (nd) for (const c of nd.next) { const t = R.map[nd.r + 1][c]; lines += `<line x1="${nd.x}" y1="${nd.y}" x2="${t.x}" y2="${t.y}" stroke="#5a3a1a" stroke-width="3" stroke-dasharray="4 8" stroke-linecap="round" opacity=".75"/>`; }
@@ -181,15 +181,18 @@ function mapScreen() {
   bindTop();
   const m = $('#map'); const y = R.pos ? R.map[R.pos.r][R.pos.c].y : H; m.scrollTop = Math.max(0, y - 480);
   view.querySelectorAll('.node.av').forEach(el => el.onclick = () => {
-    if (el.classList.contains('boss')) { R.floor++; return battle([R.boss], 'boss'); }
+    if (el.classList.contains('boss')) { R.floor++; R.pending = 'boss'; save(); return enterNode('boss'); }
     const nd = R.map[+el.dataset.r][+el.dataset.c]; R.pos = { r: nd.r, c: nd.c }; (R.path = R.path || []).push(R.pos); R.floor++;
-    enterNode(nd.type);
+    R.pending = nd.type; save(); enterNode(nd.type);
   });
   dbgPanel();
 }
 function enterNode(t) {
-  if (t === 'fight') { const pool = R.fights < 3 ? ENCOUNTERS.easy : ENCOUNTERS.hard; R.fights++; return battle(pickOne(pool), 'fight'); }
-  if (t === 'elite') return battle(pickOne(ENCOUNTERS.elite), 'elite');
+  if (t === 'boss') return battle([R.boss], 'boss');
+  if (t === 'fight' || t === 'elite') { // 记住这场遭遇，中途退出再进来还是同一批怪
+    if (!R.pendEnc) { R.pendEnc = t === 'elite' ? pickOne(ENCOUNTERS.elite) : pickOne(R.fights < 3 ? ENCOUNTERS.easy : ENCOUNTERS.hard); if (t === 'fight') R.fights++; save(); }
+    return battle(R.pendEnc, t);
+  }
   if (t === 'rest') return restScreen();
   if (t === 'shop') return shopScreen();
   if (t === 'treasure') return treasureScreen();
