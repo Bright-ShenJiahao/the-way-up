@@ -29,9 +29,10 @@ const kwify = t => TIPS ? t.replace(new RegExp(Object.keys(KW).join('|'), 'g'), 
 let R = null; // 当前一局
 let uidN = 1;
 const mkCard = (id, up = 0) => ({ id, up, uid: uidN++ });
-function newRun(char = 'hero') {
-  R = { char, hp: 80, maxHp: 80, gold: 120, potions: [], deck: STARTERS[char].map(id => mkCard(id)), relics: [{ heroine: 'phones', miko: 'suzu', witch: 'cauldron' }[char] || 'gameboy'], map: genMap(), pos: null,
+function newRun(char = 'hero', asc = 0) {
+  R = { char, hp: 80, maxHp: 80, gold: 120, potions: [], asc, deck: STARTERS[char].map(id => mkCard(id)), relics: [{ heroine: 'phones', miko: 'suzu', witch: 'cauldron' }[char] || 'gameboy'], map: genMap(), pos: null,
     floor: 0, fights: 0, removeCost: 75, boss: pickOne(ENCOUNTERS.boss)[0], feather: 0 };
+  if (asc >= 4) { R.maxHp -= 8; R.hp = R.maxHp; }
 }
 const has = id => R.relics.includes(id);
 const mine = d => !d.ch || d.ch === (R.char || 'hero');
@@ -124,7 +125,7 @@ function rollCards(n, rareBonus = 0, onlyRare = false) {
   const out = [];
   while (out.length < n) {
     const x = Math.random(); const rar = onlyRare ? 'r' : x < .06 + rareBonus ? 'r' : x < .4 + rareBonus ? 'u' : 'c';
-    const pool = Object.values(CARDS).filter(d => d.rar === rar && mine(d) && !out.includes(d.id));
+    const L = lockedSet(); const pool = Object.values(CARDS).filter(d => d.rar === rar && mine(d) && !L.has(d.id) && !out.includes(d.id));
     if (pool.length) out.push(pickOne(pool).id);
   }
   return out.map(id => mkCard(id));
@@ -135,14 +136,26 @@ function chooseCard(cards, done, title = '选择一张牌加入牌组') {
   o.querySelectorAll('.card').forEach(el => el.onclick = () => { R.deck.push(cards.find(c => c.uid == el.dataset.uid)); audio.level(); o.remove(); done(true); });
 }
 function rollRelic(rars = ['c', 'c', 'c', 'u', 'u', 'r'], crown = false) {
-  for (let k = 0; k < 30; k++) { const r = pickOne(rars); const pool = Object.values(RELICS).filter(x => x.rar === r && mine(x) && !has(x.id) && (crown || x.id !== 'crown')); if (pool.length) return pickOne(pool).id; }
-  const pool = Object.values(RELICS).filter(x => x.rar !== 'start' && mine(x) && !has(x.id) && (crown || x.id !== 'crown')); return pool.length ? pickOne(pool).id : null;
+  for (let k = 0; k < 30; k++) { const r = pickOne(rars); const pool = Object.values(RELICS).filter(x => x.rar === r && mine(x) && !lockedSet().has(x.id) && !has(x.id) && (crown || x.id !== 'crown')); if (pool.length) return pickOne(pool).id; }
+  const pool = Object.values(RELICS).filter(x => x.rar !== 'start' && mine(x) && !lockedSet().has(x.id) && !has(x.id) && (crown || x.id !== 'crown')); return pool.length ? pickOne(pool).id : null;
 }
 function gainRelic(id) { if (!id) return; R.relics.push(id); if (id === 'herb') { R.maxHp += 10; R.hp += 10; } if (id === 'crown') { R.maxHp -= 10; R.hp = Math.min(R.hp, R.maxHp); } audio.level(); }
 
 // ---------- 标题 ----------
 // ---------- 玩家名字 / 口令（存在浏览器里） ----------
 const LS = (k, v) => { try { if (v === undefined) return localStorage.getItem(k) || ''; localStorage.setItem(k, v); } catch (e) { return ''; } };
+// ---------- 局外成长：进阶难度 + 解锁 ----------
+const ASC = ['标准难度', '精英血量 +15%', '普通怪血量 +10%', '敌人伤害 +10%', '开局最大生命 -8', '营火只回复 20% 生命', 'Boss 血量 +15%', '战斗金币 -30%', '敌人伤害再 +10%'];
+const UNLOCKS = [
+  { xp: 300, cards: ['dual', 'concert'], relics: [] },
+  { xp: 800, cards: ['shinboku', 'sage'], relics: ['mic'] },
+  { xp: 1500, cards: ['screen', 'distort', 'deadly'], relics: ['pad'] },
+  { xp: 2500, cards: ['thunder'], relics: ['crown', 'feather'] },
+];
+const metaGet = () => { try { return Object.assign({ xp: 0, asc: {} }, JSON.parse(localStorage.getItem('tw_meta') || '{}')); } catch (e) { return { xp: 0, asc: {} }; } };
+const metaSet = m => { try { localStorage.setItem('tw_meta', JSON.stringify(m)); } catch (e) {} };
+const lockedSet = () => { const xp = metaGet().xp, s = new Set(); UNLOCKS.forEach(u => { if (xp < u.xp) [...u.cards, ...u.relics].forEach(x => s.add(x)); }); if (DEBUG) s.clear(); return s; };
+const A_ = n => (R && R.asc || 0) >= n;
 const ONLINE = !/githack|localhost|127\.0\.0\.1|^file/.test(location.href); // 试玩链接上没有后台
 const CHARINFO = {
   miko: { diff: 1, tip: '结界越叠越厚，每回合自动加格挡。防守稳，最适合新手。' },
@@ -225,7 +238,7 @@ function rankBoard() {
 function submitScore(win) {
   const name = LS('tw_name'); if (DEBUG || !ONLINE || !name) return Promise.resolve(null);
   return fetch('/api/scores', { method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ name, pin: LS('tw_pin'), char: R.char, floor: R.floor, kills: R.kills || 0, elites: R.elites || 0, win, hp: Math.max(0, R.hp) }) })
+    body: JSON.stringify({ name, pin: LS('tw_pin'), char: R.char, asc: R.asc || 0, floor: R.floor, kills: R.kills || 0, elites: R.elites || 0, win, hp: Math.max(0, R.hp) }) })
     .then(r => r.json()).catch(() => null);
 }
 
@@ -233,8 +246,13 @@ function pickChar() {
   view.innerHTML = `${bgHTML()}<div class="panel csel"><h2>选择角色</h2><div class="row">${ORDER.map(k => { const c = CHARS[k], i = CHARINFO[k];
     return `<div class="reward cc" data-c="${k}"><img src="assets/${c.dir}/portrait.png"><b>${c.name}</b><span class="cd">${c.desc}</span>
      <span class="diff">上手难度 <i>${'★'.repeat(i.diff)}${'☆'.repeat(3 - i.diff)}</i> ${['', '简单', '普通', '困难'][i.diff]}</span><span class="ct">${i.tip}</span></div>`; }).join('')}</div>
+   <div class="ascbar">进阶难度 <button class="btn" id="am">−</button><b id="av"></b><button class="btn" id="ap">＋</button><span id="ad"></span></div>
    <button class="btn" id="back">返回</button></div>`;
-  view.querySelectorAll('[data-c]').forEach(el => el.onclick = () => { newRun(el.dataset.c); save(); mapScreen(); });
+  const M = metaGet(); let asc = 0, cur = 'miko';
+  const mx = k => DEBUG ? 8 : Math.min(8, M.asc[k] || 0);
+  const show = () => { asc = Math.min(asc, mx(cur)); $('#av').textContent = asc; $('#ad').textContent = asc ? ASC.slice(1, asc + 1).join('，') : `标准难度（用这个角色通关可解锁进阶 1，当前最高 ${mx(cur)}）`; };
+  view.querySelectorAll('[data-c]').forEach(el => { el.onmouseenter = () => { cur = el.dataset.c; show(); }; el.onclick = () => { newRun(el.dataset.c, Math.min(asc, mx(el.dataset.c))); save(); mapScreen(); }; });
+  $('#am').onclick = () => { asc = Math.max(0, asc - 1); show(); }; $('#ap').onclick = () => { asc = Math.min(mx(cur), asc + 1); if (asc === mx(cur) && asc < 8) tip(`${CHARS[cur].name}：通关进阶 ${asc} 后解锁下一级`); show(); }; show();
   $('#back').onclick = mainMenu;
 }
 // ---------- 地图 ----------
@@ -287,7 +305,9 @@ function enterNode(t) {
 let B = null, eid = 1;
 function mkEnemy(key) {
   const d = ENEMIES[key], hp = rnd(d.hp[0], d.hp[1]);
-  const e = { key, d, name: d.name, hp, max: hp, block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++, move: null };
+  const hm = 1 + (A_(1) && d.elite ? .15 : 0) + (A_(2) && !d.elite && !d.boss ? .1 : 0) + (A_(6) && d.boss ? .15 : 0);
+  const hp1 = Math.round(hp * hm);
+  const e = { key, d, name: d.name, hp: hp1, max: hp1, dmul: 1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++, move: null };
   d.init && d.init(e); return e;
 }
 const alive = () => B.en.filter(e => !e.dead);
@@ -325,7 +345,7 @@ function banner(t) { const b = document.createElement('div'); b.id = 'banner'; b
 
 // 伤害计算
 function atkVal(src, tgt, base, strMul = 1) {
-  let d = base + (src.st.str || 0) * strMul; if (src.st.weak) d *= .75; if (tgt && tgt.st.vuln) d *= 1.5; return Math.max(0, Math.floor(d));
+  let d = (base + (src.st.str || 0) * strMul) * (src.dmul || 1); if (src.st.weak) d *= .75; if (tgt && tgt.st.vuln) d *= 1.5; return Math.max(0, Math.floor(d));
 }
 function fx(who, text, cls) { B.fx.push({ who, text, cls }); }
 // 对目标造成伤害（已计算好的数值），返回未被格挡的伤害
@@ -628,7 +648,7 @@ view.addEventListener('contextmenu', e => { if (B && B.sel >= 0) { e.preventDefa
 function rewardScreen() {
   const kind = B.kind; B = null; audio.setMode('menu');
   const items = [];
-  const gold = kind === 'elite' ? rnd(25, 35) : rnd(10, 20);
+  const gold = Math.round((kind === 'elite' ? rnd(25, 35) : rnd(10, 20)) * (A_(7) ? .7 : 1));
   items.push({ html: `<img src="assets/icons/goldbag.png">${gold} 金币`, go: () => { R.gold += gold; } });
   if (has('clover')) items.push({ html: `<img src="${RELICS.clover.img}">四叶草：15 金币`, go: () => { R.gold += 15; } });
   if (kind === 'elite') { const rl = rollRelic(); if (rl) items.push({ html: `<img src="${RELICS[rl].img}">遗物：${RELICS[rl].name}`, go: () => gainRelic(rl) }); }
@@ -650,7 +670,7 @@ function rewardScreen() {
 
 // ---------- 营火 ----------
 function restScreen() {
-  const heal = Math.floor(R.maxHp * .3);
+  const heal = Math.floor(R.maxHp * (A_(5) ? .2 : .3));
   view.innerHTML = `${bgHTML()}${topBar()}<div class="panel"><h2>营火</h2><p>篝火噼啪作响，难得的安宁。</p><div class="row">
    <button class="btn" id="rest">休息：回复 ${heal} 生命</button><button class="btn" id="smith" ${R.deck.some(c => !c.up) ? '' : 'disabled'}>锻造：升级一张牌</button></div></div>`;
   bindTop();
@@ -719,10 +739,17 @@ function endScreen(win) {
   B = null; audio.setMode('menu');
   const k = R.kills || 0, el = R.elites || 0, hp = Math.max(0, R.hp);
   const rows = [[`攀登的层数 (${R.floor})`, R.floor * 20], [`击杀的敌人 (${k})`, k * 3], [`击败的精英 (${el})`, el * 25], [`打败 Boss (${win ? 1 : 0})`, win ? 300 : 0], [`通关时剩余生命 (${win ? hp : 0})`, win ? hp * 2 : 0]];
+  if (R.asc) rows.push([`进阶难度 ${R.asc}（×${(1 + R.asc * .1).toFixed(1)}）`, Math.round(rows.reduce((a, r) => a + r[1], 0) * R.asc * .1)]);
   const total = rows.reduce((a, r) => a + r[1], 0);
+  const M = metaGet(), before = M.xp; let news = [];
+  if (!DEBUG) { M.xp += total; if (win && (R.asc || 0) >= (M.asc[R.char] || 0) && (M.asc[R.char] || 0) < 8) { M.asc[R.char] = (R.asc || 0) + 1; news.push(`${CHARS[R.char].name} 解锁进阶 ${M.asc[R.char]}`); } metaSet(M); }
+  UNLOCKS.forEach(u => { if (before < u.xp && M.xp >= u.xp) news.push('解锁：' + [...u.cards.map(c => CARDS[c].name), ...u.relics.map(x => RELICS[x].name)].join('、')); });
+  const nx = UNLOCKS.find(u => M.xp < u.xp), left = UNLOCKS.filter(u => M.xp < u.xp).length;
   view.innerHTML = `${bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
    <p class="endsub">${win ? `${ENEMIES[R.boss].name}倒下了，翠绿之地恢复了平静。<br><b style="color:#ffe08a">第一章完 · 感谢游玩！</b>更多内容制作中，欢迎把感想告诉作者。` : `${CHARS[R.char || 'hero'].name}倒在了翠绿之地第 ${R.floor} 层。`}</p>
    <table class="score">${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}<tr class="tot"><td>分数</td><td>${total}</td></tr></table>
+   <div class="xpw"><div class="xpb"><i style="width:${nx ? Math.min(100, M.xp / nx.xp * 100) : 100}%"></i></div><span>${nx ? `[${M.xp}/${nx.xp}]` : `[${M.xp}] 全部解锁`}</span><span>剩余解锁：${left}</span></div>
+   ${news.map(t => `<p class="endsub" style="color:#7fe07f">★ ${t}</p>`).join('')}
    <p id="sc" class="endsub" style="color:#ffd35a">${DEBUG ? '调试模式，成绩不记录' : !ONLINE ? '试玩链接不记录成绩' : LS('tw_name') ? '正在提交成绩……' : ''}</p>
    <div class="row"><button class="btn big" id="again">主菜单</button><button class="btn" id="rk2">排行榜</button></div></div>`;
   $('#again').onclick = mainMenu; $('#rk2').onclick = rankBoard;
@@ -764,10 +791,10 @@ function book(tab = 'card', sub = 'miko', up = 0) {
     const subs = [...ORDER.map(k => [k, CHARS[k].name]), ['all', '共用']];
     const list = Object.values(CARDS).filter(d => sub === 'all' ? !d.ch : d.ch === sub).sort((a, b) => ('start c u r gen'.indexOf(a.rar)) - ('start c u r gen'.indexOf(b.rar)));
     body = `<div class="bsub">${subs.map(([k, n]) => `<b class="${k === sub ? 'on' : ''}" data-sub="${k}">${n}</b>`).join('')}<label class="ck"><input type="checkbox" id="bup" ${up ? 'checked' : ''}><span>查看升级后</span></label></div>
-     <div class="bgrid cards">${list.map(d => `<div class="bc">${cardHTML({ id: d.id, up, uid: 0 })}<small>${{ start: '初始', c: '普通', u: '罕见', r: '稀有', gen: '药瓶（由其他牌生成）' }[d.rar]}</small></div>`).join('')}</div>`;
+     <div class="bgrid cards">${list.map(d => `<div class="bc">${cardHTML({ id: d.id, up, uid: 0 })}<small>${{ start: '初始', c: '普通', u: '罕见', r: '稀有', gen: '炼金瓶（由其他牌生成）' }[d.rar]}${lockedSet().has(d.id) ? ' · 🔒 ' + UNLOCKS.find(u => u.cards.includes(d.id)).xp + ' 分解锁' : ''}</small></div>`).join('')}</div>`;
   } else if (tab === 'relic') {
     const who = r => r.ch ? CHARS[r.ch].name + ' 专属' : '通用';
-    body = `<div class="bgrid">${Object.values(RELICS).map(r => `<div class="bi"><img src="${r.img}"><div><b>${r.name}</b><small>${who(r)} · ${{ start: '初始', c: '普通', u: '罕见', r: '稀有' }[r.rar]}</small><p>${kwify(r.desc)}</p></div></div>`).join('')}</div>`;
+    body = `<div class="bgrid">${Object.values(RELICS).map(r => `<div class="bi"><img src="${r.img}"><div><b>${r.name}</b><small>${who(r)} · ${{ start: '初始', c: '普通', u: '罕见', r: '稀有' }[r.rar]}${lockedSet().has(r.id) ? ' · 🔒 ' + UNLOCKS.find(u => u.relics.includes(r.id)).xp + ' 分解锁' : ''}</small><p>${kwify(r.desc)}</p></div></div>`).join('')}</div>`;
   } else if (tab === 'pot') {
     body = `<p style="margin:0 0 10px">所有角色通用。最多带 3 瓶，战斗中点左上角的药水使用，不花能量。打完战斗有机会掉落，商店也卖。</p><div class="bgrid">${Object.values(POTIONS).map(x => `<div class="bi"><img src="${x.img}"><div><b>${x.name}</b><small>${x.rar === 'r' ? '稀有' : '普通'}</small><p>${x.desc}</p></div></div>`).join('')}</div>`;
   } else if (tab === 'mon') {
