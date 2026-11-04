@@ -96,7 +96,7 @@
 "二丁持ち"
 ],
 "低频": [
-"Low Freq",
+"Low Frequency",
 "低周波"
 ],
 "失真": [
@@ -124,7 +124,7 @@
 "薬ポーチ"
 ],
 "贤者之石": [
-"Stone",
+"Philosopher's Stone",
 "賢者の石"
 ],
 "攻击伤害增加": [
@@ -168,8 +168,8 @@
 "スキル使用で筋力上昇"
 ],
 "回合结束获得力量": [
-"Gains Strength at end of turn",
-"ターン終了時に筋力"
+"Gains Strength equal to Ritual at end of turn",
+"ターン終了時、戦意と同じ筋力を得る"
 ],
 "归零时自爆": [
 "Explodes at 0",
@@ -203,10 +203,6 @@
 "Resonance to all each turn",
 "毎ターン敵全体に共鳴"
 ],
-"爆音后保留一半共鸣": [
-"Keeps Resonance after Burst",
-"爆音後も共鳴が残る"
-],
 "出牌时给所有敌人共鸣": [
 "Cards give all enemies Resonance",
 "カード使用で敵全体に共鳴"
@@ -234,10 +230,6 @@
 "回合开始获得炼金瓶": [
 "Gain a Flask each turn",
 "毎ターン錬金瓶"
-],
-"炼金瓶效果翻倍": [
-"Double Flask effects",
-"錬金瓶効果2倍"
 ],
 "抵挡受到的伤害。你的回合开始时清零。": [
 "Blocks damage. Resets at the start of your turn.",
@@ -312,8 +304,8 @@
 "共鳴{0}で爆発、{1}ダメージ。その後{2}残る。"
 ],
 "敌人行动前掉等于层数的血（无视格挡），然后层数 {0}。": [
-"Before acting, the enemy loses HP equal to stacks (ignores Block), then stacks {0}.",
-"敵は行動前に層数ぶんHPを失う（ブロック無視）。その後層{0}。"
+"Before acting, the enemy loses HP equal to stacks (ignores Block), then stacks go {0}.",
+"敵は行動前に層数ぶんHPを失い（ブロック無視）、その後層が{0}。"
 ],
 "由其他牌生成的 {0} 费牌，用一次就没了。": [
 "{0}-cost cards made by other cards. One use only.",
@@ -332,15 +324,15 @@
 "共鳴{0}/{1}⚠"
 ],
 "结界{0}（下回合{1}挡）": [
-"Ward {0} ({1} Block)",
-"結界{0}（次{1}ブロック）"
+"Ward {0} ({1} Block next turn)",
+"結界{0}（次ターン{1}ブロック）"
 ],
 "中毒{0}（下回合{1}）": [
-"Poison {0} ({1} next)",
-"毒{0}（次{1}）"
+"Poison {0} ({1} HP next)",
+"毒{0}（次ターン{1}ダメージ）"
 ],
 "光弹{0}（回合末{1}发）": [
-"Ammo {0} ({1} shots)",
+"Ammo {0} (fires {1})",
 "光弾{0}（終了時{1}発）"
 ],
 "光弹{0}": [
@@ -384,8 +376,8 @@
 "妖精が助けた！"
 ],
 "受到 {0}": [
-"Incoming {0}",
-"被ダメ{0}"
+"Est. HP loss: {0}",
+"被ダメージ予測{0}"
 ],
 "敌人下回合共 {0} 点伤害，你有 {1} 格挡，还差 {2}": [
 "Enemies deal {0} next turn; you have {1} Block, {2} short",
@@ -522,5 +514,37 @@
 "叠在敌人身上，满 {0} 层自动爆音。": [
 "Stacks on enemies. Bursts at {0}.",
 "敵に重なり、{0}で自動的に爆音。"
+],
+"爆音后多保留 {0} 层共鸣，爆音伤害 {1}": [
+"Burst keeps {0} more Resonance, Burst damage {1}",
+"爆音後に共鳴を{0}多く残す、爆音ダメージ{1}"
+],
+"炼金瓶的伤害和中毒翻倍": [
+"Flasks deal double damage and Poison",
+"錬金瓶のダメージと毒が2倍"
+],
+"这个名字已被设了口令，口令不对": [
+"That name has a PIN and yours doesn't match",
+"この名前には暗証番号があり、一致しません"
+],
+"数据异常": [
+"Invalid data",
+"データ異常"
+],
+"没有名字": [
+"No name",
+"名前がありません"
+],
+"口令要 4～6 位数字": [
+"PIN must be 4-6 digits",
+"暗証番号は数字4〜6桁"
+],
+"读取失败": [
+"Load failed",
+"読み込み失敗"
+],
+"提交太频繁，请稍后再试": [
+"Too many submissions, try later",
+"送信が多すぎます。後で試してね"
 ]
 }

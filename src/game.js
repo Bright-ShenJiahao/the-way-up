@@ -7,10 +7,15 @@ const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
 watch(stage); window.__i18nMissing = missing;
 let SCREEN = 'title';
+const TOUCH = matchMedia('(hover: none), (pointer: coarse)').matches; document.documentElement.classList.toggle('touch', TOUCH);
+/* 卡牌说明放不下时自动缩小字号（最小 8px） */
+const fitCard = c => { const sp = c.querySelector('.cdesc span'), box = c.querySelector('.cdesc'), nm = c.querySelector('.cname'); if (box && sp) { let f = 12; sp.style.fontSize = ''; while (box.scrollHeight > box.clientHeight + 1 && f > 8) { f -= .5; sp.style.fontSize = f + 'px'; } } if (nm) { let f = 14; nm.style.fontSize = ''; while (nm.scrollWidth > nm.clientWidth + 1 && f > 9) { f -= .5; nm.style.fontSize = f + 'px'; } } };
+new MutationObserver(ms => { for (const m of ms) m.addedNodes.forEach(n => { if (n.nodeType !== 1) return; if (n.matches?.('.card')) fitCard(n); n.querySelectorAll?.('.card').forEach(fitCard); }); }).observe(stage, { childList: true, subtree: true });
+addEventListener('error', e => { try { tip(tr('出错了，可以在设置里保存并退出后重新进入') + ' (' + (e.message || '').slice(0, 60) + ')'); } catch (_) {} });
 const LANGS = [['zh', '中文'], ['en', 'English'], ['ja', '日本語']];
 const langBar = () => `<div class="langbar" data-noi18n>${LANGS.map(([k, n]) => `<b class="${getLanguage() === k ? 'on' : ''}" data-lang="${k}">${n}</b>`).join('')}</div>`;
 const bindLang = after => view.querySelectorAll('[data-lang]').forEach(el => el.onclick = () => { setLanguage(el.dataset.lang); after && after(); });
-const applyStatic = () => { document.title = tr('通往顶端') + ' The Way Up: Otherworld Deck'; const r = document.querySelector('#rot div:nth-child(2)'); if (r) r.textContent = getLanguage() === 'zh' ? '请把手机横过来玩' : tr('请把手机横过来玩'); };
+const applyStatic = () => { document.title = tr('通往顶端') + ' The Way Up: Otherworld Deck'; const r = document.querySelector('#rot div:nth-child(2)'); if (r) r.textContent = getLanguage() === 'zh' ? '请把手机横过来玩' : tr('请把手机横过来玩'); const r3 = document.querySelector('#rot div:nth-child(3)'); if (r3) r3.style.display = getLanguage() === 'en' ? 'none' : ''; document.documentElement.lang = getLanguage() === 'zh' ? 'zh-CN' : getLanguage(); };
 onLanguageChange(applyStatic); applyStatic();
 const DEBUG = /[?&]debug/.test(location.search) || location.hash === '#debug';
 const audio = createAudio();
@@ -180,11 +185,11 @@ function title() {
   audio.setMode('menu'); R = null; B = null;
   view.innerHTML = `<div class="bg" style="background:url(assets/bg/title.jpg) center/cover,url(assets/bg/battle_castle.jpg) center/cover"></div><div class="tshade"></div>
    <div class="tlogo"><h1>通往顶端</h1><p class="en">THE WAY UP</p><p class="en2">OTHERWORLD DECK</p></div>
-   <div class="tbox"><input id="nm" class="inp" maxlength="8" placeholder="输入你的名字" value="${esc(LS('tw_name'))}">
+   <div class="tbox"><input id="nm" class="inp" maxlength="8" placeholder="输入你的名字（可不填）" value="${esc(LS('tw_name'))}">
     <input id="pin" class="inp sm" maxlength="6" inputmode="numeric" placeholder="口令（可选，4～6 位数字）" value="${esc(LS('tw_pin'))}">
     <button class="btn big" id="enter">进入游戏</button><p class="tkeys">设了口令，别人就不能用你的名字上排行榜</p>${langBar()}</div>`;
   bindLang(title); SCREEN = 'title';
-  const go = () => { const n = $('#nm').value.trim(); if (!n) { tip('先输入名字'); $('#nm').focus(); return; } LS('tw_name', n); LS('tw_pin', $('#pin').value.trim()); mainMenu(); };
+  const go = () => { const n = $('#nm').value.trim() || ('Guest' + Math.floor(100 + Math.random() * 900)); LS('tw_name', n); LS('tw_pin', $('#pin').value.trim()); mainMenu(); };
   $('#enter').onclick = go; $('#nm').onkeydown = $('#pin').onkeydown = e => { if (e.key === 'Enter') go(); };
 }
 function mainMenu() {
@@ -224,7 +229,7 @@ function settings(inRun) {
     <div class="sbox"><h3>玩家</h3><label class="sl"><span>名字</span><input id="snm" class="inp sm" maxlength="8" value="${esc(LS('tw_name'))}"></label>
      <label class="sl"><span>口令</span><input id="spin" class="inp sm" maxlength="6" inputmode="numeric" value="${esc(LS('tw_pin'))}" placeholder="可不填"></label></div>
     <div class="sbox"><h3>语言 / Language</h3>${langBar()}</div>
-    <div class="sbox"><h3>其他</h3><button class="btn" id="sfs">全屏 / 退出全屏</button>${inRun ? `<button class="btn red" id="sab">放弃这局</button><button class="btn" id="ssq">保存并退出</button>${R && R.pending ? '<p class="tkeys">中途退出，继续时从进入这一格之前开始</p>' : ''}` : ''}</div>
+    <div class="sbox"><h3>其他</h3><button class="btn" id="sfs">全屏 / 退出全屏</button><button class="btn" id="stut">重看新手教程</button>${inRun ? `<button class="btn red" id="sab">放弃这局</button><button class="btn" id="ssq">保存并退出</button>${R && R.pending ? '<p class="tkeys">中途退出，继续时从进入这一格之前开始</p>' : ''}` : ''}</div>
    </div></div>
    <div class="tp" data-p="k" style="display:none"><table class="keys">${[['选择第 1～9 张手牌', '1 ～ 9'], ['第 10 张手牌', '0'], ['结束回合', 'E'], ['取消选择', 'Esc'], ['静音', 'M'], ['选择目标', '点击敌人']].map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table></div>
    <button class="btn" id="sx">返回</button></div>`);
@@ -233,6 +238,7 @@ function settings(inRun) {
   o.querySelectorAll('[data-v]').forEach(r => r.oninput = () => { audio.setVol(r.dataset.v, r.value / 100); r.nextElementSibling.textContent = r.value + '%'; });
   o.querySelectorAll('[data-s]').forEach(c => c.onchange = () => { const k = c.dataset.s;
     if (k === 'tips') { TIPS = c.checked; try { localStorage.setItem('tipsOff', TIPS ? '0' : '1'); } catch (e) {} } else { SET[k] = c.checked ? 1 : 0; saveSet(); } });
+  o.querySelector('#stut').onclick = () => { try { localStorage.removeItem('tutDone'); } catch (e) {} TIPS = true; try { localStorage.setItem('tipsOff', '0'); } catch (e) {} tip(tr('下一场战斗开始时会重新显示教程')); };
   o.querySelector('#sfs').onclick = () => $('#tbfs') ? $('#tbfs').click() : (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.());
   const close = () => { LS('tw_name', o.querySelector('#snm').value.trim()); LS('tw_pin', o.querySelector('#spin').value.trim()); o.remove(); };
   o.querySelector('#sx').onclick = () => { close(); if (inRun && B && !B.over) render(); };
@@ -348,7 +354,7 @@ const TUT = ['每回合有 3 点<b>能量</b>（左下角的球），出牌要�
   '敌人头上的图标是它<b>下回合要做的事</b>：剑是攻击，数字是伤害；盾是加格挡。鼠标移上去可以看详细说明。',
   '<b>格挡</b>能挡住伤害，但只挡这一轮，你的回合开始时会清零。血条下面会提示你这回合还会受到多少伤害。',
   '有的攻击牌要选目标：点牌，再点敌人。出完牌，点右边的「结束回合」。',
-  '左上角是<b>药水栏</b>（最多 3 瓶）：点一下就用，不花能量；需要目标的药水，点完再点敌人。打完战斗有机会掉药水。<br>所有规则都能在主菜单的「图鉴 → 概念说明」里查到。'];
+  '左上角是<b>药水栏</b>（最多 3 瓶）：点一下就用，不花能量；需要目标的药水，点完再点敌人。打完战斗有机会掉药水。<br>所有规则都能在主菜单的“图鉴 → 概念说明”里查到。'];
 function tutorial() {
   if (!TIPS || !B) return; let done = false; try { done = localStorage.getItem('tutDone') === '1'; } catch (e) {} if (done) return;
   let i = 0; const o = overlay(''); o.style.background = 'rgba(0,0,0,.55)';
@@ -614,7 +620,7 @@ function render() {
     const tg = B.sel >= 0 && !e.dead;
     return `<div class="unit enemy ${hd ? 'hd' : ''} ${tg ? 'tg' : ''} ${hs.has(e.id) ? 'hit' : ''} ${B.lunge === e.id ? 'lunge' : ''} ${e.dead ? 'dead' : ''}" data-id="${e.id}" data-eid="${e.id}">
       ${e.dead ? '<div class="intent"></div>' : intentHTML(e)}
-      <div class="sprw" ${ENEMIES[e.key].hdw ? `style="width:${ENEMIES[e.key].hdw}px"` : ''}>${hd ? `<img class="spr" decoding="sync" data-eid="${e.id}" src="${eFrame(e)}" style="height:${hd}px">` : `<img class="spr px" data-k="${e.key}" src="assets/enemies/${e.key}/${img}.png" style="zoom:${h}">`}<i class="shd"></i></div>
+      <div class="sprw" ${ENEMIES[e.key].hdw ? `style="width:${ENEMIES[e.key].hdw}px"` : ''}>${hd ? `<img class="spr" decoding="async" data-eid="${e.id}" src="${eFrame(e)}" style="height:${hd}px">` : `<img class="spr px" data-k="${e.key}" src="assets/enemies/${e.key}/${img}.png" style="zoom:${h}">`}<i class="shd"></i></div>
       ${barHTML(e.hp, e.max, e.block)}${stsHTML(e.st)}<div class="uname">${e.d.name}</div></div>`;
   }).join('');
   const energy = B.p.energy, n = B.hand.length, W = 980, cw = 150, gap = Math.min(cw + 6, (W - cw) / Math.max(1, n - 1));
@@ -625,7 +631,7 @@ function render() {
     return cardHTML(c, `${sel ? 'sel' : ''} ${off ? 'off' : ''}`, energy).replace('class="card', `data-i="${i}" style="left:${x0 + i * gap}px;transform:translateY(${sel ? -100 : dy}px) rotate(${sel ? 0 : rot}deg);z-index:${i + 1}" class="card`);
   }).join('');
   view.innerHTML = `${bgHTML(true, B.bg)}${topBar()}
-   <div id="hero" class="unit ${hs.has('hero') ? 'hit' : ''} ${heroAnimCls}" data-id="hero"><div class="intent"></div><div class="sprw"><img class="spr" decoding="sync" src="${heroFrame()}" style="height:${CHARS[R.char || 'hero'].h}px"><i class="shd" style="width:150px"></i></div>${barHTML(R.hp, R.maxHp, B.p.block, 1)}${stsHTML(B.p.st)}<div class="uname">${CHARS[R.char || 'hero'].name}</div></div>
+   <div id="hero" class="unit ${hs.has('hero') ? 'hit' : ''} ${heroAnimCls}" data-id="hero"><div class="intent"></div><div class="sprw"><img class="spr" decoding="async" src="${heroFrame()}" style="height:${CHARS[R.char || 'hero'].h}px"><i class="shd" style="width:150px"></i></div>${barHTML(R.hp, R.maxHp, B.p.block, 1)}${stsHTML(B.p.st)}<div class="uname">${CHARS[R.char || 'hero'].name}</div></div>
    <div id="enemies">${enemies}</div>${foreHTML()}
    <div id="energy" class="${energy ? '' : 'empty'}">${energy}/${Math.max(energy, 3 + (has('crown') ? 1 : 0))}</div>
    <button class="btn" id="endturn" ${B.busy ? 'disabled' : ''}>${B.busy ? '敌人回合' : '结束回合 (E)'}</button>
@@ -637,7 +643,7 @@ function render() {
   $('#drawp').onclick = () => showPile('抽牌堆（顺序已打乱）', [...B.draw].sort((a, b) => a.id < b.id ? -1 : 1));
   $('#discp').onclick = () => showPile('弃牌堆', B.disc);
   $('#exhp').onclick = () => showPile('消耗', B.exh);
-  view.querySelectorAll('#hand .card').forEach(el => el.onclick = ev => { ev.stopPropagation(); playCard(+el.dataset.i); });
+  view.querySelectorAll('#hand .card').forEach(el => el.onclick = ev => { ev.stopPropagation(); const i = +el.dataset.i; if (TOUCH && B.peek !== i) { B.peek = i; view.querySelectorAll('#hand .card.peek').forEach(x => x.classList.remove('peek')); el.classList.add('peek'); kwShow(el); return; } B.peek = null; kwHide(); playCard(i); });
   view.querySelectorAll('.enemy').forEach(el => el.onclick = () => { if (B.potSel != null) { const e = B.en.find(x => x.id === el.dataset.eid); if (e && !e.dead) usePotion(B.potSel, e); return; } if (B.sel >= 0) { const e = B.en.find(x => x.id === el.dataset.eid); if (e && !e.dead) playCard(B.sel, e); } });
   flushFx(); dbgPanel();
 }
@@ -669,7 +675,7 @@ function flushFx() {
     fxl.appendChild(d); setTimeout(() => d.remove(), 950);
     if (f.cls === 'dmg') {
       const cx = (r.left + r.width / 2 - sr.left) / s, cy = (r.top + r.height * .45 - sr.top) / s;
-      for (let k = 0; k < 12; k++) { const p = document.createElement('div'); p.className = 'spark'; const an = Math.random() * 6.28, dist = 50 + Math.random() * 90;
+      for (let k = 0, nk = fxl.childElementCount > 120 ? 0 : TOUCH ? 4 : 8; k < nk; k++) { const p = document.createElement('div'); p.className = 'spark'; const an = Math.random() * 6.28, dist = 50 + Math.random() * 90;
         p.style.left = cx + 'px'; p.style.top = cy + 'px'; p.style.setProperty('--dx', Math.cos(an) * dist + 'px'); p.style.setProperty('--dy', Math.sin(an) * dist + 'px');
         if (f.who === 'hero') p.style.background = '#ff5a4a'; fxl.appendChild(p); setTimeout(() => p.remove(), 600); }
       if (false) { const sl = document.createElement('img'); sl.src = 'assets/icons/fx_slash.png'; sl.className = 'slashfx'; sl.style.left = (cx - 75) + 'px'; sl.style.top = (cy - 75) + 'px'; sl.style.rotate = (Math.random() * 60 - 30) + 'deg'; fxl.appendChild(sl); setTimeout(() => sl.remove(), 400); }

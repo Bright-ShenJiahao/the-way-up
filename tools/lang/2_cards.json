@@ -44,7 +44,7 @@
 "オーバークロック"
 ],
 "电池扩容": [
-"Big Battery",
+"Battery Pack",
 "大容量電池"
 ],
 "连发模式": [
@@ -52,7 +52,7 @@
 "連射モード"
 ],
 "全屏扫射": [
-"Screen Clear",
+"Full Sweep",
 "全画面掃射"
 ],
 "双持": [
@@ -84,8 +84,8 @@
 "合唱"
 ],
 "共振护盾": [
-"Echo Shield",
-"共振シールド"
+"Resonance Shield",
+"共鳴シールド"
 ],
 "切歌": [
 "Skip Track",
@@ -108,7 +108,7 @@
 "エコー"
 ],
 "破音": [
-"Crack",
+"Discord",
 "音割れ"
 ],
 "共鸣冲击": [
@@ -116,7 +116,7 @@
 "共鳴衝撃"
 ],
 "低频": [
-"Low Freq",
+"Low Frequency",
 "低周波"
 ],
 "失真": [
@@ -129,7 +129,7 @@
 ],
 "射箭": [
 "Arrow",
-"射る"
+"一射"
 ],
 "张设结界": [
 "Raise Ward",
@@ -432,8 +432,8 @@
 "爆音後に共鳴を{0}多く残す。爆音ダメージ{1}。"
 ],
 "每回合前 {0} 张牌，每打出 {1} 张给予所有敌人 {2} 层共鸣。": [
-"For the first {0} cards each turn, every {1} card applies {2} Resonance to ALL enemies.",
-"毎ターン最初の{0}枚、カード{1}枚ごとに敵全体へ共鳴{2}。"
+"The first {0} cards you play each turn: every {1} applies {2} Resonance to ALL enemies.",
+"毎ターン最初に使う{0}枚のカードは、{1}枚ごとに敵全体へ共鳴{2}を付与。"
 ],
 "造成 {0} 点伤害。": [
 "Deal {0} damage.",
@@ -516,7 +516,7 @@
 "{0}ダメージ。廃棄。"
 ],
 "随机获得 {0} 个炼金瓶。": [
-"Gain {0} random Flasks.",
+"Gain {0} random Flask(s).",
 "ランダムな錬金瓶を{0}得る。"
 ],
 "造成 {0} 点伤害，给予 {1} 层中毒。": [
@@ -581,7 +581,7 @@
 ],
 "每回合开始时，随机获得 {0} 个炼金瓶。并获得 {1} 点格挡。": [
 "At the start of each turn, gain {0} random Flask and {1} Block.",
-"毎ターン開始時、錬金瓶を{0}と{1}ブロック。"
+"毎ターン開始時、ランダムな錬金瓶を{0}得て、{1}ブロックを得る。"
 ],
 "炼金瓶的伤害和中毒翻倍（治疗、削弱不翻倍）。": [
 "Flasks deal double damage and Poison (not healing or debuffs).",
@@ -621,7 +621,7 @@
 ],
 "每回合结束时，回复 {0} 点生命（每场最多 {1} 次）。": [
 "At the end of each turn, heal {0} HP (max {1} times per battle).",
-"毎ターン終了時、HPを{0}回復（1戦闘{1}回まで）。"
+"毎ターン終了時、HPを{0}回復（1戦闘につき{1}回まで）。"
 ],
 "掌机": [
 "Handheld",
@@ -807,10 +807,6 @@
 "At battle start, apply {0} Vulnerable to ALL enemies.",
 "戦闘開始時、敵全体に脆弱{0}。"
 ],
-"每场战斗开始时，随机一张耗能不少于 {0} 的手牌，本场耗能 {1}。": [
-"At battle start, a random card in hand costing {0}+ costs {1} this battle.",
-"戦闘開始時、コスト{0}以上の手札1枚がこの戦闘中コスト{1}。"
-],
 "每场战斗开始时，获得 {0} 层荆棘。": [
 "At battle start, gain {0} Thorns.",
 "戦闘開始時、トゲ{0}。"
@@ -898,5 +894,9 @@
 "死亡时自动使用：回复 {0} 最大生命。不能主动使用。": [
 "Used automatically when you die: heal {0} of Max HP. Can't be used manually.",
 "死亡時に自動使用：最大HPの{0}回復。手動では使えない。"
+],
+"每场战斗开始时，随机一张耗能不少于 {0} 的手牌，本场耗能减少 {1}。": [
+"At battle start, a random card in hand costing {0}+ costs {1} less this battle.",
+"戦闘開始時、コスト{0}以上の手札1枚がこの戦闘中コスト{1}減る。"
 ]
 }

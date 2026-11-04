@@ -69,7 +69,8 @@ export function createAudio(){
    notes.forEach(([i,m,L])=>brass(t+i*beat,m,beat*L*.9,.055));
   }
  }
- function tick(){if(!ac)return;const beat=(SONGS[mode]||SONGS.menu).beat;
+ addEventListener('visibilitychange',()=>{if(ac&&!document.hidden)next=Math.max(next,ac.currentTime+.1)});
+ function tick(){if(!ac)return;if(document.hidden){setTimeout(tick,500);return}const beat=(SONGS[mode]||SONGS.menu).beat;
   while(next<ac.currentTime+.6){if(on)bar(next,beat,step);next+=beat*8;step++}
   setTimeout(tick,200)}
  // ---------- 哥布林叫声（合成，不说话） ----------

@@ -1,6 +1,10 @@
 // 排行榜：GET /api/scores 取榜；POST /api/scores 提交一局成绩
 // 存储：Netlify Blobs。每局一条 run:xxx；名字口令存在 pin:名字
 import { getStore } from '@netlify/blobs';
+import { createHash, timingSafeEqual } from 'node:crypto';
+const SALT = process.env.PIN_SALT || 'theway-up-2026-salt';
+const hashPin = (name, pin) => createHash('sha256').update(`${name}:${pin}:${SALT}`).digest('hex');
+const same = (a, b) => a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
 export const config = { path: '/api/scores' };
 
 const SEASON = 's1', NAME_MAX = 8, TOP_N = 30;
@@ -31,13 +35,19 @@ export default async function handler(req) {
   const pin = String(b.pin || '');
   if (pin && !/^\d{4,6}$/.test(pin)) return json({ ok: false, error: '口令要 4～6 位数字' }, 400);
   // 口令：名字设过口令的，必须对上；没设过的，这次带了口令就顺便设上
+  /* 频率限制：同一 IP 每分钟最多 3 次 */
+  const ip = (req.headers.get('x-nf-client-connection-ip') || req.headers.get('x-forwarded-for') || 'x').split(',')[0].trim();
+  const rk = `rl:${ip}`, now = Date.now(); let hits = []; try { hits = JSON.parse(await store.get(rk) || '[]').filter(t => now - t < 60000); } catch (e) {}
+  if (hits.length >= 3) return json({ ok: false, error: '提交太频繁，请稍后再试' }, 429);
+  hits.push(now); await store.set(rk, JSON.stringify(hits));
+  /* 口令：只存加盐哈希；旧的明文记录在第一次校验通过时升级 */
   const pk = `pin:${name}`; const saved = await store.get(pk);
-  if (saved && saved !== pin) return json({ ok: false, error: '这个名字已被设了口令，口令不对' }, 403);
-  if (!saved && pin) await store.set(pk, pin);
-  if (b.check) return json({ ok: true, hasPin: !!(saved || pin) }); // 只校验名字
+  if (saved) { const ok = saved.length === 64 ? same(saved, hashPin(name, pin)) : saved === pin; if (!ok) return json({ ok: false, error: '这个名字已被设了口令，口令不对' }, 403); if (saved.length !== 64) await store.set(pk, hashPin(name, pin)); }
+  else if (pin) await store.set(pk, hashPin(name, pin));
   const r = { name, char: CHARS.includes(b.char) ? b.char : 'hero', floor: int(b.floor, 0, 17), kills: int(b.kills, 0, 150),
     elites: int(b.elites, 0, 10), asc: int(b.asc, 0, 8), win: !!b.win, hp: int(b.hp, 0, 300), at: Date.now() };
-  if (r.win && r.floor < 10) return json({ ok: false, error: '数据异常' }, 400);
+  /* 合理性检查：一局最多 17 层；击杀、精英与层数相符；通关必须到最后一层 */
+  if ((r.win && r.floor < 16) || r.kills > r.floor * 5 + 6 || r.elites > Math.min(4, Math.ceil(r.floor / 4)) || r.hp > 200 || (!r.win && r.hp > 0)) return json({ ok: false, error: '数据异常' }, 400);
   r.score = scoreOf(r);
   await store.set(`run:${SEASON}:${r.at}-${Math.random().toString(36).slice(2, 8)}`, JSON.stringify(r));
   return json({ ok: true, score: r.score });
