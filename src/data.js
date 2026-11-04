@@ -164,7 +164,7 @@ export const CARDS = {
   regen: { name: '生命之泉', type: 'power', rar: 'r', cost: [1, 1], icon: 'b_regen', tgt: 'self',
     desc: u => `每回合结束时，回复 ${v(u, 2, 3)} 点生命。`, play: (g, u) => g.self('regen', v(u, 2, 3)) },
 };
-for (const [k, c] of Object.entries(CARDS)) { c.id = k; if (c.ch === 'hero' || c.ch === 'heroine') c.icon = 'icons2/' + k; c.img = I(c.icon); }
+for (const [k, c] of Object.entries(CARDS)) { c.id = k; if (c.ch) c.icon = 'icons2/' + k; c.img = I(c.icon); }
 export const STARTERS = {
   hero: ['shoot', 'shoot', 'shoot', 'shoot', 'defend', 'defend', 'defend', 'defend', 'load', 'charge'],
   witch: ['zap', 'zap', 'zap', 'zap', 'defend', 'defend', 'defend', 'defend', 'brew', 'needle'],
@@ -200,7 +200,7 @@ export const RELICS = {
   feather: { name: '凤凰羽', icon: 'p_rev', rar: 'r', desc: '死亡时，复活并回复 50% 生命（一次）。' },
   crown: { name: '王冠', icon: 'm_crown', rar: 'r', desc: '每回合开始时，获得 1 点额外能量。' },
 };
-for (const [k, r] of Object.entries(RELICS)) { r.id = k; if (['spare', 'pad', 'phones', 'metro', 'mic'].includes(k)) r.icon = 'icons2/r_' + k; r.img = I(r.icon); }
+for (const [k, r] of Object.entries(RELICS)) { r.id = k; if (['spare', 'pad', 'phones', 'metro', 'mic', 'cauldron', 'toad', 'hat', 'suzu', 'omamori', 'hamaya'].includes(k)) r.icon = 'icons2/r_' + k; r.img = I(r.icon); }
 
 export const STATUS = {
   str: ['力量', '攻击伤害增加', '#e05a3a'], dex: ['敏捷', '获得的格挡增加', '#5ab45a'],

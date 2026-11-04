@@ -376,7 +376,7 @@ function eFrame(e) {
   if (a && a.n === 'hurt' && dt < 320) return `assets/enemies2/${k}/hurt0.png`;
   return `assets/enemies2/${k}/idle${Math.floor(now / 480) % 2}.png`;
 }
-const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 男', h: 241, desc: '掌机 · 光弹' }, witch: { dir: 'heroine2', name: '魔女 · 莉泽', h: 251, desc: '药瓶 · 剧毒', idle: [0, 3], idleMs: 520 }, miko: { dir: 'heroine2', name: '巫女 · 千早', h: 251, desc: '和弓 · 结界', idle: [0, 3], idleMs: 520 }, heroine: { dir: 'heroine2', name: '穿越者 · 女', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 } };
+const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 男', h: 241, desc: '掌机 · 光弹' }, witch: { dir: 'witch2', name: '魔女 · 莉泽', h: 235, desc: '药瓶 · 剧毒' }, miko: { dir: 'miko2', name: '巫女 · 千早', h: 257, desc: '和弓 · 结界' }, heroine: { dir: 'heroine2', name: '穿越者 · 女', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 } };
 const cdir = () => CHARS[(R && R.char) || 'hero'].dir;
 const HA = { idle: [4, 200, 1], shoot: [4, 75, 0], hurt: [2, 130, 0], block: [1, 380, 0], down: [3, 220, 2] }; // 帧数, 每帧毫秒, 1=循环 2=停在最后
 let hst = { n: 'idle', t: 0 };
