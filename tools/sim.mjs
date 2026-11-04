@@ -25,7 +25,7 @@ function hurt(t, amt, att) {
 }
 function killE(e) { e.dead = true; e.hp = 0; R.kills++; if (has('fang')) heal(3); }
 const heal = n => { R.hp = Math.min(R.maxHp, R.hp + n); };
-function boom(t) { const d = 20 + (B.p.st.dist ? 5 : 0) + (has('mic') ? 6 : 0); if (B.p.st.dist) { t.st.res = Math.floor(t.st.res / 2); if (!t.st.res) delete t.st.res; } else delete t.st.res; hurt(t, d); if (has('metro')) B.p.energy++; }
+function boom(t) { const d = 20 + (B.p.st.dist ? 5 : 0) + (has('mic') ? 6 : 0); t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0); hurt(t, d); if (has('metro')) B.p.energy++; }
 function drawCards(n) { for (let i = 0; i < n; i++) { if (B.p.noDraw || B.hand.length >= 10) return; if (!B.draw.length) { if (!B.disc.length) return; B.draw = shuffle(B.disc); B.disc = []; } B.hand.push(B.draw.pop()); } }
 const G = {
   get p() { return B.p; }, x: 0,
@@ -43,14 +43,14 @@ const G = {
   ammo(n) { B.p.st.ammo = Math.min(10, (B.p.st.ammo || 0) + n); },
   spend(n) { const k = Math.min(n, B.p.st.ammo || 0); if (!k) return 0; addSt(B.p, 'ammo', -k); if (B.p.st.rapid) G.block(B.p.st.rapid * k, true); B.shots = (B.shots || 0) + k; if (has('pad')) while (B.shots >= 4) { B.shots -= 4; drawCards(1); } return k; },
   fire(t, k, d) { if (k) G.attack(t, d + (B.p.st.dual || 0), k); }, fireAll(k, d) { if (k) G.attackAll(d + (B.p.st.dual || 0), k); }, fireRandom(k, d) { if (k) G.attackRandom(d + (B.p.st.dual || 0), k); },
-  res(t, n) { if (!t || t.dead || n <= 0) return; addSt(t, 'res', n); if (t.st.res >= 10) boom(t); },
+  res(t, n) { if (!t || t.dead || n <= 0) return; addSt(t, 'res', n); for (let k = 0; k < 5 && !t.dead && t.st.res >= 10; k++) boom(t); },
   resAll(n) { alive().forEach(e => G.res(e, n)); }, resRandom(n) { const a = alive(); if (a.length) G.res(pickOne(a), n); },
   resTotal() { return alive().reduce((s, e) => s + (e.st.res || 0), 0); }, eachEnemy(f) { alive().forEach(f); },
 };
 const BE = {
   applyP(k, n) { addSt(B.p, k, n); }, addSt(e, k, n) { addSt(e, k, n); }, eBlock(e, n) { e.block += n; },
   allies: e => alive().filter(a => a !== e), alive: () => alive(), healE(e, n) { e.hp = Math.min(e.max, e.hp + n); },
-  kill(e) { killE(e); }, summon(key) { if (alive().length >= 5) return; const e = mkE(key); e.move = e.d.ai(e, BE); B.en.unshift(e); },
+  kill(e) { killE(e); }, summon(key, hp) { if (alive().length >= 5) return; const e = mkE(key); if (hp) e.hp = e.max = hp; e.move = e.d.ai(e, BE); B.en.unshift(e); },
 };
 let eid = 1;
 function mkE(key) { const d = ENEMIES[key], hp = rnd(d.hp[0], d.hp[1]); const e = { key, d, hp, max: hp, block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++ }; d.init && d.init(e); return e; }
@@ -63,7 +63,7 @@ function startTurn(first) {
   if (B.p.st.plague) alive().forEach(e => G.poison(e, B.p.st.plague));
   if (B.p.st.kagura) G.kek(B.p.st.kagura); if (B.p.st.kek) G.block(B.p.st.kek * (B.p.st.shinboku ? 2 : 1), true);
   if (has('hamaya') && (B.p.st.kek || 0) >= 3) drawCards(1);
-  if (B.p.st.gen) G.ammo(B.p.st.gen); if (!first && has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(1); if (has('spare') && !B.p.st.ammo) G.ammo(2); if (B.p.st.lowf) G.resAll(B.p.st.lowf);
+  if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare') && !B.p.st.ammo) G.ammo(2); if (!first && has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(1); if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
   drawCards(5 + (first && has('scroll') ? 2 : 0));
 }
@@ -96,6 +96,14 @@ function botTurn() {
       if (/用掉|打出所有光弹/.test(d.desc(0)) && !(B.p.st.ammo || 0)) s -= 10;
       if (d.id === 'eshield' && need <= 0) s -= 10;
       if (/消耗全部结界/.test(d.desc(0)) && (B.p.st.kek || 0) < 4) s -= 6;
+      const top = alive().reduce((m, e) => Math.max(m, e.st.res || 0), 0);
+      if (d.id === 'high') s += top >= 5 ? 6 : -2;                       // 女主：层数高时先打高音
+      if (R.char === 'heroine' && /共鸣/.test(d.desc(0)) && d.id !== 'high' && B.hand.some(c => c.id === 'high') && top >= 5 && top < 10) s -= 3;
+      if (d.id === 'cannon') s += (B.p.st.ammo || 0) >= 8 ? 6 : -8;     // 男主：攒够再开炮
+      if (d.id === 'charge' || d.id === 'screen') s += (B.p.st.ammo || 0) >= 6 ? 3 : -4;
+      if (/得到 \d 发光弹/.test(d.desc(0)) && (B.p.st.ammo || 0) <= 6) s += 2;
+      if (['kekkai', 'shime', 'fuda', 'kagura'].includes(d.id)) s += B.turn <= 2 ? 4 : 0;  // 巫女：先叠结界
+      if (d.id === 'hama' || d.id === 'yumihari') s += Math.min(6, B.p.st.kek || 0) - 2;
       if ((d.id === 'crack' || d.id === 'deadly' || d.id === 'catalyst') && !alive().some(e => (e.st.res || e.st.poison || 0) >= 5)) s -= 6;
       return s; };
     opts.sort((a, b) => sc(b) - sc(a));
@@ -107,7 +115,6 @@ function botTurn() {
 function endTurn() {
   B.disc.push(...B.hand); B.hand = [];
   if (B.p.st.metal) G.block(B.p.st.metal, true); if (B.p.st.regen) heal(B.p.st.regen);
-  for (const k of ['vuln', 'weak']) if (B.p.st[k]) addSt(B.p, k, -1);
   for (const e of alive()) e.block = 0;
   for (const e of [...B.en]) {
     if (e.dead || R.hp <= 0) continue;
@@ -117,6 +124,7 @@ function endTurn() {
     if (mv.f && !e.dead) mv.f(e, BE);
     e.hist.push(e.move); e.d.after && e.d.after(e);
   }
+  for (const k of ['vuln', 'weak']) if (B.p.st[k]) addSt(B.p, k, -1);
   for (const e of alive()) { if (e.st.ritual) addSt(e, 'str', e.st.ritual); if (e.st.heal) e.hp = Math.min(e.max, e.hp + e.st.heal); for (const k of ['vuln', 'weak', 'aegis']) if (e.st[k]) addSt(e, k, -1); e.turn++; e.move = e.d.ai(e, BE); }
 }
 function battle(keys, kind) {
@@ -124,6 +132,7 @@ function battle(keys, kind) {
   if (has('charm')) B.p.st.str = 1; if (has('gameboy')) B.p.st.ammo = 3;
   if (has('suzu')) B.p.st.kek = 2 + (has('omamori') ? 1 : 0); else if (has('omamori')) B.p.st.kek = 1;
   if (has('phones')) B.en.forEach(e => e.st.res = 4); if (has('spikes')) B.p.st.thorns = 3; if (has('wardrum')) B.en.forEach(e => e.st.vuln = 1);
+  B.en.filter(e => e.key === 'gob_bomb').forEach((e, i) => e.st.fuse = 3 + i);
   B.en.forEach(e => e.move = e.d.ai(e, BE));
   startTurn(true);
   for (let t = 0; t < 60; t++) {
@@ -135,10 +144,10 @@ function battle(keys, kind) {
   if (has('gameboy') || has('phones') || has('suzu') || has('cauldron')) heal(6);
   return true;
 }
-function rollCards(n) { const out = []; while (out.length < n) { const x = Math.random(), rar = x < .03 ? 'r' : x < .4 ? 'u' : 'c'; const pool = Object.values(CARDS).filter(d => d.rar === rar && mine(d) && !out.includes(d.id)); if (pool.length) out.push(pickOne(pool).id); } return out; }
+function rollCards(n) { const out = []; while (out.length < n) { const x = Math.random(), rar = x < .06 ? 'r' : x < .4 ? 'u' : 'c'; const pool = Object.values(CARDS).filter(d => d.rar === rar && mine(d) && !out.includes(d.id)); if (pool.length) out.push(pickOne(pool).id); } return out; }
 const TIER = { r: 3, u: 2, c: 1 };
 function reward() { const cs = rollCards(3); if (R.deck.length > 26 && Math.random() < .5) return; const best = cs.sort((a, b) => TIER[CARDS[b].rar] - TIER[CARDS[a].rar] + (CARDS[b].ch ? .5 : 0) - (CARDS[a].ch ? .5 : 0))[0]; R.deck.push(mk(best)); R.picks[best] = (R.picks[best] || 0) + 1; }
-function relic() { const pool = Object.values(RELICS).filter(r => r.rar !== 'start' && mine(r) && !has(r.id) && r.id !== 'crown'); if (!pool.length) return; const r = pickOne(pool); R.relics.push(r.id); if (r.id === 'herb') { R.maxHp += 10; R.hp += 10; } }
+function relic() { const pool = Object.values(RELICS).filter(r => r.rar !== 'start' && mine(r) && !has(r.id)); if (!pool.length) return; const r = pickOne(pool); R.relics.push(r.id); if (r.id === 'herb') { R.maxHp += 10; R.hp += 10; } if (r.id === 'crown') { R.maxHp -= 10; R.hp = Math.min(R.hp, R.maxHp); } }
 function run(char) {
   uid = 1; R = { char, hp: 80, maxHp: 80, deck: STARTERS[char].map(id => mk(id)), relics: [{ heroine: 'phones', miko: 'suzu', witch: 'cauldron' }[char] || 'gameboy'], kills: 0, picks: {}, floor: 0 };
   let fights = 0;
@@ -152,13 +161,13 @@ function run(char) {
     else if (node === 'shop') { const i = R.deck.findIndex(c => c.id === 'defend'); if (i >= 0) R.deck.splice(i, 1); }
   }
 }
-const lines = [`# 平衡测试结果（每个角色 ${N} 局，机器人简单策略）`, '', `生成时间：${new Date().toISOString()}`, '', '| 角色 | 胜率 | 平均到达层 | 通关剩余生命 | 最常死在 |', '|---|---|---|---|---|'];
+const lines = [`# 平衡测试结果（每个角色 ${N} 局，机器人简单策略）`, '', `生成时间：${new Date().toISOString()}`, '', '| 角色 | 胜率 | 见到 Boss | Boss 战胜率 | 通关剩余生命 | 最常死在 |', '|---|---|---|---|---|---|'];
 const detail = [];
 for (const ch of ['miko', 'hero', 'witch', 'heroine']) {
-  let w = 0, fl = 0, hp = 0; const at = {};
-  for (let i = 0; i < N; i++) { const r = run(ch); fl += r.floor; if (r.win) { w++; hp += r.hp; } else at[r.at] = (at[r.at] || 0) + 1; }
+  let w = 0, fl = 0, hp = 0, rb = 0; const at = {};
+  for (let i = 0; i < N; i++) { const r = run(ch); fl += r.floor; if (r.win || r.at === 'Boss') rb++; if (r.win) { w++; hp += r.hp; } else at[r.at] = (at[r.at] || 0) + 1; }
   const top = Object.entries(at).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k, v]) => `${k}(${v})`).join('、');
-  lines.push(`| ${ch} | ${(w / N * 100).toFixed(1)}% | ${(fl / N).toFixed(1)} | ${w ? (hp / w).toFixed(0) : '-'} | ${top} |`);
+  lines.push(`| ${ch} | ${(w / N * 100).toFixed(1)}% | ${(rb / N * 100).toFixed(0)}% | ${rb ? (w / rb * 100).toFixed(0) : 0}% | ${w ? (hp / w).toFixed(0) : '-'} | ${top} |`);
 }
 const out = lines.join('\n'); console.log(out);
 import('fs').then(fs => { fs.mkdirSync('data', { recursive: true }); fs.writeFileSync('data/balance.md', out + '\n'); });

@@ -24,7 +24,7 @@ let TIPS = true; try { TIPS = localStorage.getItem('tipsOff') !== '1'; } catch (
 const KW = { '格挡': '抵挡受到的伤害。你的回合开始时清零。', '易伤': '受到的攻击伤害 +50%，每回合减 1 层。', '虚弱': '造成的攻击伤害 -25%，每回合减 1 层。',
   '力量': '每次攻击伤害增加等同于力量的数值。', '敏捷': '每次获得格挡时额外增加等同于敏捷的数值。', '消耗': '打出后移出本场战斗，不进弃牌堆。',
   '荆棘': '被攻击时，对攻击者造成等同于层数的伤害。', '能量': '出牌要花能量，每回合开始恢复为 3 点。',
-  '光弹': '男主的子弹，最多存 10 发，整场战斗保留。', '共鸣': '叠在敌人身上，到 10 层自动爆音。', '中毒': '敌人行动前受到等同层数的伤害（无视格挡），然后减 1 层。', '药瓶': '0 费的一次性牌，用完消耗。', '结界': '叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。', '爆音': '共鸣满 10 层时，对该敌人造成 20 点伤害并清空共鸣。' };
+  '光弹': '林拓的掌机子弹，最多存 10 发，整场战斗保留。', '共鸣': '叠在敌人身上，到 10 层自动爆音。', '中毒': '敌人行动前受到等同层数的伤害（无视格挡），然后减 1 层。', '药瓶': '0 费的一次性牌，用完消耗。', '结界': '叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。', '爆音': '共鸣满 10 层时，对该敌人造成 20 点伤害，之后保留 3 层（多出的层数也保留）。' };
 const kwify = t => TIPS ? t.replace(new RegExp(Object.keys(KW).join('|'), 'g'), m => `<span class="kw" title="${KW[m]}">${m}</span>`) : t;
 let R = null; // 当前一局
 let uidN = 1;
@@ -121,7 +121,7 @@ function pickDeck(mode, done) {
 function rollCards(n, rareBonus = 0, onlyRare = false) {
   const out = [];
   while (out.length < n) {
-    const x = Math.random(); const rar = onlyRare ? 'r' : x < .03 + rareBonus ? 'r' : x < .4 + rareBonus ? 'u' : 'c';
+    const x = Math.random(); const rar = onlyRare ? 'r' : x < .06 + rareBonus ? 'r' : x < .4 + rareBonus ? 'u' : 'c';
     const pool = Object.values(CARDS).filter(d => d.rar === rar && mine(d) && !out.includes(d.id));
     if (pool.length) out.push(pickOne(pool).id);
   }
@@ -136,7 +136,7 @@ function rollRelic(rars = ['c', 'c', 'c', 'u', 'u', 'r'], crown = false) {
   for (let k = 0; k < 30; k++) { const r = pickOne(rars); const pool = Object.values(RELICS).filter(x => x.rar === r && mine(x) && !has(x.id) && (crown || x.id !== 'crown')); if (pool.length) return pickOne(pool).id; }
   const pool = Object.values(RELICS).filter(x => x.rar !== 'start' && mine(x) && !has(x.id) && (crown || x.id !== 'crown')); return pool.length ? pickOne(pool).id : null;
 }
-function gainRelic(id) { if (!id) return; R.relics.push(id); if (id === 'herb') { R.maxHp += 10; R.hp += 10; } audio.level(); }
+function gainRelic(id) { if (!id) return; R.relics.push(id); if (id === 'herb') { R.maxHp += 10; R.hp += 10; } if (id === 'crown') { R.maxHp -= 10; R.hp = Math.min(R.hp, R.maxHp); } audio.level(); }
 
 // ---------- 标题 ----------
 // ---------- 玩家名字 / 口令（存在浏览器里） ----------
@@ -297,6 +297,7 @@ function battle(keys, kind) {
   if (has('phones')) B.en.forEach(e => e.st.res = 4);
   if (has('spikes')) B.p.st.thorns = 3;
   if (has('wardrum')) B.en.forEach(e => e.st.vuln = 1);
+  B.en.filter(e => e.key === 'gob_bomb').forEach((e, i) => e.st.fuse = 3 + i); // 多个炸弹兵错开倒计时
   B.en.forEach(e => e.move = e.d.ai(e, BE));
   startTurn(true);
   setTimeout(tutorial, 1300);
@@ -345,9 +346,9 @@ function dismount(e) { // 骑狼兵半血落马：变成野狼 + 一只小兵
 const VSZ = { gob_kid: 1.45, gob_bomb: 1.25, gob_giant: .6, gob_king: .55, gob_hero: .85, gob_paladin: .85, gob_shaman: 1.15 };
 function gv(e, k) { if (e.key === 'wolf') { if (k === 'atk' || k === 'die') audio.gob(k === 'die' ? 'howl' : 'growl'); return; } audio.gob(k, VSZ[e.key] || 1); }
 function killE(e) { gv(e, 'die'); if (R) R.kills = (R.kills || 0) + 1; eAct(e, 'down'); e.dead = true; e.hp = 0; audio.kill(); if (has('fang')) { healP(3); } }
-function boom(t) { // 爆音
+function boom(t) { // 爆音：伤害后保留 3 层（失真再 +3），多出的层数也保留
   const d = 20 + (B.p.st.dist ? 5 : 0) + (has('mic') ? 6 : 0);
-  if (B.p.st.dist) t.st.res = Math.floor(t.st.res / 2) || undefined; else delete t.st.res; if (!t.st.res) delete t.st.res;
+  t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0);
   fx(t.id, '爆音！', 'st'); hurt(t, d); if (has('metro')) B.p.energy++; }
 function healP(n) { if (n <= 0) return; R.hp = Math.min(R.maxHp, R.hp + n); fx('hero', `+${n}`, 'heal'); }
 function addSt(t, k, n) { t.st[k] = (t.st[k] || 0) + n; if (t.st[k] === 0) delete t.st[k]; }
@@ -375,7 +376,7 @@ const G = {
   fire(t, k, dmg) { if (k) G.attack(t, dmg + (B.p.st.dual || 0), k); },
   fireAll(k, dmg) { if (k) G.attackAll(dmg + (B.p.st.dual || 0), k); },
   fireRandom(k, dmg) { if (k) G.attackRandom(dmg + (B.p.st.dual || 0), k); },
-  res(t, n) { if (!t || t.dead || n <= 0) return; addSt(t, 'res', n); fx(t.id, `共鸣+${n}`, 'st'); if (t.st.res >= 10) boom(t); },
+  res(t, n) { if (!t || t.dead || n <= 0) return; addSt(t, 'res', n); fx(t.id, `共鸣+${n}`, 'st'); for (let k = 0; k < 5 && !t.dead && t.st.res >= 10; k++) boom(t); },
   resAll(n) { alive().forEach(e => G.res(e, n)); },
   resRandom(n) { const a = alive(); if (a.length) G.res(pickOne(a), n); },
   resTotal() { return alive().reduce((s, e) => s + (e.st.res || 0), 0); },
@@ -390,7 +391,7 @@ const BE = {
   allies: e => alive().filter(a => a !== e), alive: () => alive(),
   healE(e, n) { e.hp = Math.min(e.max, e.hp + n); fx(e.id, `+${n}`, 'heal'); },
   kill(e) { killE(e); B.hitSet.add(e.id); },
-  summon(key) { if (alive().length >= 5) return; const e = mkEnemy(key); e.move = e.d.ai(e, BE); B.en.unshift(e); },
+  summon(key, hp) { if (alive().length >= 5) return; const e = mkEnemy(key); if (hp) e.hp = e.max = hp; e.move = e.d.ai(e, BE); B.en.unshift(e); },
 };
 
 function drawCards(n) {
@@ -413,8 +414,7 @@ function startTurn(first) {
   if (B.p.st.kagura) G.kek(B.p.st.kagura);
   if (B.p.st.kek) G.block(B.p.st.kek * (B.p.st.shinboku ? 2 : 1), true);
   if (has('hamaya') && (B.p.st.kek || 0) >= 3) drawCards(1);
-  if (B.p.st.gen) G.ammo(B.p.st.gen); if (!first && has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(1);
-  if (has('spare') && !B.p.st.ammo) G.ammo(2);
+  if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare') && !B.p.st.ammo) G.ammo(2); if (!first && has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(1);
   if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
   drawCards(5 + (first && has('scroll') ? 2 : 0));
@@ -458,7 +458,7 @@ function eFrame(e) {
   if (a && a.n === 'hurt' && dt < 320) return `assets/enemies2/${k}/hurt0.png`;
   return `assets/enemies2/${k}/idle${Math.floor(now / 480) % 2}.png`;
 }
-const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 男', h: 241, desc: '掌机 · 光弹' }, witch: { dir: 'witch2', name: '魔女 · 莉泽', h: 235, desc: '药瓶 · 剧毒' }, miko: { dir: 'miko2', name: '巫女 · 千早', h: 257, desc: '和弓 · 结界' }, heroine: { dir: 'heroine2', name: '穿越者 · 女', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 } };
+const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 林拓', h: 241, desc: '掌机 · 光弹' }, witch: { dir: 'witch2', name: '魔女 · 莉泽', h: 235, desc: '药瓶 · 剧毒' }, miko: { dir: 'miko2', name: '巫女 · 千早', h: 257, desc: '和弓 · 结界' }, heroine: { dir: 'heroine2', name: '穿越者 · 苏音', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 } };
 const cdir = () => CHARS[(R && R.char) || 'hero'].dir;
 const HA = { idle: [4, 200, 1], shoot: [4, 75, 0], hurt: [2, 130, 0], block: [1, 380, 0], down: [3, 220, 2] }; // 帧数, 每帧毫秒, 1=循环 2=停在最后
 let hst = { n: 'idle', t: 0 };
@@ -482,7 +482,6 @@ async function endTurn() {
   B.disc.push(...B.hand); B.hand = [];
   if (B.p.st.metal) G.block(B.p.st.metal, true);
   if (B.p.st.regen) healP(B.p.st.regen);
-  for (const k of ['vuln', 'weak']) if (B.p.st[k]) addSt(B.p, k, -1);
   render(); await sleep(300);
   // 敌人回合
   for (const e of alive()) e.block = 0;
@@ -501,6 +500,7 @@ async function endTurn() {
     if (await checkEnd()) return;
   }
   B.lunge = null; B.hitSet = new Set();
+  for (const k of ['vuln', 'weak']) if (B.p.st[k]) addSt(B.p, k, -1);
   for (const e of alive()) {
     if (e.st.ritual) addSt(e, 'str', e.st.ritual);
     if (e.st.heal) BE.healE(e, e.st.heal);
