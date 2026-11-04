@@ -256,7 +256,7 @@ function submitScore(win) {
 
 function pickChar() {
   view.innerHTML = `${bgHTML()}<div class="panel csel"><h2>选择角色</h2><div class="row">${ORDER.map(k => { const c = CHARS[k], i = CHARINFO[k];
-    return `<div class="reward cc" data-c="${k}"><img src="assets/${c.dir}/portrait.png"><b>${c.name}</b><span class="cd">${c.desc}</span>
+    return `<div class="reward cc" data-c="${k}"><img src="assets/${c.dir}/portrait.png"><b>${tr(c.name)}</b><span class="cd">${tr(c.desc)}</span>
      <span class="diff">上手难度 <i>${'★'.repeat(i.diff)}${'☆'.repeat(3 - i.diff)}</i> ${['', '简单', '普通', '困难'][i.diff]}</span><span class="ct">${i.tip}</span></div>`; }).join('')}</div>
    <div class="ascbar">进阶难度 <button class="btn" id="am">−</button><b id="av"></b><button class="btn" id="ap">＋</button><span id="ad"></span></div>
    <button class="btn" id="back">返回</button></div>`;
@@ -349,7 +349,7 @@ function tutorial() {
   if (!TIPS || !B) return; let done = false; try { done = localStorage.getItem('tutDone') === '1'; } catch (e) {} if (done) return;
   let i = 0; const o = overlay(''); o.style.background = 'rgba(0,0,0,.55)';
   const step = () => { if (i >= TUT.length) { o.remove(); try { localStorage.setItem('tutDone', '1'); } catch (e) {} return; }
-    o.innerHTML = `<div class="panel" style="max-width:560px"><h2>新手提示 ${i + 1}/${TUT.length}</h2><p>${TUT[i]}</p><div class="row"><button class="btn" id="tn">${i < TUT.length - 1 ? '下一条' : '开始战斗'}</button><button class="btn" id="tx" style="filter:grayscale(.6)">关闭提示</button></div></div>`;
+    o.innerHTML = `<div class="panel" style="max-width:560px"><h2>新手提示 ${i + 1}/${TUT.length}</h2><p data-noi18n>${tr(TUT[i])}</p><div class="row"><button class="btn" id="tn">${i < TUT.length - 1 ? '下一条' : '开始战斗'}</button><button class="btn" id="tx" style="filter:grayscale(.6)">关闭提示</button></div></div>`;
     o.querySelector('#tn').onclick = () => { i++; step(); };
     o.querySelector('#tx').onclick = () => { try { localStorage.setItem('tutDone', '1'); } catch (e) {} o.remove(); render(); }; };
   step();
@@ -776,7 +776,7 @@ function endScreen(win) {
   UNLOCKS.forEach(u => { if (before < u.xp && M.xp >= u.xp) news.push('解锁：' + [...u.cards.map(c => CARDS[c].name), ...u.relics.map(x => RELICS[x].name)].join('、')); });
   const nx = UNLOCKS.find(u => M.xp < u.xp), left = UNLOCKS.filter(u => M.xp < u.xp).length;
   view.innerHTML = `${bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
-   <p class="endsub">${win ? `${ENEMIES[R.boss].name}倒下了，翠绿之地恢复了平静。<br><b style="color:#ffe08a">第一章完 · 感谢游玩！</b>更多内容制作中，欢迎把感想告诉作者。` : `${CHARS[R.char || 'hero'].name}倒在了翠绿之地第 ${R.floor} 层。`}</p>
+   <p class="endsub" data-noi18n>${win ? `${t('{0}倒下了，翠绿之地恢复了平静。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第一章完 · 感谢游玩！')}</b>${t('更多内容制作中，欢迎把感想告诉作者。')}` : t('{0}倒在了翠绿之地第 {1} 层。', CHARS[R.char || 'hero'].name, R.floor)}</p>
    <table class="score">${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}<tr class="tot"><td>分数</td><td>${total}</td></tr></table>
    <div class="xpw"><div class="xpb"><i style="width:${nx ? Math.min(100, M.xp / nx.xp * 100) : 100}%"></i></div><span>${nx ? `[${M.xp}/${nx.xp}]` : `[${M.xp}] 全部解锁`}</span><span>剩余解锁：${left}</span></div>
    ${news.map(t => `<p class="endsub" style="color:#7fe07f">★ ${t}</p>`).join('')}
@@ -861,7 +861,7 @@ function book(tab = 'card', sub = 'miko', up = 0) {
 
 // ---------- 调试 ----------
 function dbgPanel() {
-  if (!DEBUG) return; let d = $('#dbg'); if (!d) { d = document.createElement('div'); d.id = 'dbg'; stage.appendChild(d); }
+  if (!DEBUG) return; let d = $('#dbg'); if (!d) { d = document.createElement('div'); d.id = 'dbg'; d.dataset.noi18n = 1; stage.appendChild(d); }
   const btns = [['秒杀敌人', () => { if (B) { B.en.forEach(e => { if (!e.dead) killE(e); }); render(); checkEnd(); } }], ['+100金', () => { R.gold += 100; B ? render() : mapScreen(); }],
     ['满血', () => { R.hp = R.maxHp; B ? render() : mapScreen(); }], ['+3能量', () => { if (B) { B.p.energy += 3; render(); } }], ['抽5张', () => { if (B) { drawCards(5); render(); } }],
     ['全部遗物', () => { Object.keys(RELICS).forEach(id => { if (!has(id)) gainRelic(id); }); B ? render() : mapScreen(); }],

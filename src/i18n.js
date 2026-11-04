@@ -20,7 +20,9 @@ export function tr(s) {
   if (lang === 'zh' || s == null || !CJK.test(s)) return s;
   const c = cache.get(s); if (c != null) return c;
   const d = DICT[lang]; let out = d[s];
-  if (out == null) { const [key, vals] = split(s); const v = d[key]; if (v != null) out = fill(v, vals); else { miss.add(key); out = s; } }
+  if (out == null) { const [key, vals] = split(s); const v = d[key]; if (v != null) out = fill(v, vals); else {
+    const m = s.match(/^(.+?)(：| · |\n)(.+)$/s); /* 「名字：说明」「A · B」这类拼接的，拆开分别翻译 */
+    if (m && CJK.test(m[1])) { const sep = m[2] === '：' ? (lang === 'en' ? ': ' : '：') : m[2]; out = tr(m[1]) + sep + tr(m[3]); } else { miss.add(key); out = s; } } }
   cache.set(s, out); return out;
 }
 /* 自动翻译页面上新出现的文字和 placeholder / title（带 data-noi18n 的跳过） */
