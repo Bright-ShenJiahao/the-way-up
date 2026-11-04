@@ -325,7 +325,7 @@ export const EVENTS = [
       { t: '离开', go: () => '赌狗没有好下场。' }] },
   { title: '被困的矮人工匠', pic: 'dwarf', img: 'ic_hammer', text: '一个矮人被哥布林的陷阱夹住了脚，正骂骂咧咧地挣扎。',
     opts: [
-      { t: '救他：失去 6 生命，他帮你升级两张牌', go: (R, A) => { A.hurt(6); A.pick('upgrade'); setTimeout(() => A.pick('upgrade'), 60); return '矮人拍拍你：“好家伙，我欠你一次！”'; } },
+      { t: '救他：失去 6 生命，他帮你升级两张牌', go: (R, A) => { A.hurt(6); A.pick('upgrade', 2); return '矮人拍拍你：“好家伙，我欠你一次！”'; } },
       { t: '向他买东西：花 40 金币，获得一个随机遗物', ok: R => R.gold >= 40, go: (R, A) => { A.gold(-40); return `他从背包里翻出一件「${A.relic()}」。`; } },
       { t: '离开', go: () => '你假装没听见。' }] },
   { title: '神社遗迹', pic: 'shrine', img: 'ic_bell', text: '林间立着一座倒塌的小神社，铃绳还挂在梁上。',

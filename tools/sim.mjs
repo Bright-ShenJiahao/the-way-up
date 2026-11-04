@@ -125,16 +125,18 @@ function endTurn() {
   B.disc.push(...B.hand); B.hand = [];
   if (B.p.st.metal) G.block(B.p.st.metal, true); if (B.p.st.regen && (B.p.regenN = (B.p.regenN || 0) + 1) <= 3) heal(B.p.st.regen);
   for (const e of alive()) e.block = 0;
+  const pre = { vuln: B.p.st.vuln || 0, weak: B.p.st.weak || 0 };
   for (const e of [...B.en]) {
     if (e.dead || R.hp <= 0) continue;
-    if (e.st.poison) { e.hp -= e.st.poison; addSt(e, 'poison', -1); if (e.hp <= 0) { killE(e); continue; } }
+    if (e.st.aegis) addSt(e, 'aegis', -1);
+    if (e.st.poison && !e.st.aegis) { e.hp -= e.st.poison; addSt(e, 'poison', -1); if (e.hp <= 0) { killE(e); continue; } }
     const mv = e.d.moves[e.move];
     if (mv.d) for (let k = 0; k < (mv.x || 1); k++) { hurt(B.p, atkVal(e, B.p, mv.d), e); if (e.dead) break; }
     if (mv.f && !e.dead) mv.f(e, BE);
     e.hist.push(e.move); e.d.after && e.d.after(e);
   }
-  for (const k of ['vuln', 'weak']) if (B.p.st[k]) addSt(B.p, k, -1);
-  for (const e of alive()) { if (e.st.ritual) addSt(e, 'str', e.st.ritual); if (e.st.heal) e.hp = Math.min(e.max, e.hp + e.st.heal); for (const k of ['vuln', 'weak', 'aegis']) if (e.st[k]) addSt(e, k, -1); e.turn++; e.move = e.d.ai(e, BE); }
+  for (const k of ['vuln', 'weak']) if (pre[k] && B.p.st[k]) addSt(B.p, k, -1);
+  for (const e of alive()) { if (e.st.ritual) addSt(e, 'str', e.st.ritual); if (e.st.heal) e.hp = Math.min(e.max, e.hp + e.st.heal); for (const k of ['vuln', 'weak']) if (e.st[k]) addSt(e, k, -1); e.turn++; e.move = e.d.ai(e, BE); }
 }
 function battle(keys, kind) {
   B = { kind, en: keys.map(mkE), p: { block: 0, energy: 0, st: {}, noDraw: 0 }, draw: shuffle(R.deck.map(c => ({ ...c }))), hand: [], disc: [], exh: [], turn: 0, atk: 0 };

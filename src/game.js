@@ -20,7 +20,7 @@ const sleep = ms => new Promise(r => setTimeout(r, SET.fast ? ms / 2 : ms));
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const pickOne = a => a[Math.floor(Math.random() * a.length)];
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-const esc = s => String(s).replace(/"/g, '&quot;');
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
 // ---------- 缩放 ----------
 function fit() { const s = Math.min(innerWidth / 1280, innerHeight / 720); stage.style.transform = `scale(${s})`; stage.style.left = (innerWidth - 1280 * s) / 2 + 'px'; stage.style.top = (innerHeight - 720 * s) / 2 + 'px'; stage._s = s; }
@@ -43,10 +43,11 @@ function newRun(char = 'hero', asc = 0) {
   if (asc >= 4) { R.maxHp -= 8; R.hp = R.maxHp; }
 }
 const has = id => R.relics.includes(id);
+const snap = () => { const { snap: _, ...o } = R; R.snap = JSON.stringify(o); }; /* 进入节点前的快照：中途退出后从这里恢复 */
 const mine = d => !d.ch || d.ch === (R.char || 'hero');
 function save() { try { localStorage.setItem('theway_run_v2', JSON.stringify(R)); } catch (e) {} }
 function clearSave() { try { localStorage.removeItem('theway_run_v2'); } catch (e) {} }
-function load() { try { const s = JSON.parse(localStorage.getItem('theway_run_v2')); if (s) { s.deck = s.deck.filter(c => CARDS[c.id]); s.relics = s.relics.filter(r => RELICS[r]); uidN = 1 + Math.max(0, ...s.deck.map(c => c.uid)); } return s; } catch (e) { return null; } }
+function load() { try { const s = JSON.parse(localStorage.getItem('theway_run_v2')); if (s) { if (!CHARS[s.char] || !Array.isArray(s.deck) || !Array.isArray(s.map)) return null; s.potions = (s.potions || []).filter(p => POTIONS[p]); s.deck = s.deck.filter(c => CARDS[c.id]); s.relics = (s.relics || []).filter(r => RELICS[r]); uidN = 1 + Math.max(0, ...s.deck.map(c => c.uid)); } return s; } catch (e) { return null; } }
 
 // ---------- 地图生成 ----------
 const ROWS = 15, COLS = 7;
@@ -90,7 +91,7 @@ function bindTop() {
   $('#tbdeck')?.addEventListener('click', () => showPile('牌组', R.deck));
   $('#tbset')?.addEventListener('click', () => settings(true));
   view.querySelectorAll('[data-pot]').forEach(el => el.onclick = () => potionClick(+el.dataset.pot));
-  $('#tbtips')?.addEventListener('click', () => { TIPS = !TIPS; try { localStorage.setItem('tipsOff', TIPS ? '0' : '1'); } catch (e) {} B && !B.over ? render() : (R && mapScreen()); });
+  $('#tbtips')?.addEventListener('click', () => { TIPS = !TIPS; try { localStorage.setItem('tipsOff', TIPS ? '0' : '1'); } catch (e) {} if (B && !B.over) render(); else { const b = $('#tbtips'); if (b) b.textContent = tr(TIPS ? '提示：开' : '提示：关'); } });
   $('#tbfs')?.addEventListener('click', () => { const d = document.documentElement; (document.fullscreenElement ? document.exitFullscreen() : (d.requestFullscreen || d.webkitRequestFullscreen).call(d)).then?.(() => screen.orientation?.lock?.('landscape').catch(() => {})).catch?.(() => {}); });
   $('#tbmute')?.addEventListener('click', () => { dispatchEvent(new KeyboardEvent('keydown', { key: 'm' })); setTimeout(() => { const b = $('#tbmute'); if (b) b.textContent = audio.muted ? '🔇' : '🔊'; }, 30); });
 }
@@ -130,11 +131,14 @@ function pickDeck(mode, done) {
 }
 // 卡牌奖励池
 function rollCards(n, rareBonus = 0, onlyRare = false) {
-  const out = [];
-  while (out.length < n) {
+  const out = [], L = lockedSet(), ok = d => mine(d) && !L.has(d.id) && !out.includes(d.id) && d.rar !== 'start' && d.rar !== 'gen';
+  for (let tries = 0; out.length < n && tries < 60; tries++) {
     const x = Math.random(); const rar = onlyRare ? 'r' : x < .06 + rareBonus ? 'r' : x < .4 + rareBonus ? 'u' : 'c';
-    const L = lockedSet(); const pool = Object.values(CARDS).filter(d => d.rar === rar && mine(d) && !L.has(d.id) && !out.includes(d.id));
-    if (pool.length) out.push(pickOne(pool).id);
+    let pool = Object.values(CARDS).filter(d => d.rar === rar && ok(d));
+    if (!pool.length && onlyRare) pool = Object.values(CARDS).filter(d => d.rar === 'u' && ok(d)); /* 稀有牌不够时用罕见牌补 */
+    if (!pool.length) pool = Object.values(CARDS).filter(ok);
+    if (!pool.length) break;
+    out.push(pickOne(pool).id);
   }
   return out.map(id => mkCard(id));
 }
@@ -188,7 +192,7 @@ function mainMenu() {
   const sv = load(), nm = LS('tw_name');
   view.innerHTML = `<div class="bg" style="background:url(assets/bg/title.jpg) center/cover,url(assets/bg/battle_castle.jpg) center/cover"></div><div class="tshade"></div>
    <div class="tlogo sm"><h1>通往顶端</h1><p class="en">THE WAY UP</p></div>
-   <div class="mmenu">${nm ? `<p class="who">冒险者：<b>${esc(nm)}</b></p>` : ''}
+   <div class="mmenu">${nm ? `<p class="who">冒险者：<b data-noi18n>${esc(nm)}</b></p>` : ''}
     ${sv ? `<button class="btn mm" id="cont">继续冒险<small>${CHARS[sv.char || 'hero'].name} · 第 ${sv.floor} 层</small></button>` : ''}
     <button class="btn mm" id="start">新的冒险</button><button class="btn mm" id="book">图鉴</button>
     <button class="btn mm" id="rank">排行榜</button><button class="btn mm" id="set">设置</button>
@@ -197,7 +201,7 @@ function mainMenu() {
   $('#start').onclick = () => askName(() => { if (!sv) return pickChar();
     const y = overlay(`<h2>开始新的冒险？</h2><p>当前存档（${CHARS[sv.char || 'hero'].name} · 第 ${sv.floor} 层）会被放弃。</p><div class="row"><button class="btn red" id="y1">放弃旧档，重新开始</button><button class="btn" id="y0">取消</button></div>`);
     y.querySelector('#y0').onclick = () => y.remove(); y.querySelector('#y1').onclick = () => { y.remove(); clearSave(); pickChar(); }; });
-  $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending) enterNode(R.pending); else mapScreen(); });
+  $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending && R.snap) { try { const o = JSON.parse(R.snap); R = Object.assign(o, { snap: R.snap }); } catch (e) {} } if (R.pending) enterNode(R.pending); else mapScreen(); });
   $('#book').onclick = () => book();
   $('#rank').onclick = rankBoard; $('#set').onclick = () => settings(false); $('#back').onclick = title;
 }
@@ -220,7 +224,7 @@ function settings(inRun) {
     <div class="sbox"><h3>玩家</h3><label class="sl"><span>名字</span><input id="snm" class="inp sm" maxlength="8" value="${esc(LS('tw_name'))}"></label>
      <label class="sl"><span>口令</span><input id="spin" class="inp sm" maxlength="6" inputmode="numeric" value="${esc(LS('tw_pin'))}" placeholder="可不填"></label></div>
     <div class="sbox"><h3>语言 / Language</h3>${langBar()}</div>
-    <div class="sbox"><h3>其他</h3><button class="btn" id="sfs">全屏 / 退出全屏</button>${inRun ? '<button class="btn red" id="sab">放弃这局</button><button class="btn" id="ssq">保存并退出</button>' : ''}</div>
+    <div class="sbox"><h3>其他</h3><button class="btn" id="sfs">全屏 / 退出全屏</button>${inRun ? `<button class="btn red" id="sab">放弃这局</button><button class="btn" id="ssq">保存并退出</button>${R && R.pending ? '<p class="tkeys">中途退出，继续时从进入这一格之前开始</p>' : ''}` : ''}</div>
    </div></div>
    <div class="tp" data-p="k" style="display:none"><table class="keys">${[['选择第 1～9 张手牌', '1 ～ 9'], ['第 10 张手牌', '0'], ['结束回合', 'E'], ['取消选择', 'Esc'], ['静音', 'M'], ['选择目标', '点击敌人']].map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table></div>
    <button class="btn" id="sx">返回</button></div>`);
@@ -231,10 +235,10 @@ function settings(inRun) {
     if (k === 'tips') { TIPS = c.checked; try { localStorage.setItem('tipsOff', TIPS ? '0' : '1'); } catch (e) {} } else { SET[k] = c.checked ? 1 : 0; saveSet(); } });
   o.querySelector('#sfs').onclick = () => $('#tbfs') ? $('#tbfs').click() : (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.());
   const close = () => { LS('tw_name', o.querySelector('#snm').value.trim()); LS('tw_pin', o.querySelector('#spin').value.trim()); o.remove(); };
-  o.querySelector('#sx').onclick = () => { close(); if (inRun && R) (B && !B.over ? render() : mapScreen()); };
+  o.querySelector('#sx').onclick = () => { close(); if (inRun && B && !B.over) render(); };
   o.querySelector('#sab')?.addEventListener('click', () => { const y = overlay(`<h2>放弃这局？</h2><p>这局会按死亡结算，进度无法恢复。</p><div class="row"><button class="btn red" id="y1">放弃</button><button class="btn" id="y0">再想想</button></div>`);
-    y.querySelector('#y0').onclick = () => y.remove(); y.querySelector('#y1').onclick = () => { y.remove(); close(); clearSave(); endScreen(false); }; });
-  o.querySelector('#ssq')?.addEventListener('click', () => { close(); save(); mainMenu(); });
+    y.querySelector('#y0').onclick = () => y.remove(); y.querySelector('#y1').onclick = () => { if (B && (B.busy || B.anim)) { y.remove(); tip(tr('等这一步结算完再退出')); return; } y.remove(); close(); clearSave(); endScreen(false); }; });
+  o.querySelector('#ssq')?.addEventListener('click', () => { if (B && (B.busy || B.anim)) { tip(tr('等这一步结算完再退出')); return; } close(); save(); B = null; mainMenu(); });
 }
 function rankBoard() {
   const o = overlay(`<h2>排行榜</h2><div id="rk" class="rk">读取中……</div><button class="btn" id="rkx">关闭</button>`);
@@ -244,7 +248,7 @@ function rankBoard() {
   fetch('/api/scores', { cache: 'no-store' }).then(r => r.json()).then(d => {
     if (!d.ok || !d.list.length) { box.innerHTML = '<p>还没有人上榜，快来当第一名！</p>'; return; }
     const me = LS('tw_name');
-    box.innerHTML = `<table><tr><th>#</th><th>名字</th><th>角色</th><th>到达</th><th>击杀</th><th>积分</th></tr>${d.list.map((r, i) => `<tr class="${r.name === me ? 'me' : ''}"><td>${i + 1}</td><td>${r.name}</td><td><img src="assets/${CHARS[r.char].dir}/portrait.png"></td><td>${r.win ? '<b class="win">通关</b>' : '第 ' + r.floor + ' 层'}</td><td>${r.kills}</td><td><b>${r.score}</b></td></tr>`).join('')}</table>`;
+    box.innerHTML = `<table><tr><th>#</th><th>名字</th><th>角色</th><th>到达</th><th>击杀</th><th>积分</th></tr>${d.list.map((r, i) => `<tr class="${r.name === me ? 'me' : ''}"><td>${i + 1}</td><td data-noi18n>${esc(r.name)}</td><td><img src="assets/${CHARS[r.char].dir}/portrait.png"></td><td>${r.win ? '<b class="win">通关</b>' : '第 ' + r.floor + ' 层'}</td><td>${r.kills}</td><td><b>${r.score}</b></td></tr>`).join('')}</table>`;
   }).catch(() => { box.innerHTML = '<p>暂时连不上排行榜，稍后再试。</p>'; });
 }
 function submitScore(win) {
@@ -276,7 +280,7 @@ function available() {
   const cur = R.map[R.pos.r][R.pos.c]; return cur.next.map(c => R.map[R.pos.r + 1][c]);
 }
 function mapScreen() { SCREEN = 'map';
-  audio.setMode('menu'); delete R.pending; delete R.pendEnc; save();
+  audio.setMode('menu'); delete R.pending; delete R.pendEnc; delete R.snap; save();
   const av = available(), H = ROWS * 92 + 320;
   let lines = '';
   for (const row of R.map) for (const nd of row) if (nd) for (const c of nd.next) { const t = R.map[nd.r + 1][c]; lines += `<line x1="${nd.x}" y1="${nd.y}" x2="${t.x}" y2="${t.y}" stroke="#5a3a1a" stroke-width="3" stroke-dasharray="4 8" stroke-linecap="round" opacity=".75"/>`; }
@@ -295,16 +299,16 @@ function mapScreen() { SCREEN = 'map';
   bindTop();
   const m = $('#map'); const y = R.pos ? R.map[R.pos.r][R.pos.c].y : H; m.scrollTop = Math.max(0, y - 480);
   view.querySelectorAll('.node.av').forEach(el => el.onclick = () => {
-    if (el.classList.contains('boss')) { R.floor++; R.pending = 'boss'; save(); return enterNode('boss'); }
+    if (el.classList.contains('boss')) { R.floor++; R.pending = 'boss'; snap(); save(); return enterNode('boss'); }
     const nd = R.map[+el.dataset.r][+el.dataset.c]; R.pos = { r: nd.r, c: nd.c }; (R.path = R.path || []).push(R.pos); R.floor++;
-    R.pending = nd.type; save(); enterNode(nd.type);
+    R.pending = nd.type; snap(); save(); enterNode(nd.type);
   });
   dbgPanel();
 }
 function enterNode(t) {
   if (t === 'boss') return battle([R.boss], 'boss');
   if (t === 'fight' || t === 'elite') { // 记住这场遭遇，中途退出再进来还是同一批怪
-    if (!R.pendEnc) { R.pendEnc = t === 'elite' ? pickOne(ENCOUNTERS.elite) : pickOne(R.fights < 3 ? ENCOUNTERS.easy : ENCOUNTERS.hard); if (t === 'fight') R.fights++; save(); }
+    if (!R.pendEnc) { R.pendEnc = t === 'elite' ? pickOne(ENCOUNTERS.elite) : pickOne(R.fights < 3 ? ENCOUNTERS.easy : ENCOUNTERS.hard); if (t === 'fight') R.fights++; snap(); save(); }
     return battle(R.pendEnc, t);
   }
   if (t === 'rest') return restScreen();
@@ -372,13 +376,19 @@ function hurt(tgt, amt, attacker) {
   if (!isP && left > 0) { eAct(tgt, 'hurt'); if (tgt.hp > 0) gv(tgt, 'hurt'); }
   if (!isP && tgt.hp <= 0 && !tgt.dead) killE(tgt);
   if (!isP && !tgt.dead && tgt.key === 'gob_wolf' && tgt.hp <= tgt.max / 2) dismount(tgt);
-  if (isP && R.hp <= 0 && (R.potions || []).includes('fairy')) { R.potions.splice(R.potions.indexOf('fairy'), 1); R.hp = Math.floor(R.maxHp * .3); fx('hero', '复活药水！', 'heal'); }
-  if (isP && R.hp <= 0) { if (has('feather') && !R.feather) { R.feather = 1; R.hp = Math.floor(R.maxHp * .3); fx('hero', '凤凰重生！', 'heal'); } }
+  if (isP) pDeath();
+  if (false && isP && R.hp <= 0 && (R.potions || []).includes('fairy')) { R.potions.splice(R.potions.indexOf('fairy'), 1); R.hp = Math.floor(R.maxHp * .3); fx('hero', '复活药水！', 'heal'); }
+  if (false && isP && R.hp <= 0) { if (has('feather') && !R.feather) { R.feather = 1; R.hp = Math.floor(R.maxHp * .3); fx('hero', '凤凰重生！', 'heal'); } }
   if (left > 0) { if (isP) { audio.hurt(); heroAct('hurt'); } else audio.hit('mel'); }
   return left;
 }
+function pDeath() { /* 掉到 0 血时：先复活药水，再凤凰羽 */
+  if (R.hp > 0) return;
+  if ((R.potions || []).includes('fairy')) { R.potions.splice(R.potions.indexOf('fairy'), 1); R.hp = Math.floor(R.maxHp * .3); fx('hero', '复活药水！', 'heal'); return; }
+  if (has('feather') && !R.feather) { R.feather = 1; R.hp = Math.floor(R.maxHp * .3); fx('hero', '凤凰重生！', 'heal'); }
+}
 function dismount(e) { // 骑狼兵半血落马：变成野狼 + 一只小兵
-  e.key = 'wolf'; e.d = ENEMIES.wolf; e.name = ENEMIES.wolf.name; e.anim = null; e.move = e.d.ai(e, BE);
+  e.key = 'wolf'; e.d = ENEMIES.wolf; e.name = ENEMIES.wolf.name; e.max = Math.max(e.hp, ENEMIES.wolf.hp[1]); e.anim = null; e.move = e.d.ai(e, BE);
   const g = mkEnemy('goblin'); g.hp = g.max = 8; g.move = g.d.ai(g, BE); B.en.splice(B.en.indexOf(e) + 1, 0, g);
   fx(e.id, '落马！', 'st');
 }
@@ -403,7 +413,7 @@ const G = {
   applyAll(k, n) { alive().forEach(e => G.apply(e, k, n)); },
   self(k, n) { addSt(B.p, k, n); fx('hero', `${STATUS[k][0]}+${n}`, 'st'); },
   draw(n) { drawCards(n); }, energy(n) { B.p.energy += n; },
-  loseHp(n) { R.hp -= n; fx('hero', `-${n}`, 'dmg'); B.hitSet.add('hero'); },
+  loseHp(n) { R.hp -= n; fx('hero', `-${n}`, 'dmg'); B.hitSet.add('hero'); pDeath(); },
   heal(n) { healP(n); },
   pm() { return B.p.st.sage ? 2 : 1; },
   potion(n, id) { const ps = ['p_fire', 'p_frost', 'p_heal', 'p_poison', 'p_boom']; for (let i = 0; i < n; i++) { const c = mkCard(id || pickOne(ps)); (B.hand.length < 10 ? B.hand : B.disc).push(c); } fx('hero', `药瓶+${n}`, 'st'); },
@@ -469,7 +479,7 @@ function startTurn(first) {
   B.sel = -1; B.busy = false; render();
 }
 async function playCard(i, tgt) {
-  if (B.busy || B.over || B.anim) return;
+  if (!B || B.busy || B.over || B.anim) return; const b0 = B;
   const c = B.hand[i], d = CARDS[c.id]; let cost = cardCost(c);
   if (cost === 'X') cost = B.p.energy; if (cost > B.p.energy) { tip('能量不足'); return; }
   if (d.tgt === 'one' && !tgt) { const a = alive(); if (a.length === 1) tgt = a[0]; else { B.sel = B.sel === i ? -1 : i; render(); return; } }
@@ -477,13 +487,14 @@ async function playCard(i, tgt) {
   const el = view.querySelector(`#hand .card[data-i="${i}"]`);
   B.p.energy -= cost; G.x = cost; B.hand.splice(i, 1); B.sel = -1; B.anim = true;
   if (el) flyCard(el, d.type); render(); await sleep(260);
-  B.anim = false; B.hitSet = new Set();
-  d.play(G, c.up, tgt, c);
+  if (B !== b0) return; B.anim = false; B.hitSet = new Set();
+  try { d.play(G, c.up, tgt, c); } catch (err) { console.error(err); tip(tr('这张牌出错了，已跳过')); }
   if (d.type === 'atk') { B.atkCnt++; if (has('quiver') && B.atkCnt % 3 === 0) for (const e of alive()) hurt(e, 5); heroAct('shoot'); }
   if (d.potion) { B.p.pot = (B.p.pot || 0) + 1; if (has('hat')) G.block(2, true); }
   if (B.p.st.concert && (B.p.cplays = (B.p.cplays || 0) + 1) <= 4) G.resAll(B.p.st.concert);
   if (d.type === 'skill') alive().forEach(e => { if (e.st.enrage) BE.addSt(e, 'str', e.st.enrage); });
   if (d.type === 'power') {} else if (d.exhaust) B.exh.push(c); else B.disc.push(c);
+  pDeath();
   render(); await checkEnd();
 }
 function flyCard(el, type) {
@@ -525,46 +536,50 @@ let lastT = 0;
 })(0);
 function heroAnim(c) { heroAnimCls = c; }
 async function endTurn() {
-  if (B.busy || B.over || B.anim) return; B.busy = true; B.sel = -1; B.hitSet = new Set();
-  if (B.p.st.ammo) { G.volley(true); render(); await sleep(350); if (await checkEnd()) return; }
+  if (!B || B.busy || B.over || B.anim) return; const b0 = B; B.busy = true; B.sel = -1; B.hitSet = new Set();
+  if (B.p.st.ammo) { G.volley(true); render(); await sleep(350); if (B !== b0 || await checkEnd()) return; }
   B.disc.push(...B.hand); B.hand = [];
   if (B.p.st.metal) G.block(B.p.st.metal, true);
   if (B.p.st.regen && (B.p.regenN = (B.p.regenN || 0) + 1) <= 3) healP(B.p.st.regen);
-  render(); await sleep(300);
-  // 敌人回合
+  render(); await sleep(300); if (B !== b0) return;
+  /* 敌人回合：本回合敌人新加给你的虚弱/易伤，不在这回合末扣层（让它们覆盖你的下一个回合） */
+  const pre = { vuln: B.p.st.vuln || 0, weak: B.p.st.weak || 0 };
   for (const e of alive()) e.block = 0;
   render();
   for (const e of [...B.en]) {
+    if (B !== b0) return;
     if (e.dead || B.over) continue;
     B.hitSet = new Set();
-    if (e.st.poison) { const pz = e.st.poison; e.hp -= pz; fx(e.id, `-${pz}`, 'dmg'); B.hitSet.add(e.id); addSt(e, 'poison', -1); if (e.hp <= 0) { killE(e); render(); await sleep(300); if (await checkEnd()) return; continue; } }
+    if (e.st.aegis) addSt(e, 'aegis', -1); /* 圣盾挡住玩家的一个回合，轮到它行动时才消失 */
+    if (e.st.poison && !e.st.aegis) { const pz = e.st.poison; e.hp -= pz; fx(e.id, `-${pz}`, 'dmg'); B.hitSet.add(e.id); addSt(e, 'poison', -1); if (e.hp <= 0) { killE(e); render(); await sleep(300); if (await checkEnd()) return; continue; } }
     const mv = e.d.moves[e.move]; B.lunge = mv.d != null && mv.i.startsWith('atk') && mv.d > 0 ? e.id : null;
     if (mv.d) { eAct(e, 'atk'); gv(e, 'atk'); } else if (/buff|summon/.test(mv.i)) gv(e, 'buff');
     if (mv.d) for (let k = 0; k < (mv.x || 1); k++) { hurt(B.p, atkVal(e, B.p, mv.d), e); if (e.dead) break; }
     if (mv.f && !e.dead) mv.f(e, BE);
     e.hist.push(e.move); e.d.after && e.d.after(e);
-    render(); await sleep(mv.d ? 520 : 380);
+    render(); await sleep(mv.d ? 520 : 380); if (B !== b0) return;
     if (R.hp <= 0) return checkEnd();
     if (await checkEnd()) return;
   }
   B.lunge = null; B.hitSet = new Set();
-  for (const k of ['vuln', 'weak']) if (B.p.st[k]) addSt(B.p, k, -1);
+  for (const k of ['vuln', 'weak']) if (pre[k] && B.p.st[k]) addSt(B.p, k, -1);
   for (const e of alive()) {
     if (e.st.ritual) addSt(e, 'str', e.st.ritual);
     if (e.st.heal) BE.healE(e, e.st.heal);
-    for (const k of ['vuln', 'weak', 'aegis']) if (e.st[k]) addSt(e, k, -1);
+    for (const k of ['vuln', 'weak']) if (e.st[k]) addSt(e, k, -1);
     e.turn++; e.move = e.d.ai(e, BE);
   }
   startTurn(false);
 }
 async function checkEnd() {
-  if (B.over) return true;
+  if (!B || B.over) return true; const b0 = B;
   if (R.hp <= 0) { B.over = true; heroAct('down'); render(); await sleep(1400); clearSave(); return endScreen(false); }
   if (!alive().length) {
-    B.over = true; render(); await sleep(600);
+    B.over = true; render(); await sleep(600); if (B !== b0) return true;
     if (has('gameboy') || has('phones') || has('suzu') || has('cauldron')) R.hp = Math.min(R.maxHp, R.hp + 6);
     if (B.kind === 'elite') R.elites = (R.elites || 0) + 1;
     if (B.kind === 'boss') { clearSave(); return endScreen(true); }
+    delete R.pending; delete R.pendEnc; delete R.snap; save(); /* 打赢后不能刷新重打 */
     rewardScreen(); return true;
   }
   return false;
@@ -612,7 +627,7 @@ function render() {
   view.innerHTML = `${bgHTML(true, B.bg)}${topBar()}
    <div id="hero" class="unit ${hs.has('hero') ? 'hit' : ''} ${heroAnimCls}" data-id="hero"><div class="intent"></div><div class="sprw"><img class="spr" decoding="sync" src="${heroFrame()}" style="height:${CHARS[R.char || 'hero'].h}px"><i class="shd" style="width:150px"></i></div>${barHTML(R.hp, R.maxHp, B.p.block, 1)}${stsHTML(B.p.st)}<div class="uname">${CHARS[R.char || 'hero'].name}</div></div>
    <div id="enemies">${enemies}</div>${foreHTML()}
-   <div id="energy" class="${energy ? '' : 'empty'}">${energy}/${3 + (has('crown') ? 1 : 0)}</div>
+   <div id="energy" class="${energy ? '' : 'empty'}">${energy}/${Math.max(energy, 3 + (has('crown') ? 1 : 0))}</div>
    <button class="btn" id="endturn" ${B.busy ? 'disabled' : ''}>${B.busy ? '敌人回合' : '结束回合 (E)'}</button>
    <div class="pile" id="drawp"><b>${B.draw.length}</b>抽牌堆</div><div class="pile" id="discp"><b>${B.disc.length}</b>弃牌堆</div><div class="pile" id="exhp"><b>${B.exh.length}</b>消耗</div>
    <div id="hand">${hand}</div>${B.sel >= 0 ? '<div id="tip">选择目标（Esc 取消）</div>' : ''}`;
@@ -749,7 +764,7 @@ function eventScreen() {
   const A = {
     heal: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, gold: n => { R.gold += n; }, hurt: n => { R.hp = Math.max(1, R.hp - n); },
     maxHp: n => { R.maxHp += n; R.hp = Math.min(R.hp, R.maxHp); }, relic: () => { const id = rollRelic(); gainRelic(id); return id ? RELICS[id].name : '（空）'; },
-    pick: m => setTimeout(() => pickDeck(m, () => draw2()), 50), rareCard: () => setTimeout(() => chooseCard(rollCards(3, 0, true), () => draw2()), 50),
+    pick: (m, n = 1) => setTimeout(() => { const go = k => pickDeck(m, () => k > 1 ? go(k - 1) : draw2()); go(n); }, 50), rareCard: () => setTimeout(() => chooseCard(rollCards(3, 0, true), () => draw2()), 50),
     potion: () => { const id = rollPotion(); return gainPotion(id) ? POTIONS[id].name : '（药水栏满了，没拿上）'; },
   };
   let result = null;
@@ -861,6 +876,7 @@ function book(tab = 'card', sub = 'miko', up = 0) {
 
 // ---------- 调试 ----------
 function dbgPanel() {
+  if (!R) { $('#dbg')?.remove(); return; }
   if (!DEBUG) return; let d = $('#dbg'); if (!d) { d = document.createElement('div'); d.id = 'dbg'; d.dataset.noi18n = 1; stage.appendChild(d); }
   const btns = [['秒杀敌人', () => { if (B) { B.en.forEach(e => { if (!e.dead) killE(e); }); render(); checkEnd(); } }], ['+100金', () => { R.gold += 100; B ? render() : mapScreen(); }],
     ['满血', () => { R.hp = R.maxHp; B ? render() : mapScreen(); }], ['+3能量', () => { if (B) { B.p.energy += 3; render(); } }], ['抽5张', () => { if (B) { drawCards(5); render(); } }],
