@@ -30,7 +30,7 @@ let R = null; // 当前一局
 let uidN = 1;
 const mkCard = (id, up = 0) => ({ id, up, uid: uidN++ });
 function newRun(char = 'hero') {
-  R = { char, hp: 80, maxHp: 80, gold: 99, deck: STARTERS[char].map(id => mkCard(id)), relics: [{ heroine: 'phones', miko: 'suzu', witch: 'cauldron' }[char] || 'gameboy'], map: genMap(), pos: null,
+  R = { char, hp: 80, maxHp: 80, gold: 120, deck: STARTERS[char].map(id => mkCard(id)), relics: [{ heroine: 'phones', miko: 'suzu', witch: 'cauldron' }[char] || 'gameboy'], map: genMap(), pos: null,
     floor: 0, fights: 0, removeCost: 75, boss: pickOne(ENCOUNTERS.boss)[0], feather: 0 };
 }
 const has = id => R.relics.includes(id);
@@ -89,7 +89,7 @@ const foreHTML = () => `<div id="fore"><img src="assets/fg/bush.png" style="left
 
 // ---------- 卡牌显示 ----------
 const TYPE = { atk: '攻击', skill: '技能', power: '能力' };
-function cardCost(c) { const d = CARDS[c.id]; if (c.free) return 0; return d.cost[c.up ? 1 : 0]; }
+function cardCost(c) { const d = CARDS[c.id]; if (c.free) return 0; const k = d.cost[c.up ? 1 : 0]; return c.disc && k !== 'X' ? Math.max(0, k - 1) : k; }
 function cardHTML(c, extra = '', energy = 99) {
   const d = CARDS[c.id], cost = cardCost(c), no = cost !== 'X' && cost > energy;
   const rr = d.rar === 'start' || d.rar === 'gen' ? 'c' : d.rar;
@@ -153,8 +153,11 @@ function title() {
   audio.setMode('menu'); R = null; B = null;
   view.innerHTML = `<div class="bg" style="background:url(assets/bg/title.jpg) center/cover,url(assets/bg/battle_castle.jpg) center/cover"></div><div class="tshade"></div>
    <div class="tlogo"><h1>通往顶端</h1><p class="en">THE WAY UP</p><p class="en2">OTHERWORLD DECK</p></div>
-   <div class="tbox"><button class="btn big" id="enter">进入游戏</button><p class="tkeys blink">点击任意处开始</p></div>`;
-  view.querySelector('.bg').onclick = view.querySelector('.tshade').onclick = mainMenu; $('#enter').onclick = mainMenu;
+   <div class="tbox"><input id="nm" class="inp" maxlength="8" placeholder="输入你的名字" value="${esc(LS('tw_name'))}">
+    <input id="pin" class="inp sm" maxlength="6" inputmode="numeric" placeholder="口令（可选，4～6 位数字）" value="${esc(LS('tw_pin'))}">
+    <button class="btn big" id="enter">进入游戏</button><p class="tkeys">设了口令，别人就不能用你的名字上排行榜</p></div>`;
+  const go = () => { const n = $('#nm').value.trim(); if (!n) { tip('先输入名字'); $('#nm').focus(); return; } LS('tw_name', n); LS('tw_pin', $('#pin').value.trim()); mainMenu(); };
+  $('#enter').onclick = go; $('#nm').onkeydown = $('#pin').onkeydown = e => { if (e.key === 'Enter') go(); };
 }
 function mainMenu() {
   audio.setMode('menu'); R = null; B = null;
@@ -293,7 +296,7 @@ function battle(keys, kind) {
   audio.setMode(kind === 'boss' ? 'boss' : kind === 'elite' ? 'elite' : 'battle'); setTimeout(() => B && B.en[0] && gv(B.en[0], 'laugh'), 500); if (kind === 'boss') audio.boss();
   if (has('charm')) B.p.st.str = 1;
   
-  if (has('suzu')) B.p.st.kek = 2 + (has('omamori') ? 1 : 0); else if (has('omamori')) B.p.st.kek = 1;
+  if (has('suzu')) B.p.st.kek = 3 + (has('omamori') ? 2 : 0); else if (has('omamori')) B.p.st.kek = 2;
   if (has('phones')) B.en.forEach(e => e.st.res = 4);
   if (has('spikes')) B.p.st.thorns = 3;
   if (has('wardrum')) B.en.forEach(e => e.st.vuln = 1);
@@ -334,7 +337,7 @@ function hurt(tgt, amt, attacker) {
   if (!isP && left > 0) { eAct(tgt, 'hurt'); if (tgt.hp > 0) gv(tgt, 'hurt'); }
   if (!isP && tgt.hp <= 0 && !tgt.dead) killE(tgt);
   if (!isP && !tgt.dead && tgt.key === 'gob_wolf' && tgt.hp <= tgt.max / 2) dismount(tgt);
-  if (isP && R.hp <= 0) { if (has('feather') && !R.feather) { R.feather = 1; R.hp = Math.floor(R.maxHp / 2); fx('hero', '凤凰重生！', 'heal'); } }
+  if (isP && R.hp <= 0) { if (has('feather') && !R.feather) { R.feather = 1; R.hp = Math.floor(R.maxHp * .3); fx('hero', '凤凰重生！', 'heal'); } }
   if (left > 0) { if (isP) { audio.hurt(); heroAct('hurt'); } else audio.hit('mel'); }
   return left;
 }
@@ -349,7 +352,7 @@ function killE(e) { gv(e, 'die'); if (R) R.kills = (R.kills || 0) + 1; eAct(e, '
 function boom(t) { // 爆音：伤害后保留 3 层（失真再 +3），多出的层数也保留
   const d = 24 + (B.p.st.dist ? 5 : 0) + (has('mic') ? 6 : 0);
   t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0);
-  fx(t.id, '爆音！', 'st'); hurt(t, d); if (has('metro')) B.p.energy++; }
+  fx(t.id, '爆音！', 'st'); hurt(t, d); if (has('metro') && !B.p.metroUsed) { B.p.metroUsed = 1; B.p.energy++; } }
 function healP(n) { if (n <= 0) return; R.hp = Math.min(R.maxHp, R.hp + n); fx('hero', `+${n}`, 'heal'); }
 function addSt(t, k, n) { t.st[k] = (t.st[k] || 0) + n; if (t.st[k] === 0) delete t.st[k]; }
 
@@ -375,6 +378,7 @@ const G = {
     if (B.p.st.rapid) G.block(B.p.st.rapid * n, true);
     if (clear) { B.shots = (B.shots || 0) + n; if (has('pad')) { B.p.padDraw = Math.floor(B.shots / 4); B.shots %= 4; } delete B.p.st.ammo; }
     audio.slash && audio.slash(); },
+  usePotion() { const i = B.hand.findIndex(c => CARDS[c.id].potion); if (i < 0) return false; B.exh.push(B.hand.splice(i, 1)[0]); return true; },
   kek(n) { addSt(B.p, 'kek', n); fx('hero', `结界+${n}`, 'st'); },
   ammo(n) { const a = Math.min(10, (B.p.st.ammo || 0) + n); if (a !== B.p.st.ammo) { B.p.st.ammo = a; fx('hero', `光弹+${n}`, 'st'); } },
   spend(n) { const k = Math.min(n, B.p.st.ammo || 0); if (!k) return 0; addSt(B.p, 'ammo', -k); if (B.p.st.rapid) G.block(B.p.st.rapid * k, true);
@@ -419,12 +423,12 @@ function startTurn(first) {
   if (B.p.st.plague) alive().forEach(e => G.poison(e, B.p.st.plague));
   if (B.p.st.kagura) G.kek(B.p.st.kagura);
   if (B.p.st.kek) G.block(B.p.st.kek * (B.p.st.shinboku ? 2 : 1), true);
-  if (has('hamaya') && (B.p.st.kek || 0) >= 3) drawCards(1);
-  B.p.oc = 0; B.p.aoe = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(1);
+  if (has('hamaya') && (B.p.st.kek || 0) >= 4) drawCards(1);
+  B.p.oc = 0; B.p.aoe = 0; B.p.metroUsed = 0; B.p.cplays = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(1);
   if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
   drawCards(5 + (first && has('scroll') ? 2 : 0));
-  if (first && has('dice') && B.hand.length) { const c = pickOne(B.hand); c.free = 1; }
+  if (first && has('dice')) { const cs = B.hand.filter(c => typeof cardCost(c) === 'number' && cardCost(c) >= 1); if (cs.length) pickOne(cs).disc = 1; }
   B.sel = -1; B.busy = false; render();
 }
 async function playCard(i, tgt) {
@@ -440,7 +444,7 @@ async function playCard(i, tgt) {
   d.play(G, c.up, tgt, c);
   if (d.type === 'atk') { B.atkCnt++; if (has('quiver') && B.atkCnt % 3 === 0) for (const e of alive()) hurt(e, 5); heroAct('shoot'); }
   if (d.potion) { B.p.pot = (B.p.pot || 0) + 1; if (has('hat')) G.block(2, true); }
-  if (B.p.st.concert) G.resAll(B.p.st.concert);
+  if (B.p.st.concert && (B.p.cplays = (B.p.cplays || 0) + 1) <= 4) G.resAll(B.p.st.concert);
   if (d.type === 'skill') alive().forEach(e => { if (e.st.enrage) BE.addSt(e, 'str', e.st.enrage); });
   if (d.type === 'power') {} else if (d.exhaust) B.exh.push(c); else B.disc.push(c);
   render(); await checkEnd();
@@ -488,7 +492,7 @@ async function endTurn() {
   if (B.p.st.ammo) { G.volley(true); render(); await sleep(350); if (await checkEnd()) return; }
   B.disc.push(...B.hand); B.hand = [];
   if (B.p.st.metal) G.block(B.p.st.metal, true);
-  if (B.p.st.regen) healP(B.p.st.regen);
+  if (B.p.st.regen && (B.p.regenN = (B.p.regenN || 0) + 1) <= 3) healP(B.p.st.regen);
   render(); await sleep(300);
   // 敌人回合
   for (const e of alive()) e.block = 0;
@@ -540,7 +544,8 @@ function intentHTML(e) {
   const tip = `${mv.n}：下回合将${IT[mv.i]}${num ? `，伤害 ${num}` : ''}`;
   return `<div class="intent" title="${esc(tip)}">${ICON[mv.i]}${num}<small>${mv.n}</small></div>`;
 }
-const stsHTML = st => `<div class="sts">${Object.entries(st).filter(([k, n]) => n && STATUS[k]).map(([k, n]) => `<b style="border-color:${STATUS[k][2]};color:${STATUS[k][2]}" title="${esc(STATUS[k][0] + '：' + STATUS[k][1])}">${STATUS[k][0]}${n}</b>`).join('')}</div>`;
+const stsLabel = (k, n, st) => k === 'res' ? `共鸣${n}/10${n >= 9 ? '⚠' : ''}` : k === 'kek' ? `结界${n}（下回合+${n * (st.shinboku ? 2 : 1)}挡）` : k === 'poison' ? `中毒${n}（下回合-${n}）` : k === 'ammo' ? `光弹${n}（回合末${n}发）` : STATUS[k][0] + n;
+const stsHTML = st => `<div class="sts">${Object.entries(st).filter(([k, n]) => n && STATUS[k]).map(([k, n]) => `<b style="border-color:${STATUS[k][2]};color:${STATUS[k][2]}" title="${esc(STATUS[k][0] + '：' + STATUS[k][1])}">${stsLabel(k, n, st)}</b>`).join('')}</div>`;
 function incoming() { let t = 0; for (const e of alive()) { const mv = e.d.moves[e.move]; if (mv.d && mv.i.startsWith('atk')) t += atkVal(e, B.p, mv.d) * (mv.x || 1); } return t; }
 function barHTML(hp, max, blk, me) {
   let cls = '', tip = '';

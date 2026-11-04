@@ -20,12 +20,12 @@ function hurt(t, amt, att) {
   if (att && t.st.thorns && att !== t) hurt(att, t.st.thorns);
   if (!isP && t.hp <= 0 && !t.dead) killE(t);
   if (!isP && !t.dead && t.key === 'gob_wolf' && t.hp <= t.max / 2) { t.key = 'wolf'; t.d = ENEMIES.wolf; t.move = t.d.ai(t, BE); const g = mkE('goblin'); g.hp = g.max = 8; g.move = g.d.ai(g, BE); B.en.push(g); }
-  if (isP && R.hp <= 0 && has('feather') && !R.feather) { R.feather = 1; R.hp = Math.floor(R.maxHp / 2); }
+  if (isP && R.hp <= 0 && has('feather') && !R.feather) { R.feather = 1; R.hp = Math.floor(R.maxHp * .3); }
   return left;
 }
 function killE(e) { e.dead = true; e.hp = 0; R.kills++; if (has('fang')) heal(3); }
 const heal = n => { R.hp = Math.min(R.maxHp, R.hp + n); };
-function boom(t) { const d = 24 + (B.p.st.dist ? 5 : 0) + (has('mic') ? 6 : 0); t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0); hurt(t, d); if (has('metro')) B.p.energy++; }
+function boom(t) { const d = 24 + (B.p.st.dist ? 5 : 0) + (has('mic') ? 6 : 0); t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0); hurt(t, d); if (has('metro') && !B.p.metroUsed) { B.p.metroUsed = 1; B.p.energy++; } }
 function drawCards(n) { for (let i = 0; i < n; i++) { if (B.p.noDraw || B.hand.length >= 10) return; if (!B.draw.length) { if (!B.disc.length) return; B.draw = shuffle(B.disc); B.disc = []; } B.hand.push(B.draw.pop()); } }
 const G = {
   get p() { return B.p; }, x: 0,
@@ -45,6 +45,7 @@ const G = {
     if (B.p.st.rapid) G.block(B.p.st.rapid * n, true);
     if (clear) { B.shots = (B.shots || 0) + n; if (has('pad')) { B.p.padDraw = Math.floor(B.shots / 4); B.shots %= 4; } delete B.p.st.ammo; }
     },
+  usePotion() { const i = B.hand.findIndex(c => CARDS[c.id].potion); if (i < 0) return false; B.exh.push(B.hand.splice(i, 1)[0]); return true; },
   kek(n) { addSt(B.p, 'kek', n); },
   ammo(n) { B.p.st.ammo = Math.min(10, (B.p.st.ammo || 0) + n); },
   spend(n) { const k = Math.min(n, B.p.st.ammo || 0); if (!k) return 0; addSt(B.p, 'ammo', -k); if (B.p.st.rapid) G.block(B.p.st.rapid * k, true); B.shots = (B.shots || 0) + k; if (has('pad')) while (B.shots >= 4) { B.shots -= 4; drawCards(1); } return k; },
@@ -68,8 +69,8 @@ function startTurn(first) {
   B.p.pot = 0; if (first && has('cauldron')) G.potion(1); if (B.p.st.satchel) G.potion(B.p.st.satchel);
   if (B.p.st.plague) alive().forEach(e => G.poison(e, B.p.st.plague));
   if (B.p.st.kagura) G.kek(B.p.st.kagura); if (B.p.st.kek) G.block(B.p.st.kek * (B.p.st.shinboku ? 2 : 1), true);
-  if (has('hamaya') && (B.p.st.kek || 0) >= 3) drawCards(1);
-  B.p.oc = 0; B.p.aoe = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(1); if (B.p.st.lowf) G.resAll(B.p.st.lowf);
+  if (has('hamaya') && (B.p.st.kek || 0) >= 4) drawCards(1);
+  B.p.oc = 0; B.p.aoe = 0; B.p.metroUsed = 0; B.p.cplays = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(1); if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
   drawCards(5 + (first && has('scroll') ? 2 : 0));
 }
@@ -80,7 +81,7 @@ function play(i, t) {
   if (d.type === 'atk') { B.atk++; if (has('quiver') && B.atk % 3 === 0) for (const e of alive()) hurt(e, 5); }
   if (d.type === 'skill') alive().forEach(e => { if (e.st.enrage) addSt(e, 'str', e.st.enrage); });
   if (d.potion) { B.p.pot++; if (has('hat')) G.block(2, true); }
-  if (B.p.st.concert) G.resAll(B.p.st.concert);
+  if (B.p.st.concert && (B.p.cplays = (B.p.cplays || 0) + 1) <= 4) G.resAll(B.p.st.concert);
   if (d.type !== 'power') (d.exhaust ? B.exh : B.disc).push(c);
   return true;
 }
@@ -122,7 +123,7 @@ function botTurn() {
 function endTurn() {
   if (B.p.st.ammo) G.volley(true); if (!alive().length) return;
   B.disc.push(...B.hand); B.hand = [];
-  if (B.p.st.metal) G.block(B.p.st.metal, true); if (B.p.st.regen) heal(B.p.st.regen);
+  if (B.p.st.metal) G.block(B.p.st.metal, true); if (B.p.st.regen && (B.p.regenN = (B.p.regenN || 0) + 1) <= 3) heal(B.p.st.regen);
   for (const e of alive()) e.block = 0;
   for (const e of [...B.en]) {
     if (e.dead || R.hp <= 0) continue;
@@ -138,7 +139,7 @@ function endTurn() {
 function battle(keys, kind) {
   B = { kind, en: keys.map(mkE), p: { block: 0, energy: 0, st: {}, noDraw: 0 }, draw: shuffle(R.deck.map(c => ({ ...c }))), hand: [], disc: [], exh: [], turn: 0, atk: 0 };
   if (has('charm')) B.p.st.str = 1; 
-  if (has('suzu')) B.p.st.kek = 2 + (has('omamori') ? 1 : 0); else if (has('omamori')) B.p.st.kek = 1;
+  if (has('suzu')) B.p.st.kek = 3 + (has('omamori') ? 2 : 0); else if (has('omamori')) B.p.st.kek = 2;
   if (has('phones')) B.en.forEach(e => e.st.res = 4); if (has('spikes')) B.p.st.thorns = 3; if (has('wardrum')) B.en.forEach(e => e.st.vuln = 1);
   B.en.filter(e => e.key === 'gob_bomb').forEach((e, i) => e.st.fuse = 3 + i);
   B.en.forEach(e => e.move = e.d.ai(e, BE));
