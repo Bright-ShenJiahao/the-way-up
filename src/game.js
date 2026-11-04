@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=safe11050000';
-import { createAudio } from './audio.js?v=safe11050000';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=safe11050000';
+import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=itch11050410';
+import { createAudio } from './audio.js?v=itch11050410';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=itch11050410';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -178,7 +178,8 @@ const metaGet = () => { try { return Object.assign({ xp: 0, asc: {} }, JSON.pars
 const metaSet = m => { try { localStorage.setItem('tw_meta', JSON.stringify(m)); } catch (e) {} };
 const lockedSet = () => { const xp = metaGet().xp, s = new Set(); UNLOCKS.forEach(u => { if (xp < u.xp) [...u.cards, ...u.relics].forEach(x => s.add(x)); }); if (DEBUG) s.clear(); return s; };
 const A_ = n => (R && R.asc || 0) >= n;
-const ONLINE = !/githack|localhost|127\.0\.0\.1|^file/.test(location.href); // 试玩链接上没有后台
+const ONLINE = !/githack|localhost|127\.0\.0\.1|^file/.test(location.href); /* 试玩链接上没有后台 */
+const API = /netlify\.app$/.test(location.hostname) ? '/api/scores' : 'https://the-way-up.netlify.app/api/scores'; /* itch.io 等外部站点连 Netlify 后台 */
 const CHARINFO = {
   miko: { diff: 1, tip: '结界越叠越厚，每回合自动加格挡。防守稳，最适合新手。' },
   hero: { diff: 2, tip: '打牌攒光弹，回合结束自动扫射。光弹越多打得越猛，规则最简单。' },
@@ -256,7 +257,7 @@ function rankBoard() {
   o.querySelector('#rkx').onclick = () => o.remove();
   const box = o.querySelector('#rk');
   if (!ONLINE) { box.innerHTML = '<p>排行榜要在正式网站上才能用（试玩链接没有后台）。</p>'; return; }
-  fetch('/api/scores', { cache: 'no-store' }).then(r => r.json()).then(d => {
+  fetch(API, { cache: 'no-store' }).then(r => r.json()).then(d => {
     if (!d.ok || !d.list.length) { box.innerHTML = '<p>还没有人上榜，快来当第一名！</p>'; return; }
     const me = LS('tw_name');
     box.innerHTML = `<table><tr><th>#</th><th>名字</th><th>角色</th><th>到达</th><th>击杀</th><th>积分</th></tr>${d.list.map((r, i) => `<tr class="${r.name === me ? 'me' : ''}"><td>${i + 1}</td><td data-noi18n>${esc(r.name)}</td><td><img src="assets/${CHARS[r.char].dir}/portrait.png"></td><td>${r.win ? '<b class="win">通关</b>' : '第 ' + r.floor + ' 层'}</td><td>${r.kills}</td><td><b>${r.score}</b></td></tr>`).join('')}</table>`;
@@ -264,7 +265,7 @@ function rankBoard() {
 }
 function submitScore(win) {
   const name = LS('tw_name'); if (DEBUG || !ONLINE || !name) return Promise.resolve(null);
-  return fetch('/api/scores', { method: 'POST', headers: { 'content-type': 'application/json' },
+  return fetch(API, { method: 'POST', headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ name, pin: LS('tw_pin'), char: R.char, asc: R.asc || 0, floor: R.floor, kills: R.kills || 0, elites: R.elites || 0, win, hp: Math.max(0, R.hp) }) })
     .then(r => r.json()).catch(() => null);
 }
