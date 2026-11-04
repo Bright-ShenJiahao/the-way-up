@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=drag11050000';
-import { createAudio } from './audio.js?v=drag11050000';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=drag11050000';
+import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=safe11050000';
+import { createAudio } from './audio.js?v=safe11050000';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=safe11050000';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -29,8 +29,11 @@ const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(
 
 // ---------- 缩放 ----------
 let SW = 1280;
-function fit() { const ar = innerWidth / innerHeight; SW = Math.round(Math.max(1280, Math.min(2000, 720 * ar))); const s = Math.min(innerWidth / SW, innerHeight / 720);
-  stage.style.width = SW + 'px'; document.documentElement.style.setProperty('--sw', SW + 'px'); stage.style.transform = `scale(${s})`; stage.style.left = (innerWidth - SW * s) / 2 + 'px'; stage.style.top = (innerHeight - 720 * s) / 2 + 'px'; stage._s = s; }
+const saProbe = document.createElement('div'); saProbe.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)'; document.body.appendChild(saProbe);
+function fit() { const cs = getComputedStyle(saProbe), sl = parseFloat(cs.paddingLeft) || 0, sr = parseFloat(cs.paddingRight) || 0, st = parseFloat(cs.paddingTop) || 0, sb = parseFloat(cs.paddingBottom) || 0;
+  const W = innerWidth - sl - sr, H = innerHeight - st - sb, ar = W / H; SW = Math.round(Math.max(1280, Math.min(2000, 720 * ar))); const s = Math.min(W / SW, H / 720);
+  stage.style.width = SW + 'px'; const rs = document.documentElement.style; rs.setProperty('--sw', SW + 'px'); rs.setProperty('--mz', Math.max(1.22, Math.min(1.7, (SW - 300) / 1000)).toFixed(3));
+  stage.style.transform = `scale(${s})`; stage.style.left = sl + (W - SW * s) / 2 + 'px'; stage.style.top = st + (H - 720 * s) / 2 + 'px'; stage._s = s; }
 addEventListener('resize', fit); addEventListener('orientationchange', () => setTimeout(fit, 250)); fit();
 stage.addEventListener('scroll', () => { stage.scrollTop = 0; stage.scrollLeft = 0; });
 
