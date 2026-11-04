@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=full11042040';
-import { createAudio } from './audio.js?v=full11042040';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=full11042040';
+import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=mob11042100';
+import { createAudio } from './audio.js?v=mob11042100';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=mob11042100';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -625,8 +625,8 @@ function render() {
       <div class="sprw" ${ENEMIES[e.key].hdw ? `style="width:${ENEMIES[e.key].hdw}px"` : ''}>${hd ? `<img class="spr" decoding="async" data-eid="${e.id}" src="${eFrame(e)}" style="height:${hd}px${ENEMIES[e.key].tint ? ';filter:' + ENEMIES[e.key].tint : ''}">` : `<img class="spr px" data-k="${e.key}" src="assets/enemies/${e.key}/${img}.png" style="zoom:${h}">`}<i class="shd"></i></div>
       ${barHTML(e.hp, e.max, e.block)}${stsHTML(e.st)}<div class="uname">${e.d.name}</div></div>`;
   }).join('');
-  const energy = B.p.energy, n = B.hand.length, W = SW - 300, cw = 150, gap = Math.min(cw + 6, (W - cw) / Math.max(1, n - 1));
-  const x0 = (W - (gap * (n - 1) + cw)) / 2;
+  const HZ = TOUCH ? 1.32 : 1, energy = B.p.energy, n = B.hand.length, W = TOUCH ? (SW - 560) / HZ : SW - 300, cw = 150, gap = Math.min(cw + 6, (W - cw) / Math.max(1, n - 1));
+  const x0 = TOUCH ? (SW / HZ - (gap * (n - 1) + cw)) / 2 : (W - (gap * (n - 1) + cw)) / 2;
   const hand = B.hand.map((c, i) => {
     const mid = (n - 1) / 2, rot = (i - mid) * 3, dy = Math.abs(i - mid) * Math.abs(i - mid) * 2.2, sel = B.sel === i;
     const cost = cardCost(c), off = cost !== 'X' && cost > energy;
@@ -821,12 +821,17 @@ function kwShow(el) { if (!SET.kwtip) return; const c = { id: el.dataset.cid, up
   const s = stage._s || 1, sr = stage.getBoundingClientRect(), r = el.getBoundingClientRect(), b = document.createElement('div'); b.id = 'kwtip';
   b.innerHTML = L.map(([k, v]) => `<p><b>${k}</b>${v}</p>`).join('') + '<i>设置里可关闭提示</i>'; stage.appendChild(b);
   let x = (r.right - sr.left) / s + 8, y = (r.top - sr.top) / s; if (x + 230 > SW) x = (r.left - sr.left) / s - 238; y = Math.max(50, Math.min(y, 720 - b.offsetHeight - 8)); b.style.left = x + 'px'; b.style.top = y + 'px'; }
+function tipShow(el, text) { kwHide(); const s = stage._s || 1, sr = stage.getBoundingClientRect(), r = el.getBoundingClientRect(), b = document.createElement('div'); b.id = 'kwtip';
+  b.innerHTML = text.split('\n').map(t => `<p>${esc(t)}</p>`).join(''); stage.appendChild(b);
+  let x = (r.left + r.width / 2 - sr.left) / s - b.offsetWidth / 2, y = (r.bottom - sr.top) / s + 6; x = Math.max(8, Math.min(x, SW - b.offsetWidth - 8)); if (y + b.offsetHeight > 712) y = (r.top - sr.top) / s - b.offsetHeight - 6;
+  b.style.left = x + 'px'; b.style.top = y + 'px'; kwTimer = setTimeout(kwHide, 4000); }
+if (TOUCH) stage.addEventListener('click', e => { const el = e.target.closest && e.target.closest('.sts b[title], .intent[title]'); if (!el) return; e.stopPropagation(); tipShow(el, el.title); }, true);
 function kwHide() { clearTimeout(kwTimer); $('#kwtip')?.remove(); }
 stage.addEventListener('mouseover', e => { const el = e.target.closest && e.target.closest('.card[data-cid]'); if (el && e.pointerType !== 'touch') kwShow(el); });
 stage.addEventListener('mouseout', e => { const el = e.target.closest && e.target.closest('.card[data-cid]'); if (el && !el.contains(e.relatedTarget)) kwHide(); });
 stage.addEventListener('touchstart', e => { const el = e.target.closest && e.target.closest('.card[data-cid]'); if (el) kwTimer = setTimeout(() => kwShow(el), 380); }, { passive: true });
-stage.addEventListener('touchend', () => { clearTimeout(kwTimer); setTimeout(kwHide, 1500); });
-stage.addEventListener('click', () => kwHide(), true);
+stage.addEventListener('touchend', e => { if (e.target.closest && e.target.closest('.sts b[title], .intent[title]')) return; clearTimeout(kwTimer); setTimeout(kwHide, 1500); });
+stage.addEventListener('click', e => { if (!(TOUCH && e.target.closest && e.target.closest('.sts b[title], .intent[title]'))) kwHide(); }, true);
 
 // ---------- 药水 ----------
 function gainPotion(id) { R.potions = R.potions || []; if (R.potions.length >= 3) { tip('药水栏满了'); return false; } R.potions.push(id); audio.gem(); return true; }
