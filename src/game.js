@@ -6,7 +6,7 @@ const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
 const DEBUG = /[?&]debug/.test(location.search) || location.hash === '#debug';
 const audio = createAudio();
-let SET = { shake: 1, fast: 0 }; try { Object.assign(SET, JSON.parse(localStorage.getItem('tw_set') || '{}')); } catch (e) {}
+let SET = { shake: 1, fast: 0, kwtip: 1 }; try { Object.assign(SET, JSON.parse(localStorage.getItem('tw_set') || '{}')); } catch (e) {}
 const saveSet = () => { try { localStorage.setItem('tw_set', JSON.stringify(SET)); } catch (e) {} };
 const sleep = ms => new Promise(r => setTimeout(r, SET.fast ? ms / 2 : ms));
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
@@ -206,7 +206,7 @@ function settings(inRun) {
   const o = overlay(`<div class="setw"><div class="tabs"><b class="on" data-t="g">游戏设置</b><b data-t="k">操作说明</b></div>
    <div class="tp" data-p="g"><div class="sgrid">
     <div class="sbox"><h3>声音</h3>${sl('m', '主音量')}${sl('mu', '音乐音量')}${sl('s', '音效音量')}</div>
-    <div class="sbox"><h3>偏好</h3>${ck('tips', '显示规则提示', TIPS)}${ck('shake', '屏幕震动', SET.shake)}${ck('fast', '加速模式（动画快一倍）', SET.fast)}</div>
+    <div class="sbox"><h3>偏好</h3>${ck('tips', '显示规则提示', TIPS)}${ck('shake', '屏幕震动', SET.shake)}${ck('fast', '加速模式（动画快一倍）', SET.fast)}${ck('kwtip', '卡牌关键词说明框', SET.kwtip)}</div>
     <div class="sbox"><h3>玩家</h3><label class="sl"><span>名字</span><input id="snm" class="inp sm" maxlength="8" value="${esc(LS('tw_name'))}"></label>
      <label class="sl"><span>口令</span><input id="spin" class="inp sm" maxlength="6" inputmode="numeric" value="${esc(LS('tw_pin'))}" placeholder="可不填"></label></div>
     <div class="sbox"><h3>其他</h3><button class="btn" id="sfs">全屏 / 退出全屏</button>${inRun ? '<button class="btn red" id="sab">放弃这局</button><button class="btn" id="ssq">保存并退出</button>' : ''}</div>
@@ -339,7 +339,7 @@ function tutorial() {
   const step = () => { if (i >= TUT.length) { o.remove(); try { localStorage.setItem('tutDone', '1'); } catch (e) {} return; }
     o.innerHTML = `<div class="panel" style="max-width:560px"><h2>新手提示 ${i + 1}/${TUT.length}</h2><p>${TUT[i]}</p><div class="row"><button class="btn" id="tn">${i < TUT.length - 1 ? '下一条' : '开始战斗'}</button><button class="btn" id="tx" style="filter:grayscale(.6)">关闭提示</button></div></div>`;
     o.querySelector('#tn').onclick = () => { i++; step(); };
-    o.querySelector('#tx').onclick = () => { TIPS = false; try { localStorage.setItem('tipsOff', '1'); localStorage.setItem('tutDone', '1'); } catch (e) {} o.remove(); render(); }; };
+    o.querySelector('#tx').onclick = () => { try { localStorage.setItem('tutDone', '1'); } catch (e) {} o.remove(); render(); }; };
   step();
 }
 function banner(t) { const b = document.createElement('div'); b.id = 'banner'; b.textContent = t; stage.appendChild(b); setTimeout(() => b.remove(), 1200); }
@@ -782,7 +782,7 @@ const KWS = { '结界': '叠在自己身上，每回合开始按层数自动获�
   '中毒': '敌人行动前掉等于层数的血（无视格挡），然后层数 -1。', '炼金瓶': '由其他牌生成的 0 费牌，用一次就没了。' };
 function kwList(c) { const d = CARDS[c.id], t = d.desc(c.up) + (d.potion ? '炼金瓶' : '') + (d.type === 'power' ? '能力' : ''); const all = Object.assign({}, KW, KWS, { '能力': '打出后整场战斗持续生效。' }); return Object.keys(all).filter(k => t.includes(k)).map(k => [k, all[k]]); }
 let kwTimer = 0;
-function kwShow(el) { if (!TIPS) return; const c = { id: el.dataset.cid, up: +el.dataset.up }; if (!CARDS[c.id]) return; const L = kwList(c); kwHide(); if (!L.length) return;
+function kwShow(el) { if (!SET.kwtip) return; const c = { id: el.dataset.cid, up: +el.dataset.up }; if (!CARDS[c.id]) return; const L = kwList(c); kwHide(); if (!L.length) return;
   const s = stage._s || 1, sr = stage.getBoundingClientRect(), r = el.getBoundingClientRect(), b = document.createElement('div'); b.id = 'kwtip';
   b.innerHTML = L.map(([k, v]) => `<p><b>${k}</b>${v}</p>`).join('') + '<i>设置里可关闭提示</i>'; stage.appendChild(b);
   let x = (r.right - sr.left) / s + 8, y = (r.top - sr.top) / s; if (x + 230 > 1280) x = (r.left - sr.left) / s - 238; y = Math.max(50, Math.min(y, 720 - b.offsetHeight - 8)); b.style.left = x + 'px'; b.style.top = y + 'px'; }
