@@ -121,7 +121,7 @@ export const CARDS = {
   zap: { ch: 'witch', name: '魔弹', type: 'atk', rar: 'start', cost: [1, 1], icon: 'sk_orb', tgt: 'one',
     desc: u => `造成 ${v(u, 6, 9)} 点伤害。`, play: (g, u, t) => g.attack(t, v(u, 6, 9)) },
   brew: { ch: 'witch', name: '调药', type: 'skill', rar: 'start', cost: [1, 1], icon: 'pot', tgt: 'self',
-    desc: u => `随机获得 ${v(u, 2, 3)} 瓶药。`, play: (g, u) => g.potion(v(u, 2, 3)) },
+    desc: u => `随机获得 ${v(u, 2, 3)} 个炼金瓶。`, play: (g, u) => g.potion(v(u, 2, 3)) },
   needle: { ch: 'witch', name: '毒针', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_stake', tgt: 'one',
     desc: u => `造成 3 点伤害，给予 ${v(u, 4, 6)} 层中毒。`, play: (g, u, t) => { g.attack(t, 3); g.poison(t, v(u, 4, 6)); } },
   venom: { ch: 'witch', name: '剧毒', type: 'skill', rar: 'c', cost: [1, 1], icon: 'b_curse', tgt: 'one',
@@ -129,25 +129,25 @@ export const CARDS = {
   miasma: { ch: 'witch', name: '毒雾', type: 'skill', rar: 'c', cost: [1, 1], icon: 'sk_bmist', tgt: 'all',
     desc: u => `给予所有敌人 ${v(u, 3, 5)} 层中毒。`, play: (g, u) => g.eachEnemy(e => g.poison(e, v(u, 3, 5))) },
   quickbrew: { ch: 'witch', name: '速调', type: 'skill', rar: 'c', cost: [0, 0], icon: 'sk_pouch', tgt: 'self',
-    desc: u => `随机获得 1 瓶药。抽 1 张牌。${v(u, '', '获得 3 点格挡。')}`, play: (g, u) => { g.potion(1); g.draw(1); if (u) g.block(3); } },
+    desc: u => `随机获得 1 个炼金瓶。抽 1 张牌。${v(u, '', '获得 3 点格挡。')}`, play: (g, u) => { g.potion(1); g.draw(1); if (u) g.block(3); } },
   broom: { ch: 'witch', name: '扫帚格挡', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_whip', tgt: 'self',
-    desc: u => `获得 ${v(u, 6, 9)} 点格挡。随机获得 1 瓶药。`, play: (g, u) => { g.block(v(u, 6, 9)); g.potion(1); } },
+    desc: u => `获得 ${v(u, 6, 9)} 点格挡。随机获得 1 个炼金瓶。`, play: (g, u) => { g.block(v(u, 6, 9)); g.potion(1); } },
   firebrew: { ch: 'witch', name: '火焰配方', type: 'skill', rar: 'c', cost: [1, 1], icon: 'sk_fireel', tgt: 'self',
     desc: u => `获得 2 瓶火焰瓶。${v(u, '', '获得 4 点格挡。')}`, play: (g, u) => { g.potion(2, 'p_fire'); if (u) g.block(4); } },
   antidote: { ch: 'witch', noart: 1, name: '解毒剂', type: 'skill', rar: 'c', cost: [0, 0], icon: 'holywater', tgt: 'self',
     desc: u => `清除自身虚弱和易伤。获得 ${v(u, 4, 7)} 点格挡。`, play: (g, u) => { delete g.p.st.weak; delete g.p.st.vuln; g.block(v(u, 4, 7)); } },
   distill: { ch: 'witch', noart: 1, name: '蒸馏', type: 'skill', rar: 'u', cost: [1, 1], icon: 'ic_crystal', tgt: 'self',
-    desc: u => `消耗手里 1 瓶药，获得 2 点能量。${v(u, '', '抽 1 张牌。')}`, play: (g, u) => { if (g.usePotion()) g.energy(2); if (u) g.draw(1); } },
+    desc: u => `消耗手里 1 个炼金瓶，获得 2 点能量。${v(u, '', '抽 1 张牌。')}`, play: (g, u) => { if (g.usePotion()) g.energy(2); if (u) g.draw(1); } },
   catalyst: { ch: 'witch', name: '催化剂', type: 'skill', rar: 'u', cost: [1, 0], icon: 'ic_crystal', tgt: 'one', exhaust: 1,
     desc: () => `目标的中毒层数翻倍。消耗。`, play: (g, u, t) => g.poison(t, t.st.poison || 0) },
   alchemy: { ch: 'witch', name: '炼金爆发', type: 'atk', rar: 'u', cost: [2, 2], icon: 'ic_vortex', tgt: 'one',
-    desc: u => `造成 5 点伤害，本回合每用过 1 瓶药，再打 1 次（每次 ${v(u, 5, 7)} 点）。`, play: (g, u, t) => g.attack(t, v(u, 5, 7), 1 + (g.p.pot || 0)) },
+    desc: u => `造成 5 点伤害，本回合每用过 1 个炼金瓶，再打 1 次（每次 ${v(u, 5, 7)} 点）。`, play: (g, u, t) => g.attack(t, v(u, 5, 7), 1 + (g.p.pot || 0)) },
   plague: { ch: 'witch', name: '疫病', type: 'power', rar: 'u', cost: [1, 1], icon: 'sk_undead', tgt: 'self',
     desc: u => `每回合开始时，给予所有敌人 ${v(u, 2, 3)} 层中毒。`, play: (g, u) => g.self('plague', v(u, 2, 3)) },
   satchel: { ch: 'witch', name: '药剂腰包', type: 'power', rar: 'u', cost: [1, 1], icon: 'goldbag', tgt: 'self',
-    desc: u => `每回合开始时，随机获得 1 瓶药。${v(u, '', '并获得 2 点格挡。')}`, play: (g, u) => { g.self('satchel', 1); if (u) g.self('metal', 2); } },
+    desc: u => `每回合开始时，随机获得 1 个炼金瓶。${v(u, '', '并获得 2 点格挡。')}`, play: (g, u) => { g.self('satchel', 1); if (u) g.self('metal', 2); } },
   sage: { ch: 'witch', name: '贤者之石', type: 'power', rar: 'r', cost: [2, 1], icon: 'ic_gods', tgt: 'self',
-    desc: () => `药瓶的伤害和中毒翻倍（治疗、削弱不翻倍）。`, play: g => g.self('sage', 1) },
+    desc: () => `炼金瓶的伤害和中毒翻倍（治疗、削弱不翻倍）。`, play: g => g.self('sage', 1) },
   deadly: { ch: 'witch', name: '毒爆', type: 'atk', rar: 'r', cost: [2, 2], icon: 'sk_dcoil', tgt: 'one',
     desc: u => `清空目标的中毒，每层造成 ${v(u, 3, 4)} 点伤害。`, play: (g, u, t) => { const n = t.st.poison || 0; delete t.st.poison; if (n) g.attack(t, n * v(u, 3, 4)); } },
 
@@ -187,9 +187,9 @@ export const STARTER = STARTERS.hero;
 export const RELICS = {
   gameboy: { ch: 'hero', name: '掌机', icon: 'gb', rar: 'start', desc: '每回合开始时得到 1 发光弹。战斗结束时回复 6 点生命。' },
   phones: { ch: 'heroine', name: '粉色耳机', icon: 'ic_bell', rar: 'start', desc: '战斗开始时给予所有敌人 4 层共鸣，之后每回合开始再给 1 层。战斗结束时回复 6 点生命。' },
-  cauldron: { ch: 'witch', name: '魔女的坩埚', icon: 'pot', rar: 'start', desc: '战斗开始时随机获得 1 瓶药。战斗结束时回复 6 点生命。' },
+  cauldron: { ch: 'witch', name: '魔女的坩埚', icon: 'pot', rar: 'start', desc: '战斗开始时随机获得 1 个炼金瓶。战斗结束时回复 6 点生命。' },
   toad: { ch: 'witch', name: '蟾蜍干', icon: 'b_curse', rar: 'c', desc: '每次给予中毒时，额外 +1 层。' },
-  hat: { ch: 'witch', name: '魔女帽', icon: 'sk_shadow', rar: 'u', desc: '每使用 1 瓶药，获得 2 点格挡。' },
+  hat: { ch: 'witch', name: '魔女帽', icon: 'sk_shadow', rar: 'u', desc: '每使用 1 个炼金瓶，获得 2 点格挡。' },
   suzu: { ch: 'miko', name: '神乐铃', icon: 'ic_bell', rar: 'start', desc: '战斗开始时结界 +3。战斗结束时回复 6 点生命。' },
   omamori: { ch: 'miko', name: '御守', icon: 'm_ward', rar: 'c', desc: '每场战斗开始时，结界 +2。' },
   hamaya: { ch: 'miko', name: '破魔矢', icon: 'ic_bow', rar: 'u', desc: '回合开始时，若结界不少于 4 层，抽 1 张牌。' },
@@ -213,6 +213,22 @@ export const RELICS = {
 };
 for (const [k, r] of Object.entries(RELICS)) { r.id = k; if (['spare', 'pad', 'phones', 'metro', 'mic', 'cauldron', 'toad', 'hat', 'suzu', 'omamori', 'hamaya'].includes(k)) r.icon = 'icons2/r_' + k; r.img = I(r.icon); }
 
+
+// ---- 药水：所有角色通用，最多带 3 瓶，战斗中点一下就用，不花能量 ----
+export const POTIONS = {
+  heal: { name: '治疗药水', icon: 'pot', rar: 'c', tgt: 'self', desc: '回复 20 点生命。', use: g => g.heal(20) },
+  str: { name: '力量药水', icon: 'b_atk', rar: 'c', tgt: 'self', desc: '本场战斗获得 2 点力量。', use: g => g.self('str', 2) },
+  dex: { name: '敏捷药水', icon: 'p_dodge', rar: 'c', tgt: 'self', desc: '本场战斗获得 2 点敏捷。', use: g => g.self('dex', 2) },
+  block: { name: '格挡药水', icon: 'ic_barrier', rar: 'c', tgt: 'self', desc: '获得 12 点格挡。', use: g => g.block(12, true) },
+  energy: { name: '能量药水', icon: 'b_cd', rar: 'c', tgt: 'self', desc: '获得 2 点能量。', use: g => g.energy(2) },
+  fire: { name: '火焰药水', icon: 'ic_flame', rar: 'c', tgt: 'one', desc: '对一个敌人造成 20 点伤害。', use: (g, t) => g.hit(t, 20) },
+  bomb: { name: '爆炸药水', icon: 'p_boom', rar: 'c', tgt: 'all', desc: '对所有敌人造成 10 点伤害。', use: g => g.eachEnemy(e => g.hit(e, 10)) },
+  weak: { name: '虚弱药水', icon: 'b_curse', rar: 'c', tgt: 'all', desc: '给予所有敌人 3 层虚弱。', use: g => g.applyAll('weak', 3) },
+  draw: { name: '抽牌药水', icon: 'sk_pouch', rar: 'c', tgt: 'self', desc: '抽 3 张牌。', use: g => g.draw(3) },
+  fairy: { name: '复活药水', icon: 'p_rev', rar: 'r', tgt: 'auto', desc: '死亡时自动使用：回复 30% 最大生命。不能主动使用。', use: () => {} },
+};
+for (const [k, x] of Object.entries(POTIONS)) { x.id = k; x.img = I(x.icon); }
+
 export const STATUS = {
   str: ['力量', '攻击伤害增加', '#e05a3a'], dex: ['敏捷', '获得的格挡增加', '#5ab45a'],
   vuln: ['易伤', '受到的攻击伤害 +50%', '#c070e0'], weak: ['虚弱', '造成的攻击伤害 -25%', '#7a90c0'],
@@ -225,7 +241,7 @@ export const STATUS = {
   lowf: ['低频', '回合开始给所有敌人共鸣', '#ff80c0'], dist: ['失真', '爆音后保留一半共鸣', '#ff80c0'], concert: ['演唱会', '出牌时给所有敌人共鸣', '#ff80c0'],
   kek: ['结界', '回合开始时按层数获得格挡', '#ffd060'], kagura: ['神乐舞', '回合开始结界 +1', '#ffd060'], shinboku: ['御神木', '结界格挡翻倍', '#ffd060'],
   poison: ['中毒', '回合开始时受到等同层数的伤害（无视格挡），然后减 1 层', '#70d040'], plague: ['疫病', '回合开始给所有敌人中毒', '#70d040'],
-  satchel: ['药剂腰包', '回合开始获得药瓶', '#c090ff'], sage: ['贤者之石', '药瓶效果翻倍', '#c090ff'],
+  satchel: ['药剂腰包', '回合开始获得炼金瓶', '#c090ff'], sage: ['贤者之石', '炼金瓶效果翻倍', '#c090ff'],
   heal: ['自愈', '回合结束回复生命', '#50d080'], aegis: ['圣盾', '免疫所有伤害', '#ffe070'],
 };
 
@@ -301,6 +317,40 @@ export const ENCOUNTERS = {
 
 // ---- 事件 ---- opts: {t 文本, ok(R) 可选条件, go(R, api) 执行，返回结果文本}
 export const EVENTS = [
+  { title: '哥布林地下赌场', img: 'goldbag', text: '树洞里传来骰子声，一群哥布林围着破木桌吆喝：“大还是小？”',
+    opts: [
+      { t: '押 50 金币：40% 赢得 150 金币', ok: R => R.gold >= 50, go: (R, A) => { A.gold(-50); if (Math.random() < .4) { A.gold(150); return '满堂哗然，你抱走了一大袋金币！'; } return '庄家哥布林咧嘴一笑，收走了你的钱。'; } },
+      { t: '掀桌子：失去 10 生命，抢到一瓶药水', go: (R, A) => { A.hurt(10); const n = A.potion(); return `一阵混战，你顺走了「${n}」。`; } },
+      { t: '离开', go: () => '赌狗没有好下场。' }] },
+  { title: '被困的矮人工匠', img: 'ic_hammer', text: '一个矮人被哥布林的陷阱夹住了脚，正骂骂咧咧地挣扎。',
+    opts: [
+      { t: '救他：失去 6 生命，他帮你升级两张牌', go: (R, A) => { A.hurt(6); A.pick('upgrade'); setTimeout(() => A.pick('upgrade'), 60); return '矮人拍拍你：“好家伙，我欠你一次！”'; } },
+      { t: '向他买东西：花 40 金币，获得一个随机遗物', ok: R => R.gold >= 40, go: (R, A) => { A.gold(-40); return `他从背包里翻出一件「${A.relic()}」。`; } },
+      { t: '离开', go: () => '你假装没听见。' }] },
+  { title: '神社遗迹', img: 'ic_bell', text: '林间立着一座倒塌的小神社，铃绳还挂在梁上。',
+    opts: [
+      { t: '（巫女）重新祭拜：最大生命 +8，回满生命', ok: R => R.char === 'miko', go: (R, A) => { A.maxHp(8); A.heal(999); return '铃声响起，熟悉的神力流遍全身。'; } },
+      { t: '摇铃祈福：回复 15 生命', go: (R, A) => { A.heal(15); return '清脆的铃声让人安心。'; } },
+      { t: '捡走香火钱：获得 35 金币，失去 4 生命', go: (R, A) => { A.gold(35); A.hurt(4); return '一阵阴风刮过，你打了个寒战。'; } }] },
+  { title: '魔女的旧实验室', img: 'pot', text: '一间被藤蔓吞没的小屋，桌上堆满落灰的瓶瓶罐罐。',
+    opts: [
+      { t: '（魔女）翻找笔记：获得一张稀有牌', ok: R => R.char === 'witch', go: (R, A) => { A.rareCard(); return '原来是师父留下的配方！'; } },
+      { t: '喝下可疑的药：50% 最大生命 +6，50% 失去 8 生命', go: (R, A) => { if (Math.random() < .5) { A.maxHp(6); return '浑身发热……你感觉更强壮了。'; } A.hurt(8); return '一阵剧痛，你吐了个昏天黑地。'; } },
+      { t: '带走两瓶药水', go: (R, A) => { const a = A.potion(), b = A.potion(); return `你收起了「${a}」和「${b}」。`; } }] },
+  { title: '掉线的掌机', img: 'gb', text: '路边草丛里躺着一台和你很像的掌机，屏幕还在闪。',
+    opts: [
+      { t: '（林拓）插上卡带：获得一张稀有牌', ok: R => R.char === 'hero', go: (R, A) => { A.rareCard(); return '“新关卡已解锁。”'; } },
+      { t: '戴上耳机听一听（苏音）：最大生命 +5', ok: R => R.char === 'heroine', go: (R, A) => { A.maxHp(5); return '是你最喜欢的那首歌。'; } },
+      { t: '拆了卖零件：获得 30 金币', go: (R, A) => { A.gold(30); return '哥布林商人一定会喜欢这些零件。'; } }] },
+  { title: '哥布林的晚餐', img: 'meat', text: '营地里一锅肉汤正咕嘟作响，哥布林们都不见了。',
+    opts: [
+      { t: '偷喝一碗：回复 20 生命', go: (R, A) => { A.heal(20); return '味道……出乎意料地不错。'; } },
+      { t: '在汤里下毒再走：移除一张牌', ok: R => R.deck.length > 1, go: (R, A) => { A.pick('remove'); return '你轻手轻脚地离开了。'; } },
+      { t: '离开', go: () => '你不吃来路不明的东西。' }] },
+  { title: '迷路的商队', img: 'box', text: '一辆翻倒的马车，箱子散了一地，车夫早已逃走。',
+    opts: [
+      { t: '搜刮箱子：获得 25 金币和一瓶药水', go: (R, A) => { A.gold(25); const n = A.potion(); return `你找到了金币，还有一瓶「${n}」。`; } },
+      { t: '把马车扶正：失去 5 生命，获得一个随机遗物', go: (R, A) => { A.hurt(5); return `车底压着一件「${A.relic()}」。`; } }] },
   { title: '林中泉水', img: 'holywater', text: '树林深处有一汪清澈的泉水，水面泛着微光。',
     opts: [
       { t: '饮水：回复 25% 最大生命', go: (R, A) => { A.heal(Math.floor(R.maxHp * .25)); return '泉水甘甜，伤口在慢慢愈合。'; } },

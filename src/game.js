@@ -1,5 +1,5 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { CARDS, STARTERS, RELICS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js';
+import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js';
 import { createAudio } from './audio.js';
 
 const $ = s => document.querySelector(s);
@@ -24,13 +24,13 @@ let TIPS = true; try { TIPS = localStorage.getItem('tipsOff') !== '1'; } catch (
 const KW = { '格挡': '抵挡受到的伤害。你的回合开始时清零。', '易伤': '受到的攻击伤害 +50%，每回合减 1 层。', '虚弱': '造成的攻击伤害 -25%，每回合减 1 层。',
   '力量': '每次攻击伤害增加等同于力量的数值。', '敏捷': '每次获得格挡时额外增加等同于敏捷的数值。', '消耗': '打出后移出本场战斗，不进弃牌堆。',
   '荆棘': '被攻击时，对攻击者造成等同于层数的伤害。', '能量': '出牌要花能量，每回合开始恢复为 3 点。',
-  '光弹': '林拓的掌机子弹。回合结束时自动射出，每发对随机敌人造成 3 点伤害，然后清零。最多 10 发。', '共鸣': '叠在敌人身上，到 10 层自动爆音。', '中毒': '敌人行动前受到等同层数的伤害（无视格挡），然后减 1 层。', '药瓶': '0 费的一次性牌，用完消耗。', '结界': '叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。', '爆音': '共鸣满 10 层时，对该敌人造成 24 点伤害，之后保留 3 层（多出的层数也保留）。' };
+  '光弹': '林拓的掌机子弹。回合结束时自动射出，每发对随机敌人造成 3 点伤害，然后清零。最多 10 发。', '共鸣': '叠在敌人身上，到 10 层自动爆音。', '中毒': '敌人行动前受到等同层数的伤害（无视格挡），然后减 1 层。', '炼金瓶': '魔女的 0 费一次性牌，由其他牌生成，用完消耗。', '药水': '所有角色通用的一次性道具，最多带 3 瓶，战斗中点左上角的药水就能用，不花能量。', '结界': '叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。', '爆音': '共鸣满 10 层时，对该敌人造成 24 点伤害，之后保留 3 层（多出的层数也保留）。' };
 const kwify = t => TIPS ? t.replace(new RegExp(Object.keys(KW).join('|'), 'g'), m => `<span class="kw" title="${KW[m]}">${m}</span>`) : t;
 let R = null; // 当前一局
 let uidN = 1;
 const mkCard = (id, up = 0) => ({ id, up, uid: uidN++ });
 function newRun(char = 'hero') {
-  R = { char, hp: 80, maxHp: 80, gold: 120, deck: STARTERS[char].map(id => mkCard(id)), relics: [{ heroine: 'phones', miko: 'suzu', witch: 'cauldron' }[char] || 'gameboy'], map: genMap(), pos: null,
+  R = { char, hp: 80, maxHp: 80, gold: 120, potions: [], deck: STARTERS[char].map(id => mkCard(id)), relics: [{ heroine: 'phones', miko: 'suzu', witch: 'cauldron' }[char] || 'gameboy'], map: genMap(), pos: null,
     floor: 0, fights: 0, removeCost: 75, boss: pickOne(ENCOUNTERS.boss)[0], feather: 0 };
 }
 const has = id => R.relics.includes(id);
@@ -73,12 +73,14 @@ function genMap() {
 // ---------- 顶栏 ----------
 function topBar() {
   return `<div id="top"><span class="hp">❤ ${R.hp}/${R.maxHp}</span><span class="gold">● ${R.gold}</span><span class="fl">第 ${R.floor} 层 · 翠绿之地</span>
+  <div class="pots">${[0, 1, 2].map(i => { const id = (R.potions || [])[i]; return id ? `<img class="pot ${B && B.potSel === i ? 'sel' : ''}" data-pot="${i}" src="${POTIONS[id].img}" title="${esc(POTIONS[id].name + '：' + POTIONS[id].desc)}">` : '<i class="pot empty"></i>'; }).join('')}</div>
   <div class="relics">${R.relics.map(id => `<img src="${RELICS[id].img}" title="${esc(RELICS[id].name + '：' + RELICS[id].desc)}">`).join('')}</div>
   <span class="sp"></span><button class="tb" id="tbdeck">牌组 (${R.deck.length})</button><button class="tb" id="tbtips" title="开关规则提示">提示：${TIPS ? '开' : '关'}</button><button class="tb" id="tbfs" title="全屏">⛶</button><button class="tb" id="tbmute">${audio.muted ? '🔇' : '🔊'}</button><button class="tb" id="tbset" title="设置">⚙</button></div>`;
 }
 function bindTop() {
   $('#tbdeck')?.addEventListener('click', () => showPile('牌组', R.deck));
   $('#tbset')?.addEventListener('click', () => settings(true));
+  view.querySelectorAll('[data-pot]').forEach(el => el.onclick = () => potionClick(+el.dataset.pot));
   $('#tbtips')?.addEventListener('click', () => { TIPS = !TIPS; try { localStorage.setItem('tipsOff', TIPS ? '0' : '1'); } catch (e) {} B && !B.over ? render() : (R && mapScreen()); });
   $('#tbfs')?.addEventListener('click', () => { const d = document.documentElement; (document.fullscreenElement ? document.exitFullscreen() : (d.requestFullscreen || d.webkitRequestFullscreen).call(d)).then?.(() => screen.orientation?.lock?.('landscape').catch(() => {})).catch?.(() => {}); });
   $('#tbmute')?.addEventListener('click', () => { dispatchEvent(new KeyboardEvent('keydown', { key: 'm' })); setTimeout(() => { const b = $('#tbmute'); if (b) b.textContent = audio.muted ? '🔇' : '🔊'; }, 30); });
@@ -337,6 +339,7 @@ function hurt(tgt, amt, attacker) {
   if (!isP && left > 0) { eAct(tgt, 'hurt'); if (tgt.hp > 0) gv(tgt, 'hurt'); }
   if (!isP && tgt.hp <= 0 && !tgt.dead) killE(tgt);
   if (!isP && !tgt.dead && tgt.key === 'gob_wolf' && tgt.hp <= tgt.max / 2) dismount(tgt);
+  if (isP && R.hp <= 0 && (R.potions || []).includes('fairy')) { R.potions.splice(R.potions.indexOf('fairy'), 1); R.hp = Math.floor(R.maxHp * .3); fx('hero', '复活药水！', 'heal'); }
   if (isP && R.hp <= 0) { if (has('feather') && !R.feather) { R.feather = 1; R.hp = Math.floor(R.maxHp * .3); fx('hero', '凤凰重生！', 'heal'); } }
   if (left > 0) { if (isP) { audio.hurt(); heroAct('hurt'); } else audio.hit('mel'); }
   return left;
@@ -379,6 +382,7 @@ const G = {
     if (clear) { B.shots = (B.shots || 0) + n; if (has('pad')) { B.p.padDraw = Math.floor(B.shots / 4); B.shots %= 4; } delete B.p.st.ammo; }
     audio.slash && audio.slash(); },
   usePotion() { const i = B.hand.findIndex(c => CARDS[c.id].potion); if (i < 0) return false; B.exh.push(B.hand.splice(i, 1)[0]); return true; },
+  hit(t, n) { if (t && !t.dead) hurt(t, n, B.p); },
   kek(n) { addSt(B.p, 'kek', n); fx('hero', `结界+${n}`, 'st'); },
   ammo(n) { const a = Math.min(10, (B.p.st.ammo || 0) + n); if (a !== B.p.st.ammo) { B.p.st.ammo = a; fx('hero', `光弹+${n}`, 'st'); } },
   spend(n) { const k = Math.min(n, B.p.st.ammo || 0); if (!k) return 0; addSt(B.p, 'ammo', -k); if (B.p.st.rapid) G.block(B.p.st.rapid * k, true);
@@ -586,7 +590,7 @@ function render() {
   $('#discp').onclick = () => showPile('弃牌堆', B.disc);
   $('#exhp').onclick = () => showPile('消耗', B.exh);
   view.querySelectorAll('#hand .card').forEach(el => el.onclick = ev => { ev.stopPropagation(); playCard(+el.dataset.i); });
-  view.querySelectorAll('.enemy').forEach(el => el.onclick = () => { if (B.sel >= 0) { const e = B.en.find(x => x.id === el.dataset.eid); if (e && !e.dead) playCard(B.sel, e); } });
+  view.querySelectorAll('.enemy').forEach(el => el.onclick = () => { if (B.potSel != null) { const e = B.en.find(x => x.id === el.dataset.eid); if (e && !e.dead) usePotion(B.potSel, e); return; } if (B.sel >= 0) { const e = B.en.find(x => x.id === el.dataset.eid); if (e && !e.dead) playCard(B.sel, e); } });
   flushFx(); dbgPanel();
 }
 function flushFx() {
@@ -628,6 +632,7 @@ function rewardScreen() {
   items.push({ html: `<img src="assets/icons/goldbag.png">${gold} 金币`, go: () => { R.gold += gold; } });
   if (has('clover')) items.push({ html: `<img src="${RELICS.clover.img}">四叶草：15 金币`, go: () => { R.gold += 15; } });
   if (kind === 'elite') { const rl = rollRelic(); if (rl) items.push({ html: `<img src="${RELICS[rl].img}">遗物：${RELICS[rl].name}`, go: () => gainRelic(rl) }); }
+  if (Math.random() < (kind === 'elite' ? .6 : .4)) { const pid = rollPotion(); items.push({ html: `<img src="${POTIONS[pid].img}">药水：${POTIONS[pid].name}`, go: () => gainPotion(pid) }); }
   const cards = rollCards(3, kind === 'elite' ? .07 : 0);
   items.push({ html: `<img src="assets/icons/p_arc.png">选择一张牌加入牌组`, card: true, go: done => chooseCard(cards, ok => done(ok)) });
   const draw = () => {
@@ -636,7 +641,7 @@ function rewardScreen() {
     view.querySelectorAll('.reward').forEach(el => el.onclick = () => {
       const i = +el.dataset.i, it = items[i];
       if (it.card) it.go(ok => { if (ok) { items.splice(i, 1); } draw(); });
-      else { it.go(); items.splice(i, 1); audio.gem(); draw(); }
+      else { if (it.go() === false) return; items.splice(i, 1); audio.gem(); draw(); }
     });
     $('#go').onclick = mapScreen;
   };
@@ -669,16 +674,19 @@ function shopScreen() {
   const PR = { c: 50, u: 75, r: 150 }, RP = { c: 150, u: 200, r: 280 };
   const cards = rollCards(5).map(c => ({ c, p: Math.round(PR[CARDS[c.id].rar] * (0.9 + Math.random() * .2)) }));
   const rels = []; for (let k = 0; k < 2; k++) { const id = rollRelic(['c', 'u', 'u', 'r'], true); if (id && !rels.some(x => x.id === id)) rels.push({ id, p: RP[RELICS[id].rar] + rnd(-10, 10) }); }
+  const pots = [rollPotion(), rollPotion()].map(id => ({ id, p: id === 'fairy' ? 120 : rnd(45, 60) }));
   let removed = false;
   const draw = () => {
     view.innerHTML = `${bgHTML()}${topBar()}<div class="panel" style="top:53%;width:1000px;padding:14px 26px"><h2 style="margin-bottom:8px">哥布林商人</h2>
      <div class="row" style="flex-wrap:nowrap">${cards.map((x, i) => `<div class="shopitem" data-c="${i}">${x.c ? cardHTML(x.c) : '<div style="width:129px;height:181px"></div>'}<span class="price ${x.p > R.gold ? 'no' : ''}">${x.c ? '● ' + x.p : '已售出'}</span></div>`).join('')}</div>
      <div class="row" style="margin-top:14px">${rels.map((x, i) => `<div class="relicbig" data-r="${i}" title="${x.id ? esc(RELICS[x.id].desc) : ''}">${x.id ? `<img src="${RELICS[x.id].img}">${RELICS[x.id].name}<span class="price ${x.p > R.gold ? 'no' : ''}">● ${x.p}</span>` : '已售出'}</div>`).join('')}
+${pots.map((x, i) => `<div class="relicbig" data-pt="${i}" title="${x.id ? esc(POTIONS[x.id].desc) : ''}">${x.id ? `<img src="${POTIONS[x.id].img}">${POTIONS[x.id].name}<span class="price ${x.p > R.gold ? 'no' : ''}">● ${x.p}</span>` : '已售出'}</div>`).join('')}
       <div class="relicbig" id="rm"><img src="assets/icons/sk_bmist.png">移除一张牌<span class="price ${R.removeCost > R.gold || removed ? 'no' : ''}">${removed ? '已使用' : '● ' + R.removeCost}</span></div>
       <div style="align-self:center;margin-left:30px"><button class="btn" id="go">离开商店</button></div></div></div>`;
     bindTop();
     view.querySelectorAll('[data-c]').forEach(el => el.onclick = () => { const x = cards[+el.dataset.c]; if (!x.c || x.p > R.gold) return; R.gold -= x.p; R.deck.push(x.c); x.c = null; audio.gem(); draw(); });
     view.querySelectorAll('[data-r]').forEach(el => el.onclick = () => { const x = rels[+el.dataset.r]; if (!x.id || x.p > R.gold) return; R.gold -= x.p; gainRelic(x.id); x.id = null; draw(); });
+    view.querySelectorAll('[data-pt]').forEach(el => el.onclick = () => { const x = pots[+el.dataset.pt]; if (!x.id || x.p > R.gold) return; if (!gainPotion(x.id)) return; R.gold -= x.p; x.id = null; draw(); });
     $('#rm').onclick = () => { if (removed || R.removeCost > R.gold) return; pickDeck('remove', () => { R.gold -= R.removeCost; R.removeCost += 25; removed = true; draw(); }); };
     $('#go').onclick = mapScreen;
   };
@@ -692,6 +700,7 @@ function eventScreen() {
     heal: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, gold: n => { R.gold += n; }, hurt: n => { R.hp = Math.max(1, R.hp - n); },
     maxHp: n => { R.maxHp += n; R.hp = Math.min(R.hp, R.maxHp); }, relic: () => { const id = rollRelic(); gainRelic(id); return id ? RELICS[id].name : '（空）'; },
     pick: m => setTimeout(() => pickDeck(m, () => draw2()), 50), rareCard: () => setTimeout(() => chooseCard(rollCards(3, 0, true), () => draw2()), 50),
+    potion: () => { const id = rollPotion(); return gainPotion(id) ? POTIONS[id].name : '（药水栏满了，没拿上）'; },
   };
   let result = null;
   const img = ev.img === 'gb' ? 'assets/icons/gb.png' : `assets/icons/${ev.img}.png`;
@@ -721,18 +730,35 @@ function endScreen(win) {
 }
 
 
+
+// ---------- 药水 ----------
+function gainPotion(id) { R.potions = R.potions || []; if (R.potions.length >= 3) { tip('药水栏满了'); return false; } R.potions.push(id); audio.gem(); return true; }
+function rollPotion() { return Math.random() < .08 ? 'fairy' : pickOne(Object.keys(POTIONS).filter(k => k !== 'fairy')); }
+function potionClick(i) {
+  const id = R.potions[i], P = POTIONS[id]; if (!P) return;
+  if (!B || B.over || B.busy || B.anim) { const o = overlay(`<h2>${P.name}</h2><img src="${P.img}" style="width:80px"><p>${P.desc}</p><div class="row"><button class="btn red" id="pd">丢掉</button><button class="btn" id="px">关闭</button></div>`);
+    o.querySelector('#px').onclick = () => o.remove(); o.querySelector('#pd').onclick = () => { R.potions.splice(i, 1); o.remove(); B ? render() : mapScreen(); }; return; }
+  if (P.tgt === 'auto') { tip('复活药水会在倒下时自动使用'); return; }
+  if (P.tgt === 'one' && alive().length > 1) { B.potSel = B.potSel === i ? null : i; B.sel = -1; render(); if (B.potSel != null) tip('点一个敌人'); return; }
+  usePotion(i, alive()[0]);
+}
+async function usePotion(i, t) {
+  const id = R.potions[i]; B.potSel = null; R.potions.splice(i, 1); B.hitSet = new Set();
+  POTIONS[id].use(G, t); audio.holy(); render(); await checkEnd();
+}
+
 // ---------- 图鉴 ----------
 const INTENT = { atk: '攻击', def: '防御', buff: '强化', debuff: '削弱', atkdef: '攻击+防御', atkdebuff: '攻击+削弱', summon: '召唤', unknown: '未知' };
 const CONCEPTS = [
   ['基础', [['能量', '出牌要花能量，每回合开始恢复为 3 点。卡牌左上角的数字就是耗能。'], ['生命', '降到 0 就输了。大部分遗物和营火可以回血。'], ['格挡', KW['格挡']], ['抽牌', '每回合开始抽 5 张牌。抽牌堆空了，会把弃牌堆洗回来。'], ['回合', '你出完牌按「结束回合」，敌人按头上的意图行动。']]],
   ['卡牌种类', [['攻击牌', '红色卡框，主要用来造成伤害。'], ['技能牌', '绿色卡框，格挡、抽牌、加状态等。'], ['能力牌', '蓝色卡框，打出后整场战斗持续生效，不进弃牌堆。'], ['消耗', KW['消耗']], ['升级', '在营火可以升级卡牌，数值变强或耗能降低，名字后面多一个 +。'], ['稀有度', '普通 / 罕见 / 稀有，越稀有越强，奖励里越难出现。']]],
   ['状态', ['str', 'dex', 'vuln', 'weak', 'thorns', 'metal', 'regen', 'poison'].map(k => [STATUS[k][0], KW[STATUS[k][0]] || STATUS[k][1]])],
-  ['角色机制', [['光弹', KW['光弹']], ['共鸣', KW['共鸣']], ['爆音', KW['爆音']], ['结界', KW['结界']], ['药瓶', KW['药瓶']], ['中毒', KW['中毒']]]],
+  ['角色机制', [['光弹', KW['光弹']], ['共鸣', KW['共鸣']], ['爆音', KW['爆音']], ['结界', KW['结界']], ['炼金瓶', KW['炼金瓶']], ['药水', KW['药水']], ['中毒', KW['中毒']]]],
   ['地图', [['战斗', '普通的哥布林小队，赢了给金币和卡牌。'], ['精英', '强敌，赢了额外给一个遗物。'], ['未知', '随机事件，可能是好事也可能有代价。'], ['营火', '休息回血，或者升级一张卡。'], ['商店', '花金币买卡、买遗物、删卡。'], ['宝箱', '直接拿遗物和金币。'], ['Boss', '每章最后的大头目，打赢就通关。']]],
   ['分数', [['排行榜积分', '层数×20 + 击杀×3 + 精英×25；通关再加 300，以及剩余生命×2。同一个名字只记最高的一局，调试模式不记录。']]],
 ];
 function book(tab = 'card', sub = 'miko', up = 0) {
-  const tabs = [['card', '卡牌'], ['relic', '遗物'], ['mon', '怪物'], ['rule', '概念说明']];
+  const tabs = [['card', '卡牌'], ['relic', '遗物'], ['pot', '药水'], ['mon', '怪物'], ['rule', '概念说明']];
   let body = '';
   if (tab === 'card') {
     const subs = [...ORDER.map(k => [k, CHARS[k].name]), ['all', '共用']];
@@ -742,6 +768,8 @@ function book(tab = 'card', sub = 'miko', up = 0) {
   } else if (tab === 'relic') {
     const who = r => r.ch ? CHARS[r.ch].name + ' 专属' : '通用';
     body = `<div class="bgrid">${Object.values(RELICS).map(r => `<div class="bi"><img src="${r.img}"><div><b>${r.name}</b><small>${who(r)} · ${{ start: '初始', c: '普通', u: '罕见', r: '稀有' }[r.rar]}</small><p>${kwify(r.desc)}</p></div></div>`).join('')}</div>`;
+  } else if (tab === 'pot') {
+    body = `<p style="margin:0 0 10px">所有角色通用。最多带 3 瓶，战斗中点左上角的药水使用，不花能量。打完战斗有机会掉落，商店也卖。</p><div class="bgrid">${Object.values(POTIONS).map(x => `<div class="bi"><img src="${x.img}"><div><b>${x.name}</b><small>${x.rar === 'r' ? '稀有' : '普通'}</small><p>${x.desc}</p></div></div>`).join('')}</div>`;
   } else if (tab === 'mon') {
     const hpOf = k => [].concat(ENEMIES[k].hp)[0], elite = new Set(ENCOUNTERS.elite.map(g => g.reduce((x, y) => hpOf(y) > hpOf(x) ? y : x))), boss = new Set(ENCOUNTERS.boss.flat());
     body = `<div class="bgrid">${Object.entries(ENEMIES).map(([k, e]) => `<div class="bi mon"><img src="assets/enemies2/${k}/portrait.png" onerror="this.src='assets/enemies2/${k}/idle0.png'"><div><b>${e.name}</b><small>${boss.has(k) ? 'Boss' : elite.has(k) ? '精英' : '普通'} · 生命 ${Array.isArray(e.hp) ? e.hp.join('～') : e.hp}</small>
