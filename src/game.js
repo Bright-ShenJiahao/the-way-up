@@ -623,7 +623,15 @@ function flushFx() {
     const ring = c => { const g = document.createElement('div'); g.className = 'ring ' + c; g.style.left = cx0 + 'px'; g.style.top = cy0 + 'px'; fxl.appendChild(g); setTimeout(() => g.remove(), 650); };
     if (f.cls === 'bul') { const h = view.querySelector('[data-id="hero"] .spr'); if (h) { const hr = h.getBoundingClientRect(), hx = (hr.right - sr.left) / s - 30, hy = (hr.top + hr.height * .45 - sr.top) / s;
       const b = document.createElement('div'); b.className = 'bullet'; b.style.left = hx + 'px'; b.style.top = hy + 'px'; b.style.setProperty('--dx', (cx0 - hx) + 'px'); b.style.setProperty('--dy', (cy0 - hy) + 'px'); b.style.animationDelay = (f.n || 0) * 60 + 'ms'; fxl.appendChild(b); setTimeout(() => b.remove(), 700 + (f.n || 0) * 60); } continue; }
-    if (f.text === '爆音！') ring('pink');
+    const spr = (n, sz = 190, cls = '') => { const im = document.createElement('img'); im.src = 'assets/fx/' + n + '.png'; im.className = 'fximg ' + cls; im.style.left = cx0 + 'px'; im.style.top = cy0 + 'px'; im.style.width = sz + 'px'; im.style.rotate = (cls ? 0 : Math.random() * 40 - 20) + 'deg'; fxl.appendChild(im); setTimeout(() => im.remove(), 600); };
+    if (f.text === '爆音！') spr('boom', 260, 'still');
+    if (f.cls === 'blk' && f.who === 'hero' && f.text !== '格挡') spr(R.char === 'miko' ? 'kekkai' : 'kekkai', 200, 'still');
+    if (f.cls === 'heal') spr('heal', 180, 'still');
+    if (/中毒\+/.test(f.text)) spr('poison', 170, 'still');
+    if (/力量\+/.test(f.text) && f.who === 'hero') spr('power', 180, 'still');
+    if (/虚弱\+|易伤\+/.test(f.text) && f.who !== 'hero') spr('ice', 150, 'still');
+    if (f.cls === 'dmg') spr(f.who === 'hero' ? 'claw' : ({ hero: 'zap', miko: 'arrow', witch: 'fire', heroine: 'smash' })[R.char] || 'slash', 200);
+    if (false) ring('pink');
     if (f.cls === 'blk' && f.who === 'hero' && f.text !== '格挡') ring('blue');
     if (f.cls === 'heal') ring('green');
     if (/中毒\+/.test(f.text)) ring('poison');
@@ -636,7 +644,7 @@ function flushFx() {
       for (let k = 0; k < 12; k++) { const p = document.createElement('div'); p.className = 'spark'; const an = Math.random() * 6.28, dist = 50 + Math.random() * 90;
         p.style.left = cx + 'px'; p.style.top = cy + 'px'; p.style.setProperty('--dx', Math.cos(an) * dist + 'px'); p.style.setProperty('--dy', Math.sin(an) * dist + 'px');
         if (f.who === 'hero') p.style.background = '#ff5a4a'; fxl.appendChild(p); setTimeout(() => p.remove(), 600); }
-      if (f.who !== 'hero') { const sl = document.createElement('img'); sl.src = 'assets/icons/fx_slash.png'; sl.className = 'slashfx'; sl.style.left = (cx - 75) + 'px'; sl.style.top = (cy - 75) + 'px'; sl.style.rotate = (Math.random() * 60 - 30) + 'deg'; fxl.appendChild(sl); setTimeout(() => sl.remove(), 400); }
+      if (false) { const sl = document.createElement('img'); sl.src = 'assets/icons/fx_slash.png'; sl.className = 'slashfx'; sl.style.left = (cx - 75) + 'px'; sl.style.top = (cy - 75) + 'px'; sl.style.rotate = (Math.random() * 60 - 30) + 'deg'; fxl.appendChild(sl); setTimeout(() => sl.remove(), 400); }
       const n = parseInt(String(f.text).replace('-', '')) || 0;
       if (f.who === 'hero' || n >= 15) shake = true;
     }
@@ -734,7 +742,7 @@ function eventScreen() {
   let result = null;
   const img = ev.img === 'gb' ? 'assets/icons/gb.png' : `assets/icons/${ev.img}.png`;
   const draw2 = () => {
-    view.innerHTML = `${bgHTML()}${topBar()}<div class="panel" style="width:620px"><h2>${ev.title}</h2><img src="${img}" style="width:110px;margin-bottom:8px">
+    view.innerHTML = `${bgHTML()}${topBar()}<div class="panel" style="width:620px"><h2>${ev.title}</h2><img src="${ev.pic ? 'assets/events/' + ev.pic + '.jpg' : img}" style="${ev.pic ? 'width:360px;border-radius:10px;border:3px solid #c9a35a;margin:-4px 0 6px' : 'width:110px;margin-bottom:8px'}">
      <p>${result || ev.text}</p>${result ? '<button class="btn" id="go">继续前进</button>' : ev.opts.map((o, i) => `<button class="btn opt" data-i="${i}" ${o.ok && !o.ok(R) ? 'disabled' : ''}>${o.t}</button>`).join('')}</div>`;
     bindTop();
     view.querySelectorAll('.opt').forEach(el => el.onclick = () => { result = ev.opts[+el.dataset.i].go(R, A); draw2(); });

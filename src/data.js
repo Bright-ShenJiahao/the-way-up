@@ -317,64 +317,64 @@ export const ENCOUNTERS = {
 
 // ---- 事件 ---- opts: {t 文本, ok(R) 可选条件, go(R, api) 执行，返回结果文本}
 export const EVENTS = [
-  { title: '哥布林地下赌场', img: 'goldbag', text: '树洞里传来骰子声，一群哥布林围着破木桌吆喝：“大还是小？”',
+  { title: '哥布林地下赌场', pic: 'den', img: 'goldbag', text: '树洞里传来骰子声，一群哥布林围着破木桌吆喝：“大还是小？”',
     opts: [
       { t: '押 50 金币：40% 赢得 150 金币', ok: R => R.gold >= 50, go: (R, A) => { A.gold(-50); if (Math.random() < .4) { A.gold(150); return '满堂哗然，你抱走了一大袋金币！'; } return '庄家哥布林咧嘴一笑，收走了你的钱。'; } },
       { t: '掀桌子：失去 10 生命，抢到一瓶药水', go: (R, A) => { A.hurt(10); const n = A.potion(); return `一阵混战，你顺走了「${n}」。`; } },
       { t: '离开', go: () => '赌狗没有好下场。' }] },
-  { title: '被困的矮人工匠', img: 'ic_hammer', text: '一个矮人被哥布林的陷阱夹住了脚，正骂骂咧咧地挣扎。',
+  { title: '被困的矮人工匠', pic: 'dwarf', img: 'ic_hammer', text: '一个矮人被哥布林的陷阱夹住了脚，正骂骂咧咧地挣扎。',
     opts: [
       { t: '救他：失去 6 生命，他帮你升级两张牌', go: (R, A) => { A.hurt(6); A.pick('upgrade'); setTimeout(() => A.pick('upgrade'), 60); return '矮人拍拍你：“好家伙，我欠你一次！”'; } },
       { t: '向他买东西：花 40 金币，获得一个随机遗物', ok: R => R.gold >= 40, go: (R, A) => { A.gold(-40); return `他从背包里翻出一件「${A.relic()}」。`; } },
       { t: '离开', go: () => '你假装没听见。' }] },
-  { title: '神社遗迹', img: 'ic_bell', text: '林间立着一座倒塌的小神社，铃绳还挂在梁上。',
+  { title: '神社遗迹', pic: 'shrine', img: 'ic_bell', text: '林间立着一座倒塌的小神社，铃绳还挂在梁上。',
     opts: [
       { t: '（巫女）重新祭拜：最大生命 +8，回满生命', ok: R => R.char === 'miko', go: (R, A) => { A.maxHp(8); A.heal(999); return '铃声响起，熟悉的神力流遍全身。'; } },
       { t: '摇铃祈福：回复 15 生命', go: (R, A) => { A.heal(15); return '清脆的铃声让人安心。'; } },
       { t: '捡走香火钱：获得 35 金币，失去 4 生命', go: (R, A) => { A.gold(35); A.hurt(4); return '一阵阴风刮过，你打了个寒战。'; } }] },
-  { title: '魔女的旧实验室', img: 'pot', text: '一间被藤蔓吞没的小屋，桌上堆满落灰的瓶瓶罐罐。',
+  { title: '魔女的旧实验室', pic: 'lab', img: 'pot', text: '一间被藤蔓吞没的小屋，桌上堆满落灰的瓶瓶罐罐。',
     opts: [
       { t: '（魔女）翻找笔记：获得一张稀有牌', ok: R => R.char === 'witch', go: (R, A) => { A.rareCard(); return '原来是师父留下的配方！'; } },
       { t: '喝下可疑的药：50% 最大生命 +6，50% 失去 8 生命', go: (R, A) => { if (Math.random() < .5) { A.maxHp(6); return '浑身发热……你感觉更强壮了。'; } A.hurt(8); return '一阵剧痛，你吐了个昏天黑地。'; } },
       { t: '带走两瓶药水', go: (R, A) => { const a = A.potion(), b = A.potion(); return `你收起了「${a}」和「${b}」。`; } }] },
-  { title: '掉线的掌机', img: 'gb', text: '路边草丛里躺着一台和你很像的掌机，屏幕还在闪。',
+  { title: '掉线的掌机', pic: 'console', img: 'gb', text: '路边草丛里躺着一台和你很像的掌机，屏幕还在闪。',
     opts: [
       { t: '（林拓）插上卡带：获得一张稀有牌', ok: R => R.char === 'hero', go: (R, A) => { A.rareCard(); return '“新关卡已解锁。”'; } },
       { t: '戴上耳机听一听（苏音）：最大生命 +5', ok: R => R.char === 'heroine', go: (R, A) => { A.maxHp(5); return '是你最喜欢的那首歌。'; } },
       { t: '拆了卖零件：获得 30 金币', go: (R, A) => { A.gold(30); return '哥布林商人一定会喜欢这些零件。'; } }] },
-  { title: '哥布林的晚餐', img: 'meat', text: '营地里一锅肉汤正咕嘟作响，哥布林们都不见了。',
+  { title: '哥布林的晚餐', pic: 'dinner', img: 'meat', text: '营地里一锅肉汤正咕嘟作响，哥布林们都不见了。',
     opts: [
       { t: '偷喝一碗：回复 20 生命', go: (R, A) => { A.heal(20); return '味道……出乎意料地不错。'; } },
       { t: '在汤里下毒再走：移除一张牌', ok: R => R.deck.length > 1, go: (R, A) => { A.pick('remove'); return '你轻手轻脚地离开了。'; } },
       { t: '离开', go: () => '你不吃来路不明的东西。' }] },
-  { title: '迷路的商队', img: 'box', text: '一辆翻倒的马车，箱子散了一地，车夫早已逃走。',
+  { title: '迷路的商队', pic: 'wagon', img: 'box', text: '一辆翻倒的马车，箱子散了一地，车夫早已逃走。',
     opts: [
       { t: '搜刮箱子：获得 25 金币和一瓶药水', go: (R, A) => { A.gold(25); const n = A.potion(); return `你找到了金币，还有一瓶「${n}」。`; } },
       { t: '把马车扶正：失去 5 生命，获得一个随机遗物', go: (R, A) => { A.hurt(5); return `车底压着一件「${A.relic()}」。`; } }] },
-  { title: '林中泉水', img: 'holywater', text: '树林深处有一汪清澈的泉水，水面泛着微光。',
+  { title: '林中泉水', pic: 'spring', img: 'holywater', text: '树林深处有一汪清澈的泉水，水面泛着微光。',
     opts: [
       { t: '饮水：回复 25% 最大生命', go: (R, A) => { A.heal(Math.floor(R.maxHp * .25)); return '泉水甘甜，伤口在慢慢愈合。'; } },
       { t: '净身：移除一张牌', ok: R => R.deck.length > 1, go: (R, A) => { A.pick('remove'); return '你把杂念洗进了泉水里。'; } },
       { t: '离开', go: () => '你没有停留。' }] },
-  { title: '赌徒哥布林', img: 'p_gamble', text: '一只戴眼罩的哥布林蹲在树桩上抛骰子：“来一把？赢了翻倍！”',
+  { title: '赌徒哥布林', pic: 'gambler', img: 'p_gamble', text: '一只戴眼罩的哥布林蹲在树桩上抛骰子：“来一把？赢了翻倍！”',
     opts: [
       { t: '下注 30 金币：50% 赢得 80 金币', ok: R => R.gold >= 30, go: (R, A) => { A.gold(-30); if (Math.random() < .5) { A.gold(80); return '骰子停在六点，你赢了！'; } return '骰子停在一点。哥布林笑得前仰后合。'; } },
       { t: '揍它一顿：失去 5 生命，获得 20 金币', go: (R, A) => { A.hurt(5); A.gold(20); return '它挠了你几下，扔下钱袋跑了。'; } },
       { t: '离开', go: () => '你不跟哥布林赌钱。' }] },
-  { title: '古老祭坛', img: 'p_arc', text: '长满青苔的石台上刻着符文，中央的凹槽像在等待鲜血。',
+  { title: '古老祭坛', pic: 'altar', img: 'p_arc', text: '长满青苔的石台上刻着符文，中央的凹槽像在等待鲜血。',
     opts: [
       { t: '献血：失去 8 生命，获得一个随机遗物', go: (R, A) => { A.hurt(8); const r = A.relic(); return `符文亮起，祭坛上多了一件「${r}」。`; } },
       { t: '离开', go: () => '你绕开了祭坛。' }] },
-  { title: '流浪铁匠', img: 'ic_hammer', text: '路边一个背着铁砧的矮人朝你招手：“兄弟，武器要打磨吗？”',
+  { title: '流浪铁匠', pic: 'smith', img: 'ic_hammer', text: '路边一个背着铁砧的矮人朝你招手：“兄弟，武器要打磨吗？”',
     opts: [
       { t: '打磨：升级一张牌', go: (R, A) => { A.pick('upgrade'); return '叮叮当当，焕然一新。'; } },
       { t: '离开', go: () => '你谢绝了他。' }] },
-  { title: '掌机的信号', img: 'gb', text: '口袋里的掌机突然震动，屏幕上滚过一串乱码……',
+  { title: '掌机的信号', pic: 'signal', img: 'gb', text: '口袋里的掌机突然震动，屏幕上滚过一串乱码……',
     opts: [
       { t: '接收：随机变化一张牌', go: (R, A) => { A.pick('transform'); return '你的一张牌被改写成了别的东西。'; } },
       { t: '调大音量：获得 50 金币，最大生命 -5', go: (R, A) => { A.gold(50); A.maxHp(-5); return '刺耳的电流声之后，掌机吐出了几枚金币。'; } },
       { t: '关机', go: () => '屏幕暗了下去。' }] },
-  { title: '受伤的商队', img: 'box', text: '一辆翻倒的马车旁，商人捂着伤口：“救救我，我有好东西给你。”',
+  { title: '受伤的商队', pic: 'caravan', img: 'box', text: '一辆翻倒的马车旁，商人捂着伤口：“救救我，我有好东西给你。”',
     opts: [
       { t: '帮忙：失去 6 生命，获得一张稀有牌（三选一）', go: (R, A) => { A.hurt(6); A.rareCard(); return '商人感激地塞给你几张卡。'; } },
       { t: '离开', go: () => '你转身离开。' }] },
