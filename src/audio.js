@@ -4,13 +4,14 @@
 export function createAudio(){
  let ac=null,master,musicBus,sfxBus,on=true,mode='menu',inten=0,started=false,next=0,step=0;
  try{on=localStorage.getItem('mute')!=='1'}catch(e){}
- function init(){if(ac)return;ac=new (window.AudioContext||window.webkitAudioContext)();master=ac.createGain();master.gain.value=on?.9:0;master.connect(ac.destination);
-  musicBus=ac.createGain();musicBus.gain.value=.32;musicBus.connect(master);sfxBus=ac.createGain();sfxBus.gain.value=.5;sfxBus.connect(master);
+ let V={m:1,mu:1,s:1};try{Object.assign(V,JSON.parse(localStorage.getItem('tw_vol')||'{}'))}catch(e){}
+ function init(){if(ac)return;ac=new (window.AudioContext||window.webkitAudioContext)();master=ac.createGain();master.gain.value=on?.9*V.m:0;master.connect(ac.destination);
+  musicBus=ac.createGain();musicBus.gain.value=.32*V.mu;musicBus.connect(master);sfxBus=ac.createGain();sfxBus.gain.value=.5*V.s;sfxBus.connect(master);
   const rv=ac.createConvolver(),len=ac.sampleRate*1.6,b=ac.createBuffer(2,len,ac.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.5)}
   rv.buffer=b;const wet=ac.createGain();wet.gain.value=.22;musicBus.connect(rv);rv.connect(wet);wet.connect(master);T.rv=rv}
  const T={};
  const unlock=()=>{init();if(ac.state==='suspended')ac.resume();if(!started){started=true;next=ac.currentTime+.1;tick()}};
- addEventListener('pointerdown',unlock);addEventListener('keydown',e=>{unlock();if(e.target&&e.target.tagName==='INPUT')return;if(e.key==='m'||e.key==='M'){on=!on;try{localStorage.setItem('mute',on?'0':'1')}catch(_){}if(master)master.gain.setTargetAtTime(on?.9:0,ac.currentTime,.05)}});
+ addEventListener('pointerdown',unlock);addEventListener('keydown',e=>{unlock();if(e.target&&e.target.tagName==='INPUT')return;if(e.key==='m'||e.key==='M'){on=!on;try{localStorage.setItem('mute',on?'0':'1')}catch(_){}if(master)master.gain.setTargetAtTime(on?.9*V.m:0,ac.currentTime,.05)}});
  const hz=m=>440*Math.pow(2,(m-69)/12);
  function tone(t,m,d,{type='triangle',vol=.2,bus=musicBus,att=.01,rel=.25,det=0,lp=0}={}){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=hz(m);o.detune.value=det;
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+att);g.gain.setTargetAtTime(0,t+d,rel/3);let n=o;if(lp){const f=ac.createBiquadFilter();f.frequency.value=lp;o.connect(f);n=f}n.connect(g);g.connect(bus);o.start(t);o.stop(t+d+rel+.1)}
@@ -113,5 +114,5 @@ export function createAudio(){
   level(){if(!ac)return;const t=ac.currentTime;[74,78,81,86].forEach((m,i)=>tone(t+i*.07,m,.12,{type:'triangle',vol:.12,bus:sfxBus,rel:.3}))},
   boss(){if(!ac)return;const t=ac.currentTime;[38,38,41,38].forEach((m,i)=>tone(t+i*.35,m,.3,{type:'sawtooth',vol:.14,bus:sfxBus,rel:.4,lp:700}))},
   banner(){if(!ac)return;const t=ac.currentTime;tone(t,69,.1,{type:'triangle',vol:.1,bus:sfxBus});tone(t+.1,74,.18,{type:'triangle',vol:.1,bus:sfxBus})}};
- return {...S,gob,setMode(m){mode=m},setIntensity(x){inten=Math.max(0,Math.min(1,x))},get muted(){return !on}};
+ return {...S,gob,vol:V,setVol(k,v){V[k]=v;try{localStorage.setItem('tw_vol',JSON.stringify(V))}catch(e){}if(!ac)return;const t=ac.currentTime;master.gain.setTargetAtTime(on?.9*V.m:0,t,.05);musicBus.gain.setTargetAtTime(.32*V.mu,t,.05);sfxBus.gain.setTargetAtTime(.5*V.s,t,.05)},setMode(m){mode=m},setIntensity(x){inten=Math.max(0,Math.min(1,x))},get muted(){return !on}};
 }

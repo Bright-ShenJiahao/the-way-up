@@ -6,7 +6,9 @@ const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
 const DEBUG = /[?&]debug/.test(location.search) || location.hash === '#debug';
 const audio = createAudio();
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+let SET = { shake: 1, fast: 0 }; try { Object.assign(SET, JSON.parse(localStorage.getItem('tw_set') || '{}')); } catch (e) {}
+const saveSet = () => { try { localStorage.setItem('tw_set', JSON.stringify(SET)); } catch (e) {} };
+const sleep = ms => new Promise(r => setTimeout(r, SET.fast ? ms / 2 : ms));
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const pickOne = a => a[Math.floor(Math.random() * a.length)];
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -72,10 +74,11 @@ function genMap() {
 function topBar() {
   return `<div id="top"><span class="hp">❤ ${R.hp}/${R.maxHp}</span><span class="gold">● ${R.gold}</span><span class="fl">第 ${R.floor} 层 · 翠绿之地</span>
   <div class="relics">${R.relics.map(id => `<img src="${RELICS[id].img}" title="${esc(RELICS[id].name + '：' + RELICS[id].desc)}">`).join('')}</div>
-  <span class="sp"></span><button class="tb" id="tbdeck">牌组 (${R.deck.length})</button><button class="tb" id="tbtips" title="开关规则提示">提示：${TIPS ? '开' : '关'}</button><button class="tb" id="tbfs" title="全屏">⛶</button><button class="tb" id="tbmute">${audio.muted ? '🔇' : '🔊'}</button></div>`;
+  <span class="sp"></span><button class="tb" id="tbdeck">牌组 (${R.deck.length})</button><button class="tb" id="tbtips" title="开关规则提示">提示：${TIPS ? '开' : '关'}</button><button class="tb" id="tbfs" title="全屏">⛶</button><button class="tb" id="tbmute">${audio.muted ? '🔇' : '🔊'}</button><button class="tb" id="tbset" title="设置">⚙</button></div>`;
 }
 function bindTop() {
   $('#tbdeck')?.addEventListener('click', () => showPile('牌组', R.deck));
+  $('#tbset')?.addEventListener('click', () => settings(true));
   $('#tbtips')?.addEventListener('click', () => { TIPS = !TIPS; try { localStorage.setItem('tipsOff', TIPS ? '0' : '1'); } catch (e) {} B && !B.over ? render() : (R && mapScreen()); });
   $('#tbfs')?.addEventListener('click', () => { const d = document.documentElement; (document.fullscreenElement ? document.exitFullscreen() : (d.requestFullscreen || d.webkitRequestFullscreen).call(d)).then?.(() => screen.orientation?.lock?.('landscape').catch(() => {})).catch?.(() => {}); });
   $('#tbmute')?.addEventListener('click', () => { dispatchEvent(new KeyboardEvent('keydown', { key: 'm' })); setTimeout(() => { const b = $('#tbmute'); if (b) b.textContent = audio.muted ? '🔇' : '🔊'; }, 30); });
@@ -147,22 +150,61 @@ const CHARINFO = {
 };
 const ORDER = ['miko', 'hero', 'witch', 'heroine'];
 function title() {
-  audio.setMode('menu');
-  const sv = load(), nm = LS('tw_name');
+  audio.setMode('menu'); R = null; B = null;
   view.innerHTML = `<div class="bg" style="background:url(assets/bg/title.jpg) center/cover,url(assets/bg/battle_castle.jpg) center/cover"></div><div class="tshade"></div>
    <div class="tlogo"><h1>通往顶端</h1><p class="en">THE WAY UP</p><p class="en2">OTHERWORLD DECK</p></div>
-   <div class="tbox">
-    <input id="nm" maxlength="8" placeholder="输入你的名字" value="${nm.replace(/"/g, '')}">
-    <input id="pin" maxlength="6" inputmode="numeric" placeholder="口令（可选，4～6 位数字）" value="${LS('tw_pin')}">
-    <div class="row">${sv ? '<button class="btn big" id="cont">继续冒险</button>' : ''}<button class="btn big" id="start">${sv ? '新的冒险' : '开始冒险'}</button></div>
-    <button class="btn" id="rank">排行榜</button>
-    <p class="tkeys">设了口令，别人就不能用你的名字上榜 · 数字键选牌 · E 结束回合 · M 静音</p>
-   </div>`;
-  const keep = () => { LS('tw_name', $('#nm').value.trim()); LS('tw_pin', $('#pin').value.trim()); };
-  const need = () => { keep(); if (!$('#nm').value.trim()) { tip('先输入名字'); $('#nm').focus(); return false; } return true; };
-  $('#start').onclick = () => { if (need()) pickChar(); };
-  $('#cont')?.addEventListener('click', () => { if (!need()) return; R = sv; if (R.pending) enterNode(R.pending); else mapScreen(); });
-  $('#rank').onclick = () => { keep(); rankBoard(); };
+   <div class="tbox"><button class="btn big" id="enter">进入游戏</button><p class="tkeys blink">点击任意处开始</p></div>`;
+  view.querySelector('.bg').onclick = view.querySelector('.tshade').onclick = mainMenu; $('#enter').onclick = mainMenu;
+}
+function mainMenu() {
+  audio.setMode('menu'); R = null; B = null;
+  const sv = load(), nm = LS('tw_name');
+  view.innerHTML = `<div class="bg" style="background:url(assets/bg/title.jpg) center/cover,url(assets/bg/battle_castle.jpg) center/cover"></div><div class="tshade"></div>
+   <div class="tlogo sm"><h1>通往顶端</h1><p class="en">THE WAY UP</p></div>
+   <div class="mmenu">${nm ? `<p class="who">冒险者：<b>${esc(nm)}</b></p>` : ''}
+    ${sv ? `<button class="btn mm" id="cont">继续冒险<small>${CHARS[sv.char || 'hero'].name} · 第 ${sv.floor} 层</small></button>` : ''}
+    <button class="btn mm" id="start">新的冒险</button><button class="btn mm" id="book">图鉴</button>
+    <button class="btn mm" id="rank">排行榜</button><button class="btn mm" id="set">设置</button>
+    <button class="btn mm sm2" id="back">返回标题</button></div>`;
+  $('#start').onclick = () => askName(() => { if (!sv) return pickChar();
+    const y = overlay(`<h2>开始新的冒险？</h2><p>当前存档（${CHARS[sv.char || 'hero'].name} · 第 ${sv.floor} 层）会被放弃。</p><div class="row"><button class="btn red" id="y1">放弃旧档，重新开始</button><button class="btn" id="y0">取消</button></div>`);
+    y.querySelector('#y0').onclick = () => y.remove(); y.querySelector('#y1').onclick = () => { y.remove(); clearSave(); pickChar(); }; });
+  $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending) enterNode(R.pending); else mapScreen(); });
+  $('#book').onclick = () => tip('图鉴马上就来');
+  $('#rank').onclick = rankBoard; $('#set').onclick = () => settings(false); $('#back').onclick = title;
+}
+function askName(done) {
+  if (LS('tw_name')) return done();
+  const o = overlay(`<h2>你的名字</h2><p>用于排行榜，之后可以在设置里修改。</p>
+   <input id="nm2" class="inp" maxlength="8" placeholder="输入你的名字"><input id="pin2" class="inp sm" maxlength="6" inputmode="numeric" placeholder="口令（可选，4～6 位数字）">
+   <p class="tkeys">设了口令，别人就不能用你的名字上榜</p><div class="row"><button class="btn" id="ok2">确定</button><button class="btn" id="cx2">取消</button></div>`);
+  o.querySelector('#cx2').onclick = () => o.remove();
+  o.querySelector('#ok2').onclick = () => { const n = o.querySelector('#nm2').value.trim(); if (!n) { tip('先输入名字'); return; } LS('tw_name', n); LS('tw_pin', o.querySelector('#pin2').value.trim()); o.remove(); done(); };
+  o.querySelector('#nm2').focus();
+}
+function settings(inRun) {
+  const V = audio.vol, sl = (k, n) => `<label class="sl"><span>${n}</span><input type="range" min="0" max="100" value="${Math.round(V[k] * 100)}" data-v="${k}"><i>${Math.round(V[k] * 100)}%</i></label>`;
+  const ck = (k, n, on) => `<label class="ck"><input type="checkbox" data-s="${k}" ${on ? 'checked' : ''}><span>${n}</span></label>`;
+  const o = overlay(`<div class="setw"><div class="tabs"><b class="on" data-t="g">游戏设置</b><b data-t="k">操作说明</b></div>
+   <div class="tp" data-p="g"><div class="sgrid">
+    <div class="sbox"><h3>声音</h3>${sl('m', '主音量')}${sl('mu', '音乐音量')}${sl('s', '音效音量')}</div>
+    <div class="sbox"><h3>偏好</h3>${ck('tips', '显示规则提示', TIPS)}${ck('shake', '屏幕震动', SET.shake)}${ck('fast', '加速模式（动画快一倍）', SET.fast)}</div>
+    <div class="sbox"><h3>玩家</h3><label class="sl"><span>名字</span><input id="snm" class="inp sm" maxlength="8" value="${esc(LS('tw_name'))}"></label>
+     <label class="sl"><span>口令</span><input id="spin" class="inp sm" maxlength="6" inputmode="numeric" value="${esc(LS('tw_pin'))}" placeholder="可不填"></label></div>
+    <div class="sbox"><h3>其他</h3><button class="btn" id="sfs">全屏 / 退出全屏</button>${inRun ? '<button class="btn red" id="sab">放弃这局</button><button class="btn" id="ssq">保存并退出</button>' : ''}</div>
+   </div></div>
+   <div class="tp" data-p="k" style="display:none"><table class="keys">${[['选择第 1～9 张手牌', '1 ～ 9'], ['第 10 张手牌', '0'], ['结束回合', 'E'], ['取消选择', 'Esc'], ['静音', 'M'], ['选择目标', '点击敌人']].map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table></div>
+   <button class="btn" id="sx">返回</button></div>`);
+  o.querySelectorAll('.tabs b').forEach(t => t.onclick = () => { o.querySelectorAll('.tabs b').forEach(x => x.classList.toggle('on', x === t)); o.querySelectorAll('.tp').forEach(p => p.style.display = p.dataset.p === t.dataset.t ? '' : 'none'); });
+  o.querySelectorAll('[data-v]').forEach(r => r.oninput = () => { audio.setVol(r.dataset.v, r.value / 100); r.nextElementSibling.textContent = r.value + '%'; });
+  o.querySelectorAll('[data-s]').forEach(c => c.onchange = () => { const k = c.dataset.s;
+    if (k === 'tips') { TIPS = c.checked; try { localStorage.setItem('tipsOff', TIPS ? '0' : '1'); } catch (e) {} } else { SET[k] = c.checked ? 1 : 0; saveSet(); } });
+  o.querySelector('#sfs').onclick = () => $('#tbfs') ? $('#tbfs').click() : (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.());
+  const close = () => { LS('tw_name', o.querySelector('#snm').value.trim()); LS('tw_pin', o.querySelector('#spin').value.trim()); o.remove(); };
+  o.querySelector('#sx').onclick = () => { close(); if (inRun && R) (B && !B.over ? render() : mapScreen()); };
+  o.querySelector('#sab')?.addEventListener('click', () => { const y = overlay(`<h2>放弃这局？</h2><p>这局会按死亡结算，进度无法恢复。</p><div class="row"><button class="btn red" id="y1">放弃</button><button class="btn" id="y0">再想想</button></div>`);
+    y.querySelector('#y0').onclick = () => y.remove(); y.querySelector('#y1').onclick = () => { y.remove(); close(); clearSave(); endScreen(false); }; });
+  o.querySelector('#ssq')?.addEventListener('click', () => { close(); save(); mainMenu(); });
 }
 function rankBoard() {
   const o = overlay(`<h2>排行榜</h2><div id="rk" class="rk">读取中……</div><button class="btn" id="rkx">关闭</button>`);
@@ -188,7 +230,7 @@ function pickChar() {
      <span class="diff">上手难度 <i>${'★'.repeat(i.diff)}${'☆'.repeat(3 - i.diff)}</i> ${['', '简单', '普通', '困难'][i.diff]}</span><span class="ct">${i.tip}</span></div>`; }).join('')}</div>
    <button class="btn" id="back">返回</button></div>`;
   view.querySelectorAll('[data-c]').forEach(el => el.onclick = () => { newRun(el.dataset.c); save(); mapScreen(); });
-  $('#back').onclick = title;
+  $('#back').onclick = mainMenu;
 }
 // ---------- 地图 ----------
 const NODEICON = Object.fromEntries(['fight', 'elite', 'event', 'rest', 'shop', 'treasure'].map(k => [k, `<img src="assets/ui2/node_${k}.png">`]));
@@ -554,7 +596,7 @@ function flushFx() {
       if (f.who === 'hero' || n >= 15) shake = true;
     }
   }
-  if (shake) { view.classList.remove('shake'); void view.offsetWidth; view.classList.add('shake'); }
+  if (shake && SET.shake) { view.classList.remove('shake'); void view.offsetWidth; view.classList.add('shake'); }
   B.fx = [];
 }
 setInterval(() => { frame++; if (!B || B.over) return; view.querySelectorAll('.enemy:not(.dead):not(.hd) .spr').forEach(img => img.src = `assets/enemies/${img.dataset.k}/${frame % 2 ? 'b' : 'a'}.png`); }, 520);
@@ -654,13 +696,16 @@ function eventScreen() {
 // ---------- 结束 ----------
 function endScreen(win) {
   B = null; audio.setMode('menu');
-  view.innerHTML = `${bgHTML()}<div class="panel"><h2>${win ? '第一幕通关！' : '你倒下了……'}</h2>
-   <p>${win ? `${ENEMIES[R.boss].name}倒下了，翠绿之地恢复了平静。<br>（后续幕数待制作）` : `倒在了翠绿之地第 ${R.floor} 层。`}</p>
-   <p>到达第 ${R.floor} 层 · 击杀 ${R.kills || 0} · 精英 ${R.elites || 0} · 牌组 ${R.deck.length} 张 · 遗物 ${R.relics.length} 个</p>
-   <p id="sc" style="color:#ffd35a">${DEBUG ? '调试模式，成绩不记录' : !ONLINE ? '试玩链接不记录成绩' : LS('tw_name') ? '正在提交成绩……' : ''}</p>
-   <div class="row"><button class="btn" id="again">回到标题</button><button class="btn" id="rk2">排行榜</button></div></div>`;
-  $('#again').onclick = title; $('#rk2').onclick = rankBoard;
-  submitScore(win).then(d => { const el = $('#sc'); if (!el || !d) return; el.textContent = d.ok ? `本局积分 ${d.score}，已记入排行榜` : `没能上榜：${d.error}`; });
+  const k = R.kills || 0, el = R.elites || 0, hp = Math.max(0, R.hp);
+  const rows = [[`攀登的层数 (${R.floor})`, R.floor * 20], [`击杀的敌人 (${k})`, k * 3], [`击败的精英 (${el})`, el * 25], [`打败 Boss (${win ? 1 : 0})`, win ? 300 : 0], [`通关时剩余生命 (${win ? hp : 0})`, win ? hp * 2 : 0]];
+  const total = rows.reduce((a, r) => a + r[1], 0);
+  view.innerHTML = `${bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
+   <p class="endsub">${win ? `${ENEMIES[R.boss].name}倒下了，翠绿之地恢复了平静。` : `${CHARS[R.char || 'hero'].name}倒在了翠绿之地第 ${R.floor} 层。`}</p>
+   <table class="score">${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}<tr class="tot"><td>分数</td><td>${total}</td></tr></table>
+   <p id="sc" class="endsub" style="color:#ffd35a">${DEBUG ? '调试模式，成绩不记录' : !ONLINE ? '试玩链接不记录成绩' : LS('tw_name') ? '正在提交成绩……' : ''}</p>
+   <div class="row"><button class="btn big" id="again">主菜单</button><button class="btn" id="rk2">排行榜</button></div></div>`;
+  $('#again').onclick = mainMenu; $('#rk2').onclick = rankBoard;
+  submitScore(win).then(d => { const e = $('#sc'); if (!e || !d) return; e.textContent = d.ok ? `已记入排行榜（${LS('tw_name')}）` : `没能上榜：${d.error}`; });
 }
 
 // ---------- 调试 ----------
