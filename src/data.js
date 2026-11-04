@@ -1,6 +1,6 @@
 // 数据：卡牌 / 遗物 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
-const I = n => `assets/icons/${n}.png`;
+const I = n => n.includes('/') ? `assets/${n}.png` : `assets/icons/${n}.png`;
 const v = (u, a, b) => (u ? b : a);
 
 export const CARDS = {
@@ -95,7 +95,7 @@ export const CARDS = {
   regen: { name: '生命之泉', type: 'power', rar: 'r', cost: [1, 1], icon: 'b_regen', tgt: 'self',
     desc: u => `每回合结束时，回复 ${v(u, 2, 3)} 点生命。`, play: (g, u) => g.self('regen', v(u, 2, 3)) },
 };
-for (const [k, c] of Object.entries(CARDS)) { c.id = k; c.img = I(c.icon); }
+for (const [k, c] of Object.entries(CARDS)) { c.id = k; if (c.ch) c.icon = 'icons2/' + k; c.img = I(c.icon); }
 export const STARTERS = {
   hero: ['shoot', 'shoot', 'shoot', 'shoot', 'defend', 'defend', 'defend', 'defend', 'load', 'charge'],
   heroine: ['note', 'note', 'note', 'note', 'defend', 'defend', 'defend', 'defend', 'spread', 'high'],
@@ -123,7 +123,7 @@ export const RELICS = {
   feather: { name: '凤凰羽', icon: 'p_rev', rar: 'r', desc: '死亡时，复活并回复 50% 生命（一次）。' },
   crown: { name: '王冠', icon: 'm_crown', rar: 'r', desc: '每回合开始时，获得 1 点额外能量。' },
 };
-for (const [k, r] of Object.entries(RELICS)) { r.id = k; r.img = I(r.icon); }
+for (const [k, r] of Object.entries(RELICS)) { r.id = k; if (['spare', 'pad', 'phones', 'metro', 'mic'].includes(k)) r.icon = 'icons2/r_' + k; r.img = I(r.icon); }
 
 export const STATUS = {
   str: ['力量', '攻击伤害增加', '#e05a3a'], dex: ['敏捷', '获得的格挡增加', '#5ab45a'],

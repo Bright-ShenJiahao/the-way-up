@@ -1,5 +1,5 @@
 // 音乐与音效：全部用 WebAudio 现场合成（不需要音频文件）。
-// 音乐：D 多利亚调式的凯尔特风旋律（长笛音色）+ 竖琴分解和弦 + 低音 + 鼓；战斗层随怪物数量加强；Boss 时换激烈段。
+// 音乐：4 首西方奇幻风——地图（鲁特琴+长笛）、战斗（弦乐+提琴）、精英（号角+战鼓）、Boss（合唱+铜管）。哥布林叫声也是合成的。
 // 首次点击/按键后才能出声（浏览器规定）。M 键静音。
 export function createAudio(){
  let ac=null,master,musicBus,sfxBus,on=true,mode='menu',inten=0,started=false,next=0,step=0;
@@ -18,24 +18,77 @@ export function createAudio(){
   const s=ac.createBufferSource();s.buffer=b;let n=s;if(hp){const f=ac.createBiquadFilter();f.type='highpass';f.frequency.value=hp;n.connect(f);n=f}if(lp){const f=ac.createBiquadFilter();f.type='lowpass';f.frequency.value=lp;n.connect(f);n=f}
   const g=ac.createGain();g.gain.value=vol;n.connect(g);g.connect(bus);s.start(t)}
  function kick(t,v=.5){const o=ac.createOscillator(),g=ac.createGain();o.frequency.setValueAtTime(130,t);o.frequency.exponentialRampToValueAtTime(40,t+.15);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+.25);o.connect(g);g.connect(musicBus);o.start(t);o.stop(t+.3)}
- // ---------- 曲子 ----------
- // D 多利亚：D E F G A B C；和弦进行 Dm – C – G – Dm（每小节 8 个八分音符）
- const CH=[[50,53,57],[48,52,55],[43,47,50],[50,53,57]],BASS=[38,36,31,38];
- const MEL_A=[74,72,69,67,69,72,74,77, 76,74,72,69,67,69,72,74, 71,72,74,71,67,69,71,74, 69,67,65,64,62,64,65,69];
- const MEL_B=[81,79,77,76,74,76,77,79, 79,77,76,74,72,74,76,77, 74,76,79,81,79,77,74,71, 74,72,69,67,69,72,74,74];
+ // ---------- 曲子（4 首，西方奇幻风） ----------
+ // 每首 8 小节循环，每小节 8 个八分音符；mel 里 -1 表示延长上一个音
+ const SONGS={
+  menu:{beat:.36,ch:[[55,59,62],[50,54,57],[52,55,59],[48,52,55],[55,59,62],[48,52,55],[50,54,57],[55,59,62]],
+   mel:[67,-1,71,74,72,71,69,-1, 69,-1,66,69,74,-1,72,71, 71,-1,67,71,76,74,72,71, 72,-1,-1,71,69,67,64,-1,
+        67,71,74,79,78,76,74,-1, 76,-1,72,76,79,-1,76,74, 74,72,71,69,66,69,72,74, 71,-1,69,-1,67,-1,-1,-1]},
+  battle:{beat:.22,ch:[[57,60,64],[53,57,60],[55,59,62],[52,55,59],[57,60,64],[53,57,60],[52,56,59],[57,60,64]],
+   mel:[69,72,76,72,69,72,76,79, 77,76,72,69,72,-1,69,-1, 71,74,79,74,71,74,79,81, 79,76,71,67,71,-1,64,-1,
+        76,-1,74,72,74,-1,72,71, 72,-1,71,69,77,76,74,72, 71,-1,68,71,76,-1,74,71, 69,-1,64,-1,69,-1,-1,-1]},
+  elite:{beat:.21,ch:[[50,53,57],[46,50,53],[48,52,55],[45,49,52],[50,53,57],[46,50,53],[43,46,50],[45,49,52]],
+   mel:[62,-1,-1,65,69,-1,67,65, 65,-1,62,-1,58,-1,-1,-1, 64,-1,-1,67,72,-1,70,69, 69,-1,-1,-1,61,64,67,69,
+        74,-1,72,70,69,-1,65,62, 70,-1,69,67,65,-1,62,-1, 67,-1,65,62,58,62,65,67, 69,-1,-1,-1,61,-1,64,-1]},
+  boss:{beat:.19,ch:[[48,51,55],[44,48,51],[46,50,53],[43,47,50],[48,51,55],[44,48,51],[41,44,48],[43,47,50]],
+   mel:[60,-1,63,60,67,-1,66,67, 68,-1,67,63,60,-1,-1,-1, 62,-1,65,62,70,-1,69,70, 71,-1,67,-1,62,-1,59,-1,
+        72,-1,70,68,67,-1,63,60, 68,-1,67,65,63,-1,60,-1, 65,-1,68,72,70,68,67,65, 67,-1,71,-1,74,-1,79,-1]}};
+ // 乐器
+ const lute=(t,m,v=.07)=>{tone(t,m,.05,{type:'triangle',vol:v,att:.003,rel:.5});tone(t,m+12,.03,{type:'sine',vol:v*.35,att:.003,rel:.25})};
+ const flute=(t,m,d,v=.07)=>{const o=ac.createOscillator(),l=ac.createOscillator(),lg=ac.createGain(),g=ac.createGain();o.type='sine';o.frequency.value=hz(m);l.frequency.value=5.2;lg.gain.value=hz(m)*.006;l.connect(lg);lg.connect(o.frequency);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.06);g.gain.setTargetAtTime(0,t+d,.08);o.connect(g);g.connect(musicBus);o.start(t);l.start(t);o.stop(t+d+.4);l.stop(t+d+.4);noise(t,.05,{vol:v*.25,hp:3000,bus:musicBus})};
+ const fiddle=(t,m,d,v=.045)=>{tone(t,m,d,{type:'sawtooth',vol:v,att:.02,rel:.12,lp:2200,det:4});tone(t,m,d,{type:'sawtooth',vol:v*.6,att:.02,rel:.12,lp:2200,det:-6})};
+ const brass=(t,m,d,v=.05)=>{const o=ac.createOscillator(),f=ac.createBiquadFilter(),g=ac.createGain();o.type='sawtooth';o.frequency.value=hz(m);f.type='lowpass';f.frequency.setValueAtTime(300,t);f.frequency.linearRampToValueAtTime(1600,t+.08);f.frequency.setTargetAtTime(900,t+.1,.2);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.05);g.gain.setTargetAtTime(0,t+d,.07);o.connect(f);f.connect(g);g.connect(musicBus);o.start(t);o.stop(t+d+.4)};
+ const choir=(t,c,d,v=.022)=>c.forEach(m=>[-9,0,8].forEach(det=>tone(t,m+12,d,{type:'sawtooth',vol:v,att:.35,rel:.6,lp:900,det})));
+ const strings=(t,c,d,v=.02)=>c.forEach(m=>tone(t,m,d,{type:'sawtooth',vol:v,att:.25,rel:.5,lp:1200,det:(m%3-1)*7}));
+ const tom=(t,v=.3,f=110)=>{const o=ac.createOscillator(),g=ac.createGain();o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*.5,t+.2);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+.3);o.connect(g);g.connect(musicBus);o.start(t);o.stop(t+.35)};
+ const snare=(t,v=.1)=>{noise(t,.14,{vol:v,hp:1500,bus:musicBus});tone(t,55,.04,{type:'triangle',vol:v*.5,rel:.05})};
+ const tamb=(t,v=.03)=>noise(t,.05,{vol:v,hp:7000,bus:musicBus});
  function bar(t,beat,bi){
-  const c=CH[bi%4],b=BASS[bi%4],menu=mode==='menu',boss=mode==='boss',e=boss?1:inten;
-  for(let i=0;i<8;i++){const tt=t+i*beat;
-   tone(tt,c[i%3]+12+(i>=4?12:0),beat*.9,{type:'triangle',vol:menu?.07:.05,rel:.6});          // 竖琴分解和弦
-   if(!menu&&(i%2===0))tone(tt,b,beat*1.8,{type:'sawtooth',vol:.05+.04*e,lp:500,rel:.2});     // 低音
-   if(!menu){if(i%4===0)kick(tt,.35+.25*e);if(i%4===2)noise(tt,.12,{vol:.08+.1*e,hp:1800,bus:musicBus});if(e>.5||boss)noise(tt+beat/2,.04,{vol:.05,hp:6000,bus:musicBus})}}
-  const mel=(boss||(bi>>2)%2)?MEL_B:MEL_A,seg=(bi%4)*8;
-  if(!menu||bi%2===0)for(let i=0;i<8;i++){const m=mel[seg+i];if(i%2===1&&menu)continue;tone(t+i*beat,m,beat*(menu?1.8:.9),{type:'sine',vol:menu?.09:.07,att:.03,rel:.3,det:Math.sin(i)*6});
-   if(e>.6||boss)tone(t+i*beat,m-12,beat*.9,{type:'square',vol:.025,lp:1800})}                  // 激烈层：加一层低八度
+  const S=SONGS[mode]||SONGS.menu,k=bi%8,c=S.ch[k],e=inten,mel=S.mel.slice(k*8,k*8+8);
+  const notes=[];for(let i=0;i<8;i++)if(mel[i]>=0){let L=1;while(i+L<8&&mel[i+L]<0)L++;notes.push([i,mel[i],L])}
+  if(mode==='menu'){ // 地图：鲁特琴 + 长笛 + 手鼓
+   for(let i=0;i<8;i++){lute(t+i*beat,c[[0,1,2,1,0,2,1,2][i]]+12);if(i%4===0)tone(t+i*beat,c[0]-12,beat*3.5,{type:'triangle',vol:.06,rel:.4});if(i%2===1)tamb(t+i*beat)}
+   if(bi%16>=8||bi>=8)notes.forEach(([i,m,L])=>flute(t+i*beat,m,beat*L*.95));
+  }else if(mode==='battle'){ // 战斗：弦乐快速跑动 + 提琴旋律 + 鼓
+   for(let i=0;i<8;i++){const tt=t+i*beat;tone(tt,c[i%3]+12,beat*.8,{type:'sawtooth',vol:.022,rel:.08,lp:1800});
+    if(i%2===0)tone(tt,c[0]-12,beat*1.7,{type:'sawtooth',vol:.06,lp:450,rel:.15});
+    if(i===0||i===3||i===6)tom(tt,.32+.15*e,70);if(i===2||i===6)snare(tt,.08+.05*e);if(e>.4)tamb(tt+beat/2,.025)}
+   notes.forEach(([i,m,L])=>fiddle(t+i*beat,m,beat*L*.92));
+  }else if(mode==='elite'){ // 精英：号角 + 低音弦 + 战鼓
+   strings(t,c,beat*7.5,.018);
+   for(let i=0;i<8;i++){const tt=t+i*beat;tone(tt,c[0]-12,beat*.9,{type:'sawtooth',vol:.07,lp:380,rel:.1});
+    if(i%2===0)tom(tt,.38,60);if(i===4)snare(tt,.14);if(i===7)tom(tt,.25,95)}
+   notes.forEach(([i,m,L])=>{brass(t+i*beat,m,beat*L*.9);brass(t+i*beat,m-12,beat*L*.9,.03)});
+  }else{ // Boss：合唱 + 铜管 + 重战鼓
+   choir(t,c,beat*7.6);
+   for(let i=0;i<8;i++){const tt=t+i*beat;tone(tt,c[0]-12,beat*.9,{type:'sawtooth',vol:.08,lp:420,rel:.1});
+    tom(tt,i%2===0?.45:.22,i%2===0?55:85);if(i===2||i===6)snare(tt,.15);if(i%4===0)brass(tt,c[0],beat*.6,.05)}
+   notes.forEach(([i,m,L])=>brass(t+i*beat,m,beat*L*.9,.055));
+  }
  }
- function tick(){if(!ac)return;const beat=mode==='menu'?.34:mode==='boss'?.19:.24;
+ function tick(){if(!ac)return;const beat=(SONGS[mode]||SONGS.menu).beat;
   while(next<ac.currentTime+.6){if(on)bar(next,beat,step);next+=beat*8;step++}
   setTimeout(tick,200)}
+ // ---------- 哥布林叫声（合成，不说话） ----------
+ // sz：体型（>1 尖细小鬼，<1 低沉巨人）；kind: laugh 笑 / atk 吼 / hurt 痛叫 / die 惨叫 / buff 怪笑 / growl 狼嚎
+ function voice(t,pts,{sz=1,vol=.16,vow='i',rasp=0}={}){
+  const o=ac.createOscillator(),g=ac.createGain(),out=ac.createGain();o.type='sawtooth';
+  pts.forEach(([dt,f],i)=>{const fr=f*sz;if(i===0)o.frequency.setValueAtTime(fr,t+dt);else o.frequency.exponentialRampToValueAtTime(fr,t+dt)});
+  if(rasp){const l=ac.createOscillator(),lg=ac.createGain();l.frequency.value=38;lg.gain.value=pts[0][1]*sz*rasp;l.connect(lg);lg.connect(o.frequency);l.start(t);l.stop(t+pts.at(-1)[0]+.1)}
+  const F={i:[320,2400],e:[500,1900],a:[750,1200],o:[480,850]}[vow];
+  F.forEach((ff,j)=>{const f=ac.createBiquadFilter();f.type='bandpass';f.frequency.value=ff*Math.sqrt(sz);f.Q.value=6;const fg=ac.createGain();fg.gain.value=j?.7:1;o.connect(f);f.connect(fg);fg.connect(g)});
+  const end=pts.at(-1)[0];g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.015);g.gain.setValueAtTime(vol,t+end*.75);g.gain.linearRampToValueAtTime(0,t+end);
+  g.connect(sfxBus);o.start(t);o.stop(t+end+.05)}
+ function gob(kind,sz=1){if(!ac||!ok('gob'+kind,kind==='hurt'?120:200))return;const t=ac.currentTime+.01,r=1+(Math.random()-.5)*.12,s=sz*r,big=sz<.8?.06:0;
+  if(kind==='laugh')for(let i=0;i<4;i++)voice(t+i*.11,[[0,520],[.06,620],[.09,480]],{sz:s,vol:.11,vow:'i',rasp:big});
+  else if(kind==='buff')for(let i=0;i<5;i++)voice(t+i*.09,[[0,700-i*40],[.05,820-i*40],[.08,600]],{sz:s,vol:.1,vow:'e',rasp:big});
+  else if(kind==='atk')voice(t,[[0,300],[.05,420],[.2,240]],{sz:s,vol:.17,vow:'a',rasp:.08+big});
+  else if(kind==='hurt')voice(t,[[0,600],[.04,950],[.14,520]],{sz:s,vol:.14,vow:'i',rasp:big});
+  else if(kind==='die')voice(t,[[0,700],[.08,820],[.6,180]],{sz:s,vol:.15,vow:'o',rasp:.05+big});
+  else if(kind==='growl'){voice(t,[[0,110],[.1,140],[.45,90]],{sz:1,vol:.16,vow:'o',rasp:.25});noise(t,.4,{vol:.06,lp:600})}
+  else if(kind==='howl')voice(t,[[0,300],[.3,520],[.9,380]],{sz:1,vol:.12,vow:'o',rasp:.02});}
  // ---------- 音效 ----------
  let last={};const ok=(k,gap)=>{const n=performance.now();if(n-(last[k]||0)<gap)return false;last[k]=n;return true};
  const S={
@@ -60,5 +113,5 @@ export function createAudio(){
   level(){if(!ac)return;const t=ac.currentTime;[74,78,81,86].forEach((m,i)=>tone(t+i*.07,m,.12,{type:'triangle',vol:.12,bus:sfxBus,rel:.3}))},
   boss(){if(!ac)return;const t=ac.currentTime;[38,38,41,38].forEach((m,i)=>tone(t+i*.35,m,.3,{type:'sawtooth',vol:.14,bus:sfxBus,rel:.4,lp:700}))},
   banner(){if(!ac)return;const t=ac.currentTime;tone(t,69,.1,{type:'triangle',vol:.1,bus:sfxBus});tone(t+.1,74,.18,{type:'triangle',vol:.1,bus:sfxBus})}};
- return {...S,setMode(m){mode=m},setIntensity(x){inten=Math.max(0,Math.min(1,x))},get muted(){return !on}};
+ return {...S,gob,setMode(m){mode=m},setIntensity(x){inten=Math.max(0,Math.min(1,x))},get muted(){return !on}};
 }

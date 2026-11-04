@@ -208,7 +208,7 @@ function battle(keys, kind) {
   hst = { n: 'idle', t: performance.now() };
   const bg = kind === 'boss' ? 'battle_castle' : pickOne(BGS);
   B = { kind, bg, en: keys.map(mkEnemy), p: { block: 0, energy: 0, st: {}, noDraw: 0 }, draw: shuffle(R.deck.map(c => ({ ...c }))), hand: [], disc: [], exh: [], turn: 0, atkCnt: 0, sel: -1, busy: false, fx: [], over: false };
-  audio.setMode(kind === 'boss' ? 'boss' : 'battle'); if (kind === 'boss') audio.boss();
+  audio.setMode(kind === 'boss' ? 'boss' : kind === 'elite' ? 'elite' : 'battle'); setTimeout(() => B && B.en[0] && gv(B.en[0], 'laugh'), 500); if (kind === 'boss') audio.boss();
   if (has('charm')) B.p.st.str = 1;
   if (has('gameboy')) B.p.st.ammo = 3;
   if (has('phones')) B.en.forEach(e => e.st.res = 3);
@@ -247,7 +247,7 @@ function hurt(tgt, amt, attacker) {
   if (isP) { R.hp -= left; } else { tgt.hp -= left; }
   fx(isP ? 'hero' : tgt.id, left > 0 ? `-${left}` : '格挡', left > 0 ? 'dmg' : 'blk'); B.hitSet.add(isP ? 'hero' : tgt.id);
   if (attacker && tgt.st.thorns && attacker !== tgt) { const th = tgt.st.thorns; hurt(attacker, th); }
-  if (!isP && left > 0) eAct(tgt, 'hurt');
+  if (!isP && left > 0) { eAct(tgt, 'hurt'); if (tgt.hp > 0) gv(tgt, 'hurt'); }
   if (!isP && tgt.hp <= 0 && !tgt.dead) killE(tgt);
   if (!isP && !tgt.dead && tgt.key === 'gob_wolf' && tgt.hp <= tgt.max / 2) dismount(tgt);
   if (isP && R.hp <= 0) { if (has('feather') && !R.feather) { R.feather = 1; R.hp = Math.floor(R.maxHp / 2); fx('hero', '凤凰重生！', 'heal'); } }
@@ -259,7 +259,9 @@ function dismount(e) { // 骑狼兵半血落马：变成野狼 + 一只小兵
   const g = mkEnemy('goblin'); g.hp = g.max = 8; g.move = g.d.ai(g, BE); B.en.splice(B.en.indexOf(e) + 1, 0, g);
   fx(e.id, '落马！', 'st');
 }
-function killE(e) { eAct(e, 'down'); e.dead = true; e.hp = 0; audio.kill(); if (has('fang')) { healP(3); } }
+const VSZ = { gob_kid: 1.45, gob_bomb: 1.25, gob_giant: .6, gob_king: .55, gob_hero: .85, gob_paladin: .85, gob_shaman: 1.15 };
+function gv(e, k) { if (e.key === 'wolf') { if (k === 'atk' || k === 'die') audio.gob(k === 'die' ? 'howl' : 'growl'); return; } audio.gob(k, VSZ[e.key] || 1); }
+function killE(e) { gv(e, 'die'); eAct(e, 'down'); e.dead = true; e.hp = 0; audio.kill(); if (has('fang')) { healP(3); } }
 function boom(t) { // 爆音
   const d = 15 + (B.p.st.dist ? 5 : 0) + (has('mic') ? 6 : 0);
   if (B.p.st.dist) t.st.res = Math.floor(t.st.res / 2) || undefined; else delete t.st.res; if (!t.st.res) delete t.st.res;
@@ -394,7 +396,7 @@ async function endTurn() {
     if (e.dead || B.over) continue;
     B.hitSet = new Set();
     const mv = e.d.moves[e.move]; B.lunge = mv.d != null && mv.i.startsWith('atk') && mv.d > 0 ? e.id : null;
-    if (mv.d) eAct(e, 'atk');
+    if (mv.d) { eAct(e, 'atk'); gv(e, 'atk'); } else if (/buff|summon/.test(mv.i)) gv(e, 'buff');
     if (mv.d) for (let k = 0; k < (mv.x || 1); k++) { hurt(B.p, atkVal(e, B.p, mv.d), e); if (e.dead) break; }
     if (mv.f && !e.dead) mv.f(e, BE);
     e.hist.push(e.move); e.d.after && e.d.after(e);
