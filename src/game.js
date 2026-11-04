@@ -22,13 +22,13 @@ let TIPS = true; try { TIPS = localStorage.getItem('tipsOff') !== '1'; } catch (
 const KW = { '格挡': '抵挡受到的伤害。你的回合开始时清零。', '易伤': '受到的攻击伤害 +50%，每回合减 1 层。', '虚弱': '造成的攻击伤害 -25%，每回合减 1 层。',
   '力量': '每次攻击伤害增加等同于力量的数值。', '敏捷': '每次获得格挡时额外增加等同于敏捷的数值。', '消耗': '打出后移出本场战斗，不进弃牌堆。',
   '荆棘': '被攻击时，对攻击者造成等同于层数的伤害。', '能量': '出牌要花能量，每回合开始恢复为 3 点。',
-  '光弹': '男主的子弹，最多存 10 发，整场战斗保留。', '共鸣': '叠在敌人身上，到 10 层自动爆音。', '结界': '叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。', '爆音': '共鸣满 10 层时，对该敌人造成 15 点伤害并清空共鸣。' };
+  '光弹': '男主的子弹，最多存 10 发，整场战斗保留。', '共鸣': '叠在敌人身上，到 10 层自动爆音。', '中毒': '敌人行动前受到等同层数的伤害（无视格挡），然后减 1 层。', '药瓶': '0 费的一次性牌，用完消耗。', '结界': '叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。', '爆音': '共鸣满 10 层时，对该敌人造成 15 点伤害并清空共鸣。' };
 const kwify = t => TIPS ? t.replace(new RegExp(Object.keys(KW).join('|'), 'g'), m => `<span class="kw" title="${KW[m]}">${m}</span>`) : t;
 let R = null; // 当前一局
 let uidN = 1;
 const mkCard = (id, up = 0) => ({ id, up, uid: uidN++ });
 function newRun(char = 'hero') {
-  R = { char, hp: 80, maxHp: 80, gold: 99, deck: STARTERS[char].map(id => mkCard(id)), relics: [{ heroine: 'phones', miko: 'suzu' }[char] || 'gameboy'], map: genMap(), pos: null,
+  R = { char, hp: 80, maxHp: 80, gold: 99, deck: STARTERS[char].map(id => mkCard(id)), relics: [{ heroine: 'phones', miko: 'suzu', witch: 'cauldron' }[char] || 'gameboy'], map: genMap(), pos: null,
     floor: 0, fights: 0, removeCost: 75, boss: pickOne(ENCOUNTERS.boss)[0], feather: 0 };
 }
 const has = id => R.relics.includes(id);
@@ -89,7 +89,7 @@ const TYPE = { atk: '攻击', skill: '技能', power: '能力' };
 function cardCost(c) { const d = CARDS[c.id]; if (c.free) return 0; return d.cost[c.up ? 1 : 0]; }
 function cardHTML(c, extra = '', energy = 99) {
   const d = CARDS[c.id], cost = cardCost(c), no = cost !== 'X' && cost > energy;
-  const rr = d.rar === 'start' ? 'c' : d.rar;
+  const rr = d.rar === 'start' || d.rar === 'gen' ? 'c' : d.rar;
   return `<div class="card t-${d.type} r-${d.rar} ${c.up ? 'up' : ''} ${extra}" data-uid="${c.uid}" title="${TYPE[d.type]}">
    <div class="art"><img src="${d.img}"></div><div class="cdesc"><span>${kwify(d.desc(c.up))}</span></div><img class="frame" src="assets/ui2/frame_${d.type}_${rr}.png">
    <div class="cost ${no ? 'no' : ''}">${cost}</div><div class="cname">${d.name}${c.up ? '+' : ''}</div></div>`;
@@ -110,7 +110,7 @@ function pickDeck(mode, done) {
     const i = R.deck.findIndex(c => c.uid == el.dataset.uid), c = R.deck[i];
     if (mode === 'remove') R.deck.splice(i, 1);
     if (mode === 'upgrade') c.up = 1;
-    if (mode === 'transform') { const pool = Object.values(CARDS).filter(d => d.rar !== 'start' && mine(d) && d.id !== c.id); R.deck[i] = mkCard(pickOne(pool).id); }
+    if (mode === 'transform') { const pool = Object.values(CARDS).filter(d => d.rar !== 'start' && d.rar !== 'gen' && mine(d) && d.id !== c.id); R.deck[i] = mkCard(pickOne(pool).id); }
     audio.level(); o.remove(); done && done(true);
   });
 }
@@ -283,6 +283,9 @@ const G = {
   draw(n) { drawCards(n); }, energy(n) { B.p.energy += n; },
   loseHp(n) { R.hp -= n; fx('hero', `-${n}`, 'dmg'); B.hitSet.add('hero'); },
   heal(n) { healP(n); },
+  pm() { return B.p.st.sage ? 2 : 1; },
+  potion(n, id) { const ps = ['p_fire', 'p_frost', 'p_heal', 'p_poison', 'p_boom']; for (let i = 0; i < n; i++) { const c = mkCard(id || pickOne(ps)); (B.hand.length < 10 ? B.hand : B.disc).push(c); } fx('hero', `药瓶+${n}`, 'st'); },
+  poison(t, n) { if (!t || t.dead || n <= 0) return; n += has('toad') ? 1 : 0; addSt(t, 'poison', n); fx(t.id, `中毒+${n}`, 'st'); },
   kek(n) { addSt(B.p, 'kek', n); fx('hero', `结界+${n}`, 'st'); },
   ammo(n) { const a = Math.min(10, (B.p.st.ammo || 0) + n); if (a !== B.p.st.ammo) { B.p.st.ammo = a; fx('hero', `光弹+${n}`, 'st'); } },
   spend(n) { const k = Math.min(n, B.p.st.ammo || 0); if (!k) return 0; addSt(B.p, 'ammo', -k); if (B.p.st.rapid) G.block(B.p.st.rapid * k, true);
@@ -321,6 +324,10 @@ function startTurn(first) {
   B.p.energy = 3 + (has('crown') ? 1 : 0) + (first && has('hourglass') ? 1 : 0);
   B.p.noDraw = 0;
   if (B.p.st.rage) addSt(B.p, 'str', B.p.st.rage);
+  B.p.pot = 0;
+  if (first && has('cauldron')) G.potion(2);
+  if (B.p.st.satchel) G.potion(B.p.st.satchel);
+  if (B.p.st.plague) alive().forEach(e => G.poison(e, B.p.st.plague));
   if (B.p.st.kagura) G.kek(B.p.st.kagura);
   if (B.p.st.kek) G.block(B.p.st.kek * (B.p.st.shinboku ? 2 : 1), true);
   if (has('hamaya') && (B.p.st.kek || 0) >= 3) drawCards(1);
@@ -344,6 +351,7 @@ async function playCard(i, tgt) {
   B.anim = false; B.hitSet = new Set();
   d.play(G, c.up, tgt, c);
   if (d.type === 'atk') { B.atkCnt++; if (has('quiver') && B.atkCnt % 3 === 0) for (const e of alive()) hurt(e, 5); heroAct('shoot'); }
+  if (d.potion) { B.p.pot = (B.p.pot || 0) + 1; if (has('hat')) G.block(2, true); }
   if (B.p.st.concert) G.resAll(B.p.st.concert);
   if (d.type === 'skill') alive().forEach(e => { if (e.st.enrage) BE.addSt(e, 'str', e.st.enrage); });
   if (d.type === 'power') {} else if (d.exhaust) B.exh.push(c); else B.disc.push(c);
@@ -368,7 +376,7 @@ function eFrame(e) {
   if (a && a.n === 'hurt' && dt < 320) return `assets/enemies2/${k}/hurt0.png`;
   return `assets/enemies2/${k}/idle${Math.floor(now / 480) % 2}.png`;
 }
-const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 男', h: 241, desc: '掌机 · 光弹' }, miko: { dir: 'heroine2', name: '巫女 · 千早', h: 251, desc: '和弓 · 结界', idle: [0, 3], idleMs: 520 }, heroine: { dir: 'heroine2', name: '穿越者 · 女', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 } };
+const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 男', h: 241, desc: '掌机 · 光弹' }, witch: { dir: 'heroine2', name: '魔女 · 莉泽', h: 251, desc: '药瓶 · 剧毒', idle: [0, 3], idleMs: 520 }, miko: { dir: 'heroine2', name: '巫女 · 千早', h: 251, desc: '和弓 · 结界', idle: [0, 3], idleMs: 520 }, heroine: { dir: 'heroine2', name: '穿越者 · 女', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 } };
 const cdir = () => CHARS[(R && R.char) || 'hero'].dir;
 const HA = { idle: [4, 200, 1], shoot: [4, 75, 0], hurt: [2, 130, 0], block: [1, 380, 0], down: [3, 220, 2] }; // 帧数, 每帧毫秒, 1=循环 2=停在最后
 let hst = { n: 'idle', t: 0 };
@@ -400,6 +408,7 @@ async function endTurn() {
   for (const e of [...B.en]) {
     if (e.dead || B.over) continue;
     B.hitSet = new Set();
+    if (e.st.poison) { const pz = e.st.poison; e.hp -= pz; fx(e.id, `-${pz}`, 'dmg'); B.hitSet.add(e.id); addSt(e, 'poison', -1); if (e.hp <= 0) { killE(e); render(); await sleep(300); if (await checkEnd()) return; continue; } }
     const mv = e.d.moves[e.move]; B.lunge = mv.d != null && mv.i.startsWith('atk') && mv.d > 0 ? e.id : null;
     if (mv.d) { eAct(e, 'atk'); gv(e, 'atk'); } else if (/buff|summon/.test(mv.i)) gv(e, 'buff');
     if (mv.d) for (let k = 0; k < (mv.x || 1); k++) { hurt(B.p, atkVal(e, B.p, mv.d), e); if (e.dead) break; }
@@ -423,7 +432,7 @@ async function checkEnd() {
   if (R.hp <= 0) { B.over = true; heroAct('down'); render(); await sleep(1400); clearSave(); return endScreen(false); }
   if (!alive().length) {
     B.over = true; render(); await sleep(600);
-    if (has('gameboy') || has('phones') || has('suzu')) R.hp = Math.min(R.maxHp, R.hp + 6);
+    if (has('gameboy') || has('phones') || has('suzu') || has('cauldron')) R.hp = Math.min(R.maxHp, R.hp + 6);
     if (B.kind === 'boss') { clearSave(); return endScreen(true); }
     rewardScreen(); return true;
   }

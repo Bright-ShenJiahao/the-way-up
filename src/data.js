@@ -99,6 +99,47 @@ export const CARDS = {
   shinboku: { ch: 'miko', name: '御神木', type: 'power', rar: 'r', cost: [2, 1], icon: 'sk_treant', tgt: 'self',
     desc: () => `结界每回合提供的格挡翻倍。`, play: g => g.self('shinboku', 1) },
 
+  // ======== 魔女 · 药瓶 / 毒 ========
+  // 药瓶牌（rar:'gen' 不进奖励池，只由其他牌生成）
+  p_fire: { ch: 'witch', potion: 1, name: '火焰瓶', type: 'atk', rar: 'gen', cost: [0, 0], icon: 'ic_flame', tgt: 'all', exhaust: 1,
+    desc: () => `对所有敌人造成 6 点伤害。消耗。`, play: g => g.attackAll(6 * g.pm()) },
+  p_frost: { ch: 'witch', potion: 1, name: '冰霜瓶', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'ic_water', tgt: 'one', exhaust: 1,
+    desc: () => `给予 2 层虚弱和 1 层易伤。消耗。`, play: (g, u, t) => { g.apply(t, 'weak', 2 * g.pm()); g.apply(t, 'vuln', g.pm()); } },
+  p_heal: { ch: 'witch', potion: 1, name: '治疗瓶', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'pot', tgt: 'self', exhaust: 1,
+    desc: () => `回复 4 点生命。消耗。`, play: g => g.heal(4 * g.pm()) },
+  p_poison: { ch: 'witch', potion: 1, name: '毒药瓶', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'b_curse', tgt: 'one', exhaust: 1,
+    desc: () => `给予 5 层中毒。消耗。`, play: (g, u, t) => g.poison(t, 5 * g.pm()) },
+  p_boom: { ch: 'witch', potion: 1, name: '爆炸瓶', type: 'atk', rar: 'gen', cost: [0, 0], icon: 'p_boom', tgt: 'one', exhaust: 1,
+    desc: () => `造成 10 点伤害。消耗。`, play: (g, u, t) => g.attack(t, 10 * g.pm()) },
+  zap: { ch: 'witch', name: '魔弹', type: 'atk', rar: 'start', cost: [1, 1], icon: 'sk_orb', tgt: 'one',
+    desc: u => `造成 ${v(u, 6, 9)} 点伤害。`, play: (g, u, t) => g.attack(t, v(u, 6, 9)) },
+  brew: { ch: 'witch', name: '调药', type: 'skill', rar: 'start', cost: [1, 1], icon: 'pot', tgt: 'self',
+    desc: u => `随机获得 ${v(u, 2, 3)} 瓶药。`, play: (g, u) => g.potion(v(u, 2, 3)) },
+  needle: { ch: 'witch', name: '毒针', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_stake', tgt: 'one',
+    desc: u => `造成 3 点伤害，给予 ${v(u, 4, 6)} 层中毒。`, play: (g, u, t) => { g.attack(t, 3); g.poison(t, v(u, 4, 6)); } },
+  venom: { ch: 'witch', name: '剧毒', type: 'skill', rar: 'c', cost: [1, 1], icon: 'b_curse', tgt: 'one',
+    desc: u => `给予 ${v(u, 7, 10)} 层中毒。`, play: (g, u, t) => g.poison(t, v(u, 7, 10)) },
+  miasma: { ch: 'witch', name: '毒雾', type: 'skill', rar: 'c', cost: [1, 1], icon: 'sk_bmist', tgt: 'all',
+    desc: u => `给予所有敌人 ${v(u, 3, 5)} 层中毒。`, play: (g, u) => g.eachEnemy(e => g.poison(e, v(u, 3, 5))) },
+  quickbrew: { ch: 'witch', name: '速调', type: 'skill', rar: 'c', cost: [0, 0], icon: 'sk_pouch', tgt: 'self',
+    desc: u => `随机获得 1 瓶药。抽 ${v(u, 1, 2)} 张牌。`, play: (g, u) => { g.potion(1); g.draw(v(u, 1, 2)); } },
+  broom: { ch: 'witch', name: '扫帚格挡', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_whip', tgt: 'self',
+    desc: u => `获得 ${v(u, 6, 9)} 点格挡。随机获得 1 瓶药。`, play: (g, u) => { g.block(v(u, 6, 9)); g.potion(1); } },
+  firebrew: { ch: 'witch', name: '火焰配方', type: 'skill', rar: 'c', cost: [1, 1], icon: 'sk_fireel', tgt: 'self',
+    desc: u => `获得 ${v(u, 2, 3)} 瓶火焰瓶。`, play: (g, u) => g.potion(v(u, 2, 3), 'p_fire') },
+  catalyst: { ch: 'witch', name: '催化剂', type: 'skill', rar: 'u', cost: [1, 0], icon: 'ic_crystal', tgt: 'one', exhaust: 1,
+    desc: () => `目标的中毒层数翻倍。消耗。`, play: (g, u, t) => g.poison(t, t.st.poison || 0) },
+  alchemy: { ch: 'witch', name: '炼金爆发', type: 'atk', rar: 'u', cost: [2, 2], icon: 'ic_vortex', tgt: 'one',
+    desc: u => `造成 5 点伤害，本回合每用过 1 瓶药，再打 1 次（每次 ${v(u, 5, 7)} 点）。`, play: (g, u, t) => g.attack(t, v(u, 5, 7), 1 + (g.p.pot || 0)) },
+  plague: { ch: 'witch', name: '疫病', type: 'power', rar: 'u', cost: [1, 1], icon: 'sk_undead', tgt: 'self',
+    desc: u => `每回合开始时，给予所有敌人 ${v(u, 2, 3)} 层中毒。`, play: (g, u) => g.self('plague', v(u, 2, 3)) },
+  satchel: { ch: 'witch', name: '药剂腰包', type: 'power', rar: 'u', cost: [1, 0], icon: 'goldbag', tgt: 'self',
+    desc: () => `每回合开始时，随机获得 1 瓶药。`, play: g => g.self('satchel', 1) },
+  sage: { ch: 'witch', name: '贤者之石', type: 'power', rar: 'r', cost: [2, 1], icon: 'ic_gods', tgt: 'self',
+    desc: () => `药瓶的效果翻倍。`, play: g => g.self('sage', 1) },
+  deadly: { ch: 'witch', name: '毒爆', type: 'atk', rar: 'r', cost: [2, 2], icon: 'sk_dcoil', tgt: 'one',
+    desc: u => `清空目标的中毒，每层造成 ${v(u, 3, 4)} 点伤害。`, play: (g, u, t) => { const n = t.st.poison || 0; delete t.st.poison; if (n) g.attack(t, n * v(u, 3, 4)); } },
+
   // ======== 共用 ========
   defend: { name: '闪避', type: 'skill', rar: 'start', cost: [1, 1], icon: 'p_dodge', tgt: 'self',
     desc: u => `获得 ${v(u, 5, 8)} 点格挡。`, play: (g, u) => g.block(v(u, 5, 8)) },
@@ -126,6 +167,7 @@ export const CARDS = {
 for (const [k, c] of Object.entries(CARDS)) { c.id = k; if (c.ch === 'hero' || c.ch === 'heroine') c.icon = 'icons2/' + k; c.img = I(c.icon); }
 export const STARTERS = {
   hero: ['shoot', 'shoot', 'shoot', 'shoot', 'defend', 'defend', 'defend', 'defend', 'load', 'charge'],
+  witch: ['zap', 'zap', 'zap', 'zap', 'defend', 'defend', 'defend', 'defend', 'brew', 'needle'],
   miko: ['arrow', 'arrow', 'arrow', 'arrow', 'defend', 'defend', 'defend', 'defend', 'kekkai', 'hama'],
   heroine: ['note', 'note', 'note', 'note', 'defend', 'defend', 'defend', 'defend', 'spread', 'high'],
 };
@@ -134,6 +176,9 @@ export const STARTER = STARTERS.hero;
 export const RELICS = {
   gameboy: { ch: 'hero', name: '掌机', icon: 'gb', rar: 'start', desc: '战斗开始时得到 3 发光弹。战斗结束时回复 6 点生命。' },
   phones: { ch: 'heroine', name: '粉色耳机', icon: 'ic_bell', rar: 'start', desc: '战斗开始时给予所有敌人 3 层共鸣。战斗结束时回复 6 点生命。' },
+  cauldron: { ch: 'witch', name: '魔女的坩埚', icon: 'pot', rar: 'start', desc: '战斗开始时随机获得 2 瓶药。战斗结束时回复 6 点生命。' },
+  toad: { ch: 'witch', name: '蟾蜍干', icon: 'b_curse', rar: 'c', desc: '每次给予中毒时，额外 +1 层。' },
+  hat: { ch: 'witch', name: '魔女帽', icon: 'sk_shadow', rar: 'u', desc: '每使用 1 瓶药，获得 2 点格挡。' },
   suzu: { ch: 'miko', name: '神乐铃', icon: 'ic_bell', rar: 'start', desc: '战斗开始时结界 +2。战斗结束时回复 6 点生命。' },
   omamori: { ch: 'miko', name: '御守', icon: 'm_ward', rar: 'c', desc: '每场战斗开始时，结界 +1。' },
   hamaya: { ch: 'miko', name: '破魔矢', icon: 'ic_bow', rar: 'u', desc: '回合开始时，若结界不少于 3 层，抽 1 张牌。' },
@@ -168,6 +213,8 @@ export const STATUS = {
   gen: ['扩容', '回合开始得到光弹', '#60d0ff'], rapid: ['连发', '打出光弹时获得格挡', '#60d0ff'], dual: ['双持', '光弹伤害增加', '#60d0ff'],
   lowf: ['低频', '回合开始给所有敌人共鸣', '#ff80c0'], dist: ['失真', '爆音后保留一半共鸣', '#ff80c0'], concert: ['演唱会', '出牌时给所有敌人共鸣', '#ff80c0'],
   kek: ['结界', '回合开始时按层数获得格挡', '#ffd060'], kagura: ['神乐舞', '回合开始结界 +1', '#ffd060'], shinboku: ['御神木', '结界格挡翻倍', '#ffd060'],
+  poison: ['中毒', '回合开始时受到等同层数的伤害（无视格挡），然后减 1 层', '#70d040'], plague: ['疫病', '回合开始给所有敌人中毒', '#70d040'],
+  satchel: ['药剂腰包', '回合开始获得药瓶', '#c090ff'], sage: ['贤者之石', '药瓶效果翻倍', '#c090ff'],
   heal: ['自愈', '回合结束回复生命', '#50d080'], aegis: ['圣盾', '免疫所有伤害', '#ffe070'],
 };
 
