@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=boss11041900';
-import { createAudio } from './audio.js?v=boss11041900';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=boss11041900';
+import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=full11042040';
+import { createAudio } from './audio.js?v=full11042040';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=full11042040';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -28,8 +28,10 @@ const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.f
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
 // ---------- 缩放 ----------
-function fit() { const s = Math.min(innerWidth / 1280, innerHeight / 720); stage.style.transform = `scale(${s})`; stage.style.left = (innerWidth - 1280 * s) / 2 + 'px'; stage.style.top = (innerHeight - 720 * s) / 2 + 'px'; stage._s = s; }
-addEventListener('resize', fit); fit();
+let SW = 1280;
+function fit() { const ar = innerWidth / innerHeight; SW = Math.round(Math.max(1280, Math.min(1720, 720 * ar))); const s = Math.min(innerWidth / SW, innerHeight / 720);
+  stage.style.width = SW + 'px'; document.documentElement.style.setProperty('--sw', SW + 'px'); stage.style.transform = `scale(${s})`; stage.style.left = (innerWidth - SW * s) / 2 + 'px'; stage.style.top = (innerHeight - 720 * s) / 2 + 'px'; stage._s = s; }
+addEventListener('resize', fit); addEventListener('orientationchange', () => setTimeout(fit, 250)); fit();
 stage.addEventListener('scroll', () => { stage.scrollTop = 0; stage.scrollLeft = 0; });
 
 // ---------- 局 ----------
@@ -509,7 +511,7 @@ function flyCard(el, type) {
   cl.style.cssText = `position:absolute;left:${(r.left - sr.left) / sc}px;top:${(r.top - sr.top) / sc}px;z-index:80;transform:none;margin:0`;
   fxl.appendChild(cl); cl.getBoundingClientRect();
   cl.style.transition = 'left .2s ease-out,top .2s ease-out,transform .2s ease-out';
-  cl.style.left = '565px'; cl.style.top = '170px'; cl.style.transform = 'scale(1.3)';
+  cl.style.left = (SW / 2 - 75) + 'px'; cl.style.top = '170px'; cl.style.transform = 'scale(1.3)';
   setTimeout(() => { cl.style.transition = 'all .28s ease-in'; cl.style.opacity = '0'; cl.style.transform = type === 'power' ? 'scale(1.8)' : 'translate(480px,330px) scale(.3) rotate(25deg)'; }, 360);
   setTimeout(() => cl.remove(), 700);
 }
@@ -623,7 +625,7 @@ function render() {
       <div class="sprw" ${ENEMIES[e.key].hdw ? `style="width:${ENEMIES[e.key].hdw}px"` : ''}>${hd ? `<img class="spr" decoding="async" data-eid="${e.id}" src="${eFrame(e)}" style="height:${hd}px${ENEMIES[e.key].tint ? ';filter:' + ENEMIES[e.key].tint : ''}">` : `<img class="spr px" data-k="${e.key}" src="assets/enemies/${e.key}/${img}.png" style="zoom:${h}">`}<i class="shd"></i></div>
       ${barHTML(e.hp, e.max, e.block)}${stsHTML(e.st)}<div class="uname">${e.d.name}</div></div>`;
   }).join('');
-  const energy = B.p.energy, n = B.hand.length, W = 980, cw = 150, gap = Math.min(cw + 6, (W - cw) / Math.max(1, n - 1));
+  const energy = B.p.energy, n = B.hand.length, W = SW - 300, cw = 150, gap = Math.min(cw + 6, (W - cw) / Math.max(1, n - 1));
   const x0 = (W - (gap * (n - 1) + cw)) / 2;
   const hand = B.hand.map((c, i) => {
     const mid = (n - 1) / 2, rot = (i - mid) * 3, dy = Math.abs(i - mid) * Math.abs(i - mid) * 2.2, sel = B.sel === i;
@@ -818,7 +820,7 @@ let kwTimer = 0;
 function kwShow(el) { if (!SET.kwtip) return; const c = { id: el.dataset.cid, up: +el.dataset.up }; if (!CARDS[c.id]) return; const L = kwList(c); kwHide(); if (!L.length) return;
   const s = stage._s || 1, sr = stage.getBoundingClientRect(), r = el.getBoundingClientRect(), b = document.createElement('div'); b.id = 'kwtip';
   b.innerHTML = L.map(([k, v]) => `<p><b>${k}</b>${v}</p>`).join('') + '<i>设置里可关闭提示</i>'; stage.appendChild(b);
-  let x = (r.right - sr.left) / s + 8, y = (r.top - sr.top) / s; if (x + 230 > 1280) x = (r.left - sr.left) / s - 238; y = Math.max(50, Math.min(y, 720 - b.offsetHeight - 8)); b.style.left = x + 'px'; b.style.top = y + 'px'; }
+  let x = (r.right - sr.left) / s + 8, y = (r.top - sr.top) / s; if (x + 230 > SW) x = (r.left - sr.left) / s - 238; y = Math.max(50, Math.min(y, 720 - b.offsetHeight - 8)); b.style.left = x + 'px'; b.style.top = y + 'px'; }
 function kwHide() { clearTimeout(kwTimer); $('#kwtip')?.remove(); }
 stage.addEventListener('mouseover', e => { const el = e.target.closest && e.target.closest('.card[data-cid]'); if (el && e.pointerType !== 'touch') kwShow(el); });
 stage.addEventListener('mouseout', e => { const el = e.target.closest && e.target.closest('.card[data-cid]'); if (el && !el.contains(e.relatedTarget)) kwHide(); });

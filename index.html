@@ -2,7 +2,8 @@
 <html lang="zh">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#000000"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="assets/icon192.png">
 <title>通往顶端 The Way Up: Otherworld Deck</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -15,7 +16,7 @@ button{font-family:inherit;cursor:pointer}
 .btn:hover{filter:brightness(1.2)}.btn:disabled{filter:grayscale(1) brightness(.6);cursor:default}
 /* 背景 */
 .bg{position:absolute;inset:0;background:#1a2414}
-.bg .full{position:absolute;left:0;top:0;width:1280px;height:720px}
+.bg .full{position:absolute;left:0;top:0;width:100%;height:720px;object-fit:cover}
 .bg .light{position:absolute;inset:0;background:radial-gradient(ellipse 60% 55% at 22% 18%,rgba(255,220,140,.28),transparent 70%)}
 .bg .vig{position:absolute;inset:0;background:radial-gradient(ellipse 75% 70% at 50% 52%,transparent 45%,rgba(8,6,2,.72))}
 .bg.dim::after{content:'';position:absolute;inset:0;background:rgba(10,8,4,.2)}
@@ -41,7 +42,7 @@ button{font-family:inherit;cursor:pointer}
 .card .cost.no{background:radial-gradient(circle at 40% 35%,#9a9a9a,#454545 70%);color:#ff9a8a}
 .card .ctype{display:none}
 /* 战斗 */
-#hero{position:absolute;left:180px;bottom:200px;text-align:center}
+#hero{position:absolute;left:calc(180px + (var(--sw,1280px) - 1280px) / 4);bottom:200px;text-align:center}
 .unit{position:relative;display:flex;flex-direction:column;align-items:center}
 .unit .sprw{position:relative;display:block}
 .unit .spr{display:block;transform-origin:50% 100%;position:relative;z-index:1}
@@ -59,7 +60,7 @@ button{font-family:inherit;cursor:pointer}
 .sts b{font-size:11px;padding:1px 4px;border-radius:4px;background:rgba(0,0,0,.6);border:1px solid;cursor:help;font-weight:normal}
 .uname{font-size:13px;color:#ffe9b8;margin-top:2px;text-shadow:0 1px 2px #000;opacity:0;transition:opacity .15s}
 .unit:hover .uname{opacity:1}
-#enemies{position:absolute;right:200px;bottom:200px;display:flex;align-items:flex-end;gap:20px}
+#enemies{position:absolute;right:calc(200px + (var(--sw,1280px) - 1280px) / 4);bottom:200px;display:flex;align-items:flex-end;gap:20px}
 .enemy{cursor:default;pointer-events:none}.enemy .sprw{pointer-events:auto}.enemy .spr{pointer-events:none}
 .enemy.tg{cursor:crosshair}.enemy.tg:hover .spr{filter:brightness(1.25) sepia(.3) hue-rotate(-20deg)}
 .intent img{width:28px;height:28px;vertical-align:middle;margin-right:2px}
@@ -223,6 +224,6 @@ button{font-family:inherit;cursor:pointer}
 <body>
 <div id="rot"><div class="ph"></div><div>请把手机横过来玩</div><div style="font-size:15px;color:#c8b890">Please rotate your device</div></div>
 <div id="stage"><div id="view"></div><div id="fx"></div></div>
-<script type="module" src="src/game.js?v=boss11041900"></script>
+<script type="module" src="src/game.js?v=full11042040"></script>
 </body>
 </html>
