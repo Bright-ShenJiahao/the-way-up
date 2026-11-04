@@ -420,7 +420,7 @@ function startTurn(first) {
   if (B.p.st.kagura) G.kek(B.p.st.kagura);
   if (B.p.st.kek) G.block(B.p.st.kek * (B.p.st.shinboku ? 2 : 1), true);
   if (has('hamaya') && (B.p.st.kek || 0) >= 3) drawCards(1);
-  B.p.oc = 0; B.p.aoe = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(1);
+  B.p.oc = 0; B.p.aoe = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(2);
   if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
   drawCards(5 + (first && has('scroll') ? 2 : 0));
