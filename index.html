@@ -220,6 +220,10 @@ button{font-family:inherit;cursor:pointer}
 .touch .node{transform:scale(1.25)}
 .touch .btn{min-height:54px;padding-left:22px;padding-right:22px;font-size:20px}.touch .btn.opt{min-height:64px}.touch #kwtip{width:300px;font-size:17px}.touch .pot{width:54px;height:54px}.touch .card.peek{z-index:60}
 
+/* ===== 拖动出牌 ===== */
+#hand .card{touch-action:none}#hand .card img,#hand .card *{-webkit-user-drag:none;user-select:none}#hand .card.dragging,#hand .card.dragging:hover{transition:none!important;z-index:80!important;transform:var(--dt)!important}#hand .card.ready{filter:drop-shadow(0 0 14px #ffd35a)}
+#aimline{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:85;overflow:visible}
+.enemy.aim .sprw{filter:drop-shadow(0 0 10px #ffd35a) drop-shadow(0 0 4px #fff)}
 /* ===== 手机专用布局 ===== */
 .intent,.sts b{pointer-events:auto}
 .touch #top{height:60px;font-size:24px;gap:18px}.touch #top .tb{font-size:21px;min-height:46px;padding:4px 14px}
@@ -232,8 +236,13 @@ button{font-family:inherit;cursor:pointer}
 .touch #hand .card.peek:hover,.touch #hand .card.peek{transform:translateY(-120px) scale(1.3) rotate(0deg)!important}
 .touch #energy{zoom:1.15;bottom:150px;left:10px}.touch #endturn{bottom:175px;width:250px;height:84px;font-size:26px}
 .touch .panel p{font-size:23px}.touch .panel h2{font-size:34px}.touch .csel .cd,.touch .csel .diff,.touch .csel .ct{font-size:118%}.touch .ascbar{font-size:18px}
-.touch .legend,.touch #legend{zoom:1.4;right:auto;left:10px;top:90px}.touch #mapin{zoom:1.22}.touch .setw .langbar{zoom:1.5}.touch #kwtip{width:340px;font-size:20px}.touch #kwtip p{font-size:20px;line-height:1.4}
+.touch .legend,.touch #legend{zoom:1.4;right:auto;left:10px}.touch #mapin{zoom:1.22}.touch .setw .langbar{zoom:1.5}.touch #kwtip{width:340px;font-size:20px}.touch #kwtip p{font-size:20px;line-height:1.4}
 .touch .fxn{font-size:150%}
+.touch .overlay>*:not(.setw):not(.bookw):not(.panel){zoom:1.7}.touch #view>.panel:not(.csel){zoom:1.22}.touch #view>.panel.evp{width:900px!important;top:55%}.touch .evp img{width:230px!important;float:left;margin:0 18px 8px 0!important}.touch .evp h2{margin-bottom:6px}
+.touch .bookw{width:calc(var(--sw,1280px) - 60px);height:690px}.touch .bookw .tabs b{font-size:26px}
+.touch .bbody{zoom:1.3}.touch .bgrid.cards{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+.touch .ascbar{font-size:21px}.touch .ascbar span{font-size:18px;max-width:none}.touch .ascbar .btn{font-size:24px;padding:4px 18px}.touch .ascbar b{font-size:28px}
+.touch #legend{top:150px}
 .touch .setw{width:calc(var(--sw,1280px) - 80px);padding:14px 22px}.touch .setw .sgrid{grid-template-columns:1fr 1fr 1fr;gap:12px}.touch .setw .sbox:nth-child(5){grid-column:span 2}
 .touch .setw .sbox{font-size:20px;padding:8px 16px}.touch .setw .sbox h3{font-size:24px;margin-bottom:6px}.touch .setw .sl span{width:96px}.touch .ck input{width:26px;height:26px}.touch .setw .inp.sm{font-size:20px;width:220px}
 .touch .tabs b{font-size:24px;padding:10px 40px}.touch .setw .tp{padding:12px;margin-bottom:8px}
@@ -243,6 +252,6 @@ button{font-family:inherit;cursor:pointer}
 <body>
 <div id="rot"><div class="ph"></div><div>请把手机横过来玩</div><div style="font-size:15px;color:#c8b890">Please rotate your device</div></div>
 <div id="stage"><div id="view"></div><div id="fx"></div></div>
-<script type="module" src="src/game.js?v=mob11042125"></script>
+<script type="module" src="src/game.js?v=drag11050000"></script>
 </body>
 </html>

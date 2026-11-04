@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=mob11042125';
-import { createAudio } from './audio.js?v=mob11042125';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=mob11042125';
+import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=drag11050000';
+import { createAudio } from './audio.js?v=drag11050000';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=drag11050000';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -29,7 +29,7 @@ const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(
 
 // ---------- 缩放 ----------
 let SW = 1280;
-function fit() { const ar = innerWidth / innerHeight; SW = Math.round(Math.max(1280, Math.min(1720, 720 * ar))); const s = Math.min(innerWidth / SW, innerHeight / 720);
+function fit() { const ar = innerWidth / innerHeight; SW = Math.round(Math.max(1280, Math.min(2000, 720 * ar))); const s = Math.min(innerWidth / SW, innerHeight / 720);
   stage.style.width = SW + 'px'; document.documentElement.style.setProperty('--sw', SW + 'px'); stage.style.transform = `scale(${s})`; stage.style.left = (innerWidth - SW * s) / 2 + 'px'; stage.style.top = (innerHeight - 720 * s) / 2 + 'px'; stage._s = s; }
 addEventListener('resize', fit); addEventListener('orientationchange', () => setTimeout(fit, 250)); fit();
 stage.addEventListener('scroll', () => { stage.scrollTop = 0; stage.scrollLeft = 0; });
@@ -490,7 +490,7 @@ async function playCard(i, tgt) {
   if (!B || B.busy || B.over || B.anim) return; const b0 = B;
   const c = B.hand[i], d = CARDS[c.id]; let cost = cardCost(c);
   if (cost === 'X') cost = B.p.energy; if (cost > B.p.energy) { tip('能量不足'); return; }
-  if (d.tgt === 'one' && !tgt) { const a = alive(); if (a.length === 1) tgt = a[0]; else { B.sel = B.sel === i ? -1 : i; render(); return; } }
+  if (d.tgt === 'one' && !tgt) { const a = alive(); if (a.length === 1) tgt = a[0]; else { B.sel = B.sel === i ? -1 : i; B.aimI = 0; render(); return; } }
   B.hitSet = new Set();
   const el = view.querySelector(`#hand .card[data-i="${i}"]`);
   B.p.energy -= cost; G.x = cost; B.hand.splice(i, 1); B.sel = -1; B.anim = true;
@@ -645,9 +645,9 @@ function render() {
   $('#drawp').onclick = () => showPile('抽牌堆（顺序已打乱）', [...B.draw].sort((a, b) => a.id < b.id ? -1 : 1));
   $('#discp').onclick = () => showPile('弃牌堆', B.disc);
   $('#exhp').onclick = () => showPile('消耗', B.exh);
-  view.querySelectorAll('#hand .card').forEach(el => el.onclick = ev => { ev.stopPropagation(); const i = +el.dataset.i; if (TOUCH && B.peek !== i) { B.peek = i; view.querySelectorAll('#hand .card.peek').forEach(x => x.classList.remove('peek')); el.classList.add('peek'); kwShow(el); return; } B.peek = null; kwHide(); playCard(i); });
+  view.querySelectorAll('#hand .card').forEach(el => el.onclick = ev => { ev.stopPropagation(); if (TOUCH || DRAGGED) return; kwHide(); playCard(+el.dataset.i); });
   view.querySelectorAll('.enemy').forEach(el => el.onclick = () => { if (B.potSel != null) { const e = B.en.find(x => x.id === el.dataset.eid); if (e && !e.dead) usePotion(B.potSel, e); return; } if (B.sel >= 0) { const e = B.en.find(x => x.id === el.dataset.eid); if (e && !e.dead) playCard(B.sel, e); } });
-  flushFx(); dbgPanel();
+  flushFx(); dbgPanel(); aimMark();
 }
 function flushFx() {
   const s = stage._s || 1, sr = stage.getBoundingClientRect();
@@ -694,7 +694,30 @@ addEventListener('keydown', e => { if (e.target && e.target.tagName === 'INPUT')
   if (e.key === 'e' || e.key === 'E') endTurn();
   else if (e.key === 'Escape') { B.sel = -1; render(); }
   else if (/^[0-9]$/.test(e.key)) { const i = (+e.key + 9) % 10; if (i < B.hand.length) playCard(i); }
+  else if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && B.sel >= 0) { const a = alive(); B.aimI = ((B.aimI || 0) + (e.key === 'ArrowRight' ? 1 : -1) + a.length) % a.length; aimMark(); e.preventDefault(); }
+  else if ((e.key === 'Enter' || e.key === ' ') && B.sel >= 0) { const a = alive(); e.preventDefault(); playCard(B.sel, a[(B.aimI || 0) % a.length]); }
+  else if (e.key === 'q' || e.key === 'Q') $('#tbdeck')?.click();
 });
+function aimMark(id) { view.querySelectorAll('.enemy.aim').forEach(x => x.classList.remove('aim')); if (!B) return; if (id === undefined) { if (B.sel < 0) return; const a = alive(); const e = a[(B.aimI || 0) % a.length]; id = e && e.id; } if (id) view.querySelector(`.enemy[data-eid="${id}"]`)?.classList.add('aim'); }
+/* 拖动出牌：手机只拖动，电脑点击和拖动都可以 */
+let DR = null, DRAGGED = false;
+const stXY = ev => { const s = stage._s || 1, r = stage.getBoundingClientRect(); return [(ev.clientX - r.left) / s, (ev.clientY - r.top) / s]; };
+const enemyAt = ev => { const el = document.elementFromPoint(ev.clientX, ev.clientY); const en = el && el.closest && el.closest('.enemy'); const e = en && B && B.en.find(x => x.id === en.dataset.eid); return e && !e.dead ? e : null; };
+function dragEnd(cancel) { if (!DR) return; $('#aimline')?.remove(); aimMark(null); const d = DR; DR = null; if (cancel || !B) { render(); return; } }
+view.addEventListener('pointerdown', ev => { const el = ev.target.closest && ev.target.closest('#hand .card'); if (!el || !B || B.busy || B.over || B.anim || ev.button > 0) return;
+  const i = +el.dataset.i, c = B.hand[i]; if (!c) return; const [x, y] = stXY(ev), r = el.getBoundingClientRect(), s = stage._s || 1, sr = stage.getBoundingClientRect();
+  DR = { i, el, x0: x, y0: y, moved: false, tgt: CARDS[c.id].tgt === 'one' && alive().length > 1, cx: (r.left + r.width / 2 - sr.left) / s, cy: (r.top - sr.top) / s + 20 };
+  ev.preventDefault(); DRAGGED = false; if (TOUCH) { view.querySelectorAll('#hand .card.peek').forEach(x => x.classList.remove('peek')); el.classList.add('peek'); kwShow(el); } });
+addEventListener('pointermove', ev => { if (!DR || !B) return; const [x, y] = stXY(ev); if (!DR.moved && Math.hypot(x - DR.x0, y - DR.y0) < 14) return;
+  if (!DR.moved) { DR.moved = true; DRAGGED = true; kwHide(); DR.el.classList.remove('peek'); DR.el.classList.add('dragging'); }
+  if (DR.tgt) { DR.el.style.setProperty('--dt', 'translateY(-60px) rotate(0deg)'); let ln = $('#aimline'); if (!ln) { ln = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); ln.id = 'aimline'; ln.setAttribute('style', `position:absolute;left:0;top:0;width:${SW}px;height:720px;z-index:85;pointer-events:none;overflow:visible`); ln.innerHTML = '<path d="" stroke="#ffd35a" stroke-width="10" fill="none" stroke-dasharray="18 10" stroke-linecap="round"/><circle r="16" fill="none" stroke="#ffd35a" stroke-width="6"/>'; stage.appendChild(ln); }
+    const mx = (DR.cx + x) / 2, my = Math.min(DR.cy, y) - 120; ln.querySelector('path').setAttribute('d', `M${DR.cx},${DR.cy - 60} Q${mx},${my} ${x},${y}`); const ci = ln.querySelector('circle'); ci.setAttribute('cx', x); ci.setAttribute('cy', y); const e = enemyAt(ev); aimMark(e ? e.id : null); }
+  else { DR.el.style.setProperty('--dt', `translate(${x - DR.x0}px,${y - DR.y0}px) scale(1.08)`); DR.el.classList.toggle('ready', y < 470); } });
+addEventListener('pointerup', ev => { if (!DR || !B) { DR = null; return; } const d = DR, [x, y] = stXY(ev);
+  if (!d.moved) { DR = null; if (TOUCH) { d.el.classList.remove('peek'); kwHide(); } return; }
+  const e = d.tgt ? enemyAt(ev) : null; dragEnd(true); setTimeout(() => { DRAGGED = false; }, 50);
+  if (d.tgt) { if (e) playCard(d.i, e); } else if (y < 470) playCard(d.i); });
+addEventListener('pointercancel', () => dragEnd(true));
 view.addEventListener('contextmenu', e => { if (B && B.sel >= 0) { e.preventDefault(); B.sel = -1; render(); } });
 
 // ---------- 战后奖励 ----------
@@ -778,7 +801,7 @@ function eventScreen() {
   let result = null;
   const img = ev.img === 'gb' ? 'assets/icons/gb.png' : `assets/icons/${ev.img}.png`;
   const draw2 = () => {
-    view.innerHTML = `${bgHTML()}${topBar()}<div class="panel" style="width:620px"><h2>${ev.title}</h2><img src="${ev.pic ? 'assets/events/' + ev.pic + '.jpg' : img}" style="${ev.pic ? 'width:360px;border-radius:10px;border:3px solid #c9a35a;margin:-4px 0 6px' : 'width:110px;margin-bottom:8px'}">
+    view.innerHTML = `${bgHTML()}${topBar()}<div class="panel evp" style="width:620px"><h2>${ev.title}</h2><img src="${ev.pic ? 'assets/events/' + ev.pic + '.jpg' : img}" style="${ev.pic ? 'width:360px;border-radius:10px;border:3px solid #c9a35a;margin:-4px 0 6px' : 'width:110px;margin-bottom:8px'}">
      <p>${result || ev.text}</p>${result ? '<button class="btn" id="go">继续前进</button>' : ev.opts.map((o, i) => `<button class="btn opt" data-i="${i}" ${o.ok && !o.ok(R) ? 'disabled' : ''}>${o.t}</button>`).join('')}</div>`;
     bindTop();
     view.querySelectorAll('.opt').forEach(el => el.onclick = () => { result = ev.opts[+el.dataset.i].go(R, A); draw2(); });
