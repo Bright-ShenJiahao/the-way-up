@@ -314,7 +314,7 @@ export const ENEMIES = {
   gob_warlord: { name: '狼骑统领', art: 'gob_wolf', tint: 'hue-rotate(320deg) saturate(1.5) brightness(.9)', hp: [155, 155], sc: 2.9, hd: 330, hdw: 300, boss: 1,
     moves: { maul: { n: '狼群撕咬', i: 'atk', d: 7, x: 2 }, howl: { n: '战嚎', i: 'atkdebuff', d: 8, f: (e, B) => B.applyP('weak', 2) },
       pack: { n: '呼唤狼群', i: 'summon', f: (e, B) => { for (let k = 0; k < 2 && B.alive().length < 3; k++) B.summon('wolf', 0); } },
-      charge: { n: '冲锋', i: 'atk', d: 18 } },
+      charge: { n: '冲锋', i: 'atk', d: 15 } },
     ai: (e, B) => { const m = cycle(e, ['pack', 'maul', 'howl', 'charge']); return m === 'pack' && B.alive().length >= 3 ? 'maul' : m; } },
 };
 
