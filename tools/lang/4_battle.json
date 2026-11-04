@@ -1,92 +1,526 @@
 {
-"格挡": ["Block", "ブロック"], "易伤": ["Vulnerable", "脆弱"], "虚弱": ["Weak", "弱体"], "力量": ["Strength", "筋力"], "敏捷": ["Dexterity", "敏捷"],
-"荆棘": ["Thorns", "トゲ"], "光弹": ["Ammo", "光弾"], "共鸣": ["Resonance", "共鳴"], "爆音": ["Burst", "爆音"], "结界": ["Ward", "結界"],
-"中毒": ["Poison", "毒"], "炼金瓶": ["Flask", "錬金瓶"], "金属化": ["Metallicize", "金属化"], "狂暴": ["Berserk", "狂暴"], "不动如山": ["Steadfast", "不動"],
-"再生": ["Regen", "再生"], "激怒": ["Enrage", "激昂"], "战意": ["Ritual", "戦意"], "引信": ["Fuse", "導火線"], "自愈": ["Self-Heal", "自己回復"], "圣盾": ["Aegis", "聖盾"],
-"扩容": ["Big Battery", "大容量"], "连发": ["Auto", "連射"], "双持": ["Dual Wield", "二丁持ち"], "低频": ["Low Freq", "低周波"], "失真": ["Distortion", "歪み"],
-"演唱会": ["Concert", "ライブ"], "神乐舞": ["Kagura", "神楽舞"], "御神木": ["Sacred Tree", "御神木"], "疫病": ["Plague", "疫病"], "药剂腰包": ["Potion Belt", "薬ポーチ"], "贤者之石": ["Stone", "賢者の石"],
-"攻击伤害增加": ["Attacks deal more damage", "攻撃ダメージ増加"],
-"获得的格挡增加": ["Gain more Block", "得るブロック増加"],
-"受到的攻击伤害 {0}": ["Take {0} attack damage", "受ける攻撃ダメージ{0}"],
-"造成的攻击伤害 {0}": ["Deal {0} attack damage", "与える攻撃ダメージ{0}"],
-"回合结束获得格挡": ["Gain Block at end of turn", "ターン終了時ブロック"],
-"被攻击时反伤": ["Damage attackers", "攻撃者に反撃"],
-"回合开始获得力量": ["Gain Strength each turn", "毎ターン筋力"],
-"格挡不消失": ["Block doesn't expire", "ブロックが消えない"],
-"回合结束回复生命": ["Heal at end of turn", "ターン終了時回復"],
-"你每打出一张技能牌，它获得力量": ["Gains Strength when you play a Skill", "スキル使用で筋力上昇"],
-"回合结束获得力量": ["Gains Strength at end of turn", "ターン終了時に筋力"],
-"归零时自爆": ["Explodes at 0", "0で自爆"],
-"免疫所有伤害": ["Immune to all damage", "全ダメージ無効"],
-"回合结束时自动射出，每发对随机敌人造成 {0} 点伤害，然后清零（最多 {1} 发）": ["Fires at end of turn: {0} damage to a random enemy each, then resets (max {1})", "ターン終了時に自動発射、1発{0}ダメージ（ランダムな敵）、その後0に（最大{1}）"],
-"叠到 {0} 层时爆音，造成 {1} 点伤害，之后保留 {2} 层（多出的也保留）": ["At {0}, Bursts for {1} damage, then keeps {2} (plus any extra)", "{0}で爆音、{1}ダメージ。その後{2}残る（超過分も残る）"],
-"回合开始得到光弹": ["Gain Ammo each turn", "毎ターン光弾"],
-"回合结束射出光弹时获得格挡": ["Gain Block when Ammo fires", "光弾発射でブロック"],
-"每发光弹伤害增加": ["Each Ammo deals more", "光弾ダメージ増加"],
-"回合开始给所有敌人共鸣": ["Resonance to all each turn", "毎ターン敵全体に共鳴"],
-"爆音后保留一半共鸣": ["Keeps Resonance after Burst", "爆音後も共鳴が残る"],
-"出牌时给所有敌人共鸣": ["Cards give all enemies Resonance", "カード使用で敵全体に共鳴"],
-"回合开始时按层数获得格挡": ["Gain Block per stack each turn", "毎ターン層数ぶんブロック"],
-"回合开始结界 {0}": ["Ward {0} each turn", "毎ターン結界{0}"],
-"结界格挡翻倍": ["Double Ward Block", "結界ブロック2倍"],
-"回合开始时受到等同层数的伤害（无视格挡），然后减 {0} 层": ["Loses HP equal to stacks each turn (ignores Block), then {0}", "毎ターン層数ぶんHPを失い（ブロック無視）、層が{0}減る"],
-"回合开始给所有敌人中毒": ["Poison all enemies each turn", "毎ターン敵全体に毒"],
-"回合开始获得炼金瓶": ["Gain a Flask each turn", "毎ターン錬金瓶"],
-"炼金瓶效果翻倍": ["Double Flask effects", "錬金瓶効果2倍"],
-"抵挡受到的伤害。你的回合开始时清零。": ["Blocks damage. Resets at the start of your turn.", "ダメージを防ぐ。自分のターン開始時に消える。"],
-"受到的攻击伤害 {0}，每回合减 {1} 层。": ["Takes {0} attack damage. Goes down by {1} each turn.", "受ける攻撃ダメージ{0}。毎ターン{1}減る。"],
-"造成的攻击伤害 {0}，每回合减 {1} 层。": ["Deals {0} attack damage. Goes down by {1} each turn.", "与える攻撃ダメージ{0}。毎ターン{1}減る。"],
-"每次攻击伤害增加等同于力量的数值。": ["Each attack deals extra damage equal to Strength.", "攻撃ダメージが筋力ぶん増える。"],
-"每次获得格挡时额外增加等同于敏捷的数值。": ["Each time you gain Block, gain extra equal to Dexterity.", "ブロックを得るたび敏捷ぶん増える。"],
-"打出后移出本场战斗，不进弃牌堆。": ["Removed for the rest of the battle after playing.", "使うとこの戦闘から除外される。"],
-"被攻击时，对攻击者造成等同于层数的伤害。": ["When attacked, deal damage equal to stacks back.", "攻撃されると層数ぶん反撃ダメージ。"],
-"出牌要花能量，每回合开始恢复为 {0} 点。": ["Cards cost Energy. Refills to {0} each turn.", "カードにはエナジーが必要。毎ターン{0}に回復。"],
-"林拓的掌机子弹。回合结束时自动射出，每发对随机敌人造成 {0} 点伤害，然后清零。最多 {1} 发。": ["Lin's handheld bullets. Fire at end of turn for {0} damage each to random enemies, then reset. Max {1}.", "リンのゲーム機の弾。ターン終了時に自動発射、1発{0}ダメージ（ランダムな敵）、その後0に。最大{1}。"],
-"叠在敌人身上，到 {0} 层自动爆音。": ["Stacks on enemies. Bursts at {0}.", "敵に重なり、{0}で爆音。"],
-"敌人行动前受到等同层数的伤害（无视格挡），然后减 {0} 层。": ["Before acting, the enemy loses HP equal to stacks (ignores Block), then loses {0} stack.", "敵は行動前に層数ぶんHPを失い（ブロック無視）、層が{0}減る。"],
-"魔女的 {0} 费一次性牌，由其他牌生成，用完消耗。": ["The Witch's {0}-cost one-shot cards, made by other cards. Exhausted after use.", "魔女のコスト{0}の使い切りカード。他のカードで生成。"],
-"所有角色通用的一次性道具，最多带 {0} 瓶，战斗中点左上角的药水就能用，不花能量。": ["One-use items for any hero. Carry up to {0}. Tap one at the top left in battle; no Energy needed.", "全キャラ共通の消耗品。最大{0}本。戦闘中に左上をタップで使用、エナジー不要。"],
-"叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。": ["Stacks on you. Gain Block equal to stacks each turn. Lasts all battle.", "自分に重なり、毎ターン層数ぶんブロック。戦闘中ずっと残る。"],
-"共鸣满 {0} 层时，对该敌人造成 {1} 点伤害，之后保留 {2} 层（多出的层数也保留）。": ["At {0} Resonance, the enemy takes {1} damage, then keeps {2} (plus any extra).", "共鳴が{0}になると{1}ダメージ。その後{2}残る（超過分も残る）。"],
-"叠在自己身上，每回合开始按层数自动获得格挡，整场战斗不消失。": ["Stacks on you. Gives Block equal to stacks each turn. Never goes away in battle.", "自分に重なり、毎ターン層数ぶん自動でブロック。戦闘中は消えない。"],
-"回合结束时自动射出，每发打随机敌人 {0} 点伤害，然后清零。": ["Fires at end of turn, {0} damage each to random enemies, then resets.", "ターン終了時に自動発射、1発{0}ダメージ（ランダムな敵）、その後0に。"],
-"叠在敌人身上，满 {0} 层自动「{1}」。": ["Stacks on enemies. At {0}, it Bursts.", "敵に重なり、{0}で自動的に「爆音」。"],
-"共鸣满 {0} 层时爆炸，造成 {1} 点伤害，之后保留 {2} 层。": ["At {0} Resonance it explodes for {1} damage, then keeps {2}.", "共鳴{0}で爆発、{1}ダメージ。その後{2}残る。"],
-"敌人行动前掉等于层数的血（无视格挡），然后层数 {0}。": ["Before acting, the enemy loses HP equal to stacks (ignores Block), then stacks {0}.", "敵は行動前に層数ぶんHPを失う（ブロック無視）。その後層{0}。"],
-"由其他牌生成的 {0} 费牌，用一次就没了。": ["{0}-cost cards made by other cards. One use only.", "他のカードで生まれるコスト{0}の使い切りカード。"],
-"打出后整场战斗持续生效。": ["Lasts for the whole battle.", "戦闘中ずっと有効。"],
-"共鸣{0}/{1}": ["Res {0}/{1}", "共鳴{0}/{1}"],
-"共鸣{0}/{1}⚠": ["Res {0}/{1}⚠", "共鳴{0}/{1}⚠"],
-"结界{0}（下回合{1}挡）": ["Ward {0} ({1} Block)", "結界{0}（次{1}ブロック）"],
-"中毒{0}（下回合{1}）": ["Poison {0} ({1} next)", "毒{0}（次{1}）"],
-"光弹{0}（回合末{1}发）": ["Ammo {0} ({1} shots)", "光弾{0}（終了時{1}発）"],
-"光弹{0}": ["Ammo {0}", "光弾{0}"], "结界{0}": ["Ward {0}", "結界{0}"], "共鸣{0}": ["Res {0}", "共鳴{0}"], "中毒{0}": ["Poison {0}", "毒{0}"], "药瓶{0}": ["Flask {0}", "錬金瓶{0}"],
-"爆音！": ["Burst!", "爆音！"], "落马！": ["Unhorsed!", "落馬！"], "免疫": ["Immune", "無効"], "凤凰重生！": ["Phoenix rises!", "不死鳥復活！"], "复活药水！": ["Fairy saves you!", "妖精が助けた！"],
-"受到 {0}": ["Incoming {0}", "被ダメ{0}"],
-"敌人下回合共 {0} 点伤害，你有 {1} 格挡，还差 {2}": ["Enemies deal {0} next turn; you have {1} Block, {2} short", "敵の次の攻撃は計{0}、ブロック{1}、あと{2}足りない"],
-"敌人下回合共 {0} 点伤害，你有 {1} 格挡，足够": ["Enemies deal {0} next turn; you have {1} Block, enough", "敵の次の攻撃は計{0}、ブロック{1}で足りる"],
-"下回合将攻击你，伤害 {0}": ["Will attack for {0}", "次ターン攻撃、{0}ダメージ"],
-"下回合将攻击你并加格挡，伤害 {0}": ["Will attack for {0} and Block", "次ターン攻撃とブロック、{0}ダメージ"],
-"下回合将攻击你并施加负面状态，伤害 {0}": ["Will attack for {0} and debuff you", "次ターン攻撃と弱体化、{0}ダメージ"],
-"下回合将攻击你": ["Will attack", "次ターン攻撃"],
-"下回合将给自己或队友加格挡": ["Will Block itself or an ally", "次ターン自分か味方にブロック"],
-"下回合将强化自己": ["Will buff itself", "次ターン自己強化"],
-"下回合将给你施加负面状态": ["Will debuff you", "次ターンあなたを弱体化"],
-"下回合将攻击你并加格挡": ["Will attack and Block", "次ターン攻撃とブロック"],
-"下回合将攻击你并施加负面状态": ["Will attack and debuff you", "次ターン攻撃と弱体化"],
-"下回合将召唤援兵": ["Will summon help", "次ターン援軍召喚"],
-"下回合将意图不明": ["Intent unknown", "行動不明"],
-"精英战斗": ["Elite Battle", "エリート戦"], "战斗开始": ["Battle Start", "戦闘開始"],
-"敌人回合": ["Enemy Turn", "敵のターン"], "结束回合 (E)": ["End Turn (E)", "ターン終了 (E)"],
-"抽牌堆": ["Draw", "山札"], "弃牌堆": ["Discard", "捨て札"], "抽牌堆（顺序已打乱）": ["Draw Pile (shuffled)", "山札（順不同）"],
-"选择目标（Esc 取消）": ["Pick a target (Esc to cancel)", "対象を選ぶ（Escで解除）"],
-"能量不足": ["Not enough Energy", "エナジー不足"],
-"药水栏满了": ["Potion slots full", "ポーション欄がいっぱい"],
-"复活药水会在倒下时自动使用": ["The Fairy is used automatically when you fall", "妖精の瓶は倒れた時に自動で使われる"],
-"点一个敌人": ["Tap an enemy", "敵をタップ"],
-"丢掉": ["Discard", "捨てる"],
-"药水栏": ["Potion bar", "ポーション欄"],
-"事件": ["Event", "イベント"],
-"中文": ["中文", "中文"], "日本語": ["日本語", "日本語"],
-"开": ["On", "ON"], "关": ["Off", "OFF"]
+"格挡": [
+"Block",
+"ブロック"
+],
+"易伤": [
+"Vulnerable",
+"脆弱"
+],
+"虚弱": [
+"Weak",
+"弱体"
+],
+"力量": [
+"Strength",
+"筋力"
+],
+"敏捷": [
+"Dexterity",
+"敏捷"
+],
+"荆棘": [
+"Thorns",
+"トゲ"
+],
+"光弹": [
+"Ammo",
+"光弾"
+],
+"共鸣": [
+"Resonance",
+"共鳴"
+],
+"爆音": [
+"Burst",
+"爆音"
+],
+"结界": [
+"Ward",
+"結界"
+],
+"中毒": [
+"Poison",
+"毒"
+],
+"炼金瓶": [
+"Flask",
+"錬金瓶"
+],
+"金属化": [
+"Metallicize",
+"金属化"
+],
+"狂暴": [
+"Berserk",
+"狂暴"
+],
+"不动如山": [
+"Steadfast",
+"不動"
+],
+"再生": [
+"Regen",
+"再生"
+],
+"激怒": [
+"Enrage",
+"激昂"
+],
+"战意": [
+"Ritual",
+"戦意"
+],
+"引信": [
+"Fuse",
+"導火線"
+],
+"自愈": [
+"Self-Heal",
+"自己回復"
+],
+"圣盾": [
+"Aegis",
+"聖盾"
+],
+"扩容": [
+"Big Battery",
+"大容量"
+],
+"连发": [
+"Auto",
+"連射"
+],
+"双持": [
+"Dual Wield",
+"二丁持ち"
+],
+"低频": [
+"Low Freq",
+"低周波"
+],
+"失真": [
+"Distortion",
+"歪み"
+],
+"演唱会": [
+"Concert",
+"ライブ"
+],
+"神乐舞": [
+"Kagura",
+"神楽舞"
+],
+"御神木": [
+"Sacred Tree",
+"御神木"
+],
+"疫病": [
+"Plague",
+"疫病"
+],
+"药剂腰包": [
+"Potion Belt",
+"薬ポーチ"
+],
+"贤者之石": [
+"Stone",
+"賢者の石"
+],
+"攻击伤害增加": [
+"Attacks deal more damage",
+"攻撃ダメージ増加"
+],
+"获得的格挡增加": [
+"Gain more Block",
+"得るブロック増加"
+],
+"受到的攻击伤害 {0}": [
+"Take {0} attack damage",
+"受ける攻撃ダメージ{0}"
+],
+"造成的攻击伤害 {0}": [
+"Deal {0} attack damage",
+"与える攻撃ダメージ{0}"
+],
+"回合结束获得格挡": [
+"Gain Block at end of turn",
+"ターン終了時ブロック"
+],
+"被攻击时反伤": [
+"Damage attackers",
+"攻撃者に反撃"
+],
+"回合开始获得力量": [
+"Gain Strength each turn",
+"毎ターン筋力"
+],
+"格挡不消失": [
+"Block doesn't expire",
+"ブロックが消えない"
+],
+"回合结束回复生命": [
+"Heal at end of turn",
+"ターン終了時回復"
+],
+"你每打出一张技能牌，它获得力量": [
+"Gains Strength when you play a Skill",
+"スキル使用で筋力上昇"
+],
+"回合结束获得力量": [
+"Gains Strength at end of turn",
+"ターン終了時に筋力"
+],
+"归零时自爆": [
+"Explodes at 0",
+"0で自爆"
+],
+"免疫所有伤害": [
+"Immune to all damage",
+"全ダメージ無効"
+],
+"回合结束时自动射出，每发对随机敌人造成 {0} 点伤害，然后清零（最多 {1} 发）": [
+"Fires at end of turn: {0} damage to a random enemy each, then resets (max {1})",
+"ターン終了時に自動発射、1発{0}ダメージ（ランダムな敵）、その後0に（最大{1}）"
+],
+"叠到 {0} 层时爆音，造成 {1} 点伤害，之后保留 {2} 层（多出的也保留）": [
+"At {0}, Bursts for {1} damage, then keeps {2} (plus any extra)",
+"{0}で爆音、{1}ダメージ。その後{2}残る（超過分も残る）"
+],
+"回合开始得到光弹": [
+"Gain Ammo each turn",
+"毎ターン光弾"
+],
+"回合结束射出光弹时获得格挡": [
+"Gain Block when Ammo fires",
+"光弾発射でブロック"
+],
+"每发光弹伤害增加": [
+"Each Ammo deals more",
+"光弾ダメージ増加"
+],
+"回合开始给所有敌人共鸣": [
+"Resonance to all each turn",
+"毎ターン敵全体に共鳴"
+],
+"爆音后保留一半共鸣": [
+"Keeps Resonance after Burst",
+"爆音後も共鳴が残る"
+],
+"出牌时给所有敌人共鸣": [
+"Cards give all enemies Resonance",
+"カード使用で敵全体に共鳴"
+],
+"回合开始时按层数获得格挡": [
+"Gain Block per stack each turn",
+"毎ターン層数ぶんブロック"
+],
+"回合开始结界 {0}": [
+"Ward {0} each turn",
+"毎ターン結界{0}"
+],
+"结界格挡翻倍": [
+"Double Ward Block",
+"結界ブロック2倍"
+],
+"回合开始时受到等同层数的伤害（无视格挡），然后减 {0} 层": [
+"Loses HP equal to stacks each turn (ignores Block), then {0}",
+"毎ターン層数ぶんHPを失い（ブロック無視）、層が{0}減る"
+],
+"回合开始给所有敌人中毒": [
+"Poison all enemies each turn",
+"毎ターン敵全体に毒"
+],
+"回合开始获得炼金瓶": [
+"Gain a Flask each turn",
+"毎ターン錬金瓶"
+],
+"炼金瓶效果翻倍": [
+"Double Flask effects",
+"錬金瓶効果2倍"
+],
+"抵挡受到的伤害。你的回合开始时清零。": [
+"Blocks damage. Resets at the start of your turn.",
+"ダメージを防ぐ。自分のターン開始時に消える。"
+],
+"受到的攻击伤害 {0}，每回合减 {1} 层。": [
+"Takes {0} attack damage. Goes down by {1} each turn.",
+"受ける攻撃ダメージ{0}。毎ターン{1}減る。"
+],
+"造成的攻击伤害 {0}，每回合减 {1} 层。": [
+"Deals {0} attack damage. Goes down by {1} each turn.",
+"与える攻撃ダメージ{0}。毎ターン{1}減る。"
+],
+"每次攻击伤害增加等同于力量的数值。": [
+"Each attack deals extra damage equal to Strength.",
+"攻撃ダメージが筋力ぶん増える。"
+],
+"每次获得格挡时额外增加等同于敏捷的数值。": [
+"Each time you gain Block, gain extra equal to Dexterity.",
+"ブロックを得るたび敏捷ぶん増える。"
+],
+"打出后移出本场战斗，不进弃牌堆。": [
+"Removed for the rest of the battle after playing.",
+"使うとこの戦闘から除外される。"
+],
+"被攻击时，对攻击者造成等同于层数的伤害。": [
+"When attacked, deal damage equal to stacks back.",
+"攻撃されると層数ぶん反撃ダメージ。"
+],
+"出牌要花能量，每回合开始恢复为 {0} 点。": [
+"Cards cost Energy. Refills to {0} each turn.",
+"カードにはエナジーが必要。毎ターン{0}に回復。"
+],
+"林拓的掌机子弹。回合结束时自动射出，每发对随机敌人造成 {0} 点伤害，然后清零。最多 {1} 发。": [
+"Lin's handheld bullets. Fire at end of turn for {0} damage each to random enemies, then reset. Max {1}.",
+"リンのゲーム機の弾。ターン終了時に自動発射、1発{0}ダメージ（ランダムな敵）、その後0に。最大{1}。"
+],
+"叠在敌人身上，到 {0} 层自动爆音。": [
+"Stacks on enemies. Bursts at {0}.",
+"敵に重なり、{0}で爆音。"
+],
+"敌人行动前受到等同层数的伤害（无视格挡），然后减 {0} 层。": [
+"Before acting, the enemy loses HP equal to stacks (ignores Block), then loses {0} stack.",
+"敵は行動前に層数ぶんHPを失い（ブロック無視）、層が{0}減る。"
+],
+"魔女的 {0} 费一次性牌，由其他牌生成，用完消耗。": [
+"The Witch's {0}-cost one-shot cards, made by other cards. Exhausted after use.",
+"魔女のコスト{0}の使い切りカード。他のカードで生成。"
+],
+"所有角色通用的一次性道具，最多带 {0} 瓶，战斗中点左上角的药水就能用，不花能量。": [
+"One-use items for any hero. Carry up to {0}. Tap one at the top left in battle; no Energy needed.",
+"全キャラ共通の消耗品。最大{0}本。戦闘中に左上をタップで使用、エナジー不要。"
+],
+"叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。": [
+"Stacks on you. Gain Block equal to stacks each turn. Lasts all battle.",
+"自分に重なり、毎ターン層数ぶんブロック。戦闘中ずっと残る。"
+],
+"共鸣满 {0} 层时，对该敌人造成 {1} 点伤害，之后保留 {2} 层（多出的层数也保留）。": [
+"At {0} Resonance, the enemy takes {1} damage, then keeps {2} (plus any extra).",
+"共鳴が{0}になると{1}ダメージ。その後{2}残る（超過分も残る）。"
+],
+"叠在自己身上，每回合开始按层数自动获得格挡，整场战斗不消失。": [
+"Stacks on you. Gives Block equal to stacks each turn. Never goes away in battle.",
+"自分に重なり、毎ターン層数ぶん自動でブロック。戦闘中は消えない。"
+],
+"回合结束时自动射出，每发打随机敌人 {0} 点伤害，然后清零。": [
+"Fires at end of turn, {0} damage each to random enemies, then resets.",
+"ターン終了時に自動発射、1発{0}ダメージ（ランダムな敵）、その後0に。"
+],
+"共鸣满 {0} 层时爆炸，造成 {1} 点伤害，之后保留 {2} 层。": [
+"At {0} Resonance it explodes for {1} damage, then keeps {2}.",
+"共鳴{0}で爆発、{1}ダメージ。その後{2}残る。"
+],
+"敌人行动前掉等于层数的血（无视格挡），然后层数 {0}。": [
+"Before acting, the enemy loses HP equal to stacks (ignores Block), then stacks {0}.",
+"敵は行動前に層数ぶんHPを失う（ブロック無視）。その後層{0}。"
+],
+"由其他牌生成的 {0} 费牌，用一次就没了。": [
+"{0}-cost cards made by other cards. One use only.",
+"他のカードで生まれるコスト{0}の使い切りカード。"
+],
+"打出后整场战斗持续生效。": [
+"Lasts for the whole battle.",
+"戦闘中ずっと有効。"
+],
+"共鸣{0}/{1}": [
+"Res {0}/{1}",
+"共鳴{0}/{1}"
+],
+"共鸣{0}/{1}⚠": [
+"Res {0}/{1}⚠",
+"共鳴{0}/{1}⚠"
+],
+"结界{0}（下回合{1}挡）": [
+"Ward {0} ({1} Block)",
+"結界{0}（次{1}ブロック）"
+],
+"中毒{0}（下回合{1}）": [
+"Poison {0} ({1} next)",
+"毒{0}（次{1}）"
+],
+"光弹{0}（回合末{1}发）": [
+"Ammo {0} ({1} shots)",
+"光弾{0}（終了時{1}発）"
+],
+"光弹{0}": [
+"Ammo {0}",
+"光弾{0}"
+],
+"结界{0}": [
+"Ward {0}",
+"結界{0}"
+],
+"共鸣{0}": [
+"Res {0}",
+"共鳴{0}"
+],
+"中毒{0}": [
+"Poison {0}",
+"毒{0}"
+],
+"药瓶{0}": [
+"Flask {0}",
+"錬金瓶{0}"
+],
+"爆音！": [
+"Burst!",
+"爆音！"
+],
+"落马！": [
+"Unhorsed!",
+"落馬！"
+],
+"免疫": [
+"Immune",
+"無効"
+],
+"凤凰重生！": [
+"Phoenix rises!",
+"不死鳥復活！"
+],
+"复活药水！": [
+"Fairy saves you!",
+"妖精が助けた！"
+],
+"受到 {0}": [
+"Incoming {0}",
+"被ダメ{0}"
+],
+"敌人下回合共 {0} 点伤害，你有 {1} 格挡，还差 {2}": [
+"Enemies deal {0} next turn; you have {1} Block, {2} short",
+"敵の次の攻撃は計{0}、ブロック{1}、あと{2}足りない"
+],
+"敌人下回合共 {0} 点伤害，你有 {1} 格挡，足够": [
+"Enemies deal {0} next turn; you have {1} Block, enough",
+"敵の次の攻撃は計{0}、ブロック{1}で足りる"
+],
+"下回合将攻击你，伤害 {0}": [
+"Will attack for {0}",
+"次ターン攻撃、{0}ダメージ"
+],
+"下回合将攻击你并加格挡，伤害 {0}": [
+"Will attack for {0} and Block",
+"次ターン攻撃とブロック、{0}ダメージ"
+],
+"下回合将攻击你并施加负面状态，伤害 {0}": [
+"Will attack for {0} and debuff you",
+"次ターン攻撃と弱体化、{0}ダメージ"
+],
+"下回合将攻击你": [
+"Will attack",
+"次ターン攻撃"
+],
+"下回合将给自己或队友加格挡": [
+"Will Block itself or an ally",
+"次ターン自分か味方にブロック"
+],
+"下回合将强化自己": [
+"Will buff itself",
+"次ターン自己強化"
+],
+"下回合将给你施加负面状态": [
+"Will debuff you",
+"次ターンあなたを弱体化"
+],
+"下回合将攻击你并加格挡": [
+"Will attack and Block",
+"次ターン攻撃とブロック"
+],
+"下回合将攻击你并施加负面状态": [
+"Will attack and debuff you",
+"次ターン攻撃と弱体化"
+],
+"下回合将召唤援兵": [
+"Will summon help",
+"次ターン援軍召喚"
+],
+"下回合将意图不明": [
+"Intent unknown",
+"行動不明"
+],
+"精英战斗": [
+"Elite Battle",
+"エリート戦"
+],
+"战斗开始": [
+"Battle Start",
+"戦闘開始"
+],
+"敌人回合": [
+"Enemy Turn",
+"敵のターン"
+],
+"结束回合 (E)": [
+"End Turn (E)",
+"ターン終了 (E)"
+],
+"抽牌堆": [
+"Draw",
+"山札"
+],
+"弃牌堆": [
+"Discard",
+"捨て札"
+],
+"抽牌堆（顺序已打乱）": [
+"Draw Pile (shuffled)",
+"山札（順不同）"
+],
+"选择目标（Esc 取消）": [
+"Pick a target (Esc to cancel)",
+"対象を選ぶ（Escで解除）"
+],
+"能量不足": [
+"Not enough Energy",
+"エナジー不足"
+],
+"药水栏满了": [
+"Potion slots full",
+"ポーション欄がいっぱい"
+],
+"复活药水会在倒下时自动使用": [
+"The Fairy is used automatically when you fall",
+"妖精の瓶は倒れた時に自動で使われる"
+],
+"点一个敌人": [
+"Tap an enemy",
+"敵をタップ"
+],
+"丢掉": [
+"Discard",
+"捨てる"
+],
+"药水栏": [
+"Potion bar",
+"ポーション欄"
+],
+"事件": [
+"Event",
+"イベント"
+],
+"中文": [
+"中文",
+"中文"
+],
+"日本語": [
+"日本語",
+"日本語"
+],
+"开": [
+"On",
+"ON"
+],
+"关": [
+"Off",
+"OFF"
+],
+"下回合将攻击你，伤害 {0}×{1}": [
+"Will attack for {0}x{1}",
+"次ターン攻撃、{0}×{1}ダメージ"
+],
+"叠在敌人身上，满 {0} 层自动爆音。": [
+"Stacks on enemies. Bursts at {0}.",
+"敵に重なり、{0}で自動的に爆音。"
+]
 }

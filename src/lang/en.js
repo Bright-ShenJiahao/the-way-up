@@ -343,7 +343,7 @@ export default {
 "对每个敌人造成等同于其共鸣层数 ×{0}的伤害。": "Each enemy takes damage equal to its Resonance x{0}.",
 "每回合开始时，给予所有敌人 {0} 层共鸣。": "At the start of each turn, apply {0} Resonance to ALL enemies.",
 "爆音后多保留 {0} 层共鸣，爆音伤害 {1}。": "Burst keeps {0} more Resonance. Burst damage {1}.",
-"每回合前 {0} 张牌，每打出 {1} 张给予所有敌人 {2} 层共鸣。": "For the first {0} cards each turn, each card applies {2} Resonance to ALL enemies.",
+"每回合前 {0} 张牌，每打出 {1} 张给予所有敌人 {2} 层共鸣。": "For the first {0} cards each turn, every {1} card applies {2} Resonance to ALL enemies.",
 "造成 {0} 点伤害。": "Deal {0} damage.",
 "结界 {0}。获得 {1} 点格挡。": "Ward {0}. Gain {1} Block.",
 "造成 {0} 点伤害，每层结界 {1}（最多算 {2} 层）。": "Deal {0} damage, {1} per Ward (max {2}).",
@@ -661,7 +661,6 @@ export default {
 "共鸣满 {0} 层时，对该敌人造成 {1} 点伤害，之后保留 {2} 层（多出的层数也保留）。": "At {0} Resonance, the enemy takes {1} damage, then keeps {2} (plus any extra).",
 "叠在自己身上，每回合开始按层数自动获得格挡，整场战斗不消失。": "Stacks on you. Gives Block equal to stacks each turn. Never goes away in battle.",
 "回合结束时自动射出，每发打随机敌人 {0} 点伤害，然后清零。": "Fires at end of turn, {0} damage each to random enemies, then resets.",
-"叠在敌人身上，满 {0} 层自动「{1}」。": "Stacks on enemies. At {0}, it Bursts.",
 "共鸣满 {0} 层时爆炸，造成 {1} 点伤害，之后保留 {2} 层。": "At {0} Resonance it explodes for {1} damage, then keeps {2}.",
 "敌人行动前掉等于层数的血（无视格挡），然后层数 {0}。": "Before acting, the enemy loses HP equal to stacks (ignores Block), then stacks {0}.",
 "由其他牌生成的 {0} 费牌，用一次就没了。": "{0}-cost cards made by other cards. One use only.",
@@ -713,5 +712,7 @@ export default {
 "中文": "中文",
 "日本語": "日本語",
 "开": "On",
-"关": "Off"
+"关": "Off",
+"下回合将攻击你，伤害 {0}×{1}": "Will attack for {0}x{1}",
+"叠在敌人身上，满 {0} 层自动爆音。": "Stacks on enemies. Bursts at {0}."
 };

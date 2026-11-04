@@ -1,14 +1,15 @@
 /* 多语言：中文原文就是 key（数字和「」里的名字会自动变成 {0}{1} 占位符），英文 / 日文词表在 src/lang/ */
-import EN from './lang/en.js';
-import JA from './lang/ja.js';
+import EN from './lang/en.js?v=i18n11041843';
+import JA from './lang/ja.js?v=i18n11041843';
 const DICT = { en: EN, ja: JA };
 const CJK = /[㐀-鿿]/;
 let lang = 'zh';
 try { lang = localStorage.getItem('lang') || ''; } catch (e) {}
 if (!['zh', 'en', 'ja'].includes(lang)) { const n = (navigator.language || 'en').toLowerCase(); lang = n.startsWith('ja') ? 'ja' : n.startsWith('zh') ? 'zh' : 'en'; }
 const cbs = [], cache = new Map(), miss = new Set();
+const OUT = { en: new Set(Object.values(EN)), ja: new Set(Object.values(JA)) }; /* 已经是译文的不再处理 */
 export const getLanguage = () => lang;
-export function setLanguage(l) { if (!DICT[l] && l !== 'zh') return; lang = l; cache.clear(); try { localStorage.setItem('lang', l); } catch (e) {} document.documentElement.lang = l === 'zh' ? 'zh-CN' : l; cbs.forEach(f => f(l)); }
+export function setLanguage(l) { if (!DICT[l] && l !== 'zh') return; lang = l; cache.clear(); try { localStorage.setItem('lang', l); } catch (e) {} if (typeof document !== 'undefined') document.documentElement.lang = l === 'zh' ? 'zh-CN' : l; cbs.forEach(f => f(l)); }
 export const onLanguageChange = f => cbs.push(f);
 export const missing = () => [...miss];
 /* 把一句中文拆成「模板 + 变量」 */
@@ -19,10 +20,11 @@ export function t(key, ...vals) { if (lang === 'zh') return fill(key, vals); con
 export function tr(s) {
   if (lang === 'zh' || s == null || !CJK.test(s)) return s;
   const c = cache.get(s); if (c != null) return c;
+  if (OUT[lang].has(s)) return s;
   const d = DICT[lang]; let out = d[s];
   if (out == null) { const [key, vals] = split(s); const v = d[key]; if (v != null) out = fill(v, vals); else {
     const m = s.match(/^(.+?)(：| · |\n)(.+)$/s); /* 「名字：说明」「A · B」这类拼接的，拆开分别翻译 */
-    if (m && CJK.test(m[1])) { const sep = m[2] === '：' ? (lang === 'en' ? ': ' : '：') : m[2]; out = tr(m[1]) + sep + tr(m[3]); } else { miss.add(key); out = s; } } }
+    if (m && CJK.test(m[1] + m[3])) { const sep = m[2] === '：' ? (lang === 'en' ? ': ' : '：') : m[2]; out = tr(m[1]) + sep + tr(m[3]); } else { miss.add(key); out = s; } } }
   cache.set(s, out); return out;
 }
 /* 自动翻译页面上新出现的文字和 placeholder / title（带 data-noi18n 的跳过） */
