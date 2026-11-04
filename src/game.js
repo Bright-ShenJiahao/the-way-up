@@ -397,7 +397,7 @@ const G = {
   poison(t, n) { if (!t || t.dead || n <= 0) return; n += has('toad') ? 1 : 0; addSt(t, 'poison', n); fx(t.id, `中毒+${n}`, 'st'); },
   volley(clear = true) { // 光弹齐射：每发 3 点（+双持 +超频），打随机敌人或全体
     const n = B.p.st.ammo || 0; if (!n) return; const dmg = 3 + (B.p.st.dual || 0) + (B.p.oc || 0);
-    for (let i = 0; i < n; i++) { const a = alive(); if (!a.length) break; if (B.p.aoe) a.forEach(e => hurt(e, atkVal(B.p, e, dmg), B.p)); else { const e = pickOne(a); hurt(e, atkVal(B.p, e, dmg), B.p); } }
+    for (let i = 0; i < n; i++) { const a = alive(); if (!a.length) break; (B.p.aoe ? a : []).forEach(e => B.fx.push({ who: e.id, cls: 'bul', n: i })); if (B.p.aoe) a.forEach(e => hurt(e, atkVal(B.p, e, dmg), B.p)); else { const e = pickOne(a); B.fx.push({ who: e.id, cls: 'bul', n: i }); hurt(e, atkVal(B.p, e, dmg), B.p); } }
     if (B.p.st.rapid) G.block(B.p.st.rapid * n, true);
     if (clear) { B.shots = (B.shots || 0) + n; if (has('pad')) { B.p.padDraw = Math.floor(B.shots / 4); B.shots %= 4; } delete B.p.st.ammo; }
     audio.slash && audio.slash(); },
@@ -618,7 +618,16 @@ function flushFx() {
   const count = {}; let shake = false;
   for (const f of B.fx) {
     const el = view.querySelector(`[data-id="${f.who}"] .spr`); if (!el) continue;
-    const r = el.getBoundingClientRect(); const k = f.who; count[k] = (count[k] || 0) + 1;
+    const r = el.getBoundingClientRect(); const k = f.who;
+    const cx0 = (r.left + r.width / 2 - sr.left) / s, cy0 = (r.top + r.height * .5 - sr.top) / s;
+    const ring = c => { const g = document.createElement('div'); g.className = 'ring ' + c; g.style.left = cx0 + 'px'; g.style.top = cy0 + 'px'; fxl.appendChild(g); setTimeout(() => g.remove(), 650); };
+    if (f.cls === 'bul') { const h = view.querySelector('[data-id="hero"] .spr'); if (h) { const hr = h.getBoundingClientRect(), hx = (hr.right - sr.left) / s - 30, hy = (hr.top + hr.height * .45 - sr.top) / s;
+      const b = document.createElement('div'); b.className = 'bullet'; b.style.left = hx + 'px'; b.style.top = hy + 'px'; b.style.setProperty('--dx', (cx0 - hx) + 'px'); b.style.setProperty('--dy', (cy0 - hy) + 'px'); b.style.animationDelay = (f.n || 0) * 60 + 'ms'; fxl.appendChild(b); setTimeout(() => b.remove(), 700 + (f.n || 0) * 60); } continue; }
+    if (f.text === '爆音！') ring('pink');
+    if (f.cls === 'blk' && f.who === 'hero' && f.text !== '格挡') ring('blue');
+    if (f.cls === 'heal') ring('green');
+    if (/中毒\+/.test(f.text)) ring('poison');
+    count[k] = (count[k] || 0) + 1;
     const d = document.createElement('div'); d.className = 'fxn ' + f.cls; d.textContent = f.text;
     d.style.left = ((r.left + r.width / 2 - sr.left) / s + (count[k] - 1) * 18) + 'px'; d.style.top = ((r.top - sr.top) / s + 10 + (count[k] - 1) * 26) + 'px';
     fxl.appendChild(d); setTimeout(() => d.remove(), 950);
