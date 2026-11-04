@@ -39,6 +39,12 @@ const G = {
   pm() { return B.p.st.sage ? 2 : 1; },
   potion(n, id) { const ps = ['p_fire', 'p_frost', 'p_heal', 'p_poison', 'p_boom']; for (let i = 0; i < n; i++) (B.hand.length < 10 ? B.hand : B.disc).push(mk(id || pickOne(ps))); },
   poison(t, n) { if (!t || t.dead || n <= 0) return; addSt(t, 'poison', n + (has('toad') ? 1 : 0)); },
+  volley(clear = true) { // 光弹齐射：每发 3 点（+双持 +超频），打随机敌人或全体
+    const n = B.p.st.ammo || 0; if (!n) return; const dmg = 3 + (B.p.st.dual || 0) + (B.p.oc || 0);
+    for (let i = 0; i < n; i++) { const a = alive(); if (!a.length) break; if (B.p.aoe) a.forEach(e => hurt(e, atkVal(B.p, e, dmg), B.p)); else { const e = pickOne(a); hurt(e, atkVal(B.p, e, dmg), B.p); } }
+    if (B.p.st.rapid) G.block(B.p.st.rapid * n, true);
+    if (clear) { B.shots = (B.shots || 0) + n; if (has('pad')) { B.p.padDraw = Math.floor(B.shots / 4); B.shots %= 4; } delete B.p.st.ammo; }
+    },
   kek(n) { addSt(B.p, 'kek', n); },
   ammo(n) { B.p.st.ammo = Math.min(10, (B.p.st.ammo || 0) + n); },
   spend(n) { const k = Math.min(n, B.p.st.ammo || 0); if (!k) return 0; addSt(B.p, 'ammo', -k); if (B.p.st.rapid) G.block(B.p.st.rapid * k, true); B.shots = (B.shots || 0) + k; if (has('pad')) while (B.shots >= 4) { B.shots -= 4; drawCards(1); } return k; },
@@ -63,7 +69,7 @@ function startTurn(first) {
   if (B.p.st.plague) alive().forEach(e => G.poison(e, B.p.st.plague));
   if (B.p.st.kagura) G.kek(B.p.st.kagura); if (B.p.st.kek) G.block(B.p.st.kek * (B.p.st.shinboku ? 2 : 1), true);
   if (has('hamaya') && (B.p.st.kek || 0) >= 3) drawCards(1);
-  if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare') && !B.p.st.ammo) G.ammo(2); if (!first && has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(1); if (B.p.st.lowf) G.resAll(B.p.st.lowf);
+  B.p.oc = 0; B.p.aoe = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (!first && has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(1); if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
   drawCards(5 + (first && has('scroll') ? 2 : 0));
 }
@@ -99,8 +105,9 @@ function botTurn() {
       const top = alive().reduce((m, e) => Math.max(m, e.st.res || 0), 0);
       if (d.id === 'high') s += top >= 5 ? 6 : -2;                       // 女主：层数高时先打高音
       if (R.char === 'heroine' && /共鸣/.test(d.desc(0)) && d.id !== 'high' && B.hand.some(c => c.id === 'high') && top >= 5 && top < 10) s -= 3;
-      if (d.id === 'cannon') s += (B.p.st.ammo || 0) >= 8 ? 6 : -8;     // 男主：攒够再开炮
-      if (d.id === 'charge' || d.id === 'screen') s += (B.p.st.ammo || 0) >= 6 ? 3 : -4;
+      if (d.id === 'cannon') s += (B.p.st.ammo || 0) >= 4 ? 4 : -6;     // 林拓：光弹多时超频
+      if (d.id === 'charge') s += (B.p.st.ammo || 0) >= 4 ? 3 : -6;
+      if (d.id === 'screen') s += alive().length >= 2 && (B.p.st.ammo || 0) >= 3 ? 4 : -6;
       if (/得到 \d 发光弹/.test(d.desc(0)) && (B.p.st.ammo || 0) <= 6) s += 2;
       if (['kekkai', 'shime', 'fuda', 'kagura'].includes(d.id)) s += B.turn <= 2 ? 4 : 0;  // 巫女：先叠结界
       if (d.id === 'hama' || d.id === 'yumihari') s += Math.min(6, B.p.st.kek || 0) - 2;
@@ -113,6 +120,7 @@ function botTurn() {
   }
 }
 function endTurn() {
+  if (B.p.st.ammo) G.volley(true); if (!alive().length) return;
   B.disc.push(...B.hand); B.hand = [];
   if (B.p.st.metal) G.block(B.p.st.metal, true); if (B.p.st.regen) heal(B.p.st.regen);
   for (const e of alive()) e.block = 0;

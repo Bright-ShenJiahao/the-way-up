@@ -24,7 +24,7 @@ let TIPS = true; try { TIPS = localStorage.getItem('tipsOff') !== '1'; } catch (
 const KW = { '格挡': '抵挡受到的伤害。你的回合开始时清零。', '易伤': '受到的攻击伤害 +50%，每回合减 1 层。', '虚弱': '造成的攻击伤害 -25%，每回合减 1 层。',
   '力量': '每次攻击伤害增加等同于力量的数值。', '敏捷': '每次获得格挡时额外增加等同于敏捷的数值。', '消耗': '打出后移出本场战斗，不进弃牌堆。',
   '荆棘': '被攻击时，对攻击者造成等同于层数的伤害。', '能量': '出牌要花能量，每回合开始恢复为 3 点。',
-  '光弹': '林拓的掌机子弹，最多存 10 发，整场战斗保留。', '共鸣': '叠在敌人身上，到 10 层自动爆音。', '中毒': '敌人行动前受到等同层数的伤害（无视格挡），然后减 1 层。', '药瓶': '0 费的一次性牌，用完消耗。', '结界': '叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。', '爆音': '共鸣满 10 层时，对该敌人造成 20 点伤害，之后保留 3 层（多出的层数也保留）。' };
+  '光弹': '林拓的掌机子弹。回合结束时自动射出，每发对随机敌人造成 3 点伤害，然后清零。最多 10 发。', '共鸣': '叠在敌人身上，到 10 层自动爆音。', '中毒': '敌人行动前受到等同层数的伤害（无视格挡），然后减 1 层。', '药瓶': '0 费的一次性牌，用完消耗。', '结界': '叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。', '爆音': '共鸣满 10 层时，对该敌人造成 20 点伤害，之后保留 3 层（多出的层数也保留）。' };
 const kwify = t => TIPS ? t.replace(new RegExp(Object.keys(KW).join('|'), 'g'), m => `<span class="kw" title="${KW[m]}">${m}</span>`) : t;
 let R = null; // 当前一局
 let uidN = 1;
@@ -37,7 +37,7 @@ const has = id => R.relics.includes(id);
 const mine = d => !d.ch || d.ch === (R.char || 'hero');
 function save() { try { localStorage.setItem('theway_run_v2', JSON.stringify(R)); } catch (e) {} }
 function clearSave() { try { localStorage.removeItem('theway_run_v2'); } catch (e) {} }
-function load() { try { const s = JSON.parse(localStorage.getItem('theway_run_v2')); if (s) { uidN = 1 + Math.max(0, ...s.deck.map(c => c.uid)); } return s; } catch (e) { return null; } }
+function load() { try { const s = JSON.parse(localStorage.getItem('theway_run_v2')); if (s) { s.deck = s.deck.filter(c => CARDS[c.id]); s.relics = s.relics.filter(r => RELICS[r]); uidN = 1 + Math.max(0, ...s.deck.map(c => c.uid)); } return s; } catch (e) { return null; } }
 
 // ---------- 地图生成 ----------
 const ROWS = 15, COLS = 7;
@@ -369,6 +369,12 @@ const G = {
   pm() { return B.p.st.sage ? 2 : 1; },
   potion(n, id) { const ps = ['p_fire', 'p_frost', 'p_heal', 'p_poison', 'p_boom']; for (let i = 0; i < n; i++) { const c = mkCard(id || pickOne(ps)); (B.hand.length < 10 ? B.hand : B.disc).push(c); } fx('hero', `药瓶+${n}`, 'st'); },
   poison(t, n) { if (!t || t.dead || n <= 0) return; n += has('toad') ? 1 : 0; addSt(t, 'poison', n); fx(t.id, `中毒+${n}`, 'st'); },
+  volley(clear = true) { // 光弹齐射：每发 3 点（+双持 +超频），打随机敌人或全体
+    const n = B.p.st.ammo || 0; if (!n) return; const dmg = 3 + (B.p.st.dual || 0) + (B.p.oc || 0);
+    for (let i = 0; i < n; i++) { const a = alive(); if (!a.length) break; if (B.p.aoe) a.forEach(e => hurt(e, atkVal(B.p, e, dmg), B.p)); else { const e = pickOne(a); hurt(e, atkVal(B.p, e, dmg), B.p); } }
+    if (B.p.st.rapid) G.block(B.p.st.rapid * n, true);
+    if (clear) { B.shots = (B.shots || 0) + n; if (has('pad')) { B.p.padDraw = Math.floor(B.shots / 4); B.shots %= 4; } delete B.p.st.ammo; }
+    audio.slash && audio.slash(); },
   kek(n) { addSt(B.p, 'kek', n); fx('hero', `结界+${n}`, 'st'); },
   ammo(n) { const a = Math.min(10, (B.p.st.ammo || 0) + n); if (a !== B.p.st.ammo) { B.p.st.ammo = a; fx('hero', `光弹+${n}`, 'st'); } },
   spend(n) { const k = Math.min(n, B.p.st.ammo || 0); if (!k) return 0; addSt(B.p, 'ammo', -k); if (B.p.st.rapid) G.block(B.p.st.rapid * k, true);
@@ -414,7 +420,7 @@ function startTurn(first) {
   if (B.p.st.kagura) G.kek(B.p.st.kagura);
   if (B.p.st.kek) G.block(B.p.st.kek * (B.p.st.shinboku ? 2 : 1), true);
   if (has('hamaya') && (B.p.st.kek || 0) >= 3) drawCards(1);
-  if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare') && !B.p.st.ammo) G.ammo(2); if (!first && has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(1);
+  B.p.oc = 0; B.p.aoe = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (!first && has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(1);
   if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
   drawCards(5 + (first && has('scroll') ? 2 : 0));
@@ -479,6 +485,7 @@ let lastT = 0;
 function heroAnim(c) { heroAnimCls = c; }
 async function endTurn() {
   if (B.busy || B.over || B.anim) return; B.busy = true; B.sel = -1; B.hitSet = new Set();
+  if (B.p.st.ammo) { G.volley(true); render(); await sleep(350); if (await checkEnd()) return; }
   B.disc.push(...B.hand); B.hand = [];
   if (B.p.st.metal) G.block(B.p.st.metal, true);
   if (B.p.st.regen) healP(B.p.st.regen);
