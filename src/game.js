@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=upg11101400';
-import { createAudio } from './audio.js?v=upg11101400';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=upg11101400';
+import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=bal11101440';
+import { createAudio } from './audio.js?v=bal11101440';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=bal11101440';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -340,7 +340,7 @@ function mkEnemy(key) {
   const d = ENEMIES[key], hp = rnd(d.hp[0], d.hp[1]);
   const hm = 1 + (A_(1) && d.elite ? .15 : 0) + (A_(2) && !d.elite && !d.boss ? .1 : 0) + (A_(6) && d.boss ? .15 : 0);
   const hp1 = Math.round(hp * hm);
-  const e = { key, d, name: d.name, hp: hp1, max: hp1, dmul: 1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++, move: null };
+  const e = { key, d, name: d.name, hp: hp1, max: hp1, dmul: 1.1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++, move: null };
   d.init && d.init(e); return e;
 }
 const alive = () => B.en.filter(e => !e.dead);
@@ -351,7 +351,7 @@ function battle(keys, kind) {
   audio.setMode(kind === 'boss' ? 'boss' : kind === 'elite' ? 'elite' : 'battle'); setTimeout(() => B && B.en[0] && gv(B.en[0], 'laugh'), 500); if (kind === 'boss') audio.boss();
   if (has('charm')) B.p.st.str = 1;
   
-  if (has('suzu')) B.p.st.kek = 3 + (has('omamori') ? 2 : 0); else if (has('omamori')) B.p.st.kek = 2;
+  if (has('suzu')) B.p.st.kek = 2 + (has('omamori') ? 2 : 0); else if (has('omamori')) B.p.st.kek = 2;
   if (has('phones')) B.en.forEach(e => e.st.res = 4);
   if (has('spikes')) B.p.st.thorns = 3;
   if (has('wardrum')) B.en.forEach(e => e.st.vuln = 1);
@@ -432,7 +432,7 @@ const G = {
   draw(n) { drawCards(n); }, energy(n) { B.p.energy += n; },
   loseHp(n) { R.hp -= n; fx('hero', `-${n}`, 'dmg'); B.hitSet.add('hero'); pDeath(); },
   heal(n) { healP(n); },
-  pm() { return B.p.st.sage ? 2 : 1; },
+  pm() { return B.p.st.sage ? 2 : 1; }, ppm() { return B.p.st.sage ? 1.5 : 1; },
   potion(n, id) { const ps = ['p_fire', 'p_frost', 'p_heal', 'p_poison', 'p_boom']; for (let i = 0; i < n; i++) { const c = mkCard(id || pickOne(ps)); (B.hand.length < 10 ? B.hand : B.disc).push(c); } fx('hero', `药瓶+${n}`, 'st'); },
   poison(t, n) { if (!t || t.dead || n <= 0) return; n += has('toad') ? 1 : 0; addSt(t, 'poison', n); fx(t.id, `中毒+${n}`, 'st'); },
   volley(clear = true) { // 光弹齐射：每发 3 点（+双持 +超频），打随机敌人或全体
@@ -486,7 +486,7 @@ function startTurn(first) {
   if (B.p.st.satchel) G.potion(B.p.st.satchel);
   if (B.p.st.plague) alive().forEach(e => G.poison(e, B.p.st.plague));
   if (B.p.st.kagura) G.kek(B.p.st.kagura);
-  if (B.p.st.kek) G.block(B.p.st.kek * (B.p.st.shinboku ? 2 : 1), true);
+  if (B.p.st.kek) G.block(B.p.st.shinboku ? Math.max(B.p.st.kek, Math.min(15, B.p.st.kek * 2)) : B.p.st.kek, true);
   if (has('hamaya') && (B.p.st.kek || 0) >= 4) drawCards(1);
   B.p.oc = 0; B.p.aoe = 0; B.p.metroUsed = 0; B.p.cplays = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(1);
   if (B.p.st.lowf) G.resAll(B.p.st.lowf);
@@ -582,6 +582,7 @@ async function endTurn() {
   for (const k of ['vuln', 'weak']) if (pre[k] && B.p.st[k]) addSt(B.p, k, -1);
   for (const e of alive()) {
     if (e.st.ritual) addSt(e, 'str', e.st.ritual);
+    if (e.turn >= 6) { addSt(e, 'str', 1); if (!B.rageShown) { B.rageShown = 1; banner('战意：敌人每回合力量 +1'); } } /* 拖得越久敌人越强 */
     if (e.st.heal) BE.healE(e, e.st.heal);
     for (const k of ['vuln', 'weak']) if (e.st[k]) addSt(e, k, -1);
     e.turn++; e.move = e.d.ai(e, BE);
@@ -593,7 +594,7 @@ async function checkEnd() {
   if (R.hp <= 0) { B.over = true; heroAct('down'); render(); await sleep(1400); clearSave(); return endScreen(false); }
   if (!alive().length) {
     B.over = true; render(); await sleep(600); if (B !== b0) return true;
-    if (has('gameboy') || has('phones') || has('suzu') || has('cauldron')) R.hp = Math.min(R.maxHp, R.hp + 6);
+    if ((has('gameboy') || has('phones') || has('suzu') || has('cauldron')) && !has('crown')) R.hp = Math.min(R.maxHp, R.hp + 4);
     if (B.kind === 'elite') R.elites = (R.elites || 0) + 1;
     if (B.kind === 'boss') { clearSave(); return endScreen(true); }
     delete R.pending; delete R.pendEnc; delete R.snap; save(); /* 打赢后不能刷新重打 */
@@ -613,7 +614,7 @@ function intentHTML(e) {
   const tip = `${mv.n}：下回合将${IT[mv.i]}${num ? `，伤害 ${num}` : ''}`;
   return `<div class="intent" title="${esc(tip)}">${ICON[mv.i]}${num}<small>${mv.n}</small></div>`;
 }
-const stsLabel = (k, n, st) => k === 'res' ? `共鸣${n}/10${n >= 9 ? '⚠' : ''}` : k === 'kek' ? `结界${n}（下回合+${n * (st.shinboku ? 2 : 1)}挡）` : k === 'poison' ? `中毒${n}（下回合-${n}）` : k === 'ammo' ? `光弹${n}（回合末${n}发）` : STATUS[k][0] + n;
+const stsLabel = (k, n, st) => k === 'res' ? `共鸣${n}/10${n >= 9 ? '⚠' : ''}` : k === 'kek' ? `结界${n}（下回合+${st.shinboku ? Math.max(n, Math.min(15, n * 2)) : n}挡）` : k === 'poison' ? `中毒${n}（下回合-${n}）` : k === 'ammo' ? `光弹${n}（回合末${n}发）` : STATUS[k][0] + n;
 const stsHTML = st => `<div class="sts">${Object.entries(st).filter(([k, n]) => n && STATUS[k]).map(([k, n]) => `<b style="border-color:${STATUS[k][2]};color:${STATUS[k][2]}" title="${esc(STATUS[k][0] + '：' + STATUS[k][1])}">${stsLabel(k, n, st)}</b>`).join('')}</div>`;
 function incoming() { let t = 0; for (const e of alive()) { const mv = e.d.moves[e.move]; if (mv.d && mv.i.startsWith('atk')) t += atkVal(e, B.p, mv.d) * (mv.x || 1); } return t; }
 function barHTML(hp, max, blk, me) {
