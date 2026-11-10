@@ -1186,5 +1186,61 @@
  "毒药瓶给予的中毒翻倍。": [
   "Poison Flasks apply double Poison.",
   "毒薬瓶の毒が2倍になる。"
+ ],
+ "三连发": [
+  "Triple Shot",
+  "三連射"
+ ],
+ "残响": [
+  "Reverb",
+  "残響"
+ ],
+ "切分音": [
+  "Syncopation",
+  "シンコペーション"
+ ],
+ "混音": [
+  "Remix",
+  "リミックス"
+ ],
+ "结界箭": [
+  "Ward Arrow",
+  "結界矢"
+ ],
+ "落拍": [
+  "Drop Beat",
+  "ドロップビート"
+ ],
+ "连珠箭": [
+  "Rapid Arrow",
+  "連珠矢"
+ ],
+ "弃掉所有手牌，再抽同样数量的牌。": [
+  "Discard your hand, then draw that many cards.",
+  "手札をすべて捨て、同じ枚数を引く。"
+ ],
+ "消耗手里 {0} 个炼金瓶（没有就先随机获得 {1} 个），获得 {2} 点能量。": [
+  "Consume {0} flask in hand (if none, first gain {1} random one). Gain {2} Energy.",
+  "手札の錬金瓶を{0}個消費（なければ先にランダムで{1}個得る）、エネルギー{2}を得る。"
+ ],
+ "消耗手里 {0} 个炼金瓶（没有就先随机获得 {1} 个），获得 {2} 点能量。抽 {3} 张牌。": [
+  "Consume {0} flask in hand (if none, first gain {1} random one). Gain {2} Energy. Draw {3} card.",
+  "手札の錬金瓶を{0}個消費（なければ先にランダムで{1}個得る）、エネルギー{2}を得て{3}枚引く。"
+ ],
+ "获得 {0} 点格挡，给予所有敌人 {1} 层共鸣。狡诈。": [
+  "Gain {0} Block, apply {1} Resonance to all enemies. Sly.",
+  "ブロック{0}を得て敵全体に共鳴{1}層。狡猾。"
+ ],
+ "造成 {0} 点伤害。结界 {1}。": [
+  "Deal {0} damage. Ward {1}.",
+  "{0}ダメージ。結界{1}。"
+ ],
+ "爆音后多保留 {0} 层共鸣，爆音伤害 {1}": [
+  "After Blast, keep {0} more Resonance; Blast damage {1}",
+  "爆音後に共鳴を{0}層多く残し、爆音ダメージ{1}"
+ ],
+ "你每打出一张技能牌，他力量 {0}（每回合最多 {1}）。血量掉到一半时会暴怒，叫来两个手下。": [
+  "Gains Strength {0} whenever you play a Skill (max {1} per turn). At half HP he flies into a rage and calls two minions.",
+  "スキルを使うたびに筋力{0}（1ターン最大{1}）。HPが半分になると激怒し、手下を2体呼ぶ。"
  ]
 }

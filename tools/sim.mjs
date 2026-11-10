@@ -29,10 +29,10 @@ function hurt(t, amt, att) {
 }
 function killE(e) { e.dead = true; e.hp = 0; R.kills++; if (has('fang')) heal(3); if (has('wolffang')) addSt(B.p, 'str', 1); if (B && B.p.st.chain && !e.fled) { G.ammo(3 * B.p.st.chain); drawCards(B.p.st.chain); } const od = CARDS && e.d.onDie; if (od && !e.fled) od(e, BE); }
 const heal = n => { R.hp = Math.min(R.maxHp, R.hp + n); };
-function boom(t) { const d = 20 + (B.p.st.dist ? 5 : 0) + (has('mic') ? 6 : 0); t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0); hurt(t, d); if (has('metro') && !B.p.metroUsed) { B.p.metroUsed = 1; B.p.energy++; } }
+function boom(t) { const d = 20 + (B.p.st.dist ? 8 : 0) + (has('mic') ? 6 : 0); t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0); hurt(t, d); if (has('metro') && !B.p.metroUsed) { B.p.metroUsed = 1; B.p.energy++; } }
 function drawCards(n) { for (let i = 0; i < n; i++) { if (B.p.noDraw || B.hand.length >= 10) return; if (!B.draw.length) { if (!B.disc.length) return; B.draw = shuffle(B.disc); B.disc = []; } B.hand.push(B.draw.pop()); } }
 const G = {
-  has: id => has(id), potsInHand() { return B.hand.filter(c => CARDS[c.id].potion).length; },
+  has: id => has(id), handSize() { return B.hand.length; }, potsInHand() { return B.hand.filter(c => CARDS[c.id].potion).length; },
   kekSpend(n) { if ((B.p.st.kek || 0) < n) return false; addSt(B.p, 'kek', -n); return true; },
   execute(t) { if (t && !t.dead) { t.hp = 0; killE(t); } },
   discard(n) { for (let k = 0; k < n && B.hand.length; k++) { const c = B.hand.splice(Math.floor(Math.random() * B.hand.length), 1)[0], d = CARDS[c.id];
@@ -90,7 +90,7 @@ function play(i, t) {
   if (d.tgt === 'one' && !t) t = alive().sort((a, b) => a.hp - b.hp)[0];
   B.p.energy -= k; G.x = k; B.hand.splice(i, 1); d.play(G, c.up, t, c); delete c.rc; alive().forEach(e => e.d.onCard && e.d.onCard(e, d.type, BE));
   if (d.type === 'atk') { B.atk++; if (has('quiver') && B.atk % 3 === 0) for (const e of alive()) hurt(e, 5); }
-  if (d.type === 'skill') alive().forEach(e => { if (e.st.enrage) addSt(e, 'str', e.st.enrage); });
+  if (d.type === 'skill') alive().forEach(e => { if (e.st.enrage && (e.enT = (e.enT || 0) + 1) <= 2) addSt(e, 'str', e.st.enrage); });
   if (d.potion) { B.p.pot++; if (has('hat')) G.block(2, true); }
   if (B.p.st.concert && (B.p.cplays = (B.p.cplays || 0) + 1) <= 4) G.resAll(B.p.st.concert);
   if (d.type !== 'power') (d.exhaust ? B.exh : B.disc).push(c);
@@ -153,7 +153,7 @@ function endTurn() {
     if (e.st.aegis) addSt(e, 'aegis', -1); if (e.st.intang) e.st.intang = 0;
     if (e.st.poison && !e.st.aegis) { e.hp -= e.st.poison; addSt(e, 'poison', -1); if (e.hp <= 0) { killE(e); continue; } }
     if (e.d.onTurn && e.d.onTurn(e, BE) === 'skip') { e.hist.push(e.move); continue; }
-    e.hitT = 0;
+    e.hitT = 0; e.enT = 0;
     const mv = e.d.moves[e.move];
     if (mv.d) for (let k = 0; k < (mv.x ? mv.x + (e.xb || 0) : 1); k++) { hurt(B.p, atkVal(e, B.p, mv.d), e); if (e.dead) break; }
     if (mv.f && !e.dead) mv.f(e, BE);

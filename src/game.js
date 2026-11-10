@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=buff1_11110545';
-import { createAudio } from './audio.js?v=buff1_11110545';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=buff1_11110545';
+import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=fix1_11110710';
+import { createAudio } from './audio.js?v=fix1_11110710';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=fix1_11110710';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -423,7 +423,7 @@ const VSZ = { gob_kid: 1.45, gob_bomb: 1.25, gob_giant: .6, gob_king: .55, gob_h
 function gv(e, k) { if (e.key === 'wolf') { if (k === 'atk' || k === 'die') audio.gob(k === 'die' ? 'howl' : 'growl'); return; } audio.gob(k, VSZ[e.key] || 1); }
 function killE(e) { const od = ENEMIES[e.key].onDie; gv(e, 'die'); if (R) R.kills = (R.kills || 0) + 1; eAct(e, 'down'); e.dead = true; e.hp = 0; audio.kill(); if (has('fang')) { healP(3); } if (has('wolffang') && B) addSt(B.p, 'str', 1); if (B && B.p.st.chain && !e.fled) { G.ammo(3 * B.p.st.chain); drawCards(B.p.st.chain); } if (e.stolen && !e.fled) { R.gold += e.stolen; fx('hero', `+${e.stolen} 金币`, 'heal'); e.stolen = 0; } if (od && !e.fled) od(e, BE); }
 function boom(t) { // 爆音：伤害后保留 3 层（失真再 +3），多出的层数也保留
-  const d = 20 + (B.p.st.dist ? 5 : 0) + (has('mic') ? 6 : 0);
+  const d = 20 + (B.p.st.dist ? 8 : 0) + (has('mic') ? 6 : 0);
   t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0);
   fx(t.id, '爆音！', 'st'); hurt(t, d); if (has('metro') && !B.p.metroUsed) { B.p.metroUsed = 1; B.p.energy++; } }
 function healP(n) { if (n <= 0) return; R.hp = Math.min(R.maxHp, R.hp + n); fx('hero', `+${n}`, 'heal'); }
@@ -431,7 +431,7 @@ function addSt(t, k, n) { t.st[k] = (t.st[k] || 0) + n; if (t.st[k] === 0) delet
 
 // 卡牌用的接口
 const G = {
-  has: id => has(id), potsInHand() { return B.hand.filter(c => CARDS[c.id].potion).length; },
+  has: id => has(id), handSize() { return B.hand.length; }, potsInHand() { return B.hand.filter(c => CARDS[c.id].potion).length; },
   kekSpend(n) { if ((B.p.st.kek || 0) < n) return false; addSt(B.p, 'kek', -n); return true; },
   execute(t) { if (t && !t.dead) { t.hp = 0; killE(t); } },
   discard(n) { for (let k = 0; k < n && B.hand.length; k++) { const c = B.hand.splice(Math.floor(Math.random() * B.hand.length), 1)[0], d = CARDS[c.id];
@@ -534,7 +534,7 @@ async function playCard(i, tgt) {
   if (d.type === 'atk') { B.atkCnt++; if (has('quiver') && B.atkCnt % 3 === 0) for (const e of alive()) hurt(e, 5); heroAct('shoot'); }
   if (d.potion) { B.p.pot = (B.p.pot || 0) + 1; if (has('hat')) G.block(2, true); }
   if (B.p.st.concert && (B.p.cplays = (B.p.cplays || 0) + 1) <= 4) G.resAll(B.p.st.concert);
-  if (d.type === 'skill') alive().forEach(e => { if (e.st.enrage) BE.addSt(e, 'str', e.st.enrage); });
+  if (d.type === 'skill') alive().forEach(e => { if (e.st.enrage && (e.enT = (e.enT || 0) + 1) <= 2) BE.addSt(e, 'str', e.st.enrage); });
   if (d.type === 'power') {} else if (d.exhaust) B.exh.push(c); else B.disc.push(c);
   pDeath();
   render(); await checkEnd();
@@ -600,7 +600,7 @@ async function endTurn() {
     if (e.st.intang) e.st.intang = 0; /* 虚化同理 */
     if (e.st.poison && !e.st.aegis) { const pz = e.st.poison; e.hp -= pz; fx(e.id, `-${pz}`, 'dmg'); B.hitSet.add(e.id); addSt(e, 'poison', -1); if (e.hp <= 0) { killE(e); render(); await sleep(300); if (await checkEnd()) return; continue; } }
     if (e.d.onTurn && e.d.onTurn(e, BE) === 'skip') { if (!e.dead) fx(e.id, '坠地·无法行动', 'st'); e.hist.push(e.move); render(); await sleep(300); if (await checkEnd()) return; continue; }
-    e.hitT = 0;
+    e.hitT = 0; e.enT = 0;
     const mv = e.d.moves[e.move]; B.lunge = mv.d != null && mv.i.startsWith('atk') && mv.d > 0 ? e.id : null;
     if (mv.d) { eAct(e, 'atk'); gv(e, 'atk'); } else if (/buff|summon/.test(mv.i)) gv(e, 'buff');
     if (mv.d) for (let k = 0; k < hitsOf(e, mv); k++) { hurt(B.p, atkVal(e, B.p, mv.d), e); if (e.dead) break; }
