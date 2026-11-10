@@ -220,6 +220,8 @@ button{font-family:inherit;cursor:pointer}
 .touch .node{transform:scale(1.25)}
 .touch .btn{min-height:54px;padding-left:22px;padding-right:22px;font-size:20px}.touch .btn.opt{min-height:64px}.touch #kwtip{width:300px;font-size:17px}.touch .pot{width:54px;height:54px}.touch .card.peek{z-index:60}
 
+/* ===== 升级预览 ===== */
+.upgpv{display:flex;align-items:center;justify-content:center;gap:28px;margin:10px 0 16px}.upgpv .card{position:relative;transform:scale(1.25);margin:40px 30px}.upgpv .arr{font-size:54px;color:#7dff8a}.upgpv .card:last-of-type{filter:drop-shadow(0 0 12px #7dff8a)}
 /* ===== 拖动出牌 ===== */
 #hand{pointer-events:none}#hand .card{touch-action:none;pointer-events:auto}#hand .card img,#hand .card *{-webkit-user-drag:none;user-select:none}#hand .card.dragging,#hand .card.dragging:hover{transition:none!important;z-index:80!important;transform:var(--dt)!important}#hand .card.ready{filter:drop-shadow(0 0 14px #ffd35a)}
 #aimline{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:85;overflow:visible}
@@ -252,6 +254,6 @@ button{font-family:inherit;cursor:pointer}
 <body>
 <div id="rot"><div class="ph"></div><div>请把手机横过来玩</div><div style="font-size:15px;color:#c8b890">Please rotate your device</div></div>
 <div id="stage"><div id="view"></div><div id="fx"></div></div>
-<script type="module" src="src/game.js?v=fix11101320"></script>
+<script type="module" src="src/game.js?v=upg11101400"></script>
 </body>
 </html>
