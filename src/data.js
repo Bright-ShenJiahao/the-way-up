@@ -1,4 +1,4 @@
-import { tr } from './i18n.js?v=bal11101440';
+import { tr } from './i18n.js?v=stat11101520';
 // 数据：卡牌 / 遗物 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
 const I = n => n.includes('/') ? `assets/${n}.png` : `assets/icons/${n}.png`;
@@ -169,6 +169,13 @@ export const CARDS = {
     desc: u => `对所有敌人造成 ${v(u, 14, 18)} 点伤害。消耗。`, play: (g, u) => g.attackAll(v(u, 14, 18)) },
   metal: { name: '金属化', type: 'power', rar: 'u', cost: [1, 1], icon: 'b_armor', tgt: 'self',
     desc: u => `每回合结束时，获得 ${v(u, 3, 4)} 点格挡。`, play: (g, u) => g.self('metal', v(u, 3, 4)) },
+  /* 状态牌：敌人塞进你的牌堆，只在本场战斗有效 */
+  daze: { name: '眩晕', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'sk_shadow', tgt: 'self', unplay: 1, ethereal: 1,
+    desc: () => `不能打出。回合结束时消耗。`, play: () => {} },
+  wound: { name: '伤口', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'b_curse', tgt: 'self', unplay: 1,
+    desc: () => `不能打出。`, play: () => {} },
+  burn: { name: '烧伤', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'ic_flame', tgt: 'self', unplay: 1, burn: 2,
+    desc: () => `不能打出。回合结束时若在手中，失去 2 点生命。`, play: () => {} },
   dexp: { name: '灵巧', type: 'power', rar: 'u', cost: [1, 1], icon: 'sk_flamestep', tgt: 'self',
     desc: u => `获得 ${v(u, 1, 2)} 点敏捷。`, play: (g, u) => g.self('dex', v(u, 1, 2)) },
   thunder: { name: '雷霆一击', type: 'atk', rar: 'r', cost: [2, 2], icon: 'ic_thunder', tgt: 'one',
@@ -274,7 +281,7 @@ export const ENEMIES = {
     moves: { bite: { n: '撕咬', i: 'atk', d: 12 }, howl: { n: '嚎叫', i: 'atkdebuff', d: 6, f: (e, B) => B.applyP('weak', 2) } },
     ai: e => pick(e, ['bite', 'howl']) },
   gob_bomb: { name: '哥布林炸弹兵', hp: [28, 32], sc: 2.4, hd: 217, init: e => { e.st.fuse = 3; },
-    moves: { toss: { n: '投掷', i: 'atk', d: 4 }, boom: { n: '自爆', i: 'atk', d: 20, f: (e, B) => B.kill(e) } },
+    moves: { toss: { n: '投掷', i: 'atkdebuff', d: 4, f: (e, B) => B.addCard('burn', 1) }, boom: { n: '自爆', i: 'atk', d: 20, f: (e, B) => B.kill(e) } },
     ai: e => e.st.fuse <= 1 ? 'boom' : 'toss', after: e => { e.st.fuse--; } },
   gob_mage: { name: '哥布林法师', hp: [24, 28], sc: 2.4, hd: 285,
     moves: { fire: { n: '火球', i: 'atk', d: 9 }, hex: { n: '邪火', i: 'atkdebuff', d: 4, f: (e, B) => B.applyP('vuln', 2) } },
@@ -284,11 +291,11 @@ export const ENEMIES = {
     ai: e => pick(e, ['volley', 'volley', 'aim']) },
   // 精英
   gob_shaman: { name: '哥布林萨满', hp: [52, 56], sc: 2.6, hd: 284, elite: 1,
-    moves: { bolt: { n: '暗影弹', i: 'atk', d: 12 }, hex: { n: '诅咒', i: 'atkdebuff', d: 6, f: (e, B) => { B.applyP('vuln', 2); B.applyP('weak', 1); } },
+    moves: { bolt: { n: '暗影弹', i: 'atk', d: 12 }, hex: { n: '诅咒', i: 'atkdebuff', d: 6, f: (e, B) => { B.applyP('vuln', 2); B.applyP('weak', 1); B.addCard('daze', 1); } },
       totem: { n: '治疗图腾', i: 'buff', f: (e, B) => B.alive().forEach(a => { B.healE(a, 5); B.addSt(a, 'str', 1); }) } },
     ai: e => cycle(e, ['bolt', 'hex', 'bolt', 'totem']) },
   gob_giant: { name: '巨型哥布林', hp: [38, 42], sc: 2.2, hd: 384, hdw: 200,
-    moves: { roar: { n: '怒吼', i: 'buff', f: (e, B) => B.addSt(e, 'str', 2) }, smash: { n: '重砸', i: 'atk', d: 12 } },
+    moves: { roar: { n: '怒吼', i: 'buff', f: (e, B) => B.addSt(e, 'str', 2) }, smash: { n: '重砸', i: 'atkdebuff', d: 12, f: (e, B) => B.addCard('wound', 1) } },
     ai: e => cycle(e, ['smash', 'roar']) },
   wolf: { name: '野狼', hp: [20, 24], sc: 2, hd: 205, hdw: 190,
     moves: { bite: { n: '撕咬', i: 'atk', d: 8 }, howl: { n: '嚎叫', i: 'atkdebuff', d: 4, f: (e, B) => B.applyP('weak', 1) } },
@@ -307,7 +314,7 @@ export const ENEMIES = {
       fury: { n: '暴怒连斩', i: 'atk', d: 6, x: 3 } },
     ai: (e, B) => { const m = cycle(e, ['call', 'cut', 'order', 'fury']); return m === 'call' && B.alive().length >= 3 ? 'cut' : m; } },
   gob_archshaman: { name: '哥布林大祭司', art: 'gob_shaman', tint: 'hue-rotate(250deg) saturate(1.4)', hp: [160, 160], sc: 2.9, hd: 330, hdw: 250, boss: 1,
-    moves: { bolt: { n: '暗影弹', i: 'atk', d: 13 }, hex: { n: '大诅咒', i: 'atkdebuff', d: 6, f: (e, B) => { B.applyP('vuln', 2); B.applyP('weak', 2); } },
+    moves: { bolt: { n: '暗影弹', i: 'atk', d: 13 }, hex: { n: '大诅咒', i: 'atkdebuff', d: 6, f: (e, B) => { B.applyP('vuln', 2); B.applyP('weak', 2); B.addCard('daze', 2); } },
       totem: { n: '召唤图腾', i: 'summon', f: (e, B) => { if (B.alive().length < 3) B.summon('gob_mage', 0); B.alive().forEach(a => B.healE(a, 8)); } },
       rite: { n: '血祭', i: 'buff', f: (e, B) => { B.addSt(e, 'str', 3); B.eBlock(e, 15); } } },
     ai: (e, B) => { const m = cycle(e, ['totem', 'bolt', 'hex', 'rite', 'bolt']); return m === 'totem' && B.alive().length >= 3 ? 'bolt' : m; } },
