@@ -1,4 +1,4 @@
-import { tr } from './i18n.js?v=c2map11110230';
+import { tr } from './i18n.js?v=c2loot11110300';
 // 数据：卡牌 / 遗物 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
 const I = n => n.includes('/') ? `assets/${n}.png` : `assets/icons/${n}.png`;
@@ -178,6 +178,35 @@ export const CARDS = {
     desc: () => `不能打出。回合结束时若在手中，失去 2 点生命。`, play: () => {} },
   rot: { name: '腐烂', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'b_curse', tgt: 'self', unplay: 1, burn: 1,
     desc: () => `不能打出。回合结束时若在手中，失去 1 点生命。`, play: () => {} },
+  /* ===== 第二章专属卡牌（只在血月古堡出现） ===== */
+  haja: { ch: 'miko', act2: 1, name: '破邪结界', type: 'skill', rar: 'r', cost: [2, 1], icon: 'sk_sigil', tgt: 'self', exhaust: 1,
+    desc: () => `结界层数翻倍。消耗。`, play: g => g.kek(Math.max(1, g.p.st.kek || 0)) },
+  chinkon: { ch: 'miko', act2: 1, name: '镇魂歌', type: 'atk', rar: 'u', cost: [1, 1], icon: 'ic_bell', tgt: 'all',
+    desc: u => `对所有敌人造成结界层数 ×${v(u, 2, 3)} 的伤害（至少 4）。`, play: (g, u) => g.attackAll(Math.max(4, (g.p.st.kek || 0) * v(u, 2, 3))) },
+  shinju: { ch: 'miko', act2: 1, name: '神木之盾', type: 'skill', rar: 'u', cost: [1, 1], icon: 'sk_treant', tgt: 'self',
+    desc: u => `获得 ${v(u, 10, 14)} 点格挡。结界 +1。`, play: (g, u) => { g.block(v(u, 10, 14)); g.kek(1); } },
+  fullmag: { ch: 'hero', act2: 1, name: '满弹连射', type: 'skill', rar: 'r', cost: [2, 1], icon: 'gb', tgt: 'self',
+    desc: () => `光弹装满（10 发）。`, play: g => g.ammo(10) },
+  silverbul: { ch: 'hero', act2: 1, name: '银弹', type: 'atk', rar: 'u', cost: [1, 1], icon: 'p_arc', tgt: 'one',
+    desc: u => `造成 ${v(u, 7, 9)} 点伤害，对亡灵翻倍。得到 2 发光弹。`, play: (g, u, t) => { g.attack(t, v(u, 7, 9) * (t && t.d.undead ? 2 : 1)); g.ammo(2); } },
+  reload2: { ch: 'hero', act2: 1, name: '快速换弹', type: 'skill', rar: 'u', cost: [0, 0], icon: 'gb', tgt: 'self',
+    desc: u => `抽 ${v(u, 2, 3)} 张牌。得到 1 发光弹。`, play: (g, u) => { g.draw(v(u, 2, 3)); g.ammo(1); } },
+  holywater: { ch: 'witch', act2: 1, name: '圣水瓶', type: 'atk', rar: 'u', cost: [0, 0], icon: 'ic_water', tgt: 'one', exhaust: 1,
+    desc: u => `造成 ${v(u, 10, 14)} 点伤害，对亡灵翻倍。消耗。`, play: (g, u, t) => g.attack(t, v(u, 10, 14) * (t && t.d.undead ? 2 : 1)) },
+  megabrew: { ch: 'witch', act2: 1, name: '炼成大爆发', type: 'skill', rar: 'r', cost: [2, 1], icon: 'ic_vortex', tgt: 'self',
+    desc: () => `随机获得 4 个炼金瓶。`, play: g => g.potion(4) },
+  fogpoison: { ch: 'witch', act2: 1, name: '毒雾结界', type: 'skill', rar: 'u', cost: [1, 1], icon: 'ic_stake', tgt: 'all',
+    desc: u => `给所有敌人 ${v(u, 5, 7)} 层中毒。`, play: (g, u) => g.eachEnemy(e => g.poison(e, v(u, 5, 7))) },
+  requiem: { ch: 'heroine', act2: 1, name: '安魂曲', type: 'skill', rar: 'r', cost: [2, 1], icon: 'ic_aura', tgt: 'all',
+    desc: u => `给所有敌人 ${v(u, 5, 7)} 层共鸣。`, play: (g, u) => g.resAll(v(u, 5, 7)) },
+  echo2: { ch: 'heroine', act2: 1, name: '回音', type: 'atk', rar: 'u', cost: [1, 1], icon: 'ic_bell', tgt: 'one',
+    desc: u => `造成 4 点伤害。给予 ${v(u, 7, 9)} 层共鸣。`, play: (g, u, t) => { g.attack(t, 4); g.res(t, v(u, 7, 9)); } },
+  mute2: { ch: 'heroine', act2: 1, name: '静音', type: 'skill', rar: 'u', cost: [1, 0], icon: 'p_knock', tgt: 'one', exhaust: 1,
+    desc: () => `给予 3 层虚弱和 3 层共鸣。消耗。`, play: (g, u, t) => { g.apply(t, 'weak', 3); g.res(t, 3); } },
+  silvercross_c: { act2: 1, name: '银之十字', type: 'skill', rar: 'u', cost: [1, 1], icon: 'sk_holyorb', tgt: 'self',
+    desc: u => `获得 ${v(u, 9, 13)} 点格挡。`, play: (g, u) => g.block(v(u, 9, 13)) },
+  garlic: { act2: 1, name: '大蒜', type: 'skill', rar: 'c', cost: [0, 0], icon: 'ic_water', tgt: 'all', exhaust: 1,
+    desc: u => `给所有敌人 ${v(u, 2, 3)} 层虚弱。消耗。`, play: (g, u) => g.eachEnemy(e => g.apply(e, 'weak', v(u, 2, 3))) },
   dexp: { name: '灵巧', type: 'power', rar: 'u', cost: [1, 1], icon: 'sk_flamestep', tgt: 'self',
     desc: u => `获得 ${v(u, 1, 2)} 点敏捷。`, play: (g, u) => g.self('dex', v(u, 1, 2)) },
   thunder: { name: '雷霆一击', type: 'atk', rar: 'r', cost: [2, 2], icon: 'ic_thunder', tgt: 'one',
@@ -207,6 +236,12 @@ export const RELICS = {
   pad: { ch: 'hero', name: '连发手柄', icon: 'sk_mgun', rar: 'u', desc: '回合结束每射出 4 发光弹，下回合多抽 1 张牌。' },
   metro: { ch: 'heroine', name: '节拍器', icon: 'ic_hexa', rar: 'c', desc: '每回合第一次爆音，获得 1 点能量。' },
   mic: { ch: 'heroine', name: '麦克风', icon: 'sk_holyorb', rar: 'u', desc: '爆音伤害 +6。' },
+  silvercross: { act2: 1, name: '银十字架', icon: 'sk_holyorb', rar: 'u', desc: '对亡灵造成的伤害 +25%。' },
+  batcloak: { act2: 1, name: '蝙蝠披风', icon: 'b_vamp', rar: 'c', desc: '每场战斗开始时，获得 8 点格挡。' },
+  grail: { act2: 1, name: '圣杯', icon: 'pot', rar: 'u', desc: '每场战斗结束时，回复 5 点生命。拾取时最大生命 -5。' },
+  pocketwatch: { act2: 1, name: '伯爵的怀表', icon: 'ic_hexa', rar: 'u', desc: '每场战斗第 1 回合，多抽 2 张牌。' },
+  wolffang: { act2: 1, name: '狼牙项链', icon: 'b_atk', rar: 'r', desc: '每击杀一个敌人，本场战斗获得 1 点力量。' },
+  lantern: { act2: 1, name: '灵魂灯笼', icon: 'ic_flame', rar: 'c', desc: '每场战斗开始时，获得 1 点敏捷。' },
   charm: { name: '蛮力护符', icon: 'b_atk', rar: 'c', desc: '每场战斗开始时，获得 1 点力量。' },
   anchor: { name: '铁甲', icon: 'b_armor', rar: 'c', desc: '每场战斗第一回合，获得 10 点格挡。' },
   hourglass: { name: '沙漏', icon: 'b_cd', rar: 'c', desc: '每场战斗第一回合，获得 1 点额外能量。' },
@@ -307,14 +342,14 @@ export const ENEMIES = {
     moves: { charge: { n: '冲锋', i: 'atk', d: 14 }, hack: { n: '双斧连砍', i: 'atk', d: 5, x: 2 }, guard: { n: '举盾', i: 'atkdef', d: 6, f: (e, B) => B.eBlock(e, 8) } },
     ai: e => cycle(e, ['charge', 'hack', 'guard', 'hack']) },
   /* ===== 第二章：血月古堡（美术到之前先用换色占位） ===== */
-  skeleton: { name: '骷髅兵', hp: [28, 32], sc: 2.4, hd: 245, lore: '伯爵用亡灵魔法唤醒的士兵，打散了还会再拼起来一次。',
+  skeleton: { name: '骷髅兵', undead: 1, hp: [28, 32], sc: 2.4, hd: 245, lore: '伯爵用亡灵魔法唤醒的士兵，打散了还会再拼起来一次。',
     moves: { slash: { n: '劈砍', i: 'atk', d: 9 }, guard: { n: '持盾', i: 'atkdef', d: 5, f: (e, B) => B.eBlock(e, 6) } },
     ai: e => cycle(e, ['slash', 'guard']),
     onDie: (e, B) => { if (!e.revived) B.revive(e, 0.5); } },
-  zombie: { name: '丧尸', hp: [44, 48], sc: 2.2, hd: 250, lore: '被抓上山的村民，变成了伯爵的奴仆。被它咬到伤口会腐烂。',
+  zombie: { name: '丧尸', undead: 1, hp: [44, 48], sc: 2.2, hd: 250, lore: '被抓上山的村民，变成了伯爵的奴仆。被它咬到伤口会腐烂。',
     moves: { bite: { n: '撕咬', i: 'atkdebuff', d: 9, f: (e, B) => B.addCard('rot', 1) }, claw: { n: '乱抓', i: 'atk', d: 7 } },
     ai: e => cycle(e, ['bite', 'claw', 'claw']) },
-  ghost: { name: '幽灵', hp: [24, 28], sc: 2.4, hd: 255, lore: '徘徊在古堡里的亡魂，虚化时很难伤到它。',
+  ghost: { name: '幽灵', undead: 1, hp: [24, 28], sc: 2.4, hd: 255, lore: '徘徊在古堡里的亡魂，虚化时很难伤到它。',
     moves: { phase: { n: '虚化', i: 'buff', f: (e, B) => B.addSt(e, 'intang', 1) }, wail: { n: '哀嚎', i: 'atkdebuff', d: 8, f: (e, B) => B.applyP('weak', 1) } },
     ai: e => cycle(e, ['phase', 'wail']) },
   gargoyle: { name: '石像鬼', hp: [34, 38], sc: 2.4, hd: 250, lore: '守在古堡屋檐上的石头恶魔。石化时几乎打不动，下一回合就会扑下来。',
@@ -323,20 +358,20 @@ export const ENEMIES = {
   werewolf: { name: '狼人', hp: [40, 44], sc: 2.4, hd: 265, lore: '被伯爵诅咒的猎人。血量低于一半就会狂暴。',
     moves: { claw: { n: '利爪', i: 'atk', d: 8 }, frenzy: { n: '狂暴', i: 'buff', f: (e, B) => { e.mad = 1; B.addSt(e, 'str', 4); } }, rend: { n: '撕裂', i: 'atk', d: 6, x: 2 } },
     ai: e => !e.mad && e.hp < e.max / 2 ? 'frenzy' : cycle(e, ['claw', 'rend']) },
-  ghoul: { name: '食尸鬼', hp: [26, 30], sc: 2.3, hd: 200, hdw: 260, lore: '在墓穴里啃食尸骨的怪物，同伴倒下时会吃掉它们变强。',
+  ghoul: { name: '食尸鬼', undead: 1, hp: [26, 30], sc: 2.3, hd: 200, hdw: 260, lore: '在墓穴里啃食尸骨的怪物，同伴倒下时会吃掉它们变强。',
     moves: { gnaw: { n: '啃咬', i: 'atk', d: 7 }, feast: { n: '吞食', i: 'buff', f: (e, B) => { B.healE(e, 10); B.addSt(e, 'str', 2); } } },
     ai: (e, B) => B.alive().length < (e.seen || 9) ? (e.seen = B.alive().length, 'feast') : (e.seen = B.alive().length, 'gnaw') },
-  stitched: { name: '缝合怪', hp: [92, 96], sc: 2.6, hd: 300, elite: 1, lore: '亡灵法师用尸块拼出来的巨人。铁钩会把你的牌拽走。',
+  stitched: { name: '缝合怪', undead: 1, hp: [92, 96], sc: 2.6, hd: 300, elite: 1, lore: '亡灵法师用尸块拼出来的巨人。铁钩会把你的牌拽走。',
     moves: { hook: { n: '铁钩', i: 'atkdebuff', d: 10, f: (e, B) => B.addCard('wound', 1) }, smash: { n: '重拳', i: 'atk', d: 18 }, roar: { n: '咆哮', i: 'buff', f: (e, B) => B.addSt(e, 'str', 2) } },
     ai: e => cycle(e, ['hook', 'smash', 'roar', 'smash']),
     onDie: (e, B) => { B.addCard('rot', 2); B.say('（缝合怪炸开了，腐肉溅了一身）'); } },
-  vamp_bride: { name: '吸血鬼新娘', hp: [70, 74], sc: 2.5, hd: 290, elite: 1, lore: '伯爵的新娘。她的吻会吸走你的生命。',
+  vamp_bride: { name: '吸血鬼新娘', undead: 1, vamp: 1, hp: [70, 74], sc: 2.5, hd: 290, elite: 1, lore: '伯爵的新娘。她的吻会吸走你的生命。',
     moves: { kiss: { n: '血之吻', i: 'atk', d: 11, f: (e, B) => B.healE(e, 8) }, charm: { n: '魅惑', i: 'debuff', f: (e, B) => { B.applyP('weak', 2); B.applyP('vuln', 1); } }, mist: { n: '血雾', i: 'atk', d: 4, x: 3 } },
     ai: e => cycle(e, ['charm', 'kiss', 'mist', 'kiss']) },
-  necromancer: { name: '亡灵法师', hp: [62, 66], sc: 2.5, hd: 300, elite: 1, lore: '替伯爵唤醒亡者的老巫师。不先打断他，骷髅就杀不完。',
+  necromancer: { name: '亡灵法师', undead: 1, hp: [62, 66], sc: 2.5, hd: 300, elite: 1, lore: '替伯爵唤醒亡者的老巫师。不先打断他，骷髅就杀不完。',
     moves: { raise: { n: '唤醒亡者', i: 'summon', f: (e, B) => { if (B.alive().length < 4) B.summon('skeleton', 16); } }, bolt: { n: '鬼火', i: 'atk', d: 12 }, curse: { n: '腐朽诅咒', i: 'debuff', f: (e, B) => { B.applyP('weak', 2); B.addCard('rot', 1); } } },
     ai: (e, B) => B.alive().length < 3 && e.turn % 2 === 0 ? 'raise' : cycle(e, ['bolt', 'curse', 'bolt']) },
-  death_knight: { name: '死灵骑士', hp: [220, 220], sc: 2.9, hd: 340, boss: 1, lore: '伯爵的护卫长，骑着骷髅战马。重甲每回合都在加厚。',
+  death_knight: { name: '死灵骑士', undead: 1, hp: [220, 220], sc: 2.9, hd: 340, boss: 1, lore: '伯爵的护卫长，骑着骷髅战马。重甲每回合都在加厚。',
     intro: '「站住。没有伯爵大人的允许，谁也别想上楼。」', onDie: (e, B) => B.say('「伯爵大人……属下……失职了……」'),
     moves: { charge: { n: '冥骑冲锋', i: 'atk', d: 22 }, armor: { n: '黑铁重甲', i: 'def', f: (e, B) => { B.eBlock(e, 20); B.addSt(e, 'str', 2); } },
       sweep: { n: '横扫', i: 'atk', d: 8, x: 2 }, call: { n: '亡者号令', i: 'summon', f: (e, B) => { for (let k = 0; k < 2 && B.alive().length < 4; k++) B.summon('skeleton', 18); } } },
@@ -345,7 +380,7 @@ export const ENEMIES = {
     intro: '「嗷呜——今晚的月亮，很适合狩猎。」', onDie: (e, B) => B.say('「月亮……沉下去了……」'),
     moves: { maul: { n: '撕咬', i: 'atk', d: 9, x: 2 }, howl: { n: '月下长嚎', i: 'buff', f: (e, B) => { B.alive().forEach(a => B.addSt(a, 'str', 3)); if (B.alive().length < 3) B.summon('werewolf', 0); } }, pounce: { n: '扑杀', i: 'atk', d: 20 } },
     ai: e => cycle(e, ['howl', 'maul', 'pounce']) },
-  vamp_count: { name: '吸血鬼伯爵', hp: [210, 210], sc: 2.9, hd: 340, boss: 1, lore: '古堡的主人，靠抓来的人血维持不死军团。',
+  vamp_count: { name: '吸血鬼伯爵', undead: 1, vamp: 1, hp: [210, 210], sc: 2.9, hd: 340, boss: 1, lore: '古堡的主人，靠抓来的人血维持不死军团。',
     intro: '「异界来的小老鼠……你们的血，一定很美味。」', onDie: (e, B) => B.say('「我只是……替山顶那位看门而已……」'),
     moves: { bats: { n: '蝙蝠群', i: 'atk', d: 4, x: 3 }, drain: { n: '吸血', i: 'atk', d: 12, f: (e, B) => B.healE(e, 10) },
       mist: { n: '蝙蝠化', i: 'def', f: (e, B) => { B.addSt(e, 'intang', 1); B.eBlock(e, 10); } },
@@ -398,6 +433,34 @@ export const ENCOUNTERS2 = {
 };
 
 // ---- 事件 ---- opts: {t 文本, ok(R) 可选条件, go(R, api) 执行，返回结果文本}
+export const EVENTS2 = [
+  { title: '地牢里的村民', pic: 'c2_dungeon', img: 'ic_hammer', text: '铁栅栏后挤着几个面色苍白的村民——正是莉泽村里被抓走的人。',
+    opts: [
+      { t: '撬开牢门：失去 10 生命，村民送你一张稀有卡', go: (R, A) => { A.hurt(10); A.rareCard(); return '村民们哭着向你道谢，塞给你一样东西。'; } },
+      { t: '只拿走看守的钥匙串：获得 60 金币', go: (R, A) => { A.gold(60); return '钥匙串上挂着不少值钱的东西。'; } },
+      { t: '离开', go: () => '你答应会回来救他们。' }] },
+  { title: '血之泉', pic: 'c2_fountain', img: 'pot', text: '庭院中央的喷泉涌出血红的泉水，散发着甜腻的气味。',
+    opts: [
+      { t: '喝一口：最大生命 +8，牌组加入一张「伤口」', go: (R, A) => { A.maxHp(8); A.heal(8); A.curse('wound'); return '力量涌上来，但伤口隐隐作痛。'; } },
+      { t: '离开', go: () => '你捂住鼻子快步走开。' }] },
+  { title: '伯爵的书房', pic: 'c2_study', img: 'ic_hexa', text: '书桌上摊着伯爵的日记：“山顶的那位，就快醒了……”',
+    opts: [
+      { t: '翻找抽屉：获得一个随机遗物', go: (R, A) => `你找到了「${A.relic()}」。` },
+      { t: '读禁书：升级两张牌', go: (R, A) => { A.pick('upgrade', 2); return '古老的知识流进你的脑海。'; } }] },
+  { title: '镜子大厅', pic: 'c2_mirror', img: 'ic_aura', text: '无数面镜子里，映出无数个你。',
+    opts: [
+      { t: '凝视镜子：复制牌组里的一张牌', go: (R, A) => { A.pick('dup'); return '镜中的你，把一张牌递了出来。'; } },
+      { t: '打碎镜子：删除牌组里的一张牌', go: (R, A) => { A.pick('remove'); return '碎片里，一张牌消失了。'; } }] },
+  { title: '棺材', pic: 'c2_coffin', img: 'b_vamp', text: '墓室中央的黑棺微微打开，缝隙里透出红光。',
+    opts: [
+      { t: '打开：50% 拿到遗物，50% 被吸走 15 生命', go: (R, A) => { if (Math.random() < .5) return `棺材里躺着「${A.relic()}」。`; A.hurt(15); return '一只苍白的手伸出来，咬住了你的脖子！'; } },
+      { t: '离开', go: () => '有些东西，还是别打扰比较好。' }] },
+  { title: '亡灵商人', pic: 'c2_merchant', img: 'goldbag', text: '兜帽下的绿光眨了眨：“金币？我不要。我要的是……生命。”',
+    opts: [
+      { t: '付 12 生命：选一张稀有卡', go: (R, A) => { A.hurt(12); A.rareCard(); return '“成交。”商人满意地咯咯笑。'; } },
+      { t: '付 8 生命：获得一瓶药水', go: (R, A) => { A.hurt(8); return `你拿到了「${A.potion()}」。`; } },
+      { t: '离开', go: () => '“随时欢迎……”' }] },
+];
 export const EVENTS = [
   { title: '哥布林地下赌场', pic: 'den', img: 'goldbag', text: '树洞里传来骰子声，一群哥布林围着破木桌吆喝：“大还是小？”',
     opts: [
@@ -470,4 +533,4 @@ for (const r of Object.values(RELICS)) { tx(r, 'name'); tx(r, 'desc'); }
 for (const x of Object.values(POTIONS)) { tx(x, 'name'); tx(x, 'desc'); }
 for (const e of Object.values(ENEMIES)) { tx(e, 'name'); for (const m of Object.values(e.moves)) tx(m, 'n'); }
 for (const st of Object.values(STATUS)) { tx(st, 0); tx(st, 1); }
-for (const ev of EVENTS) { tx(ev, 'title'); tx(ev, 'text'); for (const o of ev.opts) { tx(o, 't'); tf(o, 'go'); } }
+for (const ev of [...EVENTS, ...EVENTS2]) { tx(ev, 'title'); tx(ev, 'text'); for (const o of ev.opts) { tx(o, 't'); tf(o, 'go'); } }

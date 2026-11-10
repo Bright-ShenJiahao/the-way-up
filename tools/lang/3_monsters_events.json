@@ -946,5 +946,165 @@
  "（缝合怪炸开了，腐肉溅了一身）": [
   "(The Stitched Brute bursts, splattering rot everywhere)",
   "（縫合巨人が破裂し、腐肉が飛び散った）"
+ ],
+ "地牢里的村民": [
+  "Villagers in the Dungeon",
+  "地下牢の村人"
+ ],
+ "铁栅栏后挤着几个面色苍白的村民——正是莉泽村里被抓走的人。": [
+  "Pale villagers huddle behind iron bars—the people taken from Lise's village.",
+  "鉄格子の向こうに青ざめた村人たち——リーゼの村からさらわれた人々だ。"
+ ],
+ "撬开牢门：失去 {0} 生命，村民送你一张稀有卡": [
+  "Break the lock: lose {0} HP, the villagers give you a rare card",
+  "扉をこじ開ける：HP{0}を失い、レアカードをもらう"
+ ],
+ "村民们哭着向你道谢，塞给你一样东西。": [
+  "The villagers thank you in tears and press something into your hands.",
+  "村人たちは泣いて礼を言い、何かを手渡した。"
+ ],
+ "只拿走看守的钥匙串：获得 {0} 金币": [
+  "Just take the guard's keys: gain {0} gold",
+  "看守の鍵束だけ取る：{0}ゴールドを得る"
+ ],
+ "钥匙串上挂着不少值钱的东西。": [
+  "The key ring holds quite a few valuables.",
+  "鍵束には値打ち物がぶら下がっていた。"
+ ],
+ "你答应会回来救他们。": [
+  "You promise to come back for them.",
+  "必ず助けに戻ると約束した。"
+ ],
+ "血之泉": [
+  "Fountain of Blood",
+  "血の泉"
+ ],
+ "庭院中央的喷泉涌出血红的泉水，散发着甜腻的气味。": [
+  "A fountain in the courtyard gushes blood-red water with a sickly sweet smell.",
+  "中庭の噴水から、甘ったるい匂いの真っ赤な水が湧き出ている。"
+ ],
+ "喝一口：最大生命 {0}，牌组加入一张「伤口」": [
+  "Drink: Max HP {0}, add a Wound to your deck",
+  "飲む：最大HP{0}、デッキに「傷」を加える"
+ ],
+ "力量涌上来，但伤口隐隐作痛。": [
+  "Power surges through you, but a wound throbs.",
+  "力が湧くが、傷がうずく。"
+ ],
+ "你捂住鼻子快步走开。": [
+  "You hold your nose and hurry away.",
+  "鼻をつまんで足早に立ち去った。"
+ ],
+ "伯爵的书房": [
+  "The Count's Study",
+  "伯爵の書斎"
+ ],
+ "书桌上摊着伯爵的日记：“山顶的那位，就快醒了……”": [
+  "The Count's diary lies open: \"The one atop the mountain will soon awaken...\"",
+  "机には伯爵の日記：「山頂のあのお方が、もうすぐ目覚める……」"
+ ],
+ "翻找抽屉：获得一个随机遗物": [
+  "Search the drawers: gain a random relic",
+  "引き出しを探る：ランダムな遺物を得る"
+ ],
+ "你找到了「{0}」。": [
+  "You found \"{0}\".",
+  "「{0}」を見つけた。"
+ ],
+ "读禁书：升级两张牌": [
+  "Read the forbidden tome: upgrade two cards",
+  "禁書を読む：カードを2枚強化"
+ ],
+ "古老的知识流进你的脑海。": [
+  "Ancient knowledge floods your mind.",
+  "古の知識が頭に流れ込む。"
+ ],
+ "镜子大厅": [
+  "Hall of Mirrors",
+  "鏡の大広間"
+ ],
+ "无数面镜子里，映出无数个你。": [
+  "Countless mirrors reflect countless yous.",
+  "無数の鏡に、無数の自分が映る。"
+ ],
+ "凝视镜子：复制牌组里的一张牌": [
+  "Gaze: duplicate a card in your deck",
+  "鏡を見つめる：デッキのカードを1枚複製"
+ ],
+ "镜中的你，把一张牌递了出来。": [
+  "Your reflection hands you a card.",
+  "鏡の中の自分がカードを差し出した。"
+ ],
+ "打碎镜子：删除牌组里的一张牌": [
+  "Shatter it: remove a card from your deck",
+  "鏡を割る：デッキのカードを1枚削除"
+ ],
+ "碎片里，一张牌消失了。": [
+  "Among the shards, a card vanishes.",
+  "破片の中で、カードが1枚消えた。"
+ ],
+ "棺材": [
+  "The Coffin",
+  "棺"
+ ],
+ "墓室中央的黑棺微微打开，缝隙里透出红光。": [
+  "A black coffin in the crypt is slightly open, red light seeping out.",
+  "墓室の黒い棺が少し開き、赤い光が漏れている。"
+ ],
+ "打开：{0}% 拿到遗物，{1}% 被吸走 {2} 生命": [
+  "Open it: {0}% relic, {1}% lose {2} HP",
+  "開ける：{0}%で遺物、{1}%でHP{2}を吸われる"
+ ],
+ "棺材里躺着「{0}」。": [
+  "Inside lies \"{0}\".",
+  "棺の中には「{0}」があった。"
+ ],
+ "一只苍白的手伸出来，咬住了你的脖子！": [
+  "A pale hand reaches out and fangs sink into your neck!",
+  "青白い手が伸び、首筋に噛みつかれた！"
+ ],
+ "有些东西，还是别打扰比较好。": [
+  "Some things are best left undisturbed.",
+  "触れない方がいいものもある。"
+ ],
+ "亡灵商人": [
+  "Undead Merchant",
+  "アンデッド商人"
+ ],
+ "兜帽下的绿光眨了眨：“金币？我不要。我要的是……生命。”": [
+  "Green eyes blink under the hood: \"Gold? No. I want... life.\"",
+  "フードの奥で緑の光が瞬く。「金貨？いらん。欲しいのは……命だ。」"
+ ],
+ "付 {0} 生命：选一张稀有卡": [
+  "Pay {0} HP: choose a rare card",
+  "HP{0}を払う：レアカードを選ぶ"
+ ],
+ "“成交。”商人满意地咯咯笑。": [
+  "\"Deal.\" The merchant cackles.",
+  "「取引成立だ。」商人はカラカラと笑った。"
+ ],
+ "付 {0} 生命：获得一瓶药水": [
+  "Pay {0} HP: gain a potion",
+  "HP{0}を払う：ポーションを得る"
+ ],
+ "你拿到了「{0}」。": [
+  "You got \"{0}\".",
+  "「{0}」を手に入れた。"
+ ],
+ "“随时欢迎……”": [
+  "\"Come again...\"",
+  "「またどうぞ……」"
+ ],
+ "选择一张牌复制": [
+  "Choose a card to duplicate",
+  "複製するカードを選ぶ"
+ ],
+ "喝一口：最大生命 {0}，牌组加入一张「{1}」": [
+  "Drink: Max HP {0}, add a \"{1}\" to your deck",
+  "飲む：最大HP{0}、デッキに「{1}」を加える"
+ ],
+ "打开：{0} 拿到遗物，{1} 被吸走 {2} 生命": [
+  "Open it: {0} relic, {1} lose {2} HP",
+  "開ける：{0}で遺物、{1}でHP{2}を吸われる"
  ]
 }
