@@ -1234,5 +1234,9 @@
  "不等爆音，直接把共鸣换成伤害。": [
   "Don't wait for Blast—turn Resonance straight into damage.",
   "爆音を待たず、共鳴をそのままダメージに変える。"
+ ],
+ "即将推出": [
+  "Coming soon",
+  "近日公開"
  ]
 }

@@ -1242,5 +1242,9 @@
  "你每打出一张技能牌，他力量 {0}（每回合最多 {1}）。血量掉到一半时会暴怒，叫来两个手下。": [
   "Gains Strength {0} whenever you play a Skill (max {1} per turn). At half HP he flies into a rage and calls two minions.",
   "スキルを使うたびに筋力{0}（1ターン最大{1}）。HPが半分になると激怒し、手下を2体呼ぶ。"
+ ],
+ "临时攻击": [
+  "Temp Strike",
+  "仮の攻撃"
  ]
 }
