@@ -477,6 +477,12 @@ export default {
 "每回合开始时，随机获得 {0} 个炼金瓶（多张不叠加）。并获得 {1} 点格挡。": "At turn start, gain {0} random Flask (doesn't stack) and {1} Block.",
 "炼金瓶的伤害翻倍，中毒 {0}（治疗、削弱不变）。": "Flask damage is doubled, Poison {0} (heal/debuff unchanged).",
 "每回合开始时，获得 {0} 点额外能量。拾取时最大生命 {1}，战斗结束不再回复生命。": "Gain {0} extra Energy each turn. On pickup: Max HP {1}; no more healing after combat.",
+"眩晕": "Dazed",
+"伤口": "Wound",
+"烧伤": "Burn",
+"不能打出。回合结束时消耗。": "Unplayable. Exhausts at end of turn.",
+"不能打出。": "Unplayable.",
+"不能打出。回合结束时若在手中，失去 {0} 点生命。": "Unplayable. If in hand at end of turn, lose {0} HP.",
 "哥布林小兵": "Goblin Grunt",
 "哥布林小鬼": "Goblin Imp",
 "哥布林刀手": "Goblin Blade",
@@ -748,5 +754,10 @@ export default {
 "读取失败": "Load failed",
 "提交太频繁，请稍后再试": "Too many submissions, try later",
 "战意：敌人每回合力量 +1": "Fury: enemies gain +1 Strength each turn",
-"战意：敌人每回合力量 {0}": "Fury: enemies gain {0} Strength each turn"
+"战意：敌人每回合力量 {0}": "Fury: enemies gain {0} Strength each turn",
+"这张牌不能打出": "This card can't be played",
+"+眩晕": "+Dazed",
+"+伤口": "+Wound",
+"+烧伤": "+Burn",
+"+眩晕×{0}": "+Dazed×{0}"
 };

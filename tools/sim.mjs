@@ -56,7 +56,7 @@ const G = {
 };
 const BE = {
   applyP(k, n) { addSt(B.p, k, n); }, addSt(e, k, n) { addSt(e, k, n); }, eBlock(e, n) { e.block += n; },
-  allies: e => alive().filter(a => a !== e), alive: () => alive(), healE(e, n) { e.hp = Math.min(e.max, e.hp + n); },
+  allies: e => alive().filter(a => a !== e), alive: () => alive(), healE(e, n) { e.hp = Math.min(e.max, e.hp + n); }, addCard(id, n = 1) { for (let k = 0; k < n; k++) B.disc.push(mk(id)); },
   kill(e) { killE(e); }, summon(key, hp) { if (alive().length >= 5) return; const e = mkE(key); if (hp) e.hp = e.max = hp; e.move = e.d.ai(e, BE); B.en.unshift(e); },
 };
 let eid = 1;
@@ -91,7 +91,7 @@ const isBlock = d => /格挡/.test(d.desc(0)) && d.type !== 'atk';
 function botTurn() {
   for (let guard = 0; guard < 30 && alive().length; guard++) {
     const need = incoming() - B.p.block;
-    const opts = B.hand.map((c, i) => ({ c, i, d: CARDS[c.id], k: cost(c) === 'X' ? B.p.energy : cost(c) })).filter(o => o.k <= B.p.energy && !(o.k === 'X' && B.p.energy === 0));
+    const opts = B.hand.map((c, i) => ({ c, i, d: CARDS[c.id], k: cost(c) === 'X' ? B.p.energy : cost(c) })).filter(o => !o.d.unplay && o.k <= B.p.energy && !(o.k === 'X' && B.p.energy === 0));
     if (!opts.length) break;
     const sc = o => { const d = o.d; let s = 0;
       if (d.type === 'power') s = B.turn <= 3 ? 9 : 3;
@@ -122,7 +122,8 @@ function botTurn() {
 }
 function endTurn() {
   if (B.p.st.ammo) G.volley(true); if (!alive().length) return;
-  B.disc.push(...B.hand); B.hand = [];
+  for (const c of B.hand) if (CARDS[c.id].burn) R.hp -= CARDS[c.id].burn;
+  for (const c of B.hand) (CARDS[c.id].ethereal ? B.exh : B.disc).push(c); B.hand = [];
   if (B.p.st.metal) G.block(B.p.st.metal, true); if (B.p.st.regen && (B.p.regenN = (B.p.regenN || 0) + 1) <= 3) heal(B.p.st.regen);
   for (const e of alive()) e.block = 0;
   const pre = { vuln: B.p.st.vuln || 0, weak: B.p.st.weak || 0 };

@@ -926,5 +926,29 @@
  "每回合开始时，获得 {0} 点额外能量。拾取时最大生命 {1}，战斗结束不再回复生命。": [
   "Gain {0} extra Energy each turn. On pickup: Max HP {1}; no more healing after combat.",
   "毎ターン、エネルギー+{0}。入手時に最大HP{1}、戦闘後の回復がなくなる。"
+ ],
+ "眩晕": [
+  "Dazed",
+  "めまい"
+ ],
+ "伤口": [
+  "Wound",
+  "傷"
+ ],
+ "烧伤": [
+  "Burn",
+  "火傷"
+ ],
+ "不能打出。回合结束时消耗。": [
+  "Unplayable. Exhausts at end of turn.",
+  "使用不可。ターン終了時に廃棄。"
+ ],
+ "不能打出。": [
+  "Unplayable.",
+  "使用不可。"
+ ],
+ "不能打出。回合结束时若在手中，失去 {0} 点生命。": [
+  "Unplayable. If in hand at end of turn, lose {0} HP.",
+  "使用不可。ターン終了時に手札にあればHPを{0}失う。"
  ]
 }
