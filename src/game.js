@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=bal211101540';
-import { createAudio } from './audio.js?v=bal211101540';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=bal211101540';
+import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=orc11110200';
+import { createAudio } from './audio.js?v=orc11110200';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=orc11110200';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -360,6 +360,7 @@ function battle(keys, kind) {
   startTurn(true);
   setTimeout(tutorial, 1300);
   banner(kind === 'boss' ? `Boss · ${ENEMIES[keys[0]].name}` : kind === 'elite' ? '精英战斗' : '战斗开始');
+  if (ENEMIES[keys[0]].intro) setTimeout(() => say(ENEMIES[keys[0]].intro), 1300);
 }
 const TUT = ['每回合有 3 点<b>能量</b>（左下角的球），出牌要花能量，卡牌左上角的数字就是费用。',
   '敌人头上的图标是它<b>下回合要做的事</b>：剑是攻击，数字是伤害；盾是加格挡。鼠标移上去可以看详细说明。',
@@ -375,6 +376,7 @@ function tutorial() {
     o.querySelector('#tx').onclick = () => { try { localStorage.setItem('tutDone', '1'); } catch (e) {} o.remove(); render(); }; };
   step();
 }
+function say(t) { const b = document.createElement('div'); b.className = 'say'; b.textContent = t; stage.appendChild(b); setTimeout(() => b.remove(), 3600); }
 function banner(t) { const b = document.createElement('div'); b.id = 'banner'; b.textContent = t; stage.appendChild(b); setTimeout(() => b.remove(), 1200); }
 
 // 伤害计算
@@ -411,7 +413,7 @@ function dismount(e) { // 骑狼兵半血落马：变成野狼 + 一只小兵
 }
 const VSZ = { gob_kid: 1.45, gob_bomb: 1.25, gob_giant: .6, gob_king: .55, gob_hero: .85, gob_paladin: .85, gob_shaman: 1.15 };
 function gv(e, k) { if (e.key === 'wolf') { if (k === 'atk' || k === 'die') audio.gob(k === 'die' ? 'howl' : 'growl'); return; } audio.gob(k, VSZ[e.key] || 1); }
-function killE(e) { gv(e, 'die'); if (R) R.kills = (R.kills || 0) + 1; eAct(e, 'down'); e.dead = true; e.hp = 0; audio.kill(); if (has('fang')) { healP(3); } }
+function killE(e) { const od = ENEMIES[e.key].onDie; gv(e, 'die'); if (R) R.kills = (R.kills || 0) + 1; eAct(e, 'down'); e.dead = true; e.hp = 0; audio.kill(); if (has('fang')) { healP(3); } if (od && !e.fled) od(e, BE); }
 function boom(t) { // 爆音：伤害后保留 3 层（失真再 +3），多出的层数也保留
   const d = 20 + (B.p.st.dist ? 5 : 0) + (has('mic') ? 6 : 0);
   t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0);
@@ -464,6 +466,7 @@ const BE = {
   eBlock(e, n) { e.block += n; fx(e.id, `+${n}`, 'blk'); },
   allies: e => alive().filter(a => a !== e), alive: () => alive(),
   healE(e, n) { e.hp = Math.min(e.max, e.hp + n); fx(e.id, `+${n}`, 'heal'); },
+  flee(e) { if (e.dead) return; e.fled = 1; e.dead = true; e.hp = 0; fx(e.id, '逃跑', 'st'); }, say: t => say(t),
   addCard(id, n = 1) { for (let k = 0; k < n; k++) B.disc.push(mkCard(id)); fx('hero', `+${CARDS[id].name}${n > 1 ? '×' + n : ''}`, 'st'); },
   kill(e) { killE(e); B.hitSet.add(e.id); },
   summon(key, hp) { if (alive().length >= 5) return; const e = mkEnemy(key); if (hp) e.hp = e.max = hp; e.move = e.d.ai(e, BE); B.en.unshift(e); },
@@ -610,11 +613,11 @@ function tip(t) { const o = document.createElement('div'); o.id = 'tip'; o.textC
 
 // 意图文字
 const II = n => `<img src="assets/ui2/int_${n}.png">`;
-const ICON = { atk: II('atk'), def: II('def'), buff: II('buff'), debuff: II('debuff'), atkdef: II('atk') + II('def'), atkdebuff: II('atk') + II('debuff'), summon: II('summon'), unknown: II('unknown') };
+const ICON = { atk: II('atk'), def: II('def'), buff: II('buff'), debuff: II('debuff'), atkdef: II('atk') + II('def'), atkdebuff: II('atk') + II('debuff'), atkbuff: II('atk') + II('buff'), summon: II('summon'), unknown: II('unknown') };
 function intentHTML(e) {
   const mv = e.d.moves[e.move]; let num = '';
   if (mv.d != null && mv.i.startsWith('atk') && mv.d > 0) { const v = atkVal(e, B.p, mv.d); num = mv.x ? `${v}×${mv.x}` : `${v}`; }
-  const IT = { atk: '攻击你', def: '给自己或队友加格挡', buff: '强化自己', debuff: '给你施加负面状态', atkdef: '攻击你并加格挡', atkdebuff: '攻击你并施加负面状态', summon: '召唤援兵', unknown: '意图不明' };
+  const IT = { atk: '攻击你', def: '给自己或队友加格挡', buff: '强化自己', debuff: '给你施加负面状态', atkdef: '攻击你并加格挡', atkdebuff: '攻击你并施加负面状态', atkbuff: '攻击你并强化队友', summon: '召唤援兵', unknown: '意图不明' };
   const tip = `${mv.n}：下回合将${IT[mv.i]}${num ? `，伤害 ${num}` : ''}`;
   return `<div class="intent" title="${esc(tip)}">${ICON[mv.i]}${num}<small>${mv.n}</small></div>`;
 }
@@ -836,7 +839,7 @@ function endScreen(win) {
   UNLOCKS.forEach(u => { if (before < u.xp && M.xp >= u.xp) news.push('解锁：' + [...u.cards.map(c => CARDS[c].name), ...u.relics.map(x => RELICS[x].name)].join('、')); });
   const nx = UNLOCKS.find(u => M.xp < u.xp), left = UNLOCKS.filter(u => M.xp < u.xp).length;
   view.innerHTML = `${bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
-   <p class="endsub" data-noi18n>${win ? `${t('{0}倒下了，翠绿之地恢复了平静。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第一章完 · 感谢游玩！')}</b>${t('更多内容制作中，欢迎把感想告诉作者。')}` : t('{0}倒在了翠绿之地第 {1} 层。', tr(CHARS[R.char || 'hero'].name), R.floor)}</p>
+   <p class="endsub" data-noi18n>${win ? `${t('{0}倒下了，翠绿之地恢复了平静。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第一章完 · 感谢游玩！')}</b>${t('远处山顶的古堡，亮起了血红的光……')}<br><b style="color:#ff8a8a">${t('第二章：血月古堡（制作中）')}</b>` : t('{0}倒在了翠绿之地第 {1} 层。', tr(CHARS[R.char || 'hero'].name), R.floor)}</p>
    <table class="score">${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}<tr class="tot"><td>分数</td><td>${total}</td></tr></table>
    <div class="xpw"><div class="xpb"><i style="width:${nx ? Math.min(100, M.xp / nx.xp * 100) : 100}%"></i></div><span>${nx ? `[${M.xp}/${nx.xp}]` : `[${M.xp}] 全部解锁`}</span><span>剩余解锁：${left}</span></div>
    ${news.map(t => `<p class="endsub" style="color:#7fe07f">★ ${t}</p>`).join('')}
@@ -887,7 +890,7 @@ async function usePotion(i, t) {
 }
 
 // ---------- 图鉴 ----------
-const INTENT = { atk: '攻击', def: '防御', buff: '强化', debuff: '削弱', atkdef: '攻击+防御', atkdebuff: '攻击+削弱', summon: '召唤', unknown: '未知' };
+const INTENT = { atk: '攻击', def: '防御', buff: '强化', debuff: '削弱', atkdef: '攻击+防御', atkdebuff: '攻击+削弱', atkbuff: '攻击+强化', summon: '召唤', unknown: '未知' };
 const CONCEPTS = [
   ['基础', [['能量', '出牌要花能量，每回合开始恢复为 3 点。卡牌左上角的数字就是耗能。'], ['生命', '降到 0 就输了。大部分遗物和营火可以回血。'], ['格挡', KW['格挡']], ['抽牌', '每回合开始抽 5 张牌。抽牌堆空了，会把弃牌堆洗回来。'], ['回合', '你出完牌按「结束回合」，敌人按头上的意图行动。']]],
   ['卡牌种类', [['攻击牌', '红色卡框，主要用来造成伤害。'], ['技能牌', '绿色卡框，格挡、抽牌、加状态等。'], ['能力牌', '蓝色卡框，打出后整场战斗持续生效，不进弃牌堆。'], ['消耗', KW['消耗']], ['升级', '在营火可以升级卡牌，数值变强或耗能降低，名字后面多一个 +。'], ['稀有度', '普通 / 罕见 / 稀有，越稀有越强，奖励里越难出现。']]],
@@ -912,7 +915,7 @@ function book(tab = 'card', sub = 'miko', up = 0) {
   } else if (tab === 'mon') {
     const hpOf = k => [].concat(ENEMIES[k].hp)[0], elite = new Set(ENCOUNTERS.elite.map(g => g.reduce((x, y) => hpOf(y) > hpOf(x) ? y : x))), boss = new Set(ENCOUNTERS.boss.flat());
     body = `<div class="bgrid">${Object.entries(ENEMIES).map(([k, e]) => `<div class="bi mon"><img src="assets/enemies2/${e.art || k}/portrait.png" onerror="this.src='assets/enemies2/${e.art || k}/idle0.png'"${e.tint ? ` style="filter:${e.tint}"` : ''}><div><b>${e.name}</b><small>${boss.has(k) ? 'Boss' : elite.has(k) ? '精英' : '普通'} · 生命 ${Array.isArray(e.hp) ? e.hp.join('～') : e.hp}</small>
-      <p>${Object.values(e.moves).map(m => `<span class="mv">${m.n}</span>${INTENT[m.i] || ''}${m.d ? ' ' + m.d + (m.x > 1 ? '×' + m.x : '') : ''}`).join('　')}</p></div></div>`).join('')}</div>`;
+      <p>${Object.values(e.moves).map(m => `<span class="mv">${m.n}</span>${INTENT[m.i] || ''}${m.d ? ' ' + m.d + (m.x > 1 ? '×' + m.x : '') : ''}`).join('　')}</p>${e.lore ? `<p class="lore">${e.lore}</p>` : ''}</div></div>`).join('')}</div>`;
   } else {
     body = `<div class="rules">${CONCEPTS.map(([h, rows]) => `<h3>${h}</h3><table>${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>`).join('')}</div>`;
   }
