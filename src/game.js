@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=fix11101320';
-import { createAudio } from './audio.js?v=fix11101320';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=fix11101320';
+import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=upg11101400';
+import { createAudio } from './audio.js?v=upg11101400';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=upg11101400';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -133,6 +133,11 @@ function pickDeck(mode, done) {
   o.querySelector('.btn')?.addEventListener('click', () => { o.remove(); done && done(false); });
   o.querySelectorAll('.card').forEach(el => el.onclick = () => {
     const i = R.deck.findIndex(c => c.uid == el.dataset.uid), c = R.deck[i];
+    if (mode === 'upgrade' && !el.dataset.ok) { /* 先预览升级效果，确认后再升级 */
+      const pv = overlay(`<h2>升级预览</h2><div class="upgpv">${cardHTML(c)}<span class="arr">➜</span>${cardHTML({ ...c, up: 1 })}</div><div class="row"><button class="btn gold" id="upy">确认升级</button><button class="btn" id="upn">换一张</button></div>`);
+      pv.querySelector('#upn').onclick = () => pv.remove();
+      pv.querySelector('#upy').onclick = () => { pv.remove(); el.dataset.ok = 1; el.onclick(); };
+      return; }
     if (mode === 'remove') R.deck.splice(i, 1);
     if (mode === 'upgrade') c.up = 1;
     if (mode === 'transform') { const pool = Object.values(CARDS).filter(d => d.rar !== 'start' && d.rar !== 'gen' && mine(d) && d.id !== c.id); R.deck[i] = mkCard(pickOne(pool).id); }
