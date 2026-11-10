@@ -266,6 +266,7 @@ export default {
 "苏音总戴着一副粉色耳机，喜欢把同一段旋律反复听上好几遍。身边太吵的时候，只要把音量调高一点，她就能安静下来。到了异世界，耳机里的音乐能在敌人身上叠起共鸣，等震动积到足够强，她就踩着节拍将它引爆。队伍里数她最安静，可每次开打，大家都会下意识地等她那一拍落下来。有一回，她只顾数拍子，错过了同伴喊她的声音。从那以后，她开始把一边耳罩拨开。": "Su Yin always wears a pair of pink headphones and loves playing the same melody over and over. When the world gets too loud, she turns the volume up a little and finds her calm. In this world, the music in her headphones builds resonance on enemies, and once the vibration is strong enough, she detonates it right on the beat. She is the quietest of the group, yet every fight, everyone waits for her beat to drop. Once, busy counting beats, she missed a friend calling her name. Since then, she has started keeping one earcup pushed aside.",
 "天亮了。大家并肩站在晨光里，笑得满脸是灰。": "Dawn breaks. Everyone stands side by side in the morning light, grinning through the soot.",
 "“走吧，往上。”": "\"Let's go. Up.\"",
+"初始遗物": "Starting relic",
 "射击": "Shoot",
 "装填": "Reload",
 "速射": "Quick Fire",
