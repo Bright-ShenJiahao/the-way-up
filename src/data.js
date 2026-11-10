@@ -1,4 +1,4 @@
-import { tr } from './i18n.js?v=arrow11110215';
+import { tr } from './i18n.js?v=c2art11110230';
 // 数据：卡牌 / 遗物 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
 const I = n => n.includes('/') ? `assets/${n}.png` : `assets/icons/${n}.png`;
@@ -317,6 +317,34 @@ export const ENEMIES = {
   ghost: { name: '幽灵', hp: [24, 28], sc: 2.4, hd: 255, lore: '徘徊在古堡里的亡魂，虚化时很难伤到它。',
     moves: { phase: { n: '虚化', i: 'buff', f: (e, B) => B.addSt(e, 'intang', 1) }, wail: { n: '哀嚎', i: 'atkdebuff', d: 8, f: (e, B) => B.applyP('weak', 1) } },
     ai: e => cycle(e, ['phase', 'wail']) },
+  gargoyle: { name: '石像鬼', hp: [34, 38], sc: 2.4, hd: 250, lore: '守在古堡屋檐上的石头恶魔。石化时几乎打不动，下一回合就会扑下来。',
+    moves: { stone: { n: '石化', i: 'def', f: (e, B) => B.eBlock(e, 18) }, dive: { n: '俯冲', i: 'atk', d: 16 } },
+    ai: e => cycle(e, ['stone', 'dive']) },
+  werewolf: { name: '狼人', hp: [40, 44], sc: 2.4, hd: 265, lore: '被伯爵诅咒的猎人。血量低于一半就会狂暴。',
+    moves: { claw: { n: '利爪', i: 'atk', d: 8 }, frenzy: { n: '狂暴', i: 'buff', f: (e, B) => { e.mad = 1; B.addSt(e, 'str', 4); } }, rend: { n: '撕裂', i: 'atk', d: 6, x: 2 } },
+    ai: e => !e.mad && e.hp < e.max / 2 ? 'frenzy' : cycle(e, ['claw', 'rend']) },
+  ghoul: { name: '食尸鬼', hp: [26, 30], sc: 2.3, hd: 200, hdw: 260, lore: '在墓穴里啃食尸骨的怪物，同伴倒下时会吃掉它们变强。',
+    moves: { gnaw: { n: '啃咬', i: 'atk', d: 7 }, feast: { n: '吞食', i: 'buff', f: (e, B) => { B.healE(e, 10); B.addSt(e, 'str', 2); } } },
+    ai: (e, B) => B.alive().length < (e.seen || 9) ? (e.seen = B.alive().length, 'feast') : (e.seen = B.alive().length, 'gnaw') },
+  stitched: { name: '缝合怪', hp: [92, 96], sc: 2.6, hd: 300, elite: 1, lore: '亡灵法师用尸块拼出来的巨人。铁钩会把你的牌拽走。',
+    moves: { hook: { n: '铁钩', i: 'atkdebuff', d: 10, f: (e, B) => B.addCard('wound', 1) }, smash: { n: '重拳', i: 'atk', d: 18 }, roar: { n: '咆哮', i: 'buff', f: (e, B) => B.addSt(e, 'str', 2) } },
+    ai: e => cycle(e, ['hook', 'smash', 'roar', 'smash']),
+    onDie: (e, B) => { B.addCard('rot', 2); B.say('（缝合怪炸开了，腐肉溅了一身）'); } },
+  vamp_bride: { name: '吸血鬼新娘', hp: [70, 74], sc: 2.5, hd: 290, elite: 1, lore: '伯爵的新娘。她的吻会吸走你的生命。',
+    moves: { kiss: { n: '血之吻', i: 'atk', d: 11, f: (e, B) => B.healE(e, 8) }, charm: { n: '魅惑', i: 'debuff', f: (e, B) => { B.applyP('weak', 2); B.applyP('vuln', 1); } }, mist: { n: '血雾', i: 'atk', d: 4, x: 3 } },
+    ai: e => cycle(e, ['charm', 'kiss', 'mist', 'kiss']) },
+  necromancer: { name: '亡灵法师', hp: [62, 66], sc: 2.5, hd: 300, elite: 1, lore: '替伯爵唤醒亡者的老巫师。不先打断他，骷髅就杀不完。',
+    moves: { raise: { n: '唤醒亡者', i: 'summon', f: (e, B) => { if (B.alive().length < 4) B.summon('skeleton', 16); } }, bolt: { n: '鬼火', i: 'atk', d: 12 }, curse: { n: '腐朽诅咒', i: 'debuff', f: (e, B) => { B.applyP('weak', 2); B.addCard('rot', 1); } } },
+    ai: (e, B) => B.alive().length < 3 && e.turn % 2 === 0 ? 'raise' : cycle(e, ['bolt', 'curse', 'bolt']) },
+  death_knight: { name: '死灵骑士', hp: [220, 220], sc: 2.9, hd: 340, boss: 1, lore: '伯爵的护卫长，骑着骷髅战马。重甲每回合都在加厚。',
+    intro: '「站住。没有伯爵大人的允许，谁也别想上楼。」', onDie: (e, B) => B.say('「伯爵大人……属下……失职了……」'),
+    moves: { charge: { n: '冥骑冲锋', i: 'atk', d: 22 }, armor: { n: '黑铁重甲', i: 'def', f: (e, B) => { B.eBlock(e, 20); B.addSt(e, 'str', 2); } },
+      sweep: { n: '横扫', i: 'atk', d: 8, x: 2 }, call: { n: '亡者号令', i: 'summon', f: (e, B) => { for (let k = 0; k < 2 && B.alive().length < 4; k++) B.summon('skeleton', 18); } } },
+    ai: e => cycle(e, ['call', 'charge', 'armor', 'sweep', 'charge']) },
+  wolf_lord: { name: '狼人领主', hp: [200, 200], sc: 2.9, hd: 330, boss: 1, lore: '被伯爵驯服的狼人之王。月圆的回合会全员狂暴。',
+    intro: '「嗷呜——今晚的月亮，很适合狩猎。」', onDie: (e, B) => B.say('「月亮……沉下去了……」'),
+    moves: { maul: { n: '撕咬', i: 'atk', d: 9, x: 2 }, howl: { n: '月下长嚎', i: 'buff', f: (e, B) => { B.alive().forEach(a => B.addSt(a, 'str', 3)); if (B.alive().length < 3) B.summon('werewolf', 0); } }, pounce: { n: '扑杀', i: 'atk', d: 20 } },
+    ai: e => cycle(e, ['howl', 'maul', 'pounce']) },
   vamp_count: { name: '吸血鬼伯爵', hp: [210, 210], sc: 2.9, hd: 340, boss: 1, lore: '古堡的主人，靠抓来的人血维持不死军团。',
     intro: '「异界来的小老鼠……你们的血，一定很美味。」', onDie: (e, B) => B.say('「我只是……替山顶那位看门而已……」'),
     moves: { bats: { n: '蝙蝠群', i: 'atk', d: 4, x: 3 }, drain: { n: '吸血', i: 'atk', d: 12, f: (e, B) => B.healE(e, 10) },
@@ -363,10 +391,10 @@ export const ENCOUNTERS = {
 };
 /* 第二章：血月古堡 */
 export const ENCOUNTERS2 = {
-  easy: [['skeleton', 'skeleton'], ['zombie'], ['ghost', 'skeleton'], ['orc_scout', 'orc_scout']],
-  hard: [['zombie', 'zombie'], ['ghost', 'ghost', 'skeleton'], ['skeleton', 'zombie', 'ghost'], ['orc_scout', 'zombie'], ['skeleton', 'skeleton', 'skeleton'], ['ghost', 'zombie']],
-  elite: [['skeleton', 'orc_overseer', 'skeleton'], ['zombie', 'ghost', 'zombie']],
-  boss: [['vamp_count']],
+  easy: [['skeleton', 'skeleton'], ['zombie'], ['ghost', 'skeleton'], ['ghoul', 'ghoul'], ['gargoyle']],
+  hard: [['zombie', 'zombie'], ['ghost', 'ghost', 'skeleton'], ['skeleton', 'zombie', 'ghost'], ['orc_scout', 'zombie'], ['werewolf'], ['gargoyle', 'ghost'], ['ghoul', 'zombie', 'ghoul'], ['werewolf', 'skeleton'], ['gargoyle', 'gargoyle']],
+  elite: [['vamp_bride'], ['necromancer', 'skeleton'], ['stitched'], ['zombie', 'orc_overseer', 'zombie']],
+  boss: [['vamp_count'], ['death_knight'], ['wolf_lord']],
 };
 
 // ---- 事件 ---- opts: {t 文本, ok(R) 可选条件, go(R, api) 执行，返回结果文本}
