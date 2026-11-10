@@ -26,7 +26,7 @@ function hurt(t, amt, att) {
   if (isP && R.hp <= 0 && has('feather') && !R.feather) { R.feather = 1; R.hp = Math.floor(R.maxHp * .3); }
   return left;
 }
-function killE(e) { e.dead = true; e.hp = 0; R.kills++; if (has('fang')) heal(3); }
+function killE(e) { e.dead = true; e.hp = 0; R.kills++; if (has('fang')) heal(3); const od = CARDS && e.d.onDie; if (od && !e.fled) od(e, BE); }
 const heal = n => { R.hp = Math.min(R.maxHp, R.hp + n); };
 function boom(t) { const d = 20 + (B.p.st.dist ? 5 : 0) + (has('mic') ? 6 : 0); t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0); hurt(t, d); if (has('metro') && !B.p.metroUsed) { B.p.metroUsed = 1; B.p.energy++; } }
 function drawCards(n) { for (let i = 0; i < n; i++) { if (B.p.noDraw || B.hand.length >= 10) return; if (!B.draw.length) { if (!B.disc.length) return; B.draw = shuffle(B.disc); B.disc = []; } B.hand.push(B.draw.pop()); } }
@@ -59,7 +59,7 @@ const G = {
 };
 const BE = {
   applyP(k, n) { addSt(B.p, k, n); }, addSt(e, k, n) { addSt(e, k, n); }, eBlock(e, n) { e.block += n; },
-  allies: e => alive().filter(a => a !== e), alive: () => alive(), healE(e, n) { e.hp = Math.min(e.max, e.hp + n); }, addCard(id, n = 1) { for (let k = 0; k < n; k++) B.disc.push(mk(id)); },
+  allies: e => alive().filter(a => a !== e), alive: () => alive(), healE(e, n) { e.hp = Math.min(e.max, e.hp + n); }, addCard(id, n = 1) { for (let k = 0; k < n; k++) B.disc.push(mk(id)); }, flee(e) { if (!e.dead) { e.fled = 1; e.dead = true; e.hp = 0; } }, say() {},
   kill(e) { killE(e); }, summon(key, hp) { if (alive().length >= 5) return; const e = mkE(key); if (hp) e.hp = e.max = hp; e.move = e.d.ai(e, BE); B.en.unshift(e); },
 };
 let eid = 1;

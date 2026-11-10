@@ -1,4 +1,4 @@
-import { tr } from './i18n.js?v=bal211101540';
+import { tr } from './i18n.js?v=orc11110200';
 // 数据：卡牌 / 遗物 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
 const I = n => n.includes('/') ? `assets/${n}.png` : `assets/icons/${n}.png`;
@@ -294,6 +294,15 @@ export const ENEMIES = {
     moves: { bolt: { n: '暗影弹', i: 'atk', d: 12 }, hex: { n: '诅咒', i: 'atkdebuff', d: 6, f: (e, B) => { B.applyP('vuln', 2); B.applyP('weak', 1); B.addCard('daze', 1); } },
       totem: { n: '治疗图腾', i: 'buff', f: (e, B) => B.alive().forEach(a => { B.healE(a, 5); B.addSt(a, 'str', 1); }) } },
     ai: e => cycle(e, ['bolt', 'hex', 'bolt', 'totem']) },
+  /* 兽人：哥布林的主子，听命于古堡的伯爵 */
+  orc_overseer: { name: '兽人监工', hp: [64, 68], sc: 2.6, hd: 300, hdw: 300, elite: 1, lore: '替伯爵抓人的兽人，用鞭子驱赶哥布林干活。',
+    moves: { drive: { n: '鞭策', i: 'atkbuff', d: 5, f: (e, B) => B.allies(e).forEach(a => B.addSt(a, 'str', 2)) },
+      whip: { n: '鞭打', i: 'atk', d: 11 }, roar: { n: '咆哮', i: 'def', f: (e, B) => B.eBlock(e, 12) } },
+    ai: e => cycle(e, ['drive', 'whip', 'roar', 'whip']),
+    onDie: (e, B) => { B.allies(e).forEach(a => B.flee(a)); B.say('（监工身上掉出一封信）「……按伯爵大人的吩咐，把抓到的人都送到古堡去。」'); } },
+  orc_scout: { name: '兽人斥候', hp: [36, 40], sc: 2.4, hd: 240, hdw: 230, lore: '兽人的先锋，喜欢第一个冲上来。',
+    moves: { charge: { n: '冲锋', i: 'atk', d: 14 }, hack: { n: '双斧连砍', i: 'atk', d: 5, x: 2 }, guard: { n: '举盾', i: 'atkdef', d: 6, f: (e, B) => B.eBlock(e, 8) } },
+    ai: e => cycle(e, ['charge', 'hack', 'guard', 'hack']) },
   gob_giant: { name: '巨型哥布林', hp: [38, 42], sc: 2.2, hd: 384, hdw: 200,
     moves: { roar: { n: '怒吼', i: 'buff', f: (e, B) => B.addSt(e, 'str', 2) }, smash: { n: '重砸', i: 'atkdebuff', d: 12, f: (e, B) => B.addCard('wound', 1) } },
     ai: e => cycle(e, ['smash', 'roar']) },
@@ -308,7 +317,7 @@ export const ENEMIES = {
     moves: { combo: { n: '连斩', i: 'atk', d: 6, x: 2 }, crush: { n: '破甲', i: 'atkdebuff', d: 10, f: (e, B) => B.applyP('vuln', 1) },
       charge: { n: '蓄力', i: 'unknown' }, heavy: { n: '重劈', i: 'atk', d: 18 } },
     ai: e => cycle(e, ['combo', 'crush', 'charge', 'heavy']) },
-  gob_king: { name: '哥布林大王', hp: [190, 190], sc: 2.9, hd: 380, hdw: 260, boss: 1,
+  gob_king: { name: '哥布林大王', intro: '「打败我就结束了？兽人老爷……还有古堡里那位大人，都不会放过你们！」', onDie: (e, B) => B.say('「伯爵大人……会替我报仇的……」'), hp: [190, 190], sc: 2.9, hd: 380, hdw: 260, boss: 1,
     moves: { call: { n: '召唤', i: 'summon', f: (e, B) => { for (let k = 0; k < 2 && B.alive().length < 3; k++) B.summon('goblin', 8); } },
       cut: { n: '王之斩', i: 'atk', d: 18 }, order: { n: '号令', i: 'buff', f: (e, B) => { B.alive().forEach(a => B.addSt(a, 'str', 2)); B.eBlock(e, 12); } },
       fury: { n: '暴怒连斩', i: 'atk', d: 6, x: 3 } },
@@ -328,8 +337,8 @@ export const ENEMIES = {
 export const ENCOUNTERS = {
   easy: [['goblin', 'goblin'], ['gob_kid', 'gob_kid', 'gob_kid'], ['gob_blade'], ['gob_archer', 'gob_shield']],
   hard: [['gob_wolf'], ['gob_bomb', 'gob_bomb', 'goblin'], ['gob_thrower', 'gob_thrower'], ['gob_kid', 'gob_blade'],
-    ['gob_archer', 'gob_shield', 'gob_archer'], ['goblin', 'gob_wolf'], ['gob_mage', 'goblin'], ['gob_shield', 'gob_mage'], ['gob_giant'], ['gob_kid', 'gob_giant']],
-  elite: [['gob_kid', 'gob_shaman', 'gob_kid'], ['gob_paladin'], ['gob_hero']],
+    ['gob_archer', 'gob_shield', 'gob_archer'], ['goblin', 'gob_wolf'], ['gob_mage', 'goblin'], ['gob_shield', 'gob_mage'], ['gob_giant'], ['gob_kid', 'gob_giant'], ['orc_scout'], ['gob_kid', 'orc_scout']],
+  elite: [['gob_kid', 'gob_shaman', 'gob_kid'], ['gob_paladin'], ['gob_hero'], ['goblin', 'orc_overseer', 'goblin']],
   boss: [['gob_king'], ['gob_archshaman'], ['gob_warlord']],
 };
 
