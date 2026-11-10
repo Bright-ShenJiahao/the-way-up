@@ -455,7 +455,7 @@ export const ENEMIES = {
     ai: e => cycle(e, ['combo', 'crush', 'charge', 'heavy']) },
   gob_king: { name: '哥布林大王', intro: '「打败我就结束了？兽人老爷……还有古堡里那位大人，都不会放过你们！」', onDie: (e, B) => B.say('「伯爵大人……会替我报仇的……」'), hp: [190, 190], sc: 2.9, hd: 380, hdw: 260, boss: 1,
     lore: '血量掉到一半时会暴怒，叫来两个手下。暴怒后，你每打出一张技能牌，他力量 +1（每回合最多 +2）。',
-    onHurt: (e, B) => { if (!e.p2 && e.hp <= e.max / 2) { e.p2 = 1; B.addSt(e, 'enrage', 1); B.summon('goblin', 10); B.summon('goblin', 10); B.say('「小的们，给我上！」'); } },
+    onHurt: (e, B) => { if (!e.p2 && e.hp <= e.max / 2) { e.p2 = 1; B.summon('goblin', 10); B.summon('goblin', 10); B.say('「小的们，给我上！」'); } },
     moves: { call: { n: '召唤', i: 'summon', f: (e, B) => { for (let k = 0; k < 2 && B.alive().length < 3; k++) B.summon('goblin', 8); } },
       cut: { n: '王之斩', i: 'atk', d: 18 }, order: { n: '号令', i: 'buff', f: (e, B) => { B.alive().forEach(a => B.addSt(a, 'str', 2)); B.eBlock(e, 12); } },
       fury: { n: '暴怒连斩', i: 'atk', d: 6, x: 3 } },
