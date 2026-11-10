@@ -9,7 +9,10 @@ export const config = { path: '/api/scores' };
 
 const SEASON = 's1', NAME_MAX = 8, TOP_N = 30;
 const CHARS = ['hero', 'heroine', 'miko', 'witch'];
-const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
+/* 允许 itch.io 上的游戏跨域访问 */
+let CORS = {};
+const corsFor = req => { const o = req.headers.get('origin') || ''; return /^https:\/\/([a-z0-9-]+\.)*(itch\.zone|itch\.io|hwcdn\.net)$/.test(o) || /^https:\/\/the-way-up\.netlify\.app$/.test(o) ? { 'access-control-allow-origin': o, 'access-control-allow-methods': 'GET, POST, OPTIONS', 'access-control-allow-headers': 'content-type', 'vary': 'origin' } : {}; };
+const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...CORS } });
 const cleanName = raw => Array.from(String(raw ?? '').replace(/[\u0000-\u001f<>\\"'`]/g, '').trim()).slice(0, NAME_MAX).join('');
 const int = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.round(Number(v) || 0)));
 
@@ -17,6 +20,8 @@ const int = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.round(Number(v) || 0))
 export const scoreOf = r => { const b = r.floor * 20 + r.kills * 3 + r.elites * 25 + (r.win ? 300 + r.hp * 2 : 0); return b + Math.round(b * r.asc * .1); };
 
 export default async function handler(req) {
+  CORS = corsFor(req);
+  if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
   const store = getStore({ name: 'theway-board', consistency: 'strong' });
   if (req.method === 'GET') {
     try {

@@ -1,4 +1,4 @@
-import { tr } from './i18n.js?v=safe11050000';
+import { tr } from './i18n.js?v=fix11101320';
 // 数据：卡牌 / 遗物 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
 const I = n => n.includes('/') ? `assets/${n}.png` : `assets/icons/${n}.png`;
