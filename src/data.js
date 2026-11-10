@@ -1,4 +1,4 @@
-import { tr } from './i18n.js?v=bgm9_11110420';
+import { tr } from './i18n.js?v=bgm10_11110426';
 // 数据：卡牌 / 遗物 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
 const I = n => n.includes('/') ? `assets/${n}.png` : `assets/icons/${n}.png`;
@@ -333,7 +333,7 @@ export const ENEMIES = {
       totem: { n: '治疗图腾', i: 'buff', f: (e, B) => B.alive().forEach(a => { B.healE(a, 5); B.addSt(a, 'str', 1); }) } },
     ai: e => cycle(e, ['bolt', 'hex', 'bolt', 'totem']) },
   /* 兽人：哥布林的主子，听命于古堡的伯爵 */
-  orc_overseer: { name: '兽人监工', hp: [64, 68], sc: 2.6, hd: 300, hdw: 300, elite: 1, lore: '替伯爵抓人的兽人，用鞭子驱赶哥布林干活。',
+  orc_overseer: { name: '兽人监工', hp: [64, 68], sc: 2.6, hd: 300, hdw: 300, elite: 1, lore: '哥布林部落的监工，用鞭子驱赶哥布林干活。',
     moves: { drive: { n: '鞭策', i: 'atkbuff', d: 5, f: (e, B) => B.allies(e).forEach(a => B.addSt(a, 'str', 2)) },
       whip: { n: '鞭打', i: 'atk', d: 11 }, roar: { n: '咆哮', i: 'def', f: (e, B) => B.eBlock(e, 12) } },
     ai: e => cycle(e, ['drive', 'whip', 'roar', 'whip']),
@@ -427,8 +427,8 @@ export const ENCOUNTERS = {
 /* 第二章：血月古堡 */
 export const ENCOUNTERS2 = {
   easy: [['skeleton', 'skeleton'], ['zombie'], ['ghost', 'skeleton'], ['ghoul', 'ghoul'], ['gargoyle']],
-  hard: [['zombie', 'zombie'], ['ghost', 'ghost', 'skeleton'], ['skeleton', 'zombie', 'ghost'], ['orc_scout', 'zombie'], ['werewolf'], ['gargoyle', 'ghost'], ['ghoul', 'zombie', 'ghoul'], ['werewolf', 'skeleton'], ['gargoyle', 'gargoyle']],
-  elite: [['vamp_bride'], ['necromancer', 'skeleton'], ['stitched'], ['zombie', 'orc_overseer', 'zombie']],
+  hard: [['zombie', 'zombie'], ['ghost', 'ghost', 'skeleton'], ['skeleton', 'zombie', 'ghost'], ['ghoul', 'zombie'], ['werewolf'], ['gargoyle', 'ghost'], ['ghoul', 'zombie', 'ghoul'], ['werewolf', 'skeleton'], ['gargoyle', 'gargoyle']],
+  elite: [['vamp_bride'], ['necromancer', 'skeleton'], ['stitched'], ['necromancer', 'skeleton', 'zombie']],
   boss: [['vamp_count'], ['death_knight'], ['wolf_lord']],
 };
 

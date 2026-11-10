@@ -607,10 +607,6 @@
   "Twin Chop",
   "二刀斧"
  ],
- "替伯爵抓人的兽人，用鞭子驱赶哥布林干活。": [
-  "An orc who hunts people for the Count, driving goblins with a whip.",
-  "伯爵のために人間を狩るオーク。ムチでゴブリンを働かせる。"
- ],
  "兽人的先锋，喜欢第一个冲上来。": [
   "The orcs' vanguard. Always first to charge.",
   "オークの先鋒。いつも真っ先に突っ込んでくる。"
@@ -1106,5 +1102,9 @@
  "打开：{0} 拿到遗物，{1} 被吸走 {2} 生命": [
   "Open it: {0} relic, {1} lose {2} HP",
   "開ける：{0}で遺物、{1}でHP{2}を吸われる"
+ ],
+ "哥布林部落的监工，用鞭子驱赶哥布林干活。": [
+  "The overseer of the goblin tribe, driving goblins to work with a whip.",
+  "ゴブリン族の監督役。ムチでゴブリンを働かせる。"
  ]
 }
