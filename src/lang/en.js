@@ -934,6 +934,7 @@ export default {
 "「小的们，给我上！」": "\"Boys, get 'em!\"",
 "坠落！": "Fell!",
 "坠地·无法行动": "Grounded · can't act",
+"血量掉到一半时会暴怒，叫来两个手下。暴怒后，你每打出一张技能牌，他力量 {0}（每回合最多 {1}）。": "At half HP he flies into a rage and calls two minions. While enraged, he gains Strength {0} whenever you play a Skill (max {1} per turn).",
 "格挡": "Block",
 "易伤": "Vulnerable",
 "虚弱": "Weak",
