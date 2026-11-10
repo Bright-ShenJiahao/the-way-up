@@ -1238,5 +1238,125 @@
  "即将推出": [
   "Coming soon",
   "近日公開"
+ ],
+ "元素使 · 艾琳": [
+  "Elementalist · Erin",
+  "エレメンタリスト・エリン"
+ ],
+ "法杖 · 元素": [
+  "Staff · Elements",
+  "杖・元素"
+ ],
+ "剑客 · 顾清寒": [
+  "Swordswoman · Gu Qinghan",
+  "剣客・顧清寒"
+ ],
+ "长剑 · 飞剑": [
+  "Sword · Flying Swords",
+  "長剣・飛剣"
+ ],
+ "霜龙裔 · 希尔薇": [
+  "Frost Dragonborn · Sylvie",
+  "霜竜の末裔・シルヴィ"
+ ],
+ "冰枪 · 变身": [
+  "Ice Spear · Transform",
+  "氷槍・変身"
+ ],
+ "猫耳族 · 米娅": [
+  "Catfolk · Mia",
+  "猫耳族・ミア"
+ ],
+ "魔杖 · 云猫": [
+  "Wand · Cloud Cat",
+  "魔杖・雲猫"
+ ],
+ "半吸血鬼 · 绯月": [
+  "Half-Vampire · Hizuki",
+  "半吸血鬼・緋月"
+ ],
+ "血爪 · 蝙蝠": [
+  "Blood Claw · Bats",
+  "血爪・コウモリ"
+ ],
+ "麻将社 · 沈雀": [
+  "Mahjong Club · Shen Que",
+  "麻雀部・沈雀"
+ ],
+ "麻将 · 牌型": [
+  "Mahjong · Hands",
+  "麻雀・役"
+ ],
+ "头顶三个元素位，组合火、水、风，「祈唤」出 10 种法术。": [
+  "Three element slots above her head—combine fire, water and wind, then Invoke one of 10 spells.",
+  "頭上の3つの元素枠で火・水・風を組み合わせ、10種の魔法を「祈喚」する。"
+ ],
+ "飞剑加伤害、内力越打越强、剑招连段一口气收招。": [
+  "Flying swords boost damage, inner energy grows over time, and sword combos end in a finisher.",
+  "飛剣で威力アップ、内力は戦うほど強まり、剣技の連撃で一気に決める。"
+ ],
+ "攒满龙血变身霜龙，三回合内龙息横扫。": [
+  "Fill her dragon blood to become a frost dragon and sweep foes with breath for 3 turns.",
+  "竜血を溜めて霜竜に変身し、3ターン竜の息吹でなぎ払う。"
+ ],
+ "云猫团子替你挨打、自己攻击，还会一路长大。": [
+  "Dango the cloud cat takes hits for you, attacks on its own, and keeps growing.",
+  "雲猫のダンゴが攻撃を受け止め、自分で戦い、どんどん成長する。"
+ ],
+ "用自己的血换力量，攻击吸血续命，还能放蝙蝠群。": [
+  "Trade her own blood for power, drain life with attacks, and unleash bat swarms.",
+  "自らの血を力に変え、攻撃で吸血し、コウモリの群れを放つ。"
+ ],
+ "凑对子、刻子、顺子、清一色，胡牌一击定胜负。": [
+  "Build pairs, triplets, runs and flushes—then win the hand in one decisive blow.",
+  "対子・刻子・順子・清一色をそろえ、和了の一撃で決める。"
+ ],
+ "“火、水、风……这次搓哪一个呢。”": [
+  "\"Fire, water, wind... which one shall I weave this time?\"",
+  "「火、水、風……今回はどれにしようかな」"
+ ],
+ "“剑在，人就在。”": [
+  "\"Where my sword stands, so do I.\"",
+  "「剣ある限り、私もここにいる」"
+ ],
+ "“……别让我变回那个样子。”": [
+  "\"...Don't make me turn into that again.\"",
+  "「……あの姿には、戻りたくない」"
+ ],
+ "“团子，拜托你了喵。”": [
+  "\"Dango, I'm counting on you, nya.\"",
+  "「ダンゴ、お願いにゃ」"
+ ],
+ "“……血的味道，我才不喜欢。”": [
+  "\"...I don't even like the taste of blood.\"",
+  "「……血の味なんて、好きじゃない」"
+ ],
+ "“这一局，我要胡了。”": [
+  "\"This hand is mine.\"",
+  "「この局、和了らせてもらうわ」"
+ ],
+ "艾琳是精灵族的年轻魔法师，天生能同时感受到火、水、风三种元素。族里的长老说她太急躁，总想把三种元素搅在一起用。她偏偏觉得，把元素组合起来才是最有趣的魔法。听说雪山顶上有连通所有世界的门，她想去看看门那边的元素长什么样。": [
+  "Erin is a young elven mage who can feel fire, water and wind all at once. The elders say she is too impatient, always mixing the elements together—but she thinks combining them is the most fun magic there is. Hearing of a gate atop the snowy peak that links every world, she wants to see what elements lie beyond it.",
+  "エリンはエルフ族の若い魔法使いで、火・水・風の三つの元素を同時に感じ取れる。長老たちには「せっかちで、元素をすぐ混ぜたがる」と言われるが、彼女は組み合わせこそ一番面白い魔法だと思っている。雪山の頂にすべての世界をつなぐ門があると聞き、その向こうの元素を見てみたくなった。"
+ ],
+ "顾清寒是雪山剑派的弟子。剑派因为「练气」还是「练剑」吵成了两派，她两边都偷偷学了，结果被两边都当成异类。魔王占了山顶后，剑派被赶下了山，她背着剑一个人走下来，想找能一起打回去的人。": [
+  "Gu Qinghan is a disciple of the Snow Peak Sword Sect. The sect split over whether to train inner energy or the blade; she secretly learned both and was shunned by each side. When the Demon Lord seized the summit and drove the sect down the mountain, she walked down alone with her sword, looking for allies to fight back.",
+  "顧清寒は雪山剣派の弟子。剣派は「気を練るか、剣を練るか」で二派に割れ、両方をこっそり学んだ彼女はどちらからも異端扱いされた。魔王が山頂を占拠して剣派が山を追われたあと、彼女はひとり剣を背負って山を下り、共に戦う仲間を探している。"
+ ],
+ "希尔薇是远古白龙最后的后裔，住在雪山的冰窟里，外表是冷淡安静的少女。情绪激动时，她会变回霜龙的样子，这让她很害怕自己。山顶的魔王占据了祖先的龙巢，她不得不下山，也不得不学着控制体内的龙血。": [
+  "Sylvie is the last descendant of an ancient white dragon, living in an ice cave on the snowy peak—a cold, quiet girl on the outside. When her emotions run high she turns back into a frost dragon, and that frightens her. With the Demon Lord occupying her ancestors' nest, she has to come down the mountain and learn to master the dragon blood within.",
+  "シルヴィは古の白竜の最後の末裔。雪山の氷窟に住み、見た目は冷たく静かな少女だ。感情が高ぶると霜竜の姿に戻ってしまい、それが自分でも怖い。魔王に祖先の竜の巣を奪われ、山を下りて体内の竜血を制御することを学ばなければならない。"
+ ],
+ "米娅是人类和猫耳族的混血女孩，两边的族人都不太接纳她，从小只和云猫幼崽团子相依为命。团子的母亲是山里的守护神，被哥布林抓走了。米娅抱着团子上山，嘴上说着「拜托你了喵」，其实最舍不得团子受伤。": [
+  "Mia is half human, half catfolk, never fully accepted by either side, and has grown up with only Dango, a cloud cat cub, for company. Dango's mother is the mountain's guardian spirit, taken by goblins. Mia climbs the mountain with Dango in her arms; she says \"I'm counting on you, nya,\" but she hates seeing Dango get hurt.",
+  "ミアは人間と猫耳族の混血で、どちらの一族にも受け入れられず、雲猫の子ダンゴとだけ寄り添って育った。ダンゴの母は山の守り神で、ゴブリンにさらわれてしまった。ミアはダンゴを抱いて山を登る。「お願いにゃ」と言いながら、本当はダンゴが傷つくのが何より嫌だ。"
+ ],
+ "绯月是日本的高中生，被光卷进异世界的人之一。她一直不知道，母亲那边流着吸血鬼的血。古堡的血月唤醒了她的血脉，伯爵认出了她，想把她留下。她拒绝了。她害怕自己越来越不像人类，却又不得不依靠这股力量保护同伴。": [
+  "Hizuki is a Japanese high schooler, one of those swept into this world by the light. She never knew vampire blood ran in her mother's family. The castle's blood moon awakened it, and the Count recognized her and wanted her to stay. She refused. She fears becoming less human, yet must rely on that power to protect her friends.",
+  "緋月は日本の女子高生で、光に巻き込まれて異世界へ来た一人。母方に吸血鬼の血が流れていることを、彼女は知らなかった。古城の血月がその血を目覚めさせ、伯爵は彼女に気づいて引き留めようとしたが、彼女は拒んだ。人間らしさを失うのが怖いのに、仲間を守るためにはその力に頼るしかない。"
+ ],
+ "沈雀是高中麻将社的王牌，平时安安静静，一坐上牌桌就像变了个人。那天她背着装麻将的书包回家，也被那道光卷进了异世界。到了这边，书包里的麻将牌开始发光，凑出牌型就能放出魔法。她的口头禅是：「这一局，我要胡了。」": [
+  "Shen Que is the ace of her high school mahjong club—quiet most of the time, but a different person at the table. Walking home with her mahjong set in her bag, she too was swept into this world by the light. Here her tiles began to glow, and completing a hand unleashes magic. Her catchphrase: \"This hand is mine.\"",
+  "沈雀は高校麻雀部のエース。ふだんは物静かなのに、卓につくと別人になる。麻雀牌を入れたカバンを背負って帰る途中、彼女もあの光に巻き込まれた。こちらの世界では牌が光り出し、役をそろえると魔法が放てる。口ぐせは「この局、和了らせてもらうわ」。"
  ]
 }
