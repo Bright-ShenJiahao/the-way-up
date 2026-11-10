@@ -483,6 +483,7 @@ export default {
 "不能打出。回合结束时消耗。": "Unplayable. Exhausts at end of turn.",
 "不能打出。": "Unplayable.",
 "不能打出。回合结束时若在手中，失去 {0} 点生命。": "Unplayable. If in hand at end of turn, lose {0} HP.",
+"每 {0} 回合得到 {1} 发光弹（第 {2}、{3}、{4}…回合）。战斗结束时回复 {5} 点生命。": "Gain {1} Ammo every {0} turns (turns {2}, {3}, {4}…). Heal {5} HP after combat.",
 "哥布林小兵": "Goblin Grunt",
 "哥布林小鬼": "Goblin Imp",
 "哥布林刀手": "Goblin Blade",

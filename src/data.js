@@ -1,4 +1,4 @@
-import { tr } from './i18n.js?v=stat11101520';
+import { tr } from './i18n.js?v=bal211101540';
 // 数据：卡牌 / 遗物 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
 const I = n => n.includes('/') ? `assets/${n}.png` : `assets/icons/${n}.png`;
@@ -79,7 +79,7 @@ export const CARDS = {
   kekkai: { ch: 'miko', name: '张设结界', type: 'skill', rar: 'start', cost: [1, 0], icon: 'sk_sigil', tgt: 'self',
     desc: () => `结界 +1。获得 4 点格挡。`, play: g => { g.kek(1); g.block(4); } },
   hama: { ch: 'miko', name: '破魔箭', type: 'atk', rar: 'start', cost: [1, 1], icon: 'sk_holyorb', tgt: 'one',
-    desc: u => `造成 7 点伤害，每层结界 +${v(u, 3, 4)}（最多算 4 层）。`, play: (g, u, t) => g.attack(t, 7 + Math.min(4, g.p.st.kek || 0) * v(u, 3, 4)) },
+    desc: u => `造成 7 点伤害，每层结界 +${v(u, 3, 4)}（最多算 5 层）。`, play: (g, u, t) => g.attack(t, 7 + Math.min(5, g.p.st.kek || 0) * v(u, 3, 4)) },
   fuda: { ch: 'miko', name: '符咒', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_rune', tgt: 'self',
     desc: u => `结界 +1。抽 ${v(u, 1, 2)} 张牌。`, play: (g, u) => { g.kek(1); g.draw(v(u, 1, 2)); } },
   shime: { ch: 'miko', name: '注连绳', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_whip', tgt: 'self',
@@ -98,7 +98,7 @@ export const CARDS = {
     desc: u => `造成 ${v(u, 4, 6)} 点伤害 2 次。`, play: (g, u, t) => g.attack(t, v(u, 4, 6), 2) },
   piercing: { ch: 'miko', name: '穿云箭', type: 'atk', rar: 'c', cost: [1, 1], icon: 'sk_hawk', tgt: 'one',
     desc: u => `移除目标的格挡，造成 ${v(u, 9, 12)} 点伤害。`, play: (g, u, t) => { t.block = 0; g.attack(t, v(u, 9, 12)); } },
-  yumihari: { ch: 'miko', name: '弓张月', type: 'atk', rar: 'u', cost: [2, 1], icon: 'p_arc', tgt: 'one',
+  yumihari: { ch: 'miko', name: '弓张月', type: 'atk', rar: 'u', cost: [1, 0], icon: 'p_arc', tgt: 'one',
     desc: () => `造成等同于你当前格挡值的伤害。`, play: (g, u, t) => g.attack(t, g.p.block) },
   mangetsu: { ch: 'miko', name: '破魔·满月', type: 'atk', rar: 'u', cost: [2, 2], icon: 'ic_gods', tgt: 'one',
     desc: u => `消耗最多 4 层结界，每层造成 ${v(u, 8, 10)} 点伤害。`, play: (g, u, t) => { const n = Math.min(4, g.p.st.kek || 0); if (n) { g.p.st.kek -= n; if (!g.p.st.kek) delete g.p.st.kek; g.attack(t, n * v(u, 8, 10)); } } },
@@ -193,8 +193,8 @@ export const STARTERS = {
 export const STARTER = STARTERS.hero;
 
 export const RELICS = {
-  gameboy: { ch: 'hero', name: '掌机', icon: 'gb', rar: 'start', desc: '每回合开始时得到 1 发光弹。战斗结束时回复 4 点生命。' },
-  phones: { ch: 'heroine', name: '粉色耳机', icon: 'ic_bell', rar: 'start', desc: '战斗开始时给予所有敌人 4 层共鸣，之后每回合开始再给 1 层。战斗结束时回复 4 点生命。' },
+  gameboy: { ch: 'hero', name: '掌机', icon: 'gb', rar: 'start', desc: '每 2 回合得到 1 发光弹（第 1、3、5…回合）。战斗结束时回复 4 点生命。' },
+  phones: { ch: 'heroine', name: '粉色耳机', icon: 'ic_bell', rar: 'start', desc: '战斗开始时给予所有敌人 2 层共鸣，之后每回合开始再给 1 层。战斗结束时回复 4 点生命。' },
   cauldron: { ch: 'witch', name: '魔女的坩埚', icon: 'pot', rar: 'start', desc: '战斗开始时随机获得 1 个炼金瓶。战斗结束时回复 4 点生命。' },
   toad: { ch: 'witch', name: '蟾蜍干', icon: 'b_curse', rar: 'c', desc: '每次给予中毒时，额外 +1 层。' },
   hat: { ch: 'witch', name: '魔女帽', icon: 'sk_shadow', rar: 'u', desc: '每使用 1 个炼金瓶，获得 2 点格挡。' },
@@ -244,7 +244,7 @@ export const STATUS = {
   rage: ['狂暴', '回合开始获得力量', '#ff4040'], keep: ['不动如山', '格挡不消失', '#d0b060'],
   regen: ['再生', '回合结束回复生命', '#50d080'], enrage: ['激怒', '你每打出一张技能牌，它获得力量', '#ff7030'],
   ritual: ['战意', '回合结束获得力量', '#ff9050'], fuse: ['引信', '归零时自爆', '#ffcc00'],
-  ammo: ['光弹', '回合结束时自动射出，每发对随机敌人造成 3 点伤害，然后清零（最多 10 发）', '#60d0ff'], res: ['共鸣', '叠到 10 层时爆音，造成 24 点伤害，之后保留 3 层（多出的也保留）', '#ff80c0'],
+  ammo: ['光弹', '回合结束时自动射出，每发对随机敌人造成 3 点伤害，然后清零（最多 10 发）', '#60d0ff'], res: ['共鸣', '叠到 10 层时爆音，造成 20 点伤害，之后保留 3 层（多出的也保留）', '#ff80c0'],
   gen: ['扩容', '回合开始得到光弹', '#60d0ff'], rapid: ['连发', '回合结束射出光弹时获得格挡', '#60d0ff'], dual: ['双持', '每发光弹伤害增加', '#60d0ff'],
   lowf: ['低频', '回合开始给所有敌人共鸣', '#ff80c0'], dist: ['失真', '爆音后多保留 3 层共鸣，爆音伤害 +5', '#ff80c0'], concert: ['演唱会', '出牌时给所有敌人共鸣', '#ff80c0'],
   kek: ['结界', '回合开始时按层数获得格挡', '#ffd060'], kagura: ['神乐舞', '回合开始结界 +1', '#ffd060'], shinboku: ['御神木', '结界格挡翻倍', '#ffd060'],
