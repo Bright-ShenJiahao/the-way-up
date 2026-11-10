@@ -1,6 +1,6 @@
 # 平衡测试结果（每个角色每档 400 局）
 
-生成时间：2026-11-10T17:15:17.758Z
+生成时间：2026-11-10T17:26:09.836Z
 
 新手机器人：不用药水、选牌只看稀有度。熟练机器人：会用药水、按角色流派选牌，更接近真人。
 
@@ -8,17 +8,17 @@
 
 | 角色 | 第一章通关 | 第二章通关 | 第一章 Boss 战胜率 | 第二章通关剩余生命 | 最常死在 |
 |---|---|---|---|---|---|
-| miko | 23.5% | 7.5% | 26% | 46 | 一·Boss:gob_king(108)、一·Boss:gob_warlord(83)、一·Boss:gob_archshaman(76)、二·精英:skeleton+orc_overseer+skeleton(21) |
-| hero | 8.8% | 0.3% | 14% | 45 | 一·Boss:gob_archshaman(80)、一·Boss:gob_warlord(72)、一·Boss:gob_king(67)、一·gob_bomb+gob_bomb+goblin(19) |
-| witch | 19.8% | 1.3% | 33% | 45 | 一·Boss:gob_king(61)、一·Boss:gob_warlord(54)、一·Boss:gob_archshaman(46)、一·精英:gob_kid+gob_shaman+gob_kid(26) |
-| heroine | 12.5% | 0.3% | 23% | 50 | 一·Boss:gob_king(65)、一·Boss:gob_warlord(51)、一·Boss:gob_archshaman(48)、一·精英:gob_kid+gob_shaman+gob_kid(32) |
+| miko | 26.0% | 4.5% | 29% | 44 | 一·Boss:gob_king(92)、一·Boss:gob_archshaman(85)、一·Boss:gob_warlord(80)、二·精英:zombie+orc_overseer+zombie(19) |
+| hero | 12.5% | 0.3% | 22% | 38 | 一·Boss:gob_warlord(72)、一·Boss:gob_archshaman(56)、一·Boss:gob_king(53)、一·精英:goblin+orc_overseer+goblin(36) |
+| witch | 16.3% | 1.0% | 28% | 35 | 一·Boss:gob_warlord(62)、一·Boss:gob_king(54)、一·Boss:gob_archshaman(54)、一·精英:gob_kid+gob_shaman+gob_kid(27) |
+| heroine | 12.0% | 0.3% | 22% | 4 | 一·Boss:gob_king(77)、一·Boss:gob_warlord(51)、一·Boss:gob_archshaman(39)、一·精英:gob_kid+gob_shaman+gob_kid(29) |
 
 ## 熟练机器人（≈ 真人）
 
 | 角色 | 第一章通关 | 第二章通关 | 第一章 Boss 战胜率 | 第二章通关剩余生命 | 最常死在 |
 |---|---|---|---|---|---|
-| miko | 44.3% | 22.3% | 45% | 41 | 一·Boss:gob_king(94)、一·Boss:gob_warlord(67)、一·Boss:gob_archshaman(56)、二·精英:skeleton+orc_overseer+skeleton(32) |
-| hero | 55.5% | 6.3% | 60% | 31 | 一·Boss:gob_warlord(72)、二·精英:skeleton+orc_overseer+skeleton(54)、二·skeleton+skeleton+skeleton(41)、一·Boss:gob_archshaman(37) |
-| witch | 61.5% | 17.0% | 67% | 37 | 二·精英:skeleton+orc_overseer+skeleton(56)、一·Boss:gob_warlord(49)、一·Boss:gob_king(44)、一·Boss:gob_archshaman(29) |
-| heroine | 64.5% | 7.0% | 72% | 32 | 二·精英:skeleton+orc_overseer+skeleton(64)、一·Boss:gob_king(45)、一·Boss:gob_warlord(32)、二·skeleton+skeleton+skeleton(32) |
+| miko | 50.0% | 14.8% | 51% | 36 | 一·Boss:gob_king(90)、一·Boss:gob_warlord(65)、二·Boss:wolf_lord(52)、二·Boss:death_knight(40) |
+| hero | 57.8% | 9.5% | 62% | 25 | 一·Boss:gob_king(51)、一·Boss:gob_warlord(47)、一·Boss:gob_archshaman(42)、二·精英:zombie+orc_overseer+zombie(37) |
+| witch | 62.7% | 16.8% | 69% | 32 | 一·Boss:gob_warlord(53)、一·Boss:gob_king(36)、二·精英:zombie+orc_overseer+zombie(31)、二·Boss:wolf_lord(27) |
+| heroine | 58.8% | 10.5% | 67% | 25 | 一·Boss:gob_king(61)、二·Boss:death_knight(30)、一·Boss:gob_warlord(29)、二·Boss:wolf_lord(28) |
 
