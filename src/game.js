@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=rapid11110405';
-import { createAudio } from './audio.js?v=rapid11110405';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=rapid11110405';
+import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=bgm7_11110415';
+import { createAudio } from './audio.js?v=bgm7_11110415';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=bgm7_11110415';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -195,7 +195,7 @@ const CHARINFO = {
 };
 const ORDER = ['miko', 'hero', 'witch', 'heroine'];
 function title() {
-  setMusic('menu'); R = null; B = null;
+  R = null; B = null; setMusic('menu');
   view.innerHTML = `<div class="bg" style="background:url(assets/bg/title.jpg) center/cover,url(assets/bg/battle_castle.jpg) center/cover"></div><div class="tshade"></div>
    <div class="tlogo"><h1>通往顶端</h1><p class="en">THE WAY UP</p><p class="en2">OTHERWORLD DECK</p></div>
    <div class="tbox"><input id="nm" class="inp" maxlength="8" placeholder="输入你的名字（可不填）" value="${esc(LS('tw_name'))}">
@@ -206,7 +206,7 @@ function title() {
   $('#enter').onclick = go; $('#nm').onkeydown = $('#pin').onkeydown = e => { if (e.key === 'Enter') go(); };
 }
 function mainMenu() {
-  setMusic('menu'); R = null; B = null;
+  R = null; B = null; setMusic('menu');
   const sv = load(), nm = LS('tw_name');
   view.innerHTML = `<div class="bg" style="background:url(assets/bg/title.jpg) center/cover,url(assets/bg/battle_castle.jpg) center/cover"></div><div class="tshade"></div>
    <div class="tlogo sm"><h1>通往顶端</h1><p class="en">THE WAY UP</p></div>
@@ -850,10 +850,10 @@ function story(img, lines, done, once) {
   let i = 0; const show = () => { view.querySelector('.storybox p').textContent = t(lines[i]); };
   show(); $('#stskip').onclick = done; $('#stnext').onclick = () => { if (++i >= lines.length) done(); else show(); };
 }
-/* 第二章用外部曲子（Pixabay，可商用）：普通/精英战 = Baroque music，Boss 战 = Vampire Boogie */
+/* 外部曲子（Pixabay 许可，可商用）：标题 / 每章的地图、战斗、Boss 各一首 */
 const BGM = {}; let bgmNow = null;
 function setMusic(m) {
-  const want = ACT() === 2 && m !== 'menu' ? (m === 'boss' ? 'c2_boss' : 'c2_battle') : null;
+  const a = ACT() === 2 ? 'c2' : 'c1', want = !R && m === 'menu' ? 'title' : m === 'menu' ? a + '_map' : m === 'boss' ? a + '_boss' : a + '_battle';
   if (bgmNow && bgmNow !== want) { BGM[bgmNow].pause(); bgmNow = null; }
   if (!want) { audio.setMode(m); return; }
   audio.setMode('silent');
@@ -861,6 +861,7 @@ function setMusic(m) {
   const V = audio.vol || { m: 1, mu: 1 }; el.volume = audio.muted && audio.muted() ? 0 : Math.min(1, .55 * (V.m ?? 1) * (V.mu ?? 1));
   if (bgmNow !== want) { el.currentTime = 0; el.play().catch(() => {}); bgmNow = want; }
 }
+addEventListener('pointerdown', () => { if (bgmNow && BGM[bgmNow].paused) BGM[bgmNow].play().catch(() => {}); }); /* 浏览器要求先点一下才能播放 */
 setInterval(() => { if (bgmNow) { const V = audio.vol || {}; BGM[bgmNow].volume = audio.muted && audio.muted() ? 0 : Math.min(1, .55 * (V.m ?? 1) * (V.mu ?? 1)); } }, 500);
 function act2Choice() {
   B = null; save(); setMusic('menu');
