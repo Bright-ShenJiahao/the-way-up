@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=story11110330';
-import { createAudio } from './audio.js?v=story11110330';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=story11110330';
+import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=bgm11110400';
+import { createAudio } from './audio.js?v=bgm11110400';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=bgm11110400';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -195,7 +195,7 @@ const CHARINFO = {
 };
 const ORDER = ['miko', 'hero', 'witch', 'heroine'];
 function title() {
-  audio.setMode('menu'); R = null; B = null;
+  setMusic('menu'); R = null; B = null;
   view.innerHTML = `<div class="bg" style="background:url(assets/bg/title.jpg) center/cover,url(assets/bg/battle_castle.jpg) center/cover"></div><div class="tshade"></div>
    <div class="tlogo"><h1>通往顶端</h1><p class="en">THE WAY UP</p><p class="en2">OTHERWORLD DECK</p></div>
    <div class="tbox"><input id="nm" class="inp" maxlength="8" placeholder="输入你的名字（可不填）" value="${esc(LS('tw_name'))}">
@@ -206,7 +206,7 @@ function title() {
   $('#enter').onclick = go; $('#nm').onkeydown = $('#pin').onkeydown = e => { if (e.key === 'Enter') go(); };
 }
 function mainMenu() {
-  audio.setMode('menu'); R = null; B = null;
+  setMusic('menu'); R = null; B = null;
   const sv = load(), nm = LS('tw_name');
   view.innerHTML = `<div class="bg" style="background:url(assets/bg/title.jpg) center/cover,url(assets/bg/battle_castle.jpg) center/cover"></div><div class="tshade"></div>
    <div class="tlogo sm"><h1>通往顶端</h1><p class="en">THE WAY UP</p></div>
@@ -299,7 +299,7 @@ function available() {
   const cur = R.map[R.pos.r][R.pos.c]; return cur.next.map(c => R.map[R.pos.r + 1][c]);
 }
 function mapScreen() { SCREEN = 'map';
-  audio.setMode('menu'); delete R.pending; delete R.pendEnc; delete R.snap; save();
+  setMusic('menu'); delete R.pending; delete R.pendEnc; delete R.snap; save();
   const av = available(), H = ROWS * 92 + 320;
   let lines = '';
   for (const row of R.map) for (const nd of row) if (nd) for (const c of nd.next) { const t = R.map[nd.r + 1][c]; lines += `<line x1="${nd.x}" y1="${nd.y}" x2="${t.x}" y2="${t.y}" stroke="#5a3a1a" stroke-width="3" stroke-dasharray="4 8" stroke-linecap="round" opacity=".75"/>`; }
@@ -350,7 +350,7 @@ function battle(keys, kind) {
   hst = { n: 'idle', t: performance.now() };
   const bg = ACT() === 2 ? (kind === 'boss' ? 'c2_hall' : pickOne(['c2_exterior', 'c2_crypt'])) : kind === 'boss' ? 'battle_castle' : pickOne(BGS);
   B = { kind, bg, en: keys.map(mkEnemy), p: { block: 0, energy: 0, st: {}, noDraw: 0 }, draw: shuffle(R.deck.map(c => ({ ...c }))), hand: [], disc: [], exh: [], turn: 0, atkCnt: 0, sel: -1, busy: false, fx: [], over: false };
-  audio.setMode(kind === 'boss' ? 'boss' : kind === 'elite' ? 'elite' : 'battle'); setTimeout(() => B && B.en[0] && gv(B.en[0], 'laugh'), 500); if (kind === 'boss') audio.boss();
+  setMusic(kind === 'boss' ? 'boss' : kind === 'elite' ? 'elite' : 'battle'); setTimeout(() => B && B.en[0] && gv(B.en[0], 'laugh'), 500); if (kind === 'boss') audio.boss();
   if (has('charm')) B.p.st.str = 1; if (has('lantern')) B.p.st.dex = (B.p.st.dex || 0) + 1;
   
   if (has('suzu')) B.p.st.kek = 2 + (has('omamori') ? 2 : 0); else if (has('omamori')) B.p.st.kek = 2;
@@ -754,7 +754,7 @@ view.addEventListener('contextmenu', e => { if (B && B.sel >= 0) { e.preventDefa
 
 // ---------- 战后奖励 ----------
 function rewardScreen() {
-  const kind = B.kind; B = null; audio.setMode('menu');
+  const kind = B.kind; B = null; setMusic('menu');
   const items = [];
   const gold = Math.round((kind === 'elite' ? rnd(25, 35) : rnd(10, 20)) * (A_(7) ? .7 : 1));
   items.push({ html: `<img src="assets/icons/goldbag.png">${gold} 金币`, go: () => { R.gold += gold; } });
@@ -850,8 +850,20 @@ function story(img, lines, done, once) {
   let i = 0; const show = () => { view.querySelector('.storybox p').textContent = t(lines[i]); };
   show(); $('#stskip').onclick = done; $('#stnext').onclick = () => { if (++i >= lines.length) done(); else show(); };
 }
+/* 第二章用外部曲子（Pixabay，可商用）：普通/精英战 = Baroque music，Boss 战 = Vampire Boogie */
+const BGM = {}; let bgmNow = null;
+function setMusic(m) {
+  const want = ACT() === 2 && m !== 'menu' ? (m === 'boss' ? 'c2_boss' : 'c2_battle') : null;
+  if (bgmNow && bgmNow !== want) { BGM[bgmNow].pause(); bgmNow = null; }
+  if (!want) { audio.setMode(m); return; }
+  audio.setMode('silent');
+  const el = BGM[want] || (BGM[want] = Object.assign(new Audio(`assets/music/${want}.mp3`), { loop: true }));
+  const V = audio.vol || { m: 1, mu: 1 }; el.volume = audio.muted && audio.muted() ? 0 : Math.min(1, .55 * (V.m ?? 1) * (V.mu ?? 1));
+  if (bgmNow !== want) { el.currentTime = 0; el.play().catch(() => {}); bgmNow = want; }
+}
+setInterval(() => { if (bgmNow) { const V = audio.vol || {}; BGM[bgmNow].volume = audio.muted && audio.muted() ? 0 : Math.min(1, .55 * (V.m ?? 1) * (V.mu ?? 1)); } }, 500);
 function act2Choice() {
-  B = null; save(); audio.setMode('menu');
+  B = null; save(); setMusic('menu');
   view.innerHTML = `${bgHTML(false, 'story_road')}<div class="panel" style="width:760px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('哥布林大王倒下了')}</h2>
    <p>${t('远处山顶的古堡亮起了血红的光。被抓走的村民，就关在那里。')}</p><p style="color:#ffb0b0">${t('进入第二章：血月古堡（回复 50% 生命）')}</p>
    <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="go2">${t('前往古堡')}</button><button class="btn" id="end1">${t('到此为止')}</button></div></div>`;
@@ -862,7 +874,7 @@ function act2Choice() {
 }
 function endScreen(win) {
   stage.querySelectorAll('.say').forEach(x => x.remove());
-  B = null; audio.setMode('menu');
+  B = null; setMusic('menu');
   const k = R.kills || 0, el = R.elites || 0, hp = Math.max(0, R.hp);
   const rows = [[`攀登的层数 (${R.floor})`, R.floor * 20], [`击杀的敌人 (${k})`, k * 3], [`击败的精英 (${el})`, el * 25], [`打败 Boss (${R.bosses || 0})`, (R.bosses || 0) * 300], [`通关时剩余生命 (${win ? hp : 0})`, win ? hp * 2 : 0]];
   if (R.asc) rows.push([`进阶难度 ${R.asc}（×${(1 + R.asc * .1).toFixed(1)}）`, Math.round(rows.reduce((a, r) => a + r[1], 0) * R.asc * .1)]);
