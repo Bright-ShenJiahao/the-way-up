@@ -1,4 +1,4 @@
-import { tr } from './i18n.js?v=orc11110200';
+import { tr } from './i18n.js?v=act2_11110230';
 // 数据：卡牌 / 遗物 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
 const I = n => n.includes('/') ? `assets/${n}.png` : `assets/icons/${n}.png`;
@@ -176,6 +176,8 @@ export const CARDS = {
     desc: () => `不能打出。`, play: () => {} },
   burn: { name: '烧伤', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'ic_flame', tgt: 'self', unplay: 1, burn: 2,
     desc: () => `不能打出。回合结束时若在手中，失去 2 点生命。`, play: () => {} },
+  rot: { name: '腐烂', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'b_curse', tgt: 'self', unplay: 1, burn: 1,
+    desc: () => `不能打出。回合结束时若在手中，失去 1 点生命。`, play: () => {} },
   dexp: { name: '灵巧', type: 'power', rar: 'u', cost: [1, 1], icon: 'sk_flamestep', tgt: 'self',
     desc: u => `获得 ${v(u, 1, 2)} 点敏捷。`, play: (g, u) => g.self('dex', v(u, 1, 2)) },
   thunder: { name: '雷霆一击', type: 'atk', rar: 'r', cost: [2, 2], icon: 'ic_thunder', tgt: 'one',
@@ -244,6 +246,7 @@ export const STATUS = {
   rage: ['狂暴', '回合开始获得力量', '#ff4040'], keep: ['不动如山', '格挡不消失', '#d0b060'],
   regen: ['再生', '回合结束回复生命', '#50d080'], enrage: ['激怒', '你每打出一张技能牌，它获得力量', '#ff7030'],
   ritual: ['战意', '回合结束获得力量', '#ff9050'], fuse: ['引信', '归零时自爆', '#ffcc00'],
+  intang: ['虚化', '受到的伤害减半，轮到它行动时消失', '#a8f0ff'],
   ammo: ['光弹', '回合结束时自动射出，每发对随机敌人造成 3 点伤害，然后清零（最多 10 发）', '#60d0ff'], res: ['共鸣', '叠到 10 层时爆音，造成 20 点伤害，之后保留 3 层（多出的也保留）', '#ff80c0'],
   gen: ['扩容', '回合开始得到光弹', '#60d0ff'], rapid: ['连发', '回合结束射出光弹时获得格挡', '#60d0ff'], dual: ['双持', '每发光弹伤害增加', '#60d0ff'],
   lowf: ['低频', '回合开始给所有敌人共鸣', '#ff80c0'], dist: ['失真', '爆音后多保留 3 层共鸣，爆音伤害 +5', '#ff80c0'], concert: ['演唱会', '出牌时给所有敌人共鸣', '#ff80c0'],
@@ -303,6 +306,23 @@ export const ENEMIES = {
   orc_scout: { name: '兽人斥候', hp: [36, 40], sc: 2.4, hd: 240, hdw: 230, lore: '兽人的先锋，喜欢第一个冲上来。',
     moves: { charge: { n: '冲锋', i: 'atk', d: 14 }, hack: { n: '双斧连砍', i: 'atk', d: 5, x: 2 }, guard: { n: '举盾', i: 'atkdef', d: 6, f: (e, B) => B.eBlock(e, 8) } },
     ai: e => cycle(e, ['charge', 'hack', 'guard', 'hack']) },
+  /* ===== 第二章：血月古堡（美术到之前先用换色占位） ===== */
+  skeleton: { name: '骷髅兵', art: 'gob_shield', tint: 'grayscale(1) brightness(1.5)', hp: [28, 32], sc: 2.4, hd: 240, lore: '伯爵用亡灵魔法唤醒的士兵，打散了还会再拼起来一次。',
+    moves: { slash: { n: '劈砍', i: 'atk', d: 9 }, guard: { n: '持盾', i: 'atkdef', d: 5, f: (e, B) => B.eBlock(e, 6) } },
+    ai: e => cycle(e, ['slash', 'guard']),
+    onDie: (e, B) => { if (!e.revived) B.revive(e, 0.5); } },
+  zombie: { name: '丧尸', art: 'gob_giant', tint: 'hue-rotate(60deg) saturate(.5) brightness(.9)', hp: [44, 48], sc: 2.2, hd: 330, hdw: 200, lore: '被抓上山的村民，变成了伯爵的奴仆。被它咬到伤口会腐烂。',
+    moves: { bite: { n: '撕咬', i: 'atkdebuff', d: 9, f: (e, B) => B.addCard('rot', 1) }, claw: { n: '乱抓', i: 'atk', d: 7 } },
+    ai: e => cycle(e, ['bite', 'claw', 'claw']) },
+  ghost: { name: '幽灵', art: 'gob_mage', tint: 'grayscale(1) brightness(1.7) opacity(.75)', hp: [24, 28], sc: 2.4, hd: 285, lore: '徘徊在古堡里的亡魂，虚化时很难伤到它。',
+    moves: { phase: { n: '虚化', i: 'buff', f: (e, B) => B.addSt(e, 'intang', 1) }, wail: { n: '哀嚎', i: 'atkdebuff', d: 8, f: (e, B) => B.applyP('weak', 1) } },
+    ai: e => cycle(e, ['phase', 'wail']) },
+  vamp_count: { name: '吸血鬼伯爵', art: 'gob_king', tint: 'hue-rotate(300deg) saturate(.6) brightness(.85)', hp: [210, 210], sc: 2.9, hd: 330, hdw: 260, boss: 1, lore: '古堡的主人，靠抓来的人血维持不死军团。',
+    intro: '「异界来的小老鼠……你们的血，一定很美味。」', onDie: (e, B) => B.say('「我只是……替山顶那位看门而已……」'),
+    moves: { bats: { n: '蝙蝠群', i: 'atk', d: 4, x: 3 }, drain: { n: '吸血', i: 'atk', d: 12, f: (e, B) => B.healE(e, 10) },
+      mist: { n: '蝙蝠化', i: 'def', f: (e, B) => { B.addSt(e, 'intang', 1); B.eBlock(e, 10); } },
+      moon: { n: '血月', i: 'buff', f: (e, B) => { e.moon = 1; B.alive().forEach(a => B.addSt(a, 'str', 3)); B.summon('skeleton', 0); B.say('「血月升起吧！」'); } } },
+    ai: (e, B) => !e.moon && e.hp < e.max / 2 ? 'moon' : cycle(e, ['bats', 'drain', 'mist', 'drain']) },
   gob_giant: { name: '巨型哥布林', hp: [38, 42], sc: 2.2, hd: 384, hdw: 200,
     moves: { roar: { n: '怒吼', i: 'buff', f: (e, B) => B.addSt(e, 'str', 2) }, smash: { n: '重砸', i: 'atkdebuff', d: 12, f: (e, B) => B.addCard('wound', 1) } },
     ai: e => cycle(e, ['smash', 'roar']) },
@@ -340,6 +360,13 @@ export const ENCOUNTERS = {
     ['gob_archer', 'gob_shield', 'gob_archer'], ['goblin', 'gob_wolf'], ['gob_mage', 'goblin'], ['gob_shield', 'gob_mage'], ['gob_giant'], ['gob_kid', 'gob_giant'], ['orc_scout'], ['gob_kid', 'orc_scout']],
   elite: [['gob_kid', 'gob_shaman', 'gob_kid'], ['gob_paladin'], ['gob_hero'], ['goblin', 'orc_overseer', 'goblin']],
   boss: [['gob_king'], ['gob_archshaman'], ['gob_warlord']],
+};
+/* 第二章：血月古堡 */
+export const ENCOUNTERS2 = {
+  easy: [['skeleton', 'skeleton'], ['zombie'], ['ghost', 'skeleton'], ['orc_scout', 'orc_scout']],
+  hard: [['zombie', 'zombie'], ['ghost', 'ghost', 'skeleton'], ['skeleton', 'zombie', 'ghost'], ['orc_scout', 'zombie'], ['skeleton', 'skeleton', 'skeleton'], ['ghost', 'zombie']],
+  elite: [['skeleton', 'orc_overseer', 'skeleton'], ['zombie', 'ghost', 'zombie']],
+  boss: [['vamp_count']],
 };
 
 // ---- 事件 ---- opts: {t 文本, ok(R) 可选条件, go(R, api) 执行，返回结果文本}

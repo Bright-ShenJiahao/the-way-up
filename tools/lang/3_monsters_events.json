@@ -646,5 +646,141 @@
  "攻击+强化": [
   "Attack+Buff",
   "攻撃+強化"
+ ],
+ "骷髅兵": [
+  "Skeleton",
+  "スケルトン"
+ ],
+ "劈砍": [
+  "Slash",
+  "斬撃"
+ ],
+ "持盾": [
+  "Shield Up",
+  "盾構え"
+ ],
+ "丧尸": [
+  "Zombie",
+  "ゾンビ"
+ ],
+ "乱抓": [
+  "Flail",
+  "引っかき"
+ ],
+ "幽灵": [
+  "Ghost",
+  "ゴースト"
+ ],
+ "虚化": [
+  "Intangible",
+  "霊体化"
+ ],
+ "哀嚎": [
+  "Wail",
+  "嘆き"
+ ],
+ "吸血鬼伯爵": [
+  "Vampire Count",
+  "吸血鬼伯爵"
+ ],
+ "蝙蝠群": [
+  "Bat Swarm",
+  "コウモリの群れ"
+ ],
+ "吸血": [
+  "Drain",
+  "吸血"
+ ],
+ "蝙蝠化": [
+  "Bat Form",
+  "コウモリ化"
+ ],
+ "血月": [
+  "Blood Moon",
+  "血月"
+ ],
+ "受到的伤害减半，轮到它行动时消失": [
+  "Takes half damage. Ends on its next turn.",
+  "受けるダメージ半減。次の行動時に消える。"
+ ],
+ "伯爵用亡灵魔法唤醒的士兵，打散了还会再拼起来一次。": [
+  "Soldiers raised by the Count's necromancy. They pull themselves together once after breaking apart.",
+  "伯爵の死霊術で蘇った兵士。崩れても一度だけ組み直す。"
+ ],
+ "被抓上山的村民，变成了伯爵的奴仆。被它咬到伤口会腐烂。": [
+  "Villagers taken up the mountain, now the Count's thralls. Their bite festers.",
+  "山へ連れ去られた村人の成れの果て。噛まれた傷は腐る。"
+ ],
+ "徘徊在古堡里的亡魂，虚化时很难伤到它。": [
+  "Lost souls haunting the castle. Hard to hurt while Intangible.",
+  "城をさまよう亡霊。霊体化中は傷つけにくい。"
+ ],
+ "古堡的主人，靠抓来的人血维持不死军团。": [
+  "Master of the castle. Feeds his undead army with captured blood.",
+  "城の主。捕らえた人間の血で不死の軍勢を養う。"
+ ],
+ "「异界来的小老鼠……你们的血，一定很美味。」": [
+  "\"Little mice from another world... your blood must be delicious.\"",
+  "「異界の子ネズミども……お前たちの血は、さぞ美味だろう。」"
+ ],
+ "「我只是……替山顶那位看门而已……」": [
+  "\"I was merely... the gatekeeper for the one atop the mountain...\"",
+  "「私は……山頂のあのお方の門番に過ぎん……」"
+ ],
+ "「血月升起吧！」": [
+  "\"Rise, Blood Moon!\"",
+  "「昇れ、血月よ！」"
+ ],
+ "（骨头咔嚓咔嚓地重新拼了起来）": [
+  "(The bones rattle back together)",
+  "（骨がカタカタと組み直された）"
+ ],
+ "复活": [
+  "Revived",
+  "復活"
+ ],
+ "血月古堡": [
+  "Castle of the Blood Moon",
+  "血月の古城"
+ ],
+ "哥布林大王倒下了": [
+  "The Goblin King has fallen",
+  "ゴブリン大王が倒れた"
+ ],
+ "远处山顶的古堡亮起了血红的光。被抓走的村民，就关在那里。": [
+  "The castle on the distant peak glows blood red. The captured villagers are held there.",
+  "遠くの山頂の城が血のように赤く光る。さらわれた村人はそこにいる。"
+ ],
+ "进入第二章：血月古堡（回复 {0}% 生命）": [
+  "Enter Chapter 2: Castle of the Blood Moon (heal {0}% HP)",
+  "第2章：血月の古城へ（HPを{0}%回復）"
+ ],
+ "前往古堡": [
+  "To the Castle",
+  "城へ向かう"
+ ],
+ "到此为止": [
+  "End Here",
+  "ここで終える"
+ ],
+ "{0}化为了灰烬，古堡的血月熄灭了。": [
+  "{0} crumbles to ash. The blood moon fades.",
+  "{0}は灰となり、血月は消えた。"
+ ],
+ "第二章完 · 感谢游玩！": [
+  "End of Chapter 2 · Thanks for playing!",
+  "第2章クリア・遊んでくれてありがとう！"
+ ],
+ "山顶上，还有更深的黑暗在等待……": [
+  "Atop the mountain, a deeper darkness awaits...",
+  "山頂では、さらに深い闇が待っている……"
+ ],
+ "{0}倒在了血月古堡第 {1} 层。": [
+  "{0} fell on floor {1} of the Blood Moon Castle.",
+  "{0}は血月の古城{1}階で倒れた。"
+ ],
+ "第二章": [
+  "Ch. 2",
+  "第2章"
  ]
 }
