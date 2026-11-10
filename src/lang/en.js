@@ -471,6 +471,12 @@ export default {
 "死亡时自动使用：回复 {0} 最大生命。不能主动使用。": "Used automatically when you die: heal {0} of Max HP. Can't be used manually.",
 "每场战斗开始时，随机一张耗能不少于 {0} 的手牌，本场耗能减少 {1}。": "At battle start, a random card in hand costing {0}+ costs {1} less this battle.",
 "造成 {0} 点伤害，本回合每用过 {1} 个炼金瓶，再打 {2} 次。": "Deal {0} damage, plus {2} more hit per {1} Flask used this turn.",
+"本回合每发光弹的伤害 {0}。消耗。": "Ammo deals {0} damage this turn. Exhaust.",
+"结界每回合提供的格挡翻倍（最多 {0} 点，多张不叠加）。": "Ward Block each turn is doubled (max {0}, doesn't stack).",
+"每回合开始时，随机获得 {0} 个炼金瓶（多张不叠加）。": "At turn start, gain {0} random Flask (doesn't stack).",
+"每回合开始时，随机获得 {0} 个炼金瓶（多张不叠加）。并获得 {1} 点格挡。": "At turn start, gain {0} random Flask (doesn't stack) and {1} Block.",
+"炼金瓶的伤害翻倍，中毒 {0}（治疗、削弱不变）。": "Flask damage is doubled, Poison {0} (heal/debuff unchanged).",
+"每回合开始时，获得 {0} 点额外能量。拾取时最大生命 {1}，战斗结束不再回复生命。": "Gain {0} extra Energy each turn. On pickup: Max HP {1}; no more healing after combat.",
 "哥布林小兵": "Goblin Grunt",
 "哥布林小鬼": "Goblin Imp",
 "哥布林刀手": "Goblin Blade",
@@ -740,5 +746,7 @@ export default {
 "没有名字": "No name",
 "口令要 4～6 位数字": "PIN must be 4-6 digits",
 "读取失败": "Load failed",
-"提交太频繁，请稍后再试": "Too many submissions, try later"
+"提交太频繁，请稍后再试": "Too many submissions, try later",
+"战意：敌人每回合力量 +1": "Fury: enemies gain +1 Strength each turn",
+"战意：敌人每回合力量 {0}": "Fury: enemies gain {0} Strength each turn"
 };

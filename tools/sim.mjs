@@ -12,7 +12,7 @@ const mine = d => !d.ch || d.ch === R.char;
 const mk = (id, up = 0) => ({ id, up, uid: uid++ });
 const addSt = (t, k, n) => { t.st[k] = (t.st[k] || 0) + n; if (t.st[k] === 0) delete t.st[k]; };
 const alive = () => B.en.filter(e => !e.dead);
-const atkVal = (s, t, b, m = 1) => { let d = b + (s.st.str || 0) * m; if (s.st.weak) d *= .75; if (t && t.st.vuln) d *= 1.5; return Math.max(0, Math.floor(d)); };
+const atkVal = (s, t, b, m = 1) => { let d = (b + (s.st.str || 0) * m) * (s.d ? 1.1 : 1); if (s.st.weak) d *= .75; if (t && t.st.vuln) d *= 1.5; return Math.max(0, Math.floor(d)); };
 function hurt(t, amt, att) {
   const isP = t === B.p; if (!isP && t.st.aegis) return 0;
   const u = Math.min(t.block, amt); t.block -= u; const left = amt - u;
@@ -36,7 +36,7 @@ const G = {
   apply(t, k, n) { if (t && !t.dead) addSt(t, k, n); }, applyAll(k, n) { alive().forEach(e => addSt(e, k, n)); },
   self(k, n) { addSt(B.p, k, n); }, draw: n => drawCards(n), energy(n) { B.p.energy += n; },
   loseHp(n) { R.hp -= n; }, heal: n => heal(n), addCard(id, up, pile) { B[pile === 'discard' ? 'disc' : 'draw'].push(mk(id, up)); },
-  pm() { return B.p.st.sage ? 2 : 1; },
+  pm() { return B.p.st.sage ? 2 : 1; }, ppm() { return B.p.st.sage ? 1.5 : 1; },
   potion(n, id) { const ps = ['p_fire', 'p_frost', 'p_heal', 'p_poison', 'p_boom']; for (let i = 0; i < n; i++) (B.hand.length < 10 ? B.hand : B.disc).push(mk(id || pickOne(ps))); },
   poison(t, n) { if (!t || t.dead || n <= 0) return; addSt(t, 'poison', n + (has('toad') ? 1 : 0)); },
   volley(clear = true) { // 光弹齐射：每发 3 点（+双持 +超频），打随机敌人或全体
@@ -68,7 +68,7 @@ function startTurn(first) {
   if (B.p.st.rage) addSt(B.p, 'str', B.p.st.rage);
   B.p.pot = 0; if (first && has('cauldron')) G.potion(1); if (B.p.st.satchel) G.potion(B.p.st.satchel);
   if (B.p.st.plague) alive().forEach(e => G.poison(e, B.p.st.plague));
-  if (B.p.st.kagura) G.kek(B.p.st.kagura); if (B.p.st.kek) G.block(B.p.st.kek * (B.p.st.shinboku ? 2 : 1), true);
+  if (B.p.st.kagura) G.kek(B.p.st.kagura); if (B.p.st.kek) G.block(B.p.st.shinboku ? Math.max(B.p.st.kek, Math.min(15, B.p.st.kek * 2)) : B.p.st.kek, true);
   if (has('hamaya') && (B.p.st.kek || 0) >= 4) drawCards(1);
   B.p.oc = 0; B.p.aoe = 0; B.p.metroUsed = 0; B.p.cplays = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (has('gameboy')) G.ammo(1); if (!first && has('phones')) G.resAll(1); if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
@@ -136,12 +136,12 @@ function endTurn() {
     e.hist.push(e.move); e.d.after && e.d.after(e);
   }
   for (const k of ['vuln', 'weak']) if (pre[k] && B.p.st[k]) addSt(B.p, k, -1);
-  for (const e of alive()) { if (e.st.ritual) addSt(e, 'str', e.st.ritual); if (e.st.heal) e.hp = Math.min(e.max, e.hp + e.st.heal); for (const k of ['vuln', 'weak']) if (e.st[k]) addSt(e, k, -1); e.turn++; e.move = e.d.ai(e, BE); }
+  for (const e of alive()) { if (e.st.ritual) addSt(e, 'str', e.st.ritual); if (e.turn >= 6) addSt(e, 'str', 1); if (e.st.heal) e.hp = Math.min(e.max, e.hp + e.st.heal); for (const k of ['vuln', 'weak']) if (e.st[k]) addSt(e, k, -1); e.turn++; e.move = e.d.ai(e, BE); }
 }
 function battle(keys, kind) {
   B = { kind, en: keys.map(mkE), p: { block: 0, energy: 0, st: {}, noDraw: 0 }, draw: shuffle(R.deck.map(c => ({ ...c }))), hand: [], disc: [], exh: [], turn: 0, atk: 0 };
   if (has('charm')) B.p.st.str = 1; 
-  if (has('suzu')) B.p.st.kek = 3 + (has('omamori') ? 2 : 0); else if (has('omamori')) B.p.st.kek = 2;
+  if (has('suzu')) B.p.st.kek = 2 + (has('omamori') ? 2 : 0); else if (has('omamori')) B.p.st.kek = 2;
   if (has('phones')) B.en.forEach(e => e.st.res = 4); if (has('spikes')) B.p.st.thorns = 3; if (has('wardrum')) B.en.forEach(e => e.st.vuln = 1);
   B.en.filter(e => e.key === 'gob_bomb').forEach((e, i) => e.st.fuse = 3 + i);
   B.en.forEach(e => e.move = e.d.ai(e, BE));
@@ -152,7 +152,7 @@ function battle(keys, kind) {
     startTurn(false);
   }
   if (alive().length) return false;
-  if (has('gameboy') || has('phones') || has('suzu') || has('cauldron')) heal(6);
+  if ((has('gameboy') || has('phones') || has('suzu') || has('cauldron')) && !has('crown')) heal(4);
   return true;
 }
 function rollCards(n) { const out = []; while (out.length < n) { const x = Math.random(), rar = x < .06 ? 'r' : x < .4 ? 'u' : 'c'; const pool = Object.values(CARDS).filter(d => d.rar === rar && mine(d) && !out.includes(d.id)); if (pool.length) out.push(pickOne(pool).id); } return out; }
