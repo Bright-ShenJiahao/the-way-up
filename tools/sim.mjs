@@ -1,6 +1,6 @@
 // 平衡测试：机器人用每个角色跑很多局，统计胜率和死在哪里。只在 GitHub Actions 上跑。
 // 规则照抄 src/game.js 的战斗逻辑（简化了地图：固定 15 层路线 + Boss）
-import { CARDS, STARTERS, RELICS, ENEMIES, ENCOUNTERS } from '../src/data.js';
+import { CARDS, STARTERS, RELICS, ENEMIES, ENCOUNTERS, ENCOUNTERS2 } from '../src/data.js';
 const N = +process.argv[2] || 300;
 let SMART = false; /* false=新手机器人；true=熟练机器人（会用药水、按流派选牌） */
 const POTS = ['heal', 'str', 'dex', 'block', 'energy', 'fire', 'bomb', 'weak', 'draw', 'fairy'];
@@ -17,7 +17,7 @@ const addSt = (t, k, n) => { t.st[k] = (t.st[k] || 0) + n; if (t.st[k] === 0) de
 const alive = () => B.en.filter(e => !e.dead);
 const atkVal = (s, t, b, m = 1) => { let d = (b + (s.st.str || 0) * m) * (s.d ? 1.1 : 1); if (s.st.weak) d *= .75; if (t && t.st.vuln) d *= 1.5; return Math.max(0, Math.floor(d)); };
 function hurt(t, amt, att) {
-  const isP = t === B.p; if (!isP && t.st.aegis) return 0;
+  const isP = t === B.p; if (!isP && t.st.aegis) return 0; if (!isP && t.st.intang) amt = Math.ceil(amt / 2);
   const u = Math.min(t.block, amt); t.block -= u; const left = amt - u;
   if (isP) R.hp -= left; else t.hp -= left;
   if (att && t.st.thorns && att !== t) hurt(att, t.st.thorns);
@@ -59,7 +59,7 @@ const G = {
 };
 const BE = {
   applyP(k, n) { addSt(B.p, k, n); }, addSt(e, k, n) { addSt(e, k, n); }, eBlock(e, n) { e.block += n; },
-  allies: e => alive().filter(a => a !== e), alive: () => alive(), healE(e, n) { e.hp = Math.min(e.max, e.hp + n); }, addCard(id, n = 1) { for (let k = 0; k < n; k++) B.disc.push(mk(id)); }, flee(e) { if (!e.dead) { e.fled = 1; e.dead = true; e.hp = 0; } }, say() {},
+  allies: e => alive().filter(a => a !== e), alive: () => alive(), healE(e, n) { e.hp = Math.min(e.max, e.hp + n); }, addCard(id, n = 1) { for (let k = 0; k < n; k++) B.disc.push(mk(id)); }, revive(e, f) { e.revived = 1; e.dead = false; e.hp = Math.max(1, Math.floor(e.max * f)); R.kills--; }, flee(e) { if (!e.dead) { e.fled = 1; e.dead = true; e.hp = 0; } }, say() {},
   kill(e) { killE(e); }, summon(key, hp) { if (alive().length >= 5) return; const e = mkE(key); if (hp) e.hp = e.max = hp; e.move = e.d.ai(e, BE); B.en.unshift(e); },
 };
 let eid = 1;
@@ -141,7 +141,7 @@ function endTurn() {
   const pre = { vuln: B.p.st.vuln || 0, weak: B.p.st.weak || 0 };
   for (const e of [...B.en]) {
     if (e.dead || R.hp <= 0) continue;
-    if (e.st.aegis) addSt(e, 'aegis', -1);
+    if (e.st.aegis) addSt(e, 'aegis', -1); if (e.st.intang) e.st.intang = 0;
     if (e.st.poison && !e.st.aegis) { e.hp -= e.st.poison; addSt(e, 'poison', -1); if (e.hp <= 0) { killE(e); continue; } }
     const mv = e.d.moves[e.move];
     if (mv.d) for (let k = 0; k < (mv.x || 1); k++) { hurt(B.p, atkVal(e, B.p, mv.d), e); if (e.dead) break; }
@@ -177,26 +177,29 @@ function reward() { const cs = rollCards(3);
     const best = cs.sort((a, b) => sc(b) - sc(a))[0]; if (sc(best) < 1.5 && R.deck.length > 18) return; R.deck.push(mk(best)); R.picks[best] = (R.picks[best] || 0) + 1; return; } if (R.deck.length > 26 && Math.random() < .5) return; const best = cs.sort((a, b) => TIER[CARDS[b].rar] - TIER[CARDS[a].rar] + (CARDS[b].ch ? .5 : 0) - (CARDS[a].ch ? .5 : 0))[0]; R.deck.push(mk(best)); R.picks[best] = (R.picks[best] || 0) + 1; }
 function relic() { const pool = Object.values(RELICS).filter(r => r.rar !== 'start' && mine(r) && !has(r.id)); if (!pool.length) return; const r = pickOne(pool); R.relics.push(r.id); if (r.id === 'herb') { R.maxHp += 10; R.hp += 10; } if (r.id === 'crown') { R.maxHp -= 10; R.hp = Math.min(R.hp, R.maxHp); } }
 function run(char) {
-  uid = 1; R = { char, hp: 80, maxHp: 80, deck: STARTERS[char].map(id => mk(id)), relics: [{ heroine: 'phones', miko: 'suzu', witch: 'cauldron' }[char] || 'gameboy'], kills: 0, picks: {}, floor: 0, pots: [] };
-  let fights = 0;
-  for (const node of ROUTE) {
-    R.floor++;
-    if (node === 'fight') { const pool = fights < 3 ? ENCOUNTERS.easy : ENCOUNTERS.hard; fights++; const enc = pickOne(pool); if (!battle(enc, 'fight')) return { win: false, floor: R.floor, at: enc.join('+') }; reward(); dropPot('fight'); }
-    else if (node === 'elite') { const enc = pickOne(ENCOUNTERS.elite); if (!battle(enc, 'elite')) return { win: false, floor: R.floor, at: '精英:' + enc.join('+') }; reward(); relic(); dropPot('elite'); }
-    else if (node === 'boss') { const bk = pickOne(ENCOUNTERS.boss)[0]; if (!battle([bk], 'boss')) return { win: false, floor: R.floor, at: 'Boss:' + bk }; return { win: true, floor: R.floor, hp: R.hp }; }
-    else if (node === 'rest') { if (R.hp < R.maxHp * .55) heal(Math.floor(R.maxHp * .3)); else { const c = R.deck.find(c => !c.up && CARDS[c.id].rar !== 'start') || R.deck.find(c => !c.up); if (c) c.up = 1; } }
-    else if (node === 'event') { heal(10); }
-    else if (node === 'shop') { if (SMART && R.pots.length < 3) R.pots.push(pickOne(POTS)); const i = R.deck.findIndex(c => c.id === 'defend'); if (i >= 0) R.deck.splice(i, 1); }
+  uid = 1; R = { char, hp: 80, maxHp: 80, deck: STARTERS[char].map(id => mk(id)), relics: [{ heroine: 'phones', miko: 'suzu', witch: 'cauldron' }[char] || 'gameboy'], kills: 0, picks: {}, floor: 0, pots: [], act: 1 };
+  for (const [act, EN] of [[1, ENCOUNTERS], [2, ENCOUNTERS2]]) {
+    R.act = act; let fights = 0; if (act === 2) R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .5));
+    for (const node of ROUTE) {
+      R.floor++;
+      if (node === 'fight') { const enc = pickOne(fights < 3 ? EN.easy : EN.hard); fights++; if (!battle(enc, 'fight')) return { win: false, act, floor: R.floor, at: enc.join('+') }; reward(); dropPot('fight'); }
+      else if (node === 'elite') { const enc = pickOne(EN.elite); if (!battle(enc, 'elite')) return { win: false, act, floor: R.floor, at: '精英:' + enc.join('+') }; reward(); relic(); dropPot('elite'); }
+      else if (node === 'boss') { const bk = pickOne(EN.boss)[0]; if (!battle([bk], 'boss')) return { win: false, act, floor: R.floor, at: 'Boss:' + bk }; }
+      else if (node === 'rest') { if (R.hp < R.maxHp * .55) heal(Math.floor(R.maxHp * .3)); else { const c = R.deck.find(c => !c.up && CARDS[c.id].rar !== 'start') || R.deck.find(c => !c.up); if (c) c.up = 1; } }
+      else if (node === 'event') { heal(10); }
+      else if (node === 'shop') { if (SMART && R.pots.length < 3) R.pots.push(pickOne(POTS)); const i = R.deck.findIndex(c => c.id === 'defend'); if (i >= 0) R.deck.splice(i, 1); }
+    }
   }
+  return { win: true, act: 2, floor: R.floor, hp: R.hp };
 }
 const lines = [`# 平衡测试结果（每个角色每档 ${N} 局）`, '', `生成时间：${new Date().toISOString()}`, '', '新手机器人：不用药水、选牌只看稀有度。熟练机器人：会用药水、按角色流派选牌，更接近真人。', ''];
 for (const smart of [false, true]) {
-  SMART = smart; lines.push(`## ${smart ? '熟练机器人（≈ 真人）' : '新手机器人'}`, '', '| 角色 | 胜率 | 见到 Boss | Boss 战胜率 | 通关剩余生命 | 最常死在 |', '|---|---|---|---|---|---|');
+  SMART = smart; lines.push(`## ${smart ? '熟练机器人（≈ 真人）' : '新手机器人'}`, '', '| 角色 | 第一章通关 | 第二章通关 | 第一章 Boss 战胜率 | 第二章通关剩余生命 | 最常死在 |', '|---|---|---|---|---|---|');
   for (const ch of ['miko', 'hero', 'witch', 'heroine']) {
-    let w = 0, fl = 0, hp = 0, rb = 0; const at = {};
-    for (let i = 0; i < N; i++) { const r = run(ch); fl += r.floor; if (r.win || (r.at || '').startsWith('Boss')) rb++; if (r.win) { w++; hp += r.hp; } else at[r.at] = (at[r.at] || 0) + 1; }
+    let w1 = 0, w2 = 0, hp = 0, rb = 0; const at = {};
+    for (let i = 0; i < N; i++) { const r = run(ch); const ok1 = r.win || r.act === 2; if (ok1) w1++; if (ok1 || (r.at || '').startsWith('Boss')) rb++; if (r.win) { w2++; hp += r.hp; } else { const k = (r.act === 2 ? '二·' : '一·') + r.at; at[k] = (at[k] || 0) + 1; } }
     const top = Object.entries(at).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k, v]) => `${k}(${v})`).join('、');
-    lines.push(`| ${ch} | ${(w / N * 100).toFixed(1)}% | ${(rb / N * 100).toFixed(0)}% | ${rb ? (w / rb * 100).toFixed(0) : 0}% | ${w ? (hp / w).toFixed(0) : '-'} | ${top} |`);
+    lines.push(`| ${ch} | ${(w1 / N * 100).toFixed(1)}% | ${(w2 / N * 100).toFixed(1)}% | ${rb ? (w1 / rb * 100).toFixed(0) : 0}% | ${w2 ? (hp / w2).toFixed(0) : '-'} | ${top} |`);
   }
   lines.push('');
 }

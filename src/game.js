@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=orc11110200';
-import { createAudio } from './audio.js?v=orc11110200';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=orc11110200';
+import { ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=act2_11110230';
+import { createAudio } from './audio.js?v=act2_11110230';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=act2_11110230';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -61,6 +61,7 @@ function load() { try { const s = JSON.parse(localStorage.getItem('theway_run_v2
 
 // ---------- 地图生成 ----------
 const ROWS = 15, COLS = 7;
+const ACT = () => (R && R.act) || 1, ENC = () => ACT() === 2 ? ENCOUNTERS2 : ENCOUNTERS, REGION = () => ACT() === 2 ? '血月古堡' : '翠绿之地';
 function genMap() {
   const g = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
   const node = (r, c) => g[r][c] || (g[r][c] = { r, c, next: [], type: null, x: 140 + c * 120 + rnd(-20, 20), y: 0 });
@@ -92,7 +93,7 @@ function genMap() {
 
 // ---------- 顶栏 ----------
 function topBar() {
-  return `<div id="top"><span class="hp">❤ ${R.hp}/${R.maxHp}</span><span class="gold">● ${R.gold}</span><span class="fl">第 ${R.floor} 层 · 翠绿之地</span>
+  return `<div id="top"><span class="hp">❤ ${R.hp}/${R.maxHp}</span><span class="gold">● ${R.gold}</span><span class="fl">第 ${R.floor} 层 · ${REGION()}</span>
   <div class="pots">${[0, 1, 2].map(i => { const id = (R.potions || [])[i]; return id ? `<img class="pot ${B && B.potSel === i ? 'sel' : ''}" data-pot="${i}" src="${POTIONS[id].img}" title="${esc(POTIONS[id].name + '：' + POTIONS[id].desc)}">` : '<i class="pot empty"></i>'; }).join('')}</div>
   <div class="relics">${R.relics.map(id => `<img src="${RELICS[id].img}" title="${esc(RELICS[id].name + '：' + RELICS[id].desc)}">`).join('')}</div>
   <span class="sp"></span><button class="tb" id="tbdeck">牌组 (${R.deck.length})</button><button class="tb" id="tbtips" title="开关规则提示">提示：${TIPS ? '开' : '关'}</button><button class="tb" id="tbfs" title="全屏">⛶</button><button class="tb" id="tbmute">${audio.muted ? '🔇' : '🔊'}</button><button class="tb" id="tbset" title="设置">⚙</button></div>`;
@@ -325,7 +326,7 @@ function mapScreen() { SCREEN = 'map';
 function enterNode(t) {
   if (t === 'boss') return battle([R.boss], 'boss');
   if (t === 'fight' || t === 'elite') { // 记住这场遭遇，中途退出再进来还是同一批怪
-    if (!R.pendEnc) { R.pendEnc = t === 'elite' ? pickOne(ENCOUNTERS.elite) : pickOne(R.fights < 3 ? ENCOUNTERS.easy : ENCOUNTERS.hard); if (t === 'fight') R.fights++; snap(); save(); }
+    if (!R.pendEnc) { R.pendEnc = t === 'elite' ? pickOne(ENC().elite) : pickOne(R.fights < 3 ? ENC().easy : ENC().hard); if (t === 'fight') R.fights++; snap(); save(); }
     return battle(R.pendEnc, t);
   }
   if (t === 'rest') return restScreen();
@@ -346,7 +347,7 @@ function mkEnemy(key) {
 const alive = () => B.en.filter(e => !e.dead);
 function battle(keys, kind) {
   hst = { n: 'idle', t: performance.now() };
-  const bg = kind === 'boss' ? 'battle_castle' : pickOne(BGS);
+  const bg = ACT() === 2 ? (kind === 'boss' ? 'c2_hall' : pickOne(['c2_exterior', 'c2_crypt'])) : kind === 'boss' ? 'battle_castle' : pickOne(BGS);
   B = { kind, bg, en: keys.map(mkEnemy), p: { block: 0, energy: 0, st: {}, noDraw: 0 }, draw: shuffle(R.deck.map(c => ({ ...c }))), hand: [], disc: [], exh: [], turn: 0, atkCnt: 0, sel: -1, busy: false, fx: [], over: false };
   audio.setMode(kind === 'boss' ? 'boss' : kind === 'elite' ? 'elite' : 'battle'); setTimeout(() => B && B.en[0] && gv(B.en[0], 'laugh'), 500); if (kind === 'boss') audio.boss();
   if (has('charm')) B.p.st.str = 1;
@@ -376,7 +377,7 @@ function tutorial() {
     o.querySelector('#tx').onclick = () => { try { localStorage.setItem('tutDone', '1'); } catch (e) {} o.remove(); render(); }; };
   step();
 }
-function say(t) { const b = document.createElement('div'); b.className = 'say'; b.textContent = t; stage.appendChild(b); setTimeout(() => b.remove(), 3600); }
+function say(t) { stage.querySelectorAll('.say').forEach(x => x.remove()); const b = document.createElement('div'); b.className = 'say'; b.textContent = t; stage.appendChild(b); setTimeout(() => b.remove(), 3600); }
 function banner(t) { const b = document.createElement('div'); b.id = 'banner'; b.textContent = t; stage.appendChild(b); setTimeout(() => b.remove(), 1200); }
 
 // 伤害计算
@@ -387,7 +388,7 @@ function fx(who, text, cls) { B.fx.push({ who, text, cls }); }
 // 对目标造成伤害（已计算好的数值），返回未被格挡的伤害
 function hurt(tgt, amt, attacker) {
   const isP = tgt === B.p;
-  if (!isP && tgt.st.aegis) { fx(tgt.id, '免疫', 'blk'); return 0; } let blk = tgt.block, left = amt;
+  if (!isP && tgt.st.aegis) { fx(tgt.id, '免疫', 'blk'); return 0; } if (!isP && tgt.st.intang) amt = Math.ceil(amt / 2); let blk = tgt.block, left = amt;
   const used = Math.min(blk, left); tgt.block -= used; left -= used;
   if (isP) { R.hp -= left; } else { tgt.hp -= left; }
   fx(isP ? 'hero' : tgt.id, left > 0 ? `-${left}` : '格挡', left > 0 ? 'dmg' : 'blk'); B.hitSet.add(isP ? 'hero' : tgt.id);
@@ -466,6 +467,7 @@ const BE = {
   eBlock(e, n) { e.block += n; fx(e.id, `+${n}`, 'blk'); },
   allies: e => alive().filter(a => a !== e), alive: () => alive(),
   healE(e, n) { e.hp = Math.min(e.max, e.hp + n); fx(e.id, `+${n}`, 'heal'); },
+  revive(e, f) { e.revived = 1; e.dead = false; e.hp = Math.max(1, Math.floor(e.max * f)); e.anim = null; if (R) R.kills--; fx(e.id, '复活', 'heal'); say('（骨头咔嚓咔嚓地重新拼了起来）'); },
   flee(e) { if (e.dead) return; e.fled = 1; e.dead = true; e.hp = 0; fx(e.id, '逃跑', 'st'); }, say: t => say(t),
   addCard(id, n = 1) { for (let k = 0; k < n; k++) B.disc.push(mkCard(id)); fx('hero', `+${CARDS[id].name}${n > 1 ? '×' + n : ''}`, 'st'); },
   kill(e) { killE(e); B.hitSet.add(e.id); },
@@ -575,6 +577,7 @@ async function endTurn() {
     if (e.dead || B.over) continue;
     B.hitSet = new Set();
     if (e.st.aegis) addSt(e, 'aegis', -1); /* 圣盾挡住玩家的一个回合，轮到它行动时才消失 */
+    if (e.st.intang) e.st.intang = 0; /* 虚化同理 */
     if (e.st.poison && !e.st.aegis) { const pz = e.st.poison; e.hp -= pz; fx(e.id, `-${pz}`, 'dmg'); B.hitSet.add(e.id); addSt(e, 'poison', -1); if (e.hp <= 0) { killE(e); render(); await sleep(300); if (await checkEnd()) return; continue; } }
     const mv = e.d.moves[e.move]; B.lunge = mv.d != null && mv.i.startsWith('atk') && mv.d > 0 ? e.id : null;
     if (mv.d) { eAct(e, 'atk'); gv(e, 'atk'); } else if (/buff|summon/.test(mv.i)) gv(e, 'buff');
@@ -603,7 +606,7 @@ async function checkEnd() {
     B.over = true; render(); await sleep(600); if (B !== b0) return true;
     if ((has('gameboy') || has('phones') || has('suzu') || has('cauldron')) && !has('crown')) R.hp = Math.min(R.maxHp, R.hp + 4);
     if (B.kind === 'elite') R.elites = (R.elites || 0) + 1;
-    if (B.kind === 'boss') { clearSave(); return endScreen(true); }
+    if (B.kind === 'boss') { R.bosses = (R.bosses || 0) + 1; if (ACT() === 1) return act2Choice(); clearSave(); return endScreen(true); }
     delete R.pending; delete R.pendEnc; delete R.snap; save(); /* 打赢后不能刷新重打 */
     rewardScreen(); return true;
   }
@@ -828,10 +831,19 @@ function eventScreen() {
 }
 
 // ---------- 结束 ----------
+function act2Choice() {
+  B = null; save(); audio.setMode('menu');
+  view.innerHTML = `${bgHTML(true, 'c2_exterior')}<div class="panel" style="width:760px;text-align:center"><h2>${t('哥布林大王倒下了')}</h2>
+   <p>${t('远处山顶的古堡亮起了血红的光。被抓走的村民，就关在那里。')}</p><p style="color:#ffb0b0">${t('进入第二章：血月古堡（回复 50% 生命）')}</p>
+   <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="go2">${t('前往古堡')}</button><button class="btn" id="end1">${t('到此为止')}</button></div></div>`;
+  $('#go2').onclick = () => { R.act = 2; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .5)); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = pickOne(ENCOUNTERS2.boss)[0];
+    delete R.pending; delete R.pendEnc; delete R.snap; save(); mapScreen(); };
+  $('#end1').onclick = () => { clearSave(); endScreen(true); };
+}
 function endScreen(win) {
   B = null; audio.setMode('menu');
   const k = R.kills || 0, el = R.elites || 0, hp = Math.max(0, R.hp);
-  const rows = [[`攀登的层数 (${R.floor})`, R.floor * 20], [`击杀的敌人 (${k})`, k * 3], [`击败的精英 (${el})`, el * 25], [`打败 Boss (${win ? 1 : 0})`, win ? 300 : 0], [`通关时剩余生命 (${win ? hp : 0})`, win ? hp * 2 : 0]];
+  const rows = [[`攀登的层数 (${R.floor})`, R.floor * 20], [`击杀的敌人 (${k})`, k * 3], [`击败的精英 (${el})`, el * 25], [`打败 Boss (${R.bosses || 0})`, (R.bosses || 0) * 300], [`通关时剩余生命 (${win ? hp : 0})`, win ? hp * 2 : 0]];
   if (R.asc) rows.push([`进阶难度 ${R.asc}（×${(1 + R.asc * .1).toFixed(1)}）`, Math.round(rows.reduce((a, r) => a + r[1], 0) * R.asc * .1)]);
   const total = rows.reduce((a, r) => a + r[1], 0);
   const M = metaGet(), before = M.xp; let news = [];
@@ -839,7 +851,7 @@ function endScreen(win) {
   UNLOCKS.forEach(u => { if (before < u.xp && M.xp >= u.xp) news.push('解锁：' + [...u.cards.map(c => CARDS[c].name), ...u.relics.map(x => RELICS[x].name)].join('、')); });
   const nx = UNLOCKS.find(u => M.xp < u.xp), left = UNLOCKS.filter(u => M.xp < u.xp).length;
   view.innerHTML = `${bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
-   <p class="endsub" data-noi18n>${win ? `${t('{0}倒下了，翠绿之地恢复了平静。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第一章完 · 感谢游玩！')}</b>${t('远处山顶的古堡，亮起了血红的光……')}<br><b style="color:#ff8a8a">${t('第二章：血月古堡（制作中）')}</b>` : t('{0}倒在了翠绿之地第 {1} 层。', tr(CHARS[R.char || 'hero'].name), R.floor)}</p>
+   <p class="endsub" data-noi18n>${win && ACT() === 2 ? `${t('{0}化为了灰烬，古堡的血月熄灭了。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第二章完 · 感谢游玩！')}</b>${t('山顶上，还有更深的黑暗在等待……')}` : win ? `${t('{0}倒下了，翠绿之地恢复了平静。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第一章完 · 感谢游玩！')}</b>${t('远处山顶的古堡，亮起了血红的光……')}<br><b style="color:#ff8a8a">${t('第二章：血月古堡（制作中）')}</b>` : t(ACT() === 2 ? '{0}倒在了血月古堡第 {1} 层。' : '{0}倒在了翠绿之地第 {1} 层。', tr(CHARS[R.char || 'hero'].name), R.floor)}</p>
    <table class="score">${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}<tr class="tot"><td>分数</td><td>${total}</td></tr></table>
    <div class="xpw"><div class="xpb"><i style="width:${nx ? Math.min(100, M.xp / nx.xp * 100) : 100}%"></i></div><span>${nx ? `[${M.xp}/${nx.xp}]` : `[${M.xp}] 全部解锁`}</span><span>剩余解锁：${left}</span></div>
    ${news.map(t => `<p class="endsub" style="color:#7fe07f">★ ${t}</p>`).join('')}
@@ -913,7 +925,7 @@ function book(tab = 'card', sub = 'miko', up = 0) {
   } else if (tab === 'pot') {
     body = `<p style="margin:0 0 10px">所有角色通用。最多带 3 瓶，战斗中点左上角的药水使用，不花能量。打完战斗有机会掉落，商店也卖。</p><div class="bgrid">${Object.values(POTIONS).map(x => `<div class="bi"><img src="${x.img}"><div><b>${x.name}</b><small>${x.rar === 'r' ? '稀有' : '普通'}</small><p>${x.desc}</p></div></div>`).join('')}</div>`;
   } else if (tab === 'mon') {
-    const hpOf = k => [].concat(ENEMIES[k].hp)[0], elite = new Set(ENCOUNTERS.elite.map(g => g.reduce((x, y) => hpOf(y) > hpOf(x) ? y : x))), boss = new Set(ENCOUNTERS.boss.flat());
+    const hpOf = k => [].concat(ENEMIES[k].hp)[0], elite = new Set([...ENCOUNTERS.elite, ...ENCOUNTERS2.elite].map(g => g.reduce((x, y) => hpOf(y) > hpOf(x) ? y : x))), boss = new Set([...ENCOUNTERS.boss.flat(), ...ENCOUNTERS2.boss.flat()]);
     body = `<div class="bgrid">${Object.entries(ENEMIES).map(([k, e]) => `<div class="bi mon"><img src="assets/enemies2/${e.art || k}/portrait.png" onerror="this.src='assets/enemies2/${e.art || k}/idle0.png'"${e.tint ? ` style="filter:${e.tint}"` : ''}><div><b>${e.name}</b><small>${boss.has(k) ? 'Boss' : elite.has(k) ? '精英' : '普通'} · 生命 ${Array.isArray(e.hp) ? e.hp.join('～') : e.hp}</small>
       <p>${Object.values(e.moves).map(m => `<span class="mv">${m.n}</span>${INTENT[m.i] || ''}${m.d ? ' ' + m.d + (m.x > 1 ? '×' + m.x : '') : ''}`).join('　')}</p>${e.lore ? `<p class="lore">${e.lore}</p>` : ''}</div></div>`).join('')}</div>`;
   } else {
@@ -935,7 +947,7 @@ function dbgPanel() {
     ['满血', () => { R.hp = R.maxHp; B ? render() : mapScreen(); }], ['+3能量', () => { if (B) { B.p.energy += 3; render(); } }], ['抽5张', () => { if (B) { drawCards(5); render(); } }],
     ['全部遗物', () => { Object.keys(RELICS).forEach(id => { if (!has(id)) gainRelic(id); }); B ? render() : mapScreen(); }],
     ['跳到Boss', () => { R.pos = { r: ROWS - 1, c: R.map[ROWS - 1].findIndex(Boolean) }; R.floor = 15; mapScreen(); }],
-    ['商店', () => shopScreen()], ['事件', () => eventScreen()], ['精英', () => battle(pickOne(ENCOUNTERS.elite), 'elite')], ...ENCOUNTERS.boss.map(([k]) => ['B:' + k.replace('gob_', ''), () => { R.boss = k; battle([k], 'boss'); }])];
+    ['商店', () => shopScreen()], ['事件', () => eventScreen()], ['精英', () => battle(pickOne(ENC().elite), 'elite')], ['第二章', () => { R.act = 2; R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = 'vamp_count'; mapScreen(); }], ...[...ENCOUNTERS.boss, ...ENCOUNTERS2.boss].map(([k]) => ['B:' + k.replace('gob_', ''), () => { R.boss = k; battle([k], 'boss'); }])];
   d.innerHTML = ''; btns.forEach(([t, f]) => { const b = document.createElement('button'); b.textContent = t; b.onclick = f; d.appendChild(b); });
 }
 
