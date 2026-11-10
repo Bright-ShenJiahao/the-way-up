@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=fix2_11110712';
-import { createAudio } from './audio.js?v=fix2_11110712';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=fix2_11110712';
+import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=chars1_11110730';
+import { createAudio } from './audio.js?v=chars1_11110730';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=chars1_11110730';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -48,7 +48,7 @@ let R = null; // 当前一局
 let uidN = 1;
 const mkCard = (id, up = 0) => ({ id, up, uid: uidN++ });
 function newRun(char = 'hero', asc = 0) {
-  R = { char, hp: 80, maxHp: 80, gold: 120, potions: [], asc, deck: STARTERS[char].map(id => mkCard(id)), relics: [{ heroine: 'phones', miko: 'suzu', witch: 'cauldron' }[char] || 'gameboy'], map: genMap(), pos: null,
+  R = { char, hp: 80, maxHp: 80, gold: 120, potions: [], asc, deck: STARTERS[char].map(id => mkCard(id)), relics: [{ heroine: 'phones', miko: 'suzu', witch: 'cauldron' }[char] || (CHARS[char].temp ? null : 'gameboy')].filter(Boolean), map: genMap(), pos: null,
     floor: 0, fights: 0, removeCost: 75, boss: pickOne(ENCOUNTERS.boss)[0], feather: 0 };
   if (asc >= 4) { R.maxHp -= 8; R.hp = R.maxHp; }
 }
@@ -188,12 +188,18 @@ const A_ = n => (R && R.asc || 0) >= n;
 const ONLINE = !/githack|localhost|127\.0\.0\.1|^file/.test(location.href); /* 试玩链接上没有后台 */
 const API = /netlify\.app$/.test(location.hostname) ? '/api/scores' : 'https://the-way-up.netlify.app/api/scores'; /* itch.io 等外部站点连 Netlify 后台 */
 const CHARINFO = {
+  erin: { diff: 3, tip: '头顶三个元素位，组合火、水、风，「祈唤」出 10 种法术。（卡牌制作中，现在用临时卡组）', line: '“火、水、风……这次搓哪一个呢。”', bio: '（人物小传制作中）', builds: [] },
+  gu: { diff: 2, tip: '飞剑加伤害、内力越打越强、剑招连段一口气收招。（卡牌制作中，现在用临时卡组）', line: '“剑在，人就在。”', bio: '（人物小传制作中）', builds: [] },
+  sylvie: { diff: 2, tip: '攒满龙血变身霜龙，三回合内龙息横扫。（卡牌制作中，现在用临时卡组）', line: '“……别让我变回那个样子。”', bio: '（人物小传制作中）', builds: [] },
+  mia: { diff: 1, tip: '云猫团子替你挨打、自己攻击，还会一路长大。（卡牌制作中，现在用临时卡组）', line: '“团子，拜托你了喵。”', bio: '（人物小传制作中）', builds: [] },
+  feiyue: { diff: 3, tip: '用自己的血换力量，攻击吸血续命，还能放蝙蝠群。（卡牌制作中，现在用临时卡组）', line: '“……血的味道，我才不喜欢。”', bio: '（人物小传制作中）', builds: [] },
+  shenque: { diff: 2, tip: '凑对子、刻子、顺子、清一色，胡牌一击定胜负。（卡牌制作中，现在用临时卡组）', line: '“这一局，我要胡了。”', bio: '（人物小传制作中）', builds: [] },
   miko: { diff: 1, tip: '结界越叠越厚，每回合自动加格挡。防守稳，最适合新手。', line: '“神社的铃，也能替异世界的人挡一挡灾。”', bio: '千早从小在日本的神社帮忙。祭典散场后，她常留下来收灯笼，也总记得把最靠近台阶的那盏留到最后。到了异世界，她手里的神乐铃能撑起护住同伴的结界，破魔箭能净化不死的怪物。平时她说话轻声细气，可只要还有人没撤到安全的地方，谁也劝不动她先走。一路上，最难开口的反倒是那句“我撑不住了”。她慢慢学着在手开始发抖时，就喊同伴的名字。', builds: [['结界防守流', '每回合自动叠结界，白拿格挡，稳稳磨死敌人。', ['神乐舞', '注连绳', '御神木', '护身符']], ['结界爆发流', '先把结界叠高，再一口气换成伤害。', ['破邪结界', '破魔·满月', '镇魂歌', '破魔箭']]] },
   hero: { diff: 2, tip: '打牌攒光弹，回合结束自动扫射。光弹越多打得越猛，规则最简单。', line: '“这关我熟！……喂，等等，咱们一起走啊。”', bio: '林拓是个爱打游戏的普通初中生。那台旧掌机的电池盖用胶带粘着，他还是天天把它塞进书包。穿越以后，掌机能射出光弹，充一次电就是装填一次弹药。他嘴上喊着“这关我熟”，等光弹打光了，才想起自己根本没问撤退路线。比起打不过的敌人，他更怕有人说“接下来各走各的”。后来有一次，他终于肯蹲在路边给掌机充电，抬头问了一句：“能等我一下吗？”', builds: [['弹幕流', '光弹越多越好，回合结束自动扫射。', ['充电', '电池扩容', '满弹连射', '全屏扫射']], ['重弹流', '光弹不用多，提高每一发的伤害。', ['双持', '超频', '速射', '连射']]] },
   witch: { diff: 2, tip: '随机炼金瓶 + 剧毒，慢慢把敌人磨死。每局手感都不一样。', line: '“村子里还有人在等我。跟紧，左边那条路能上山。”', bio: '莉泽是山脚村庄的小魔女，也是个还没出师的炼金学徒。药水调得不错，毒药调得更好，就是瓶塞上的记号画得太像，有时得迎着光看半天，才敢递给同伴。村民被抓走后，她把能用的瓶瓶罐罐全塞进挎包，独自上山找帮手。她认得山上每一种草，知道哪段坡下过雨就不能走。可一到自己也没去过的岔路口，她还是习惯咬着牙挑一条。直到有一次，她把地图摊在大家中间，承认自己也拿不准。', builds: [['剧毒流', '叠毒慢慢磨，再翻倍或一次引爆。', ['疫病', '毒雾', '催化剂', '毒爆']], ['炼金瓶流', '攒很多炼金瓶，配合加成连续扔。', ['药剂腰包', '调药', '贤者之石', '炼金爆发']]] },
   heroine: { diff: 3, tip: '给敌人叠共鸣，满 10 层爆音。要算层数，玩好了伤害最高。', line: '“……耳机先摘一只。你们说，我在听。”', bio: '苏音总戴着一副粉色耳机，喜欢把同一段旋律反复听上好几遍。身边太吵的时候，只要把音量调高一点，她就能安静下来。到了异世界，耳机里的音乐能在敌人身上叠起共鸣，等震动积到足够强，她就踩着节拍将它引爆。队伍里数她最安静，可每次开打，大家都会下意识地等她那一拍落下来。有一回，她只顾数拍子，错过了同伴喊她的声音。从那以后，她开始把一边耳罩拨开。', builds: [['爆音流', '把共鸣叠到 10 层，反复触发爆音。', ['低频', '演唱会', '回声', '失真']], ['清算流', '不等爆音，直接把共鸣换成伤害。', ['重低音', '高音', '破音', '共鸣冲击']]] },
 };
-const ORDER = ['miko', 'hero', 'witch', 'heroine'];
+const ORDER = ['miko', 'hero', 'witch', 'heroine', 'erin', 'gu', 'sylvie', 'mia', 'feiyue', 'shenque'];
 const STARTRELIC = { hero: 'gameboy', heroine: 'phones', miko: 'suzu', witch: 'cauldron' };
 const SOON = `<div class="reward cc soon"><div class="qm">?</div><b>？？？</b><span class="cd">即将加入</span><span class="ct">那道光里，好像还有别人的影子……</span></div>`; /* 留白：以后加角色 */
 function title() {
@@ -282,7 +288,7 @@ function submitScore(win) {
 function pickChar() {
   view.innerHTML = `${bgHTML()}<div class="panel csel"><h2>选择角色</h2><div class="row">${ORDER.map(k => { const c = CHARS[k], i = CHARINFO[k];
     return `<div class="reward cc" data-c="${k}"><img src="assets/${c.dir}/portrait.png"><b>${tr(c.name)}</b><span class="cl">${i.line}</span><span class="cd">${tr(c.desc)}</span>
-     <span class="diff">上手难度 <i>${'★'.repeat(i.diff)}${'☆'.repeat(3 - i.diff)}</i> ${['', '简单', '普通', '困难'][i.diff]}</span><span class="ct">${i.tip}</span></div>`; }).join('')}${SOON}</div>
+     <span class="diff">上手难度 <i>${'★'.repeat(i.diff)}${'☆'.repeat(3 - i.diff)}</i> ${['', '简单', '普通', '困难'][i.diff]}</span><span class="ct">${i.tip}</span></div>`; }).join('')}</div>
    <div class="ascbar">进阶难度 <button class="btn" id="am">−</button><b id="av"></b><button class="btn" id="ap">＋</button><span id="ad"></span></div>
    <button class="btn" id="back">返回</button></div>`;
   const M = metaGet(); let asc = 0, cur = 'miko';
@@ -559,7 +565,7 @@ function eFrame(e) {
   if (a && a.n === 'hurt' && dt < 320) return `assets/enemies2/${k}/hurt0.png`;
   return `assets/enemies2/${k}/idle${Math.floor(now / 480) % 2}.png`;
 }
-const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 林拓', h: 241, desc: '掌机 · 光弹' }, witch: { dir: 'witch2', name: '魔女 · 莉泽', h: 235, desc: '炼金瓶 · 剧毒' }, miko: { dir: 'miko2', name: '巫女 · 千早', h: 257, desc: '和弓 · 结界' }, heroine: { dir: 'heroine2', name: '穿越者 · 苏音', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 } };
+const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 林拓', h: 241, desc: '掌机 · 光弹' }, witch: { dir: 'witch2', name: '魔女 · 莉泽', h: 235, desc: '炼金瓶 · 剧毒' }, miko: { dir: 'miko2', name: '巫女 · 千早', h: 257, desc: '和弓 · 结界' }, heroine: { dir: 'heroine2', name: '穿越者 · 苏音', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 }, erin: { dir: 'erin', name: '元素使 · 艾琳', h: 268, desc: '法杖 · 元素', temp: 1 }, gu: { dir: 'gu', name: '剑客 · 顾清寒', h: 290, desc: '长剑 · 飞剑', temp: 1 }, sylvie: { dir: 'sylvie', name: '霜龙裔 · 希尔薇', h: 262, desc: '冰枪 · 变身', temp: 1 }, mia: { dir: 'mia', name: '猫耳族 · 米娅', h: 256, desc: '魔杖 · 云猫', temp: 1 }, feiyue: { dir: 'feiyue', name: '半吸血鬼 · 绯月', h: 250, desc: '血爪 · 蝙蝠', temp: 1 }, shenque: { dir: 'shenque', name: '麻将社 · 沈雀', h: 262, desc: '麻将 · 牌型', temp: 1 } };
 const cdir = () => CHARS[(R && R.char) || 'hero'].dir;
 const HA = { idle: [4, 200, 1], shoot: [4, 75, 0], hurt: [2, 130, 0], block: [1, 380, 0], down: [3, 220, 2] }; // 帧数, 每帧毫秒, 1=循环 2=停在最后
 let hst = { n: 'idle', t: 0 };
@@ -988,7 +994,7 @@ function book(tab = 'card', sub = 'miko', up = 0) {
   const tabs = [['who', '人物'], ['card', '卡牌'], ['relic', '秘宝'], ['pot', '药水'], ['mon', '怪物'], ['rule', '概念说明']];
   let body = '';
   if (tab === 'who') {
-    body = `<div class="bgrid who">${ORDER.map(k => `<div class="bi"><img src="assets/${CHARS[k].dir}/portrait.png"><div><b>${CHARS[k].name}</b><p class="cl">${CHARINFO[k].line}</p><p>${CHARINFO[k].bio}</p><div class="skill"><p><b>${CHARS[k].desc}</b>　${t('上手难度')} ${'★'.repeat(CHARINFO[k].diff)}${'☆'.repeat(3 - CHARINFO[k].diff)}</p><p>${CHARINFO[k].tip}</p><p>${t('初始秘宝')} · <b>${RELICS[STARTRELIC[k]].name}</b>：${RELICS[STARTRELIC[k]].desc}</p></div><div class="skill"><p><b>${t('推荐流派')}</b></p>${CHARINFO[k].builds.map(([n, d, cs]) => `<p><b>${n}</b>：${d}</p><p class="core">${t('核心牌')}：${cs.map(c => `<span class="chip">${tr(c)}</span>`).join('')}</p>`).join('')}</div></div></div>`).join('')}<div class="bi soon"><div class="qm">?</div><div><b>？？？</b><p>那道光里，好像还有别人的影子……</p></div></div></div>`;
+    body = `<div class="bgrid who">${ORDER.map(k => `<div class="bi"><img src="assets/${CHARS[k].dir}/portrait.png"><div><b>${CHARS[k].name}</b><p class="cl">${CHARINFO[k].line}</p><p>${CHARINFO[k].bio}</p><div class="skill"><p><b>${CHARS[k].desc}</b>　${t('上手难度')} ${'★'.repeat(CHARINFO[k].diff)}${'☆'.repeat(3 - CHARINFO[k].diff)}</p><p>${CHARINFO[k].tip}</p>${STARTRELIC[k] ? `<p>${t('初始秘宝')} · <b>${RELICS[STARTRELIC[k]].name}</b>：${RELICS[STARTRELIC[k]].desc}</p>` : ''}</div><div class="skill"><p><b>${t('推荐流派')}</b></p>${CHARINFO[k].builds.map(([n, d, cs]) => `<p><b>${n}</b>：${d}</p><p class="core">${t('核心牌')}：${cs.map(c => `<span class="chip">${tr(c)}</span>`).join('')}</p>`).join('')}</div></div></div>`).join('')}<div class="bi soon"><div class="qm">?</div><div><b>？？？</b><p>那道光里，好像还有别人的影子……</p></div></div></div>`;
   } else if (tab === 'card') {
     const subs = [...ORDER.map(k => [k, CHARS[k].name]), ['all', '共用']];
     const list = Object.values(CARDS).filter(d => sub === 'all' ? !d.ch : d.ch === sub).sort((a, b) => ('start c u r gen'.indexOf(a.rar)) - ('start c u r gen'.indexOf(b.rar)));
