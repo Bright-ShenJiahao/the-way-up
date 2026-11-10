@@ -1,10 +1,24 @@
-# 平衡测试结果（每个角色 400 局，机器人简单策略）
+# 平衡测试结果（每个角色每档 2 局）
 
-生成时间：2026-11-04T12:13:21.771Z
+生成时间：2026-11-10T20:39:00.088Z
 
-| 角色 | 胜率 | 见到 Boss | Boss 战胜率 | 通关剩余生命 | 最常死在 |
+新手机器人：不用药水、选牌只看稀有度。熟练机器人：会用药水、按角色流派选牌，更接近真人。
+
+## 新手机器人
+
+| 角色 | 第一章通关 | 第二章通关 | 第一章 Boss 战胜率 | 第二章通关剩余生命 | 最常死在 |
 |---|---|---|---|---|---|
-| miko | 79.8% | 100% | 80% | 55 | Boss:gob_king(35)、Boss:gob_archshaman(27)、Boss:gob_warlord(17)、精英:gob_hero(1) |
-| hero | 58.3% | 93% | 63% | 33 | Boss:gob_warlord(66)、Boss:gob_archshaman(40)、Boss:gob_king(32)、gob_bomb+gob_bomb+goblin(6) |
-| witch | 52.8% | 92% | 57% | 39 | Boss:gob_warlord(71)、Boss:gob_king(50)、Boss:gob_archshaman(36)、精英:gob_hero(12) |
-| heroine | 61.5% | 92% | 67% | 30 | Boss:gob_king(51)、Boss:gob_warlord(47)、Boss:gob_archshaman(23)、gob_bomb+gob_bomb+goblin(9) |
+| miko | 50.0% | 0.0% | 50% | - | 一·Boss:gob_warlord(1)、二·skeleton+zombie+ghost(1) |
+| hero | 0.0% | 0.0% | 0% | - | 一·Boss:gob_king(1)、一·精英:goblin+orc_overseer+goblin(1) |
+| witch | 0.0% | 0.0% | 0% | - | 一·精英:gob_hero(1)、一·Boss:gob_archshaman(1) |
+| heroine | 0.0% | 0.0% | 0% | - | 一·精英:goblin+orc_overseer+goblin(1)、一·精英:gob_kid+gob_shaman+gob_kid(1) |
+
+## 熟练机器人（≈ 真人）
+
+| 角色 | 第一章通关 | 第二章通关 | 第一章 Boss 战胜率 | 第二章通关剩余生命 | 最常死在 |
+|---|---|---|---|---|---|
+| miko | 50.0% | 0.0% | 50% | - | 二·Boss:death_knight(1)、一·Boss:gob_king(1) |
+| hero | 0.0% | 0.0% | 0% | - | 一·Boss:gob_king(2) |
+| witch | 0.0% | 0.0% | 0% | - | 一·goblin+gob_wolf(1)、一·Boss:gob_king(1) |
+| heroine | 50.0% | 0.0% | 50% | - | 二·精英:necromancer+skeleton+zombie(1)、一·Boss:gob_king(1) |
+

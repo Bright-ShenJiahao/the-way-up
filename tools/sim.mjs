@@ -17,11 +17,12 @@ const addSt = (t, k, n) => { t.st[k] = (t.st[k] || 0) + n; if (t.st[k] === 0) de
 const alive = () => B.en.filter(e => !e.dead);
 const atkVal = (s, t, b, m = 1) => { let d = (b + (s.st.str || 0) * m) * (s.d ? 1.1 : 1); if (s === B.p && t && t.d && t.d.undead && has('silvercross')) d *= 1.25; if (s.st.weak) d *= .75; if (t && t.st.vuln) d *= 1.5; return Math.max(0, Math.floor(d)); };
 function hurt(t, amt, att) {
-  const isP = t === B.p; if (!isP && t.st.aegis) return 0; if (!isP && t.st.intang) amt = Math.ceil(amt / 2);
+  const isP = t === B.p; if (!isP && t.st.aegis) return 0; if (!isP && t.st.intang) amt = Math.ceil(amt / 2); if (!isP && t.st.fly) { amt = Math.ceil(amt / 2); addSt(t, 'fly', -1); if (!t.st.fly) t.grounded = 1; } if (!isP) t.hitT = 1;
   const u = Math.min(t.block, amt); t.block -= u; const left = amt - u;
   if (isP) R.hp -= left; else t.hp -= left;
   if (att && t.st.thorns && att !== t) hurt(att, t.st.thorns);
   if (!isP && t.hp <= 0 && !t.dead) killE(t);
+  if (!isP && !t.dead && left > 0 && t.d.onHurt) t.d.onHurt(t, BE);
   if (!isP && !t.dead && t.key === 'gob_wolf' && t.hp <= t.max / 2) { t.key = 'wolf'; t.d = ENEMIES.wolf; t.move = t.d.ai(t, BE); const g = mkE('goblin'); g.hp = g.max = 8; g.move = g.d.ai(g, BE); B.en.push(g); }
   if (isP && R.hp <= 0 && has('feather') && !R.feather) { R.feather = 1; R.hp = Math.floor(R.maxHp * .3); }
   return left;
@@ -60,13 +61,14 @@ const G = {
 const BE = {
   applyP(k, n) { addSt(B.p, k, n); }, addSt(e, k, n) { addSt(e, k, n); }, eBlock(e, n) { e.block += n; },
   allies: e => alive().filter(a => a !== e), alive: () => alive(), healE(e, n) { e.hp = Math.min(e.max, e.hp + n); }, addCard(id, n = 1) { for (let k = 0; k < n; k++) B.disc.push(mk(id)); }, revive(e, f) { e.revived = 1; e.dead = false; e.hp = Math.max(1, Math.floor(e.max * f)); R.kills--; }, flee(e) { if (!e.dead) { e.fled = 1; e.dead = true; e.hp = 0; } }, say() {},
-  kill(e) { killE(e); }, summon(key, hp) { if (alive().length >= 5) return; const e = mkE(key); if (hp) e.hp = e.max = hp; e.move = e.d.ai(e, BE); B.en.unshift(e); },
+  kill(e) { killE(e); }, steal() {}, endPlayerTurn() { B.forceEnd = 1; },
+  split(e, key, n) { const i = B.en.indexOf(e), hp = Math.max(1, Math.floor(e.hp / n)), bits = []; for (let k = 0; k < n; k++) { const b = mkE(key); b.hp = b.max = hp; b.move = b.d.ai(b, BE); bits.push(b); } e.dead = true; e.fled = 1; e.hp = 0; B.en.splice(i, 1, ...bits); }, summon(key, hp) { if (alive().length >= 5) return; const e = mkE(key); if (hp) e.hp = e.max = hp; e.move = e.d.ai(e, BE); B.en.unshift(e); },
 };
 let eid = 1;
 function mkE(key) { const d = ENEMIES[key], hp = rnd(d.hp[0], d.hp[1]); const e = { key, d, hp, max: hp, block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++ }; d.init && d.init(e); return e; }
-const cost = c => { const d = CARDS[c.id]; return c.free ? 0 : d.cost[c.up ? 1 : 0]; };
+const cost = c => { const d = CARDS[c.id]; if (c.rc != null) return c.rc; return c.free ? 0 : d.cost[c.up ? 1 : 0]; };
 function startTurn(first) {
-  B.turn++; if (!B.p.st.keep) B.p.block = 0;
+  B.turn++; B.forceEnd = 0; [...B.draw, ...B.disc, ...B.hand].forEach(c => delete c.rc); if (!B.p.st.keep) B.p.block = 0;
   B.p.energy = 3 + (has('crown') ? 1 : 0) + (first && has('hourglass') ? 1 : 0); B.p.noDraw = 0;
   if (B.p.st.rage) addSt(B.p, 'str', B.p.st.rage);
   B.p.pot = 0; if (first && has('cauldron')) G.potion(1); if (B.p.st.satchel) G.potion(B.p.st.satchel);
@@ -76,11 +78,12 @@ function startTurn(first) {
   B.p.oc = 0; B.p.aoe = 0; B.p.metroUsed = 0; B.p.cplays = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (has('gameboy') && B.turn % 2 === 1) G.ammo(1); if (!first && has('phones')) G.resAll(1); if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
   drawCards(5 + (first && has('scroll') ? 2 : 0));
+  if (B.p.st.confuse) { B.hand.forEach(c => { if (typeof cost(c) === 'number') c.rc = rnd(0, 3); }); addSt(B.p, 'confuse', -1); }
 }
 function play(i, t) {
   const c = B.hand[i], d = CARDS[c.id]; let k = cost(c); if (k === 'X') k = B.p.energy; if (k > B.p.energy) return false;
   if (d.tgt === 'one' && !t) t = alive().sort((a, b) => a.hp - b.hp)[0];
-  B.p.energy -= k; G.x = k; B.hand.splice(i, 1); d.play(G, c.up, t, c);
+  B.p.energy -= k; G.x = k; B.hand.splice(i, 1); d.play(G, c.up, t, c); delete c.rc; alive().forEach(e => e.d.onCard && e.d.onCard(e, d.type, BE));
   if (d.type === 'atk') { B.atk++; if (has('quiver') && B.atk % 3 === 0) for (const e of alive()) hurt(e, 5); }
   if (d.type === 'skill') alive().forEach(e => { if (e.st.enrage) addSt(e, 'str', e.st.enrage); });
   if (d.potion) { B.p.pot++; if (has('hat')) G.block(2, true); }
@@ -88,7 +91,7 @@ function play(i, t) {
   if (d.type !== 'power') (d.exhaust ? B.exh : B.disc).push(c);
   return true;
 }
-const incoming = () => alive().reduce((s, e) => { const m = e.d.moves[e.move]; return s + (m && m.d ? atkVal(e, B.p, m.d) * (m.x || 1) : 0); }, 0);
+const incoming = () => alive().reduce((s, e) => { const m = e.d.moves[e.move]; return s + (m && m.d ? atkVal(e, B.p, m.d) * (m.x ? m.x + (e.xb || 0) : 1) : 0); }, 0);
 const isBlock = d => /格挡/.test(d.desc(0)) && d.type !== 'atk';
 // 机器人出牌：先补够格挡，再出能力牌、0 费牌、攻击牌
 function usePots() {
@@ -129,7 +132,7 @@ function botTurn() { usePots(); if (!alive().length) return;
     opts.sort((a, b) => sc(b) - sc(a));
     const o = opts[0]; if (sc(o) <= 0) break;
     let t = null; if (o.d.tgt === 'one') { const a = alive(); t = ['crack', 'high', 'wave'].includes(o.d.id) ? a.sort((x, y) => (y.st.res || 0) - (x.st.res || 0))[0] : ['deadly', 'catalyst'].includes(o.d.id) ? a.sort((x, y) => (y.st.poison || 0) - (x.st.poison || 0))[0] : a.sort((x, y) => x.hp - y.hp)[0]; }
-    play(o.i, t); if (R.hp <= 0) return;
+    play(o.i, t); if (R.hp <= 0 || B.forceEnd) return;
   }
 }
 function endTurn() {
@@ -138,17 +141,21 @@ function endTurn() {
   for (const c of B.hand) (CARDS[c.id].ethereal ? B.exh : B.disc).push(c); B.hand = [];
   if (B.p.st.metal) G.block(B.p.st.metal, true); if (B.p.st.regen && (B.p.regenN = (B.p.regenN || 0) + 1) <= 3) heal(B.p.st.regen);
   for (const e of alive()) e.block = 0;
+  for (const e of [...B.en]) if (e.d.prePhase) e.d.prePhase(e, BE);
   const pre = { vuln: B.p.st.vuln || 0, weak: B.p.st.weak || 0 };
   for (const e of [...B.en]) {
     if (e.dead || R.hp <= 0) continue;
     if (e.st.aegis) addSt(e, 'aegis', -1); if (e.st.intang) e.st.intang = 0;
     if (e.st.poison && !e.st.aegis) { e.hp -= e.st.poison; addSt(e, 'poison', -1); if (e.hp <= 0) { killE(e); continue; } }
+    if (e.d.onTurn && e.d.onTurn(e, BE) === 'skip') { e.hist.push(e.move); continue; }
+    e.hitT = 0;
     const mv = e.d.moves[e.move];
-    if (mv.d) for (let k = 0; k < (mv.x || 1); k++) { hurt(B.p, atkVal(e, B.p, mv.d), e); if (e.dead) break; }
+    if (mv.d) for (let k = 0; k < (mv.x ? mv.x + (e.xb || 0) : 1); k++) { hurt(B.p, atkVal(e, B.p, mv.d), e); if (e.dead) break; }
     if (mv.f && !e.dead) mv.f(e, BE);
     e.hist.push(e.move); e.d.after && e.d.after(e);
   }
   for (const k of ['vuln', 'weak']) if (pre[k] && B.p.st[k]) addSt(B.p, k, -1);
+  if (R.act === 2 && B.turn === 4 && !B.bloodMoon) { B.bloodMoon = 1; alive().filter(e => e.d.undead).forEach(e => addSt(e, 'str', 2)); }
   for (const e of alive()) { if (e.st.ritual) addSt(e, 'str', e.st.ritual); if (e.turn >= 6) addSt(e, 'str', 1); if (e.st.heal) e.hp = Math.min(e.max, e.hp + e.st.heal); for (const k of ['vuln', 'weak']) if (e.st[k]) addSt(e, k, -1); e.turn++; e.move = e.d.ai(e, BE); }
 }
 function battle(keys, kind) {

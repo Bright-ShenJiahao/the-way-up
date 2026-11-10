@@ -1106,5 +1106,165 @@
  "哥布林部落的监工，用鞭子驱赶哥布林干活。": [
   "The overseer of the goblin tribe, driving goblins to work with a whip.",
   "ゴブリン族の監督役。ムチでゴブリンを働かせる。"
+ ],
+ "偷钱": [
+  "Pickpocket",
+  "スリ"
+ ],
+ "喝药水": [
+  "Drink Potion",
+  "薬を飲む"
+ ],
+ "肉块": [
+  "Flesh Chunk",
+  "肉塊"
+ ],
+ "撞击": [
+  "Slam",
+  "体当たり"
+ ],
+ "喷腐肉": [
+  "Spit Rot",
+  "腐肉吐き"
+ ],
+ "万蝠噬咬": [
+  "Thousand Bat Bite",
+  "万蝠の牙"
+ ],
+ "群蝠吸血": [
+  "Swarm Feed",
+  "群蝠吸血"
+ ],
+ "飞行": [
+  "Flying",
+  "飛行"
+ ],
+ "受到的伤害减半。每被打中 {0} 次 {1} 层，掉光就坠落，下回合不能行动": [
+  "Takes half damage. Each {0} hit: {1} stack; at 0 it falls and can't act next turn.",
+  "受けるダメージ半減。{0}回被弾ごとに{1}層、0で墜落して次ターン行動不能"
+ ],
+ "人质": [
+  "Hostage",
+  "人質"
+ ],
+ "监工绑着的村民。你的回合没打到监工，村民就挨 {0} 鞭。战斗结束时村民还活着，额外得到 {1} 金币": [
+  "A villager tied up by the Overseer. If you don't hit the Overseer on your turn, the villager takes {0} lashes. If they survive the fight, gain {1} extra gold.",
+  "監督に縛られた村人。自分のターンに監督を攻撃しないと、村人が{0}回ムチで打たれる。戦闘終了時に村人が無事なら追加で{1}ゴールド"
+ ],
+ "混乱": [
+  "Confused",
+  "混乱"
+ ],
+ "回合开始时，手牌的费用随机变成 {0}～{1}": [
+  "At the start of your turn, card costs in hand become random ({0}-{1}).",
+  "ターン開始時、手札のコストがランダム（{0}〜{1}）になる"
+ ],
+ "手脚很快的小偷。会抢走你的金币，两回合后带着金币逃跑，在那之前打死它就能拿回来。": [
+  "A quick-fingered thief. Steals your gold and flees 2 turns later—kill it first to get the gold back.",
+  "すばしっこい泥棒。ゴールドを盗み、2ターン後に逃げる。その前に倒せば取り返せる。"
+ ],
+ "血量低于一半时，会喝下随身的药水，回血并变强（只喝一次）。": [
+  "Below half HP, drinks a potion to heal and grow stronger (once).",
+  "HPが半分を切ると薬を飲み、回復して強くなる（1回だけ）。"
+ ],
+ "每扔一次石头，下次就多扔一块。": [
+  "Throws one more rock every time it attacks.",
+  "石を投げるたびに、次は1個多く投げる。"
+ ],
+ "你每回合打出的前 {0} 张非攻击牌，都会被它塞进 {1} 张晕眩。": [
+  "The first {0} non-attack cards you play each turn add {1} Daze to your deck.",
+  "毎ターン、攻撃以外のカードを最初の{0}枚使うたびに目眩を{1}枚加えられる。"
+ ],
+ "哥布林部落的监工，身边绑着一个村民。你的回合不打它，它就鞭打村民；救下村民有额外金币。": [
+  "The goblin tribe's overseer, with a villager tied up beside him. Leave him unhit on your turn and he whips the villager; save the villager for extra gold.",
+  "ゴブリン族の監督。そばに村人を縛っている。自分のターンに攻撃しないと村人をムチで打つ。救えば追加ゴールド。"
+ ],
+ "伯爵用亡灵魔法唤醒的士兵。打散后，只要还有别的骷髅活着，敌人回合就会重新拼起来（带 {0}/{1} 生命，只拼一次）。同一回合全部打散就不会复活。": [
+  "Soldiers raised by the Count's necromancy. If another skeleton is still standing, a fallen one reassembles on the enemy turn ({0}/{1} HP, once). Shatter them all in the same turn and none return.",
+  "伯爵の死霊術で蘇った兵士。ほかの骸骨が生きていれば、敵ターンに組み直して復活する（HP{0}/{1}、1回だけ）。同じターンに全滅させれば復活しない。"
+ ],
+ "徘徊在古堡里的亡魂，虚化时很难伤到它。撑过 {0} 回合，它就会自己飘走。": [
+  "A lost soul haunting the castle—hard to hurt while intangible. Survive {0} turns and it drifts away.",
+  "古城をさまよう亡霊。霊体化中はダメージが通りにくい。{0}ターン耐えれば去っていく。"
+ ],
+ "守在古堡屋檐上的石头恶魔。石化时格挡很厚，还带 {0} 点反伤，下一回合就会扑下来。": [
+  "A stone demon perched on the castle eaves. While petrified it has heavy Block and {0} Thorns; next turn it dives.",
+  "古城の軒にいる石の悪魔。石化中はブロックが厚く反撃{0}を持ち、次のターンに急降下してくる。"
+ ],
+ "在墓穴里啃食尸骨的怪物，同伴倒下时会吃掉它们变强。被打中后会立刻换招。": [
+  "A crypt-dweller that gnaws bones and devours fallen allies to grow stronger. Changes its move whenever it's hit.",
+  "墓所で骨をかじる怪物。仲間が倒れると食べて強くなる。攻撃を受けると即座に技を変える。"
+ ],
+ "亡灵法师用尸块拼出来的巨人。血量掉到一半时，会裂成两块小肉块继续打。": [
+  "A giant stitched from corpses by the Necromancer. At half HP it splits into two Flesh Chunks.",
+  "死霊術師が死体を縫い合わせた巨人。HPが半分になると2つの肉塊に分裂する。"
+ ],
+ "缝合怪裂开后的一半。": [
+  "Half of a split Stitched Brute.",
+  "分裂したツギハギの片割れ。"
+ ],
+ "伯爵的新娘。会飞，受到的伤害减半；一回合打中她 {0} 次，她就会坠落一回合。": [
+  "The Count's bride. Flies, taking half damage; hit her {0} times in one turn and she falls for a turn.",
+  "伯爵の花嫁。飛行していてダメージ半減。1ターンに{0}回当てると1ターン墜落する。"
+ ],
+ "古堡的主人。你一回合打出 {0} 张牌，他就会停止时间，强制结束你的回合。第一次被打倒后会化作蝙蝠群复活。": [
+  "Master of the castle. If you play {0} cards in one turn, he stops time and ends your turn. The first time he falls, he reforms from a swarm of bats.",
+  "古城の主。1ターンに{0}枚カードを使うと時を止め、ターンを強制終了させる。初めて倒れた時、コウモリの群れとなって復活する。"
+ ],
+ "你每打出一张技能牌，他力量 +{0}。血量掉到一半时会暴怒，叫来两个手下。": [
+  "Gains {0} Strength whenever you play a Skill. At half HP he flies into a rage and calls two minions.",
+  "スキルを使うたびに筋力+{0}。HPが半分になると激怒し、手下を2体呼ぶ。"
+ ],
+ "替伯爵唤醒亡者的老巫师。不先打断他，骷髅就杀不完。他的诅咒会让你下回合的手牌费用变得混乱。": [
+  "An old sorcerer who raises the dead for the Count. Stop him first or the skeletons never end. His curse scrambles your card costs next turn.",
+  "伯爵のために死者を蘇らせる老魔術師。先に止めないと骸骨が尽きない。呪いで次ターンの手札コストが乱れる。"
+ ],
+ "时间停止：回合被强制结束": [
+  "Time Stop: your turn is forcibly ended",
+  "時間停止：ターンが強制終了された"
+ ],
+ "血月当空：不死系敌人力量 +{0}": [
+  "Blood Moon: undead enemies gain {0} Strength",
+  "血月：アンデッドの筋力+{0}"
+ ],
+ "（被救下的村民塞给你 {0} 金币：“谢谢你们！”）": [
+  "(The rescued villager presses {0} gold into your hand: \"Thank you!\")",
+  "（助けた村人が{0}ゴールドをくれた。「ありがとう！」）"
+ ],
+ "（监工一鞭子抽在村民身上！）": [
+  "(The Overseer lashes the villager!)",
+  "（監督が村人をムチで打った！）"
+ ],
+ "（村民被打晕了……）": [
+  "(The villager has passed out...)",
+  "（村人は気を失った……）"
+ ],
+ "（幽灵叹了口气，飘走了）": [
+  "(The ghost sighs and drifts away.)",
+  "（幽霊はため息をついて去っていった）"
+ ],
+ "（缝合怪裂成了两块！）": [
+  "(The Stitched Brute splits in two!)",
+  "（ツギハギが2つに裂けた！）"
+ ],
+ "「时间……停止吧。」": [
+  "\"Time... stand still.\"",
+  "「時よ……止まれ」"
+ ],
+ "（伯爵化作一团蝙蝠，又在王座上聚了回来）「游戏才刚开始。」": [
+  "(The Count bursts into bats, then reforms upon the throne.) \"The game has only begun.\"",
+  "（伯爵はコウモリの群れとなり、玉座で再び姿を現した）「遊びはこれからだ」"
+ ],
+ "「小的们，给我上！」": [
+  "\"Boys, get 'em!\"",
+  "「野郎ども、かかれ！」"
+ ],
+ "坠落！": [
+  "Fell!",
+  "墜落！"
+ ],
+ "坠地·无法行动": [
+  "Grounded · can't act",
+  "墜落・行動不能"
  ]
 }

@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=story3_11110518';
-import { createAudio } from './audio.js?v=story3_11110518';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=story3_11110518';
+import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=mon1_11110540';
+import { createAudio } from './audio.js?v=mon1_11110540';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=mon1_11110540';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -112,7 +112,7 @@ const foreHTML = () => `<div id="fore"><img src="assets/fg/bush.png" style="left
 
 // ---------- 卡牌显示 ----------
 const TYPE = { atk: '攻击', skill: '技能', power: '能力' };
-function cardCost(c) { const d = CARDS[c.id]; if (c.free) return 0; const k = d.cost[c.up ? 1 : 0]; return c.disc && k !== 'X' ? Math.max(0, k - 1) : k; }
+function cardCost(c) { const d = CARDS[c.id]; if (c.free) return 0; if (c.rc != null) return c.rc; const k = d.cost[c.up ? 1 : 0]; return c.disc && k !== 'X' ? Math.max(0, k - 1) : k; }
 function cardHTML(c, extra = '', energy = 99) {
   const d = CARDS[c.id], cost = cardCost(c), no = cost !== 'X' && cost > energy;
   const rr = d.rar === 'start' || d.rar === 'gen' ? 'c' : d.rar;
@@ -141,7 +141,7 @@ function pickDeck(mode, done) {
       return; }
     if (mode === 'remove') R.deck.splice(i, 1);
     if (mode === 'dup') R.deck.push(mkCard(c.id, c.up));
-    if (mode === 'upgrade') c.up = 1;
+    if (mode === 'upgrade') { c.up = 1; sting('upgrade', 900); }
     if (mode === 'transform') { const pool = Object.values(CARDS).filter(d => d.rar !== 'start' && d.rar !== 'gen' && mine(d) && d.id !== c.id); R.deck[i] = mkCard(pickOne(pool).id); }
     audio.level(); o.remove(); done && done(true);
   });
@@ -394,13 +394,14 @@ function fx(who, text, cls) { B.fx.push({ who, text, cls }); }
 // 对目标造成伤害（已计算好的数值），返回未被格挡的伤害
 function hurt(tgt, amt, attacker) {
   const isP = tgt === B.p;
-  if (!isP && tgt.st.aegis) { fx(tgt.id, '免疫', 'blk'); return 0; } if (!isP && tgt.st.intang) amt = Math.ceil(amt / 2); let blk = tgt.block, left = amt;
+  if (!isP && tgt.st.aegis) { fx(tgt.id, '免疫', 'blk'); return 0; } if (!isP && tgt.st.intang) amt = Math.ceil(amt / 2); if (!isP && tgt.st.fly) { amt = Math.ceil(amt / 2); addSt(tgt, 'fly', -1); if (!tgt.st.fly) { tgt.grounded = 1; fx(tgt.id, '坠落！', 'st'); } } if (!isP) tgt.hitT = 1; let blk = tgt.block, left = amt;
   const used = Math.min(blk, left); tgt.block -= used; left -= used;
   if (isP) { R.hp -= left; } else { tgt.hp -= left; }
   fx(isP ? 'hero' : tgt.id, left > 0 ? `-${left}` : '格挡', left > 0 ? 'dmg' : 'blk'); B.hitSet.add(isP ? 'hero' : tgt.id);
   if (attacker && tgt.st.thorns && attacker !== tgt) { const th = tgt.st.thorns; hurt(attacker, th); }
   if (!isP && left > 0) { eAct(tgt, 'hurt'); if (tgt.hp > 0) gv(tgt, 'hurt'); }
   if (!isP && tgt.hp <= 0 && !tgt.dead) killE(tgt);
+  if (!isP && !tgt.dead && left > 0 && tgt.d.onHurt) tgt.d.onHurt(tgt, BE);
   if (!isP && !tgt.dead && tgt.key === 'gob_wolf' && tgt.hp <= tgt.max / 2) dismount(tgt);
   if (isP) pDeath();
   if (false && isP && R.hp <= 0 && (R.potions || []).includes('fairy')) { R.potions.splice(R.potions.indexOf('fairy'), 1); R.hp = Math.floor(R.maxHp * .3); fx('hero', '复活药水！', 'heal'); }
@@ -420,7 +421,7 @@ function dismount(e) { // 骑狼兵半血落马：变成野狼 + 一只小兵
 }
 const VSZ = { gob_kid: 1.45, gob_bomb: 1.25, gob_giant: .6, gob_king: .55, gob_hero: .85, gob_paladin: .85, gob_shaman: 1.15 };
 function gv(e, k) { if (e.key === 'wolf') { if (k === 'atk' || k === 'die') audio.gob(k === 'die' ? 'howl' : 'growl'); return; } audio.gob(k, VSZ[e.key] || 1); }
-function killE(e) { const od = ENEMIES[e.key].onDie; gv(e, 'die'); if (R) R.kills = (R.kills || 0) + 1; eAct(e, 'down'); e.dead = true; e.hp = 0; audio.kill(); if (has('fang')) { healP(3); } if (has('wolffang') && B) addSt(B.p, 'str', 1); if (od && !e.fled) od(e, BE); }
+function killE(e) { const od = ENEMIES[e.key].onDie; gv(e, 'die'); if (R) R.kills = (R.kills || 0) + 1; eAct(e, 'down'); e.dead = true; e.hp = 0; audio.kill(); if (has('fang')) { healP(3); } if (has('wolffang') && B) addSt(B.p, 'str', 1); if (e.stolen && !e.fled) { R.gold += e.stolen; fx('hero', `+${e.stolen} 金币`, 'heal'); e.stolen = 0; } if (od && !e.fled) od(e, BE); }
 function boom(t) { // 爆音：伤害后保留 3 层（失真再 +3），多出的层数也保留
   const d = 20 + (B.p.st.dist ? 5 : 0) + (has('mic') ? 6 : 0);
   t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0);
@@ -473,10 +474,13 @@ const BE = {
   eBlock(e, n) { e.block += n; fx(e.id, `+${n}`, 'blk'); },
   allies: e => alive().filter(a => a !== e), alive: () => alive(),
   healE(e, n) { e.hp = Math.min(e.max, e.hp + n); fx(e.id, `+${n}`, 'heal'); },
-  revive(e, f) { e.revived = 1; e.dead = false; e.hp = Math.max(1, Math.floor(e.max * f)); e.anim = null; if (R) R.kills--; fx(e.id, '复活', 'heal'); say('（骨头咔嚓咔嚓地重新拼了起来）'); },
+  revive(e, f) { e.revived = 1; e.dead = false; e.hp = Math.max(1, Math.floor(e.max * f)); e.anim = null; if (R) R.kills--; fx(e.id, '复活', 'heal'); if (e.key === 'skeleton') say('（骨头咔嚓咔嚓地重新拼了起来）'); },
   flee(e) { if (e.dead) return; e.fled = 1; e.dead = true; e.hp = 0; fx(e.id, '逃跑', 'st'); }, say: t => say(t),
   addCard(id, n = 1) { for (let k = 0; k < n; k++) B.disc.push(mkCard(id)); fx('hero', `+${CARDS[id].name}${n > 1 ? '×' + n : ''}`, 'st'); },
   kill(e) { killE(e); B.hitSet.add(e.id); },
+  steal(e, n) { const k = Math.min(n, R.gold); R.gold -= k; e.stolen = (e.stolen || 0) + k; e.stoleT = e.turn; fx('hero', `-${k} 金币`, 'dmg'); },
+  split(e, key, n) { const i = B.en.indexOf(e), hp = Math.max(1, Math.floor(e.hp / n)), bits = []; for (let k = 0; k < n; k++) { const b = mkEnemy(key); b.hp = b.max = hp; b.move = b.d.ai(b, BE); bits.push(b); } e.dead = true; e.fled = 1; e.hp = 0; B.en.splice(i, 1, ...bits); say('（缝合怪裂成了两块！）'); },
+  endPlayerTurn() { B.forceEnd = 1; },
   summon(key, hp) { if (alive().length >= 5) return; const e = mkEnemy(key); if (hp) e.hp = e.max = hp; e.move = e.d.ai(e, BE); B.en.unshift(e); },
 };
 
@@ -489,7 +493,7 @@ function drawCards(n) {
 }
 function startTurn(first) {
   setTimeout(() => { if (B && !B.over && !alive().length) checkEnd(); }, 0); /* 回合开始的共鸣/中毒/秘宝伤害若打死最后一个敌人，也要结算胜利 */
-  B.turn++; B.hitSet = new Set();
+  B.turn++; B.hitSet = new Set(); B.forceEnd = 0; [...B.draw, ...B.disc, ...B.hand].forEach(c => delete c.rc);
   if (!B.p.st.keep) B.p.block = 0;
   B.p.energy = 3 + (has('crown') ? 1 : 0) + (first && has('hourglass') ? 1 : 0);
   B.p.noDraw = 0;
@@ -505,6 +509,7 @@ function startTurn(first) {
   if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
   drawCards(5 + (first && has('scroll') ? 2 : 0));
+  if (B.p.st.confuse) { B.hand.forEach(c => { if (typeof cardCost(c) === 'number') c.rc = rnd(0, 3); }); addSt(B.p, 'confuse', -1); }
   if (first && has('dice')) { const cs = B.hand.filter(c => typeof cardCost(c) === 'number' && cardCost(c) >= 1); if (cs.length) pickOne(cs).disc = 1; }
   B.sel = -1; B.busy = false; render();
 }
@@ -520,6 +525,7 @@ async function playCard(i, tgt) {
   if (el) flyCard(el, d.type); render(); await sleep(260);
   if (B !== b0) return; B.anim = false; B.hitSet = new Set();
   try { d.play(G, c.up, tgt, c); } catch (err) { console.error(err); tip(tr('这张牌出错了，已跳过')); }
+  delete c.rc; alive().forEach(e => e.d.onCard && e.d.onCard(e, d.type, BE));
   if (d.type === 'atk') { B.atkCnt++; if (has('quiver') && B.atkCnt % 3 === 0) for (const e of alive()) hurt(e, 5); heroAct('shoot'); }
   if (d.potion) { B.p.pot = (B.p.pot || 0) + 1; if (has('hat')) G.block(2, true); }
   if (B.p.st.concert && (B.p.cplays = (B.p.cplays || 0) + 1) <= 4) G.resAll(B.p.st.concert);
@@ -527,6 +533,7 @@ async function playCard(i, tgt) {
   if (d.type === 'power') {} else if (d.exhaust) B.exh.push(c); else B.disc.push(c);
   pDeath();
   render(); await checkEnd();
+  if (B === b0 && B.forceEnd && !B.over) { B.forceEnd = 0; banner(tr('时间停止：回合被强制结束')); await sleep(500); endTurn(); }
 }
 function flyCard(el, type) {
   const sc = stage._s || 1, sr = stage.getBoundingClientRect(), r = el.getBoundingClientRect();
@@ -578,6 +585,7 @@ async function endTurn() {
   /* 敌人回合：本回合敌人新加给你的虚弱/易伤，不在这回合末扣层（让它们覆盖你的下一个回合） */
   const pre = { vuln: B.p.st.vuln || 0, weak: B.p.st.weak || 0 };
   for (const e of alive()) e.block = 0;
+  for (const e of [...B.en]) if (e.d.prePhase) e.d.prePhase(e, BE);
   render();
   for (const e of [...B.en]) {
     if (B !== b0) return;
@@ -586,9 +594,11 @@ async function endTurn() {
     if (e.st.aegis) addSt(e, 'aegis', -1); /* 圣盾挡住玩家的一个回合，轮到它行动时才消失 */
     if (e.st.intang) e.st.intang = 0; /* 虚化同理 */
     if (e.st.poison && !e.st.aegis) { const pz = e.st.poison; e.hp -= pz; fx(e.id, `-${pz}`, 'dmg'); B.hitSet.add(e.id); addSt(e, 'poison', -1); if (e.hp <= 0) { killE(e); render(); await sleep(300); if (await checkEnd()) return; continue; } }
+    if (e.d.onTurn && e.d.onTurn(e, BE) === 'skip') { if (!e.dead) fx(e.id, '坠地·无法行动', 'st'); e.hist.push(e.move); render(); await sleep(300); if (await checkEnd()) return; continue; }
+    e.hitT = 0;
     const mv = e.d.moves[e.move]; B.lunge = mv.d != null && mv.i.startsWith('atk') && mv.d > 0 ? e.id : null;
     if (mv.d) { eAct(e, 'atk'); gv(e, 'atk'); } else if (/buff|summon/.test(mv.i)) gv(e, 'buff');
-    if (mv.d) for (let k = 0; k < (mv.x || 1); k++) { hurt(B.p, atkVal(e, B.p, mv.d), e); if (e.dead) break; }
+    if (mv.d) for (let k = 0; k < hitsOf(e, mv); k++) { hurt(B.p, atkVal(e, B.p, mv.d), e); if (e.dead) break; }
     if (mv.f && !e.dead) mv.f(e, BE);
     e.hist.push(e.move); e.d.after && e.d.after(e);
     render(); await sleep(mv.d ? 520 : 380); if (B !== b0) return;
@@ -596,6 +606,7 @@ async function endTurn() {
     if (await checkEnd()) return;
   }
   B.lunge = null; B.hitSet = new Set();
+  if (ACT() === 2 && B.turn === 4 && !B.bloodMoon) { B.bloodMoon = 1; banner(tr('血月当空：不死系敌人力量 +2')); alive().filter(e => e.d.undead).forEach(e => BE.addSt(e, 'str', 2)); }
   for (const k of ['vuln', 'weak']) if (pre[k] && B.p.st[k]) addSt(B.p, k, -1);
   for (const e of alive()) {
     if (e.st.ritual) addSt(e, 'str', e.st.ritual);
@@ -608,10 +619,11 @@ async function endTurn() {
 }
 async function checkEnd() {
   if (!B || B.over) return true; const b0 = B;
-  if (R.hp <= 0) { B.over = true; heroAct('down'); render(); await sleep(1400); clearSave(); return endScreen(false); }
+  if (R.hp <= 0) { B.over = true; heroAct('down'); render(); sting('lose', 2600); await sleep(1400); clearSave(); return endScreen(false); }
   if (!alive().length) {
-    B.over = true; render(); await sleep(600); if (B !== b0) return true;
+    B.over = true; render(); sting(B.kind === 'boss' ? 'bossWin' : 'win', B.kind === 'boss' ? 2600 : 1400); await sleep(600); if (B !== b0) return true;
     if ((has('gameboy') || has('phones') || has('suzu') || has('cauldron')) && !has('crown')) R.hp = Math.min(R.maxHp, R.hp + 4); if (has('grail')) R.hp = Math.min(R.maxHp, R.hp + 5);
+    if (B.en.some(e => (e.st.hostage || 0) > 0)) { R.gold += 40; say(tr('（被救下的村民塞给你 40 金币：“谢谢你们！”）')); }
     if (B.kind === 'elite') R.elites = (R.elites || 0) + 1;
     if (B.kind === 'boss') { R.bosses = (R.bosses || 0) + 1; if (ACT() === 1) return act2Choice(); clearSave(); B = null; return story('story_end2', ['伯爵化为了灰烬，天终于亮了。被关押的村民们，终于重获自由。', '可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。', '“回家的路……还在更高的地方。”'], () => story('story_party', ['天亮了。大家并肩站在晨光里，笑得满脸是灰。', '“走吧，往上。”'], () => endScreen(true))); }
     delete R.pending; delete R.pendEnc; delete R.snap; save(); /* 打赢后不能刷新重打 */
@@ -626,14 +638,15 @@ const II = n => `<img src="assets/ui2/int_${n}.png">`;
 const ICON = { atk: II('atk'), def: II('def'), buff: II('buff'), debuff: II('debuff'), atkdef: II('atk') + II('def'), atkdebuff: II('atk') + II('debuff'), atkbuff: II('atk') + II('buff'), summon: II('summon'), unknown: II('unknown') };
 function intentHTML(e) {
   const mv = e.d.moves[e.move]; let num = '';
-  if (mv.d != null && mv.i.startsWith('atk') && mv.d > 0) { const v = atkVal(e, B.p, mv.d); num = mv.x ? `${v}×${mv.x}` : `${v}`; }
+  if (mv.d != null && mv.i.startsWith('atk') && mv.d > 0) { const v = atkVal(e, B.p, mv.d); num = mv.x ? `${v}×${hitsOf(e, mv)}` : `${v}`; }
   const IT = { atk: '攻击你', def: '给自己或队友加格挡', buff: '强化自己', debuff: '给你施加负面状态', atkdef: '攻击你并加格挡', atkdebuff: '攻击你并施加负面状态', atkbuff: '攻击你并强化队友', summon: '召唤援兵', unknown: '意图不明' };
   const tip = `${mv.n}：下回合将${IT[mv.i]}${num ? `，伤害 ${num}` : ''}`;
   return `<div class="intent" title="${esc(tip)}">${ICON[mv.i]}${num}<small>${mv.n}</small></div>`;
 }
 const stsLabel = (k, n, st) => k === 'res' ? `共鸣${n}/10${n >= 9 ? '⚠' : ''}` : k === 'kek' ? `结界${n}（下回合+${st.shinboku ? Math.max(n, Math.min(15, n * 2)) : n}挡）` : k === 'poison' ? `中毒${n}（下回合-${n}）` : k === 'ammo' ? `光弹${n}（回合末${n}发）` : STATUS[k][0] + n;
 const stsHTML = st => `<div class="sts">${Object.entries(st).filter(([k, n]) => n && STATUS[k]).map(([k, n]) => `<b style="border-color:${STATUS[k][2]};color:${STATUS[k][2]}" title="${esc(STATUS[k][0] + '：' + STATUS[k][1])}">${stsLabel(k, n, st)}</b>`).join('')}</div>`;
-function incoming() { let t = 0; for (const e of alive()) { const mv = e.d.moves[e.move]; if (mv.d && mv.i.startsWith('atk')) t += atkVal(e, B.p, mv.d) * (mv.x || 1); } return t; }
+function incoming() { let t = 0; for (const e of alive()) { const mv = e.d.moves[e.move]; if (mv.d && mv.i.startsWith('atk')) t += atkVal(e, B.p, mv.d) * hitsOf(e, mv); } return t; }
+function hitsOf(e, mv) { return mv.x ? mv.x + (e.xb || 0) : 1; }
 function barHTML(hp, max, blk, me) {
   let cls = '', tip = '';
   if (me && TIPS && B && !B.busy) { const inc = incoming(); if (inc > 0) { cls = blk >= inc ? 'ok' : 'low'; tip = `敌人下回合共 ${inc} 点伤害，你有 ${blk} 格挡${blk >= inc ? '，足够' : `，还差 ${inc - blk}`}`; } }
@@ -794,7 +807,7 @@ function restScreen() {
 function treasureScreen() {
   view.innerHTML = `${bgHTML()}${topBar()}<div class="panel"><h2>宝箱</h2><img src="assets/icons/box.png" style="width:120px;cursor:pointer" id="chest"><p>点击打开</p></div>`;
   bindTop();
-  $('#chest').onclick = () => {
+  $('#chest').onclick = () => { sting('chest', 900);
     const rl = rollRelic(); const g = rnd(20, 40); gainRelic(rl); R.gold += g;
     view.innerHTML = `${bgHTML()}${topBar()}<div class="panel"><h2>宝箱</h2>${rl ? `<img src="${RELICS[rl].img}" style="width:90px"><p><b>${RELICS[rl].name}</b><br>${RELICS[rl].desc}</p>` : ''}<p>以及 ${g} 金币。</p><button class="btn" id="go">继续前进</button></div>`;
     bindTop(); $('#go').onclick = mapScreen;
@@ -855,19 +868,20 @@ function story(img, lines, done, once) {
   show(); $('#stskip').onclick = done; $('#stnext').onclick = () => { if (++i >= lines.length) done(); else show(); };
 }
 /* 外部曲子（Pixabay 许可，可商用）：标题 / 每章的地图、战斗、Boss 各一首 */
-const BGM = {}; let bgmNow = null;
+const BGM = {}; let bgmNow = null, duckT = 0;
+function sting(k, ms) { try { audio[k] && audio[k](); } catch (e) {} duckT = performance.now() + ms; }
 function setMusic(m) {
   const a = ACT() === 2 ? 'c2' : 'c1', want = !R && m === 'menu' ? 'title' : m === 'menu' ? a + '_map' : m === 'boss' ? a + '_boss' : m === 'elite' ? a + '_elite' : a + '_battle';
   if (bgmNow && bgmNow !== want) { BGM[bgmNow].pause(); bgmNow = null; }
   if (!want) { audio.setMode(m); return; }
   audio.setMode('silent');
   const el = BGM[want] || (BGM[want] = Object.assign(new Audio(`assets/music/${want}.mp3`), { loop: true }));
-  const V = audio.vol || { m: 1, mu: 1 }; el.volume = audio.muted && audio.muted() ? 0 : Math.min(1, .55 * (V.m ?? 1) * (V.mu ?? 1));
+  const V = audio.vol || { m: 1, mu: 1 }; el.volume = audio.muted ? 0 : Math.min(1, .55 * (V.m ?? 1) * (V.mu ?? 1));
   if (bgmNow !== want) { el.currentTime = 0; el.play().catch(() => {}); bgmNow = want; }
 }
 addEventListener('pointerdown', () => { if (bgmNow && BGM[bgmNow].paused) BGM[bgmNow].play().catch(() => {}); }); /* 浏览器要求先点一下才能播放 */
-setInterval(() => { if (bgmNow) { const V = audio.vol || {}; BGM[bgmNow].volume = audio.muted && audio.muted() ? 0 : Math.min(1, .55 * (V.m ?? 1) * (V.mu ?? 1)); } }, 500);
-function act2Choice() {
+setInterval(() => { if (bgmNow) { const V = audio.vol || {}; BGM[bgmNow].volume = audio.muted ? 0 : Math.min(1, .55 * (V.m ?? 1) * (V.mu ?? 1)) * (performance.now() < duckT ? .25 : 1); } }, 150);
+function act2Choice() { sting('act2', 2600);
   B = null; save(); setMusic('menu');
   view.innerHTML = `${bgHTML(false, 'story_road')}<div class="panel" style="width:760px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('哥布林大王倒下了')}</h2>
    <p>${t('远处山顶的古堡亮起了血红的光。被抓走的村民，就关在那里。')}</p><p style="color:#ffb0b0">${t('进入第二章：血月古堡（回复 50% 生命）')}</p>
