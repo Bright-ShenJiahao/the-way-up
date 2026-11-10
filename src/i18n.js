@@ -1,6 +1,6 @@
 /* 多语言：中文原文就是 key（数字和「」里的名字会自动变成 {0}{1} 占位符），英文 / 日文词表在 src/lang/ */
-import EN from './lang/en.js?v=story11110330';
-import JA from './lang/ja.js?v=story11110330';
+import EN from './lang/en.js?v=bgm11110400';
+import JA from './lang/ja.js?v=bgm11110400';
 const DICT = { en: EN, ja: JA };
 const CJK = /[㐀-鿿]/;
 let lang = 'zh';
