@@ -2,6 +2,9 @@
 // 规则照抄 src/game.js 的战斗逻辑（简化了地图：固定 15 层路线 + Boss）
 import { CARDS, STARTERS, RELICS, ENEMIES, ENCOUNTERS } from '../src/data.js';
 const N = +process.argv[2] || 300;
+let SMART = false; /* false=新手机器人；true=熟练机器人（会用药水、按流派选牌） */
+const POTS = ['heal', 'str', 'dex', 'block', 'energy', 'fire', 'bomb', 'weak', 'draw', 'fairy'];
+const KEYW = { miko: /结界/, hero: /光弹/, witch: /中毒|炼金瓶/, heroine: /共鸣|爆音/ };
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const pickOne = a => a[Math.floor(Math.random() * a.length)];
 const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -88,7 +91,16 @@ function play(i, t) {
 const incoming = () => alive().reduce((s, e) => { const m = e.d.moves[e.move]; return s + (m && m.d ? atkVal(e, B.p, m.d) * (m.x || 1) : 0); }, 0);
 const isBlock = d => /格挡/.test(d.desc(0)) && d.type !== 'atk';
 // 机器人出牌：先补够格挡，再出能力牌、0 费牌、攻击牌
-function botTurn() {
+function usePots() {
+  if (!SMART || !R.pots.length) return;
+  const big = B.kind !== 'fight', use = id => { const i = R.pots.indexOf(id); if (i < 0) return false; R.pots.splice(i, 1);
+    if (id === 'heal') heal(15); else if (id === 'block') G.block(12, true); else if (id === 'str') addSt(B.p, 'str', 2); else if (id === 'dex') addSt(B.p, 'dex', 2);
+    else if (id === 'energy') B.p.energy += 2; else if (id === 'draw') G.draw(3); else if (id === 'weak') alive().forEach(e => addSt(e, 'weak', 3));
+    else if (id === 'fire') { const t = alive().sort((a, b) => a.hp - b.hp)[0]; if (t) hurt(t, 20, B.p); } else if (id === 'bomb') alive().forEach(e => hurt(e, 10, B.p)); return true; };
+  if (R.hp < R.maxHp * .35) { use('heal') || use('block'); }
+  if (big && B.turn <= 1) for (const id of ['str', 'dex', 'weak', 'energy', 'draw', 'bomb', 'fire']) use(id);
+}
+function botTurn() { usePots(); if (!alive().length) return;
   for (let guard = 0; guard < 30 && alive().length; guard++) {
     const need = incoming() - B.p.block;
     const opts = B.hand.map((c, i) => ({ c, i, d: CARDS[c.id], k: cost(c) === 'X' ? B.p.energy : cost(c) })).filter(o => !o.d.unplay && o.k <= B.p.energy && !(o.k === 'X' && B.p.energy === 0));
@@ -148,38 +160,45 @@ function battle(keys, kind) {
   B.en.forEach(e => e.move = e.d.ai(e, BE));
   startTurn(true);
   for (let t = 0; t < 60; t++) {
-    botTurn(); if (R.hp <= 0) return false; if (!alive().length) break;
-    endTurn(); if (R.hp <= 0) return false; if (!alive().length) break;
+    botTurn(); if (R.hp <= 0 && !revive()) return false; if (!alive().length) break;
+    endTurn(); if (R.hp <= 0 && !revive()) return false; if (!alive().length) break;
     startTurn(false);
   }
   if (alive().length) return false;
   if ((has('gameboy') || has('phones') || has('suzu') || has('cauldron')) && !has('crown')) heal(4);
   return true;
 }
+function revive() { const i = R.pots.indexOf('fairy'); if (i < 0) return false; R.pots.splice(i, 1); R.hp = Math.floor(R.maxHp * .3); return true; }
+function dropPot(kind) { if (!SMART) return; if (Math.random() < (kind === 'elite' ? .6 : .4) && R.pots.length < 3) R.pots.push(pickOne(POTS)); }
 function rollCards(n) { const out = []; while (out.length < n) { const x = Math.random(), rar = x < .06 ? 'r' : x < .4 ? 'u' : 'c'; const pool = Object.values(CARDS).filter(d => d.rar === rar && mine(d) && !out.includes(d.id)); if (pool.length) out.push(pickOne(pool).id); } return out; }
 const TIER = { r: 3, u: 2, c: 1 };
-function reward() { const cs = rollCards(3); if (R.deck.length > 26 && Math.random() < .5) return; const best = cs.sort((a, b) => TIER[CARDS[b].rar] - TIER[CARDS[a].rar] + (CARDS[b].ch ? .5 : 0) - (CARDS[a].ch ? .5 : 0))[0]; R.deck.push(mk(best)); R.picks[best] = (R.picks[best] || 0) + 1; }
+function reward() { const cs = rollCards(3);
+  if (SMART) { const kw = KEYW[R.char], sc = id => { const d = CARDS[id]; let v = TIER[d.rar] + (d.ch ? .5 : 0); try { if (kw.test(d.desc(0))) v += 1.5; } catch (e) {} v -= (R.picks[id] || 0) * 1.2; return v; };
+    const best = cs.sort((a, b) => sc(b) - sc(a))[0]; if (sc(best) < 1.5 && R.deck.length > 18) return; R.deck.push(mk(best)); R.picks[best] = (R.picks[best] || 0) + 1; return; } if (R.deck.length > 26 && Math.random() < .5) return; const best = cs.sort((a, b) => TIER[CARDS[b].rar] - TIER[CARDS[a].rar] + (CARDS[b].ch ? .5 : 0) - (CARDS[a].ch ? .5 : 0))[0]; R.deck.push(mk(best)); R.picks[best] = (R.picks[best] || 0) + 1; }
 function relic() { const pool = Object.values(RELICS).filter(r => r.rar !== 'start' && mine(r) && !has(r.id)); if (!pool.length) return; const r = pickOne(pool); R.relics.push(r.id); if (r.id === 'herb') { R.maxHp += 10; R.hp += 10; } if (r.id === 'crown') { R.maxHp -= 10; R.hp = Math.min(R.hp, R.maxHp); } }
 function run(char) {
-  uid = 1; R = { char, hp: 80, maxHp: 80, deck: STARTERS[char].map(id => mk(id)), relics: [{ heroine: 'phones', miko: 'suzu', witch: 'cauldron' }[char] || 'gameboy'], kills: 0, picks: {}, floor: 0 };
+  uid = 1; R = { char, hp: 80, maxHp: 80, deck: STARTERS[char].map(id => mk(id)), relics: [{ heroine: 'phones', miko: 'suzu', witch: 'cauldron' }[char] || 'gameboy'], kills: 0, picks: {}, floor: 0, pots: [] };
   let fights = 0;
   for (const node of ROUTE) {
     R.floor++;
-    if (node === 'fight') { const pool = fights < 3 ? ENCOUNTERS.easy : ENCOUNTERS.hard; fights++; const enc = pickOne(pool); if (!battle(enc, 'fight')) return { win: false, floor: R.floor, at: enc.join('+') }; reward(); }
-    else if (node === 'elite') { const enc = pickOne(ENCOUNTERS.elite); if (!battle(enc, 'elite')) return { win: false, floor: R.floor, at: '精英:' + enc.join('+') }; reward(); relic(); }
+    if (node === 'fight') { const pool = fights < 3 ? ENCOUNTERS.easy : ENCOUNTERS.hard; fights++; const enc = pickOne(pool); if (!battle(enc, 'fight')) return { win: false, floor: R.floor, at: enc.join('+') }; reward(); dropPot('fight'); }
+    else if (node === 'elite') { const enc = pickOne(ENCOUNTERS.elite); if (!battle(enc, 'elite')) return { win: false, floor: R.floor, at: '精英:' + enc.join('+') }; reward(); relic(); dropPot('elite'); }
     else if (node === 'boss') { const bk = pickOne(ENCOUNTERS.boss)[0]; if (!battle([bk], 'boss')) return { win: false, floor: R.floor, at: 'Boss:' + bk }; return { win: true, floor: R.floor, hp: R.hp }; }
     else if (node === 'rest') { if (R.hp < R.maxHp * .55) heal(Math.floor(R.maxHp * .3)); else { const c = R.deck.find(c => !c.up && CARDS[c.id].rar !== 'start') || R.deck.find(c => !c.up); if (c) c.up = 1; } }
     else if (node === 'event') { heal(10); }
-    else if (node === 'shop') { const i = R.deck.findIndex(c => c.id === 'defend'); if (i >= 0) R.deck.splice(i, 1); }
+    else if (node === 'shop') { if (SMART && R.pots.length < 3) R.pots.push(pickOne(POTS)); const i = R.deck.findIndex(c => c.id === 'defend'); if (i >= 0) R.deck.splice(i, 1); }
   }
 }
-const lines = [`# 平衡测试结果（每个角色 ${N} 局，机器人简单策略）`, '', `生成时间：${new Date().toISOString()}`, '', '| 角色 | 胜率 | 见到 Boss | Boss 战胜率 | 通关剩余生命 | 最常死在 |', '|---|---|---|---|---|---|'];
-const detail = [];
-for (const ch of ['miko', 'hero', 'witch', 'heroine']) {
-  let w = 0, fl = 0, hp = 0, rb = 0; const at = {};
-  for (let i = 0; i < N; i++) { const r = run(ch); fl += r.floor; if (r.win || (r.at || '').startsWith('Boss')) rb++; if (r.win) { w++; hp += r.hp; } else at[r.at] = (at[r.at] || 0) + 1; }
-  const top = Object.entries(at).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k, v]) => `${k}(${v})`).join('、');
-  lines.push(`| ${ch} | ${(w / N * 100).toFixed(1)}% | ${(rb / N * 100).toFixed(0)}% | ${rb ? (w / rb * 100).toFixed(0) : 0}% | ${w ? (hp / w).toFixed(0) : '-'} | ${top} |`);
+const lines = [`# 平衡测试结果（每个角色每档 ${N} 局）`, '', `生成时间：${new Date().toISOString()}`, '', '新手机器人：不用药水、选牌只看稀有度。熟练机器人：会用药水、按角色流派选牌，更接近真人。', ''];
+for (const smart of [false, true]) {
+  SMART = smart; lines.push(`## ${smart ? '熟练机器人（≈ 真人）' : '新手机器人'}`, '', '| 角色 | 胜率 | 见到 Boss | Boss 战胜率 | 通关剩余生命 | 最常死在 |', '|---|---|---|---|---|---|');
+  for (const ch of ['miko', 'hero', 'witch', 'heroine']) {
+    let w = 0, fl = 0, hp = 0, rb = 0; const at = {};
+    for (let i = 0; i < N; i++) { const r = run(ch); fl += r.floor; if (r.win || (r.at || '').startsWith('Boss')) rb++; if (r.win) { w++; hp += r.hp; } else at[r.at] = (at[r.at] || 0) + 1; }
+    const top = Object.entries(at).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k, v]) => `${k}(${v})`).join('、');
+    lines.push(`| ${ch} | ${(w / N * 100).toFixed(1)}% | ${(rb / N * 100).toFixed(0)}% | ${rb ? (w / rb * 100).toFixed(0) : 0}% | ${w ? (hp / w).toFixed(0) : '-'} | ${top} |`);
+  }
+  lines.push('');
 }
 const out = lines.join('\n'); console.log(out);
 import('fs').then(fs => { fs.mkdirSync('data', { recursive: true }); fs.writeFileSync('data/balance.md', out + '\n'); });
