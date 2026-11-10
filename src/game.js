@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=bgm13_11110451';
-import { createAudio } from './audio.js?v=bgm13_11110451';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=bgm13_11110451';
+import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=bgm14_11110456';
+import { createAudio } from './audio.js?v=bgm14_11110456';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=bgm14_11110456';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -712,7 +712,7 @@ function flushFx() {
   if (shake && SET.shake) { view.classList.remove('shake'); void view.offsetWidth; view.classList.add('shake'); }
   B.fx = [];
 }
-setInterval(() => { frame++; if (!B || B.over) return; view.querySelectorAll('.enemy:not(.dead):not(.hd) .spr').forEach(img => img.src = `assets/enemies/${img.dataset.k}/${frame % 2 ? 'b' : 'a'}.png`); }, 520);
+setInterval(() => { frame++; if (!B || B.over) return; if (!B.busy && !alive().length) { checkEnd(); return; } /* 兜底：任何途径打死最后一个敌人都能结算 */ view.querySelectorAll('.enemy:not(.dead):not(.hd) .spr').forEach(img => img.src = `assets/enemies/${img.dataset.k}/${frame % 2 ? 'b' : 'a'}.png`); }, 520);
 addEventListener('keydown', e => { if (e.target && e.target.tagName === 'INPUT') return;
   if (!B || B.over || document.querySelector('.overlay') || !view.querySelector('#hand')) return;
   if (e.key === 'e' || e.key === 'E') endTurn();
