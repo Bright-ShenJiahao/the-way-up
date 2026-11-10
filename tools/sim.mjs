@@ -27,11 +27,16 @@ function hurt(t, amt, att) {
   if (isP && R.hp <= 0 && has('feather') && !R.feather) { R.feather = 1; R.hp = Math.floor(R.maxHp * .3); }
   return left;
 }
-function killE(e) { e.dead = true; e.hp = 0; R.kills++; if (has('fang')) heal(3); if (has('wolffang')) addSt(B.p, 'str', 1); const od = CARDS && e.d.onDie; if (od && !e.fled) od(e, BE); }
+function killE(e) { e.dead = true; e.hp = 0; R.kills++; if (has('fang')) heal(3); if (has('wolffang')) addSt(B.p, 'str', 1); if (B && B.p.st.chain && !e.fled) { G.ammo(3 * B.p.st.chain); drawCards(B.p.st.chain); } const od = CARDS && e.d.onDie; if (od && !e.fled) od(e, BE); }
 const heal = n => { R.hp = Math.min(R.maxHp, R.hp + n); };
 function boom(t) { const d = 20 + (B.p.st.dist ? 5 : 0) + (has('mic') ? 6 : 0); t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0); hurt(t, d); if (has('metro') && !B.p.metroUsed) { B.p.metroUsed = 1; B.p.energy++; } }
 function drawCards(n) { for (let i = 0; i < n; i++) { if (B.p.noDraw || B.hand.length >= 10) return; if (!B.draw.length) { if (!B.disc.length) return; B.draw = shuffle(B.disc); B.disc = []; } B.hand.push(B.draw.pop()); } }
 const G = {
+  has: id => has(id), potsInHand() { return B.hand.filter(c => CARDS[c.id].potion).length; },
+  kekSpend(n) { if ((B.p.st.kek || 0) < n) return false; addSt(B.p, 'kek', -n); return true; },
+  execute(t) { if (t && !t.dead) { t.hp = 0; killE(t); } },
+  discard(n) { for (let k = 0; k < n && B.hand.length; k++) { const c = B.hand.splice(Math.floor(Math.random() * B.hand.length), 1)[0], d = CARDS[c.id];
+    if (d.sly) { const a = alive(); try { d.play(G, c.up, d.tgt === 'one' ? a[Math.floor(Math.random() * a.length)] : null, c); } catch (e) {} (d.exhaust ? B.exh : B.disc).push(c); } else B.disc.push(c); } },
   get p() { return B.p; }, x: 0,
   attack(t, base, times = 1, m = 1) { let s = 0; for (let i = 0; i < times; i++) { if (!t || t.dead) break; s += hurt(t, atkVal(B.p, t, base, m), B.p); } return s; },
   attackAll(base, times = 1) { let s = 0; for (let i = 0; i < times; i++) for (const e of alive()) s += hurt(e, atkVal(B.p, e, base), B.p); return s; },
@@ -44,7 +49,7 @@ const G = {
   potion(n, id) { const ps = ['p_fire', 'p_frost', 'p_heal', 'p_poison', 'p_boom']; for (let i = 0; i < n; i++) (B.hand.length < 10 ? B.hand : B.disc).push(mk(id || pickOne(ps))); },
   poison(t, n) { if (!t || t.dead || n <= 0) return; addSt(t, 'poison', n + (has('toad') ? 1 : 0)); },
   volley(clear = true) { // 光弹齐射：每发 3 点（+双持 +超频），打随机敌人或全体
-    const n = B.p.st.ammo || 0; if (!n) return; const dmg = 3 + (B.p.st.dual || 0) + (B.p.oc || 0);
+    const n = B.p.st.ammo || 0; if (!n) return; const dmg = 4 + (B.p.st.dual || 0) + (B.p.oc || 0);
     for (let i = 0; i < n; i++) { const a = alive(); if (!a.length) break; if (B.p.aoe) a.forEach(e => hurt(e, atkVal(B.p, e, dmg), B.p)); else { const e = pickOne(a); hurt(e, atkVal(B.p, e, dmg), B.p); } }
     if (B.p.st.rapid) G.block(B.p.st.rapid * n, true);
     if (clear) { B.shots = (B.shots || 0) + n; if (has('pad')) { B.p.padDraw = Math.floor(B.shots / 4); B.shots %= 4; } delete B.p.st.ammo; }

@@ -1,4 +1,4 @@
-import { tr } from './i18n.js?v=mon1_11110540';
+import { tr } from './i18n.js?v=buff1_11110545';
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
 const I = n => n.includes('/') ? `assets/${n}.png` : `assets/icons/${n}.png`;
@@ -7,7 +7,7 @@ const v = (u, a, b) => (u ? b : a);
 export const CARDS = {
   // ======== 林拓 · 光弹（回合结束自动开火） ========
   shoot: { ch: 'hero', name: '射击', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_gun', tgt: 'one',
-    desc: u => `造成 ${v(u, 6, 9)} 点伤害。得到 1 发光弹。`, play: (g, u, t) => { g.attack(t, v(u, 6, 9)); g.ammo(1); } },
+    desc: u => `造成 ${v(u, 7, 10)} 点伤害。得到 1 发光弹。`, play: (g, u, t) => { g.attack(t, v(u, 7, 10)); g.ammo(1); } },
   load: { ch: 'hero', name: '装填', type: 'skill', rar: 'start', cost: [1, 0], icon: 'gb', tgt: 'self',
     desc: () => `得到 3 发光弹。抽 1 张牌。`, play: g => { g.ammo(3); g.draw(1); } },
   charge: { ch: 'hero', name: '速射', type: 'skill', rar: 'start', cost: [1, 0], icon: 'p_arc', tgt: 'self',
@@ -115,8 +115,27 @@ export const CARDS = {
     desc: () => `给予 2 层虚弱和 1 层易伤。消耗。`, play: (g, u, t) => { g.apply(t, 'weak', 2); g.apply(t, 'vuln', 1); } },
   p_heal: { ch: 'witch', potion: 1, name: '治疗瓶', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'pot', tgt: 'self', exhaust: 1,
     desc: () => `回复 3 点生命（每场战斗最多共回 6 点）。消耗。`, play: g => { const n = Math.min(3, 6 - (g.p.healed || 0)); if (n > 0) { g.p.healed = (g.p.healed || 0) + n; g.heal(n); } } },
+  /* —— 角色加强（第一批）—— */
+  chain: { ch: 'hero', name: '连锁反应', type: 'power', rar: 'u', cost: [1, 0], icon: 'p_boom', tgt: 'self',
+    desc: () => `每打倒 1 个敌人，得到 3 发光弹，抽 1 张牌。`, play: g => { g.self('chain', 1); } },
+  bigshot: { ch: 'hero', name: '蓄能炮', type: 'atk', rar: 'u', cost: [2, 2], icon: 'ic_gun', tgt: 'one',
+    desc: u => `用掉所有光弹，每发对目标造成 ${v(u, 6, 8)} 点伤害。`, play: (g, u, t) => { const k = g.spend(99); g.fire(t, k, v(u, 6, 8)); } },
+  cutmix: { ch: 'heroine', name: '切歌连拍', type: 'skill', rar: 'c', cost: [1, 0], icon: 'sk_vortex', tgt: 'self',
+    desc: () => `随机弃掉 2 张手牌，抽 3 张牌。`, play: g => { g.discard(2); g.draw(3); } },
+  rondo: { ch: 'heroine', name: '回旋曲', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_bell', tgt: 'self', sly: 1,
+    desc: u => `给予所有敌人 ${v(u, 2, 3)} 层共鸣，抽 1 张牌。狡诈。`, play: (g, u) => { g.resAll(v(u, 2, 3)); g.draw(1); } },
+  scratch: { ch: 'heroine', name: '搓碟', type: 'atk', rar: 'c', cost: [0, 0], icon: 'sk_holyorb', tgt: 'one', sly: 1,
+    desc: u => `造成 ${v(u, 4, 6)} 点伤害，给予 1 层共鸣。狡诈。`, play: (g, u, t) => { g.attack(t, v(u, 4, 6)); g.res(t, 1); } },
+  finale: { ch: 'heroine', name: '终曲', type: 'atk', rar: 'r', cost: [2, 1], icon: 'sk_holyorb', tgt: 'one',
+    desc: () => `如果目标的生命不高于它共鸣层数的 4 倍，直接打倒它；否则给予 5 层共鸣。`, play: (g, u, t) => { if (t.hp <= (t.st.res || 0) * 4) g.execute(t); else g.res(t, 5); } },
+  kbreak: { ch: 'miko', name: '结界崩', type: 'skill', rar: 'u', cost: [0, 0], icon: 'sk_sigil', tgt: 'self',
+    desc: u => `花掉 3 层结界，获得 2 点能量，抽 ${v(u, 2, 3)} 张牌。`, play: (g, u) => { if (g.kekSpend(3)) { g.energy(2); g.draw(v(u, 2, 3)); } } },
+  gohou: { ch: 'miko', name: '护法', type: 'skill', rar: 'c', cost: [1, 0], icon: 'sk_sigil', tgt: 'self',
+    desc: () => `花掉 2 层结界，给予所有敌人 2 层虚弱，获得 6 点格挡。`, play: g => { if (g.kekSpend(2)) g.applyAll('weak', 2); g.block(6); } },
+  mixpoison: { ch: 'witch', name: '毒瓶调和', type: 'skill', rar: 'u', cost: [1, 0], icon: 'b_curse', tgt: 'one',
+    desc: () => `手里每有 1 个炼金瓶，给予 3 层中毒（至少 3 层）。`, play: (g, u, t) => g.poison(t, Math.max(3, 3 * g.potsInHand())) },
   p_poison: { ch: 'witch', potion: 1, name: '毒药瓶', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'b_curse', tgt: 'one', exhaust: 1,
-    desc: () => `给予 5 层中毒。消耗。`, play: (g, u, t) => g.poison(t, Math.floor(5 * g.ppm())) },
+    desc: () => `给予 5 层中毒。消耗。`, play: (g, u, t) => g.poison(t, Math.floor(5 * g.ppm() * (g.has('venompot') ? 2 : 1))) },
   p_boom: { ch: 'witch', potion: 1, name: '爆炸瓶', type: 'atk', rar: 'gen', cost: [0, 0], icon: 'p_boom', tgt: 'one', exhaust: 1,
     desc: () => `造成 10 点伤害。消耗。`, play: (g, u, t) => g.attack(t, 10 * g.pm()) },
   zap: { ch: 'witch', name: '魔弹', type: 'atk', rar: 'start', cost: [1, 1], icon: 'sk_orb', tgt: 'one',
@@ -235,6 +254,7 @@ export const RELICS = {
   spare: { ch: 'hero', name: '备用电池', icon: 'ic_crystal', rar: 'c', desc: '每回合开始时，额外得到 1 发光弹。' },
   pad: { ch: 'hero', name: '连发手柄', icon: 'sk_mgun', rar: 'u', desc: '回合结束每射出 4 发光弹，下回合多抽 1 张牌。' },
   metro: { ch: 'heroine', name: '节拍器', icon: 'ic_hexa', rar: 'c', desc: '每回合第一次爆音，获得 1 点能量。' },
+  venompot: { ch: 'witch', name: '毒液坩埚', icon: 'pot', rar: 'u', desc: '毒药瓶给予的中毒翻倍。' },
   mic: { ch: 'heroine', name: '麦克风', icon: 'sk_holyorb', rar: 'u', desc: '爆音伤害 +6。' },
   silvercross: { act2: 1, name: '银十字架', icon: 'icons2/r_silvercross', rar: 'u', desc: '对亡灵造成的伤害 +25%。' },
   batcloak: { act2: 1, name: '蝙蝠披风', icon: 'icons2/r_batcloak', rar: 'c', desc: '每场战斗开始时，获得 8 点格挡。' },

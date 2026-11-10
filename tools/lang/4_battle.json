@@ -574,5 +574,13 @@
  "+眩晕×{0}": [
   "+Dazed×{0}",
   "+めまい×{0}"
+ ],
+ "狡诈": [
+  "Sly",
+  "狡猾"
+ ],
+ "这张牌被弃掉时，会自动免费打出。": [
+  "When this card is discarded, it is played automatically for free.",
+  "このカードが捨てられると、自動で無料で使われる。"
  ]
 }
