@@ -903,10 +903,6 @@
   "Ammo deals {0} damage this turn. Exhaust.",
   "このターン、光弾1発のダメージ{0}。廃棄。"
  ],
- "结界每回合提供的格挡翻倍（最多 {0} 点，多张不叠加）。": [
-  "Ward Block each turn is doubled (max {0}, doesn't stack).",
-  "結界の毎ターンのブロックが2倍（最大{0}、重複しない）。"
- ],
  "每回合开始时，随机获得 {0} 个炼金瓶（多张不叠加）。": [
   "At turn start, gain {0} random Flask (doesn't stack).",
   "ターン開始時、ランダムな薬瓶を{0}個得る（重複しない）。"
@@ -1106,5 +1102,9 @@
  "立刻额外射出一轮光弹。光弹不会减少，回合结束时照常再射一次。": [
   "Fire an extra volley now. Ammo is kept and still fires at end of turn.",
   "今すぐ光弾を追加で1回発射。光弾は減らず、ターン終了時にも通常どおり発射する。"
+ ],
+ "结界给的格挡翻倍（最多 {0}）。": [
+  "Ward Block is doubled (max {0}).",
+  "結界のブロックが2倍（最大{0}）。"
  ]
 }

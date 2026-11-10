@@ -1,5 +1,5 @@
-import { tr } from './i18n.js?v=story2_11110516';
-// 数据：卡牌 / 遗物 / 敌人 / 遭遇 / 事件
+import { tr } from './i18n.js?v=story3_11110518';
+// 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
 const I = n => n.includes('/') ? `assets/${n}.png` : `assets/icons/${n}.png`;
 const v = (u, a, b) => (u ? b : a);
@@ -105,7 +105,7 @@ export const CARDS = {
   kagura: { ch: 'miko', name: '神乐舞', type: 'power', rar: 'u', cost: [1, 0], icon: 'sk_fairy', tgt: 'self',
     desc: () => `每回合开始时，结界 +1。`, play: g => g.self('kagura', 1) },
   shinboku: { ch: 'miko', name: '御神木', type: 'power', rar: 'r', cost: [2, 1], icon: 'sk_treant', tgt: 'self',
-    desc: () => `结界每回合提供的格挡翻倍（最多 15 点，多张不叠加）。`, play: g => { g.p.st.shinboku = 1; } },
+    desc: () => `结界给的格挡翻倍（最多 15）。`, play: g => { g.p.st.shinboku = 1; } },
 
   // ======== 魔女 · 药瓶 / 毒 ========
   // 药瓶牌（rar:'gen' 不进奖励池，只由其他牌生成）
@@ -445,7 +445,7 @@ export const EVENTS2 = [
       { t: '离开', go: () => '你捂住鼻子快步走开。' }] },
   { title: '伯爵的书房', pic: 'c2_study', img: 'ic_hexa', text: '书桌上摊着伯爵的日记：“山顶的那位，就快醒了……”',
     opts: [
-      { t: '翻找抽屉：获得一个随机遗物', go: (R, A) => `你找到了「${A.relic()}」。` },
+      { t: '翻找抽屉：获得一个随机秘宝', go: (R, A) => `你找到了「${A.relic()}」。` },
       { t: '读禁书：升级两张牌', go: (R, A) => { A.pick('upgrade', 2); return '古老的知识流进你的脑海。'; } }] },
   { title: '镜子大厅', pic: 'c2_mirror', img: 'ic_aura', text: '无数面镜子里，映出无数个你。',
     opts: [
@@ -453,7 +453,7 @@ export const EVENTS2 = [
       { t: '打碎镜子：删除牌组里的一张牌', go: (R, A) => { A.pick('remove'); return '碎片里，一张牌消失了。'; } }] },
   { title: '棺材', pic: 'c2_coffin', img: 'b_vamp', text: '墓室中央的黑棺微微打开，缝隙里透出红光。',
     opts: [
-      { t: '打开：50% 拿到遗物，50% 被吸走 15 生命', go: (R, A) => { if (Math.random() < .5) return `棺材里躺着「${A.relic()}」。`; A.hurt(15); return '一只苍白的手伸出来，咬住了你的脖子！'; } },
+      { t: '打开：50% 拿到秘宝，50% 被吸走 15 生命', go: (R, A) => { if (Math.random() < .5) return `棺材里躺着「${A.relic()}」。`; A.hurt(15); return '一只苍白的手伸出来，咬住了你的脖子！'; } },
       { t: '离开', go: () => '有些东西，还是别打扰比较好。' }] },
   { title: '亡灵商人', pic: 'c2_merchant', img: 'goldbag', text: '兜帽下的绿光眨了眨：“金币？我不要。我要的是……生命。”',
     opts: [
@@ -470,7 +470,7 @@ export const EVENTS = [
   { title: '被困的矮人工匠', pic: 'dwarf', img: 'ic_hammer', text: '一个矮人被哥布林的陷阱夹住了脚，正骂骂咧咧地挣扎。',
     opts: [
       { t: '救他：失去 6 生命，他帮你升级两张牌', go: (R, A) => { A.hurt(6); A.pick('upgrade', 2); return '矮人拍拍你：“好家伙，我欠你一次！”'; } },
-      { t: '向他买东西：花 40 金币，获得一个随机遗物', ok: R => R.gold >= 40, go: (R, A) => { A.gold(-40); return `他从背包里翻出一件「${A.relic()}」。`; } },
+      { t: '向他买东西：花 40 金币，获得一个随机秘宝', ok: R => R.gold >= 40, go: (R, A) => { A.gold(-40); return `他从背包里翻出一件「${A.relic()}」。`; } },
       { t: '离开', go: () => '你假装没听见。' }] },
   { title: '神社遗迹', pic: 'shrine', img: 'ic_bell', text: '林间立着一座倒塌的小神社，铃绳还挂在梁上。',
     opts: [
@@ -495,7 +495,7 @@ export const EVENTS = [
   { title: '迷路的商队', pic: 'wagon', img: 'box', text: '一辆翻倒的马车，箱子散了一地，车夫早已逃走。',
     opts: [
       { t: '搜刮箱子：获得 25 金币和一瓶药水', go: (R, A) => { A.gold(25); const n = A.potion(); return `你找到了金币，还有一瓶「${n}」。`; } },
-      { t: '把马车扶正：失去 5 生命，获得一个随机遗物', go: (R, A) => { A.hurt(5); return `车底压着一件「${A.relic()}」。`; } }] },
+      { t: '把马车扶正：失去 5 生命，获得一个随机秘宝', go: (R, A) => { A.hurt(5); return `车底压着一件「${A.relic()}」。`; } }] },
   { title: '林中泉水', pic: 'spring', img: 'holywater', text: '树林深处有一汪清澈的泉水，水面泛着微光。',
     opts: [
       { t: '饮水：回复 25% 最大生命', go: (R, A) => { A.heal(Math.floor(R.maxHp * .25)); return '泉水甘甜，伤口在慢慢愈合。'; } },
@@ -508,7 +508,7 @@ export const EVENTS = [
       { t: '离开', go: () => '你不跟哥布林赌钱。' }] },
   { title: '古老祭坛', pic: 'altar', img: 'p_arc', text: '长满青苔的石台上刻着符文，中央的凹槽像在等待鲜血。',
     opts: [
-      { t: '献血：失去 8 生命，获得一个随机遗物', go: (R, A) => { A.hurt(8); const r = A.relic(); return `符文亮起，祭坛上多了一件「${r}」。`; } },
+      { t: '献血：失去 8 生命，获得一个随机秘宝', go: (R, A) => { A.hurt(8); const r = A.relic(); return `符文亮起，祭坛上多了一件「${r}」。`; } },
       { t: '离开', go: () => '你绕开了祭坛。' }] },
   { title: '流浪铁匠', pic: 'smith', img: 'ic_hammer', text: '路边一个背着铁砧的矮人朝你招手：“兄弟，武器要打磨吗？”',
     opts: [

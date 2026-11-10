@@ -239,9 +239,9 @@
   "Help him: lose {0} HP, he upgrades 2 cards",
   "助ける：HP{0}失い、カード2枚を強化してくれる"
  ],
- "向他买东西：花 {0} 金币，获得一个随机遗物": [
-  "Buy from him: pay {0} Gold for a random relic",
-  "買い物：{0}ゴールドでランダムなレリック"
+ "向他买东西：花 {0} 金币，获得一个随机秘宝": [
+  "Buy from him: pay {0} Gold for a random treasure",
+  "買い物：{0}ゴールドでランダムな秘宝"
  ],
  "矮人拍拍你：“好家伙，我欠你一次！”": [
   "The dwarf claps your back: \"I owe you one!\"",
@@ -395,9 +395,9 @@
   "Loot the crates: {0} Gold and a potion",
   "木箱を漁る：{0}ゴールドとポーション"
  ],
- "把马车扶正：失去 {0} 生命，获得一个随机遗物": [
-  "Right the wagon: lose {0} HP, get a random relic",
-  "馬車を起こす：HPを{0}失い、ランダムなレリックを1つ獲得"
+ "把马车扶正：失去 {0} 生命，获得一个随机秘宝": [
+  "Right the wagon: lose {0} HP, get a random treasure",
+  "馬車を起こす：HPを{0}失い、ランダムな秘宝を1つ獲得"
  ],
  "你找到了金币，还有一瓶「{0}」。": [
   "You find Gold and {0}.",
@@ -475,9 +475,9 @@
   "Runes cover a mossy altar. The groove in the middle seems to thirst for blood.",
   "苔むした石台に刻まれた紋様。中央の溝が血を待っている。"
  ],
- "献血：失去 {0} 生命，获得一个随机遗物": [
-  "Offer blood: lose {0} HP, get a random relic",
-  "血を捧げる：HP{0}失い、ランダムなレリック"
+ "献血：失去 {0} 生命，获得一个随机秘宝": [
+  "Offer blood: lose {0} HP, get a random treasure",
+  "血を捧げる：HP{0}失い、ランダムな秘宝"
  ],
  "符文亮起，祭坛上多了一件「{0}」。": [
   "The runes glow. {0} appears on the altar.",
@@ -999,9 +999,9 @@
   "The Count's diary lies open: \"The one atop the mountain will soon awaken...\"",
   "机には伯爵の日記：「山頂のあのお方が、もうすぐ目覚める……」"
  ],
- "翻找抽屉：获得一个随机遗物": [
-  "Search the drawers: gain a random relic",
-  "引き出しを探る：ランダムな遺物を得る"
+ "翻找抽屉：获得一个随机秘宝": [
+  "Search the drawers: gain a random treasure",
+  "引き出しを探る：ランダムな秘宝を得る"
  ],
  "你找到了「{0}」。": [
   "You found \"{0}\".",
@@ -1047,9 +1047,9 @@
   "A black coffin in the crypt is slightly open, red light seeping out.",
   "墓室の黒い棺が少し開き、赤い光が漏れている。"
  ],
- "打开：{0}% 拿到遗物，{1}% 被吸走 {2} 生命": [
-  "Open it: {0}% relic, {1}% lose {2} HP",
-  "開ける：{0}%で遺物、{1}%でHP{2}を吸われる"
+ "打开：{0}% 拿到秘宝，{1}% 被吸走 {2} 生命": [
+  "Open it: {0}% treasure, {1}% lose {2} HP",
+  "開ける：{0}%で秘宝、{1}%でHP{2}を吸われる"
  ],
  "棺材里躺着「{0}」。": [
   "Inside lies \"{0}\".",
@@ -1099,9 +1099,9 @@
   "Drink: Max HP {0}, add a \"{1}\" to your deck",
   "飲む：最大HP{0}、デッキに「{1}」を加える"
  ],
- "打开：{0} 拿到遗物，{1} 被吸走 {2} 生命": [
-  "Open it: {0} relic, {1} lose {2} HP",
-  "開ける：{0}で遺物、{1}でHP{2}を吸われる"
+ "打开：{0} 拿到秘宝，{1} 被吸走 {2} 生命": [
+  "Open it: {0} treasure, {1} lose {2} HP",
+  "開ける：{0}で秘宝、{1}でHP{2}を吸われる"
  ],
  "哥布林部落的监工，用鞭子驱赶哥布林干活。": [
   "The overseer of the goblin tribe, driving goblins to work with a whip.",
