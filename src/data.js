@@ -1,4 +1,4 @@
-import { tr } from './i18n.js?v=bgm11110400';
+import { tr } from './i18n.js?v=rapid11110405';
 // 数据：卡牌 / 遗物 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
 const I = n => n.includes('/') ? `assets/${n}.png` : `assets/icons/${n}.png`;
@@ -11,7 +11,7 @@ export const CARDS = {
   load: { ch: 'hero', name: '装填', type: 'skill', rar: 'start', cost: [1, 0], icon: 'gb', tgt: 'self',
     desc: () => `得到 3 发光弹。抽 1 张牌。`, play: g => { g.ammo(3); g.draw(1); } },
   charge: { ch: 'hero', name: '速射', type: 'skill', rar: 'start', cost: [1, 0], icon: 'p_arc', tgt: 'self',
-    desc: () => `立刻把所有光弹射出一轮（光弹不清空，回合结束还会再射）。`, play: g => g.volley(false) },
+    desc: () => `立刻额外射出一轮光弹。光弹不会减少，回合结束时照常再射一次。`, play: g => g.volley(false) },
   recharge: { ch: 'hero', name: '充电', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_crystal', tgt: 'self',
     desc: u => `得到 ${v(u, 4, 5)} 发光弹。`, play: (g, u) => g.ammo(v(u, 4, 5)) },
   burst: { ch: 'hero', name: '连射', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/burst', tgt: 'one',
