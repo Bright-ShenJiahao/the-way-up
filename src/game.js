@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=c2art11110230';
-import { createAudio } from './audio.js?v=c2art11110230';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=c2art11110230';
+import { ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=c2map11110230';
+import { createAudio } from './audio.js?v=c2map11110230';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=c2map11110230';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -307,13 +307,13 @@ function mapScreen() { SCREEN = 'map';
   let nodes = '';
   for (const row of R.map) for (const nd of row) if (nd) {
     const isAv = av.includes(nd), done = visited.some(p => p.r === nd.r && p.c === nd.c), cur = R.pos && R.pos.r === nd.r && R.pos.c === nd.c;
-    nodes += `<div class="node ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nd.x}px;top:${nd.y}px" data-r="${nd.r}" data-c="${nd.c}" title="${NODENAME[nd.type]}">${NODEICON[nd.type]}</div>`;
+    nodes += `<div class="node ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nd.x}px;top:${nd.y}px" data-r="${nd.r}" data-c="${nd.c}" title="${NODENAME[nd.type]}">${ACT() === 2 && ['fight', 'elite'].includes(nd.type) ? `<img src="assets/ui2/node2_${nd.type}.png">` : NODEICON[nd.type]}</div>`;
   }
   const bk = R.boss;
-  nodes += `<div class="node boss ${av[0] === 'boss' ? 'av' : ''}" style="left:500px;top:110px" title="Boss：${ENEMIES[bk].name}"><img src="assets/ui2/node_boss.png"></div>`;
+  nodes += `<div class="node boss ${av[0] === 'boss' ? 'av' : ''}" style="left:500px;top:110px" title="Boss：${ENEMIES[bk].name}"><img src="assets/ui2/${ACT() === 2 ? 'node2_boss' : 'node_boss'}.png"></div>`;
   view.innerHTML = `${topBar()}<div id="map"><div id="mapin" style="height:${H}px"><svg width="1000" height="${H}">${lines}</svg>${nodes}
    <div style="position:absolute;left:500px;top:186px;transform:translateX(-50%);font-size:18px;font-weight:bold;color:#6a1a10;text-shadow:0 0 4px #f6e6c0">${ENEMIES[bk].name}</div></div></div>
-   <div id="legend">${Object.keys(NODENAME).map(k => `<div>${NODEICON[k]}${NODENAME[k]}</div>`).join('')}</div>`;
+   <div id="legend">${Object.keys(NODENAME).map(k => `<div>${ACT() === 2 && ['fight', 'elite'].includes(k) ? `<img src="assets/ui2/node2_${k}.png">` : NODEICON[k]}${NODENAME[k]}</div>`).join('')}</div>`;
   bindTop();
   const m = $('#map'); const y = R.pos ? R.map[R.pos.r][R.pos.c].y : H; m.scrollTop = Math.max(0, y - 480);
   view.querySelectorAll('.node.av').forEach(el => el.onclick = () => {
