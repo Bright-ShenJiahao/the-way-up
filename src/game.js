@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=art2_11110215';
-import { createAudio } from './audio.js?v=art2_11110215';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=art2_11110215';
+import { ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=arrow11110215';
+import { createAudio } from './audio.js?v=arrow11110215';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=arrow11110215';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -726,17 +726,26 @@ const enemyAt = ev => { const el = document.elementFromPoint(ev.clientX, ev.clie
 function dragEnd(cancel) { if (!DR) return; $('#aimline')?.remove(); aimMark(null); const d = DR; DR = null; if (cancel || !B) { render(); return; } }
 view.addEventListener('pointerdown', ev => { const el = ev.target.closest && ev.target.closest('#hand .card'); if (!el || !B || B.busy || B.over || B.anim || ev.button > 0) return;
   const i = +el.dataset.i, c = B.hand[i]; if (!c) return; const [x, y] = stXY(ev), r = el.getBoundingClientRect(), s = stage._s || 1, sr = stage.getBoundingClientRect();
-  DR = { i, el, x0: x, y0: y, moved: false, tgt: CARDS[c.id].tgt === 'one' && alive().length > 1, cx: (r.left + r.width / 2 - sr.left) / s, cy: (r.top - sr.top) / s + 20 };
+  DR = { i, el, x0: x, y0: y, moved: false, tgt: CARDS[c.id].tgt === 'one', cx: (r.left + r.width / 2 - sr.left) / s, cy: (r.top - sr.top) / s + 20 };
   ev.preventDefault(); DRAGGED = false; if (TOUCH) { view.querySelectorAll('#hand .card.peek').forEach(x => x.classList.remove('peek')); el.classList.add('peek'); kwShow(el); } });
 addEventListener('pointermove', ev => { if (!DR || !B) return; const [x, y] = stXY(ev); if (!DR.moved && Math.hypot(x - DR.x0, y - DR.y0) < 14) return;
   if (!DR.moved) { DR.moved = true; DRAGGED = true; kwHide(); DR.el.classList.remove('peek'); DR.el.classList.add('dragging'); }
-  if (DR.tgt) { DR.el.style.setProperty('--dt', 'translateY(-60px) rotate(0deg)'); let ln = $('#aimline'); if (!ln) { ln = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); ln.id = 'aimline'; ln.setAttribute('style', `position:absolute;left:0;top:0;width:${SW}px;height:720px;z-index:85;pointer-events:none;overflow:visible`); ln.innerHTML = '<path d="" stroke="#ffd35a" stroke-width="10" fill="none" stroke-dasharray="18 10" stroke-linecap="round"/><circle r="16" fill="none" stroke="#ffd35a" stroke-width="6"/>'; stage.appendChild(ln); }
-    const mx = (DR.cx + x) / 2, my = Math.min(DR.cy, y) - 120; ln.querySelector('path').setAttribute('d', `M${DR.cx},${DR.cy - 60} Q${mx},${my} ${x},${y}`); const ci = ln.querySelector('circle'); ci.setAttribute('cx', x); ci.setAttribute('cy', y); const e = enemyAt(ev); aimMark(e ? e.id : null); }
+  if (DR.tgt) { DR.el.style.setProperty('--dt', 'translateY(-40px) scale(1.05) rotate(0deg)'); let ln = $('#aimline');
+    if (!ln) { ln = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); ln.id = 'aimline'; ln.setAttribute('style', `position:absolute;left:0;top:0;width:${SW}px;height:720px;z-index:85;pointer-events:none;overflow:visible`); stage.appendChild(ln); }
+    /* 杀戮尖塔式箭头：沿贝塞尔曲线排一串由小变大的箭头块，末端大箭头；指到敌人时变红 */
+    const e = enemyAt(ev), col = e ? '#ff5a4a' : '#ffd35a', x0 = DR.cx, y0 = DR.cy - 40, cx = (x0 + x) / 2, cy = Math.min(y0, y) - 160, N = 11;
+    const P = t => [(1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * cx + t * t * x, (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * cy + t * t * y];
+    let h = '';
+    for (let k = 1; k < N; k++) { const t = k / N, [px, py] = P(t), [qx, qy] = P(t + .01), a = Math.atan2(qy - py, qx - px) * 180 / Math.PI, sz = 9 + 15 * t;
+      h += `<path d="M${-sz},${-sz} L${sz * .6},0 L${-sz},${sz} L${-sz * .4},0 Z" fill="${col}" stroke="#2a1a08" stroke-width="3" transform="translate(${px},${py}) rotate(${a})"/>`; }
+    const [ex, ey] = P(.97), ang = Math.atan2(y - ey, x - ex) * 180 / Math.PI;
+    h += `<path d="M-38,-38 L30,0 L-38,38 L-18,0 Z" fill="${col}" stroke="#2a1a08" stroke-width="3" transform="translate(${x},${y}) rotate(${ang})"/>`;
+    ln.innerHTML = h; aimMark(e ? e.id : null); }
   else { DR.el.style.setProperty('--dt', `translate(${x - DR.x0}px,${y - DR.y0}px) scale(1.08)`); DR.el.classList.toggle('ready', y < 470); } });
 addEventListener('pointerup', ev => { if (!DR || !B) { DR = null; return; } const d = DR, [x, y] = stXY(ev);
   if (!d.moved) { DR = null; if (TOUCH) { d.el.classList.remove('peek'); kwHide(); } return; }
   const e = d.tgt ? enemyAt(ev) : null; dragEnd(true); setTimeout(() => { DRAGGED = false; }, 50);
-  if (d.tgt) { if (e) playCard(d.i, e); } else if (y < 470) playCard(d.i); });
+  if (d.tgt) { const a = alive(); if (e) playCard(d.i, e); else if (a.length === 1 && y < 470) playCard(d.i, a[0]); } else if (y < 470) playCard(d.i); });
 addEventListener('pointercancel', () => dragEnd(true));
 view.addEventListener('contextmenu', e => { if (B && B.sel >= 0) { e.preventDefault(); B.sel = -1; render(); } });
 
