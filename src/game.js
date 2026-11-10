@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=bgm10_11110426';
-import { createAudio } from './audio.js?v=bgm10_11110426';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=bgm10_11110426';
+import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=bgm11_11110435';
+import { createAudio } from './audio.js?v=bgm11_11110435';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=bgm11_11110435';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -853,7 +853,7 @@ function story(img, lines, done, once) {
 /* 外部曲子（Pixabay 许可，可商用）：标题 / 每章的地图、战斗、Boss 各一首 */
 const BGM = {}; let bgmNow = null;
 function setMusic(m) {
-  const a = ACT() === 2 ? 'c2' : 'c1', want = !R && m === 'menu' ? 'title' : m === 'menu' ? a + '_map' : m === 'boss' ? a + '_boss' : m === 'elite' && a === 'c2' ? 'c2_elite' : a + '_battle';
+  const a = ACT() === 2 ? 'c2' : 'c1', want = !R && m === 'menu' ? 'title' : m === 'menu' ? a + '_map' : m === 'boss' ? a + '_boss' : m === 'elite' ? a + '_elite' : a + '_battle';
   if (bgmNow && bgmNow !== want) { BGM[bgmNow].pause(); bgmNow = null; }
   if (!want) { audio.setMode(m); return; }
   audio.setMode('silent');
