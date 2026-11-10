@@ -11,11 +11,11 @@ const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { cons
 const ROUTE = ['fight', 'fight', 'fight', 'event', 'fight', 'fight', 'elite', 'rest', 'fight', 'fight', 'shop', 'elite', 'fight', 'fight', 'rest', 'boss'];
 let R, B, uid = 1;
 const has = id => R.relics.includes(id);
-const mine = d => !d.ch || d.ch === R.char;
+const mine = d => (!d.ch || d.ch === R.char) && (!d.act2 || R.act === 2);
 const mk = (id, up = 0) => ({ id, up, uid: uid++ });
 const addSt = (t, k, n) => { t.st[k] = (t.st[k] || 0) + n; if (t.st[k] === 0) delete t.st[k]; };
 const alive = () => B.en.filter(e => !e.dead);
-const atkVal = (s, t, b, m = 1) => { let d = (b + (s.st.str || 0) * m) * (s.d ? 1.1 : 1); if (s.st.weak) d *= .75; if (t && t.st.vuln) d *= 1.5; return Math.max(0, Math.floor(d)); };
+const atkVal = (s, t, b, m = 1) => { let d = (b + (s.st.str || 0) * m) * (s.d ? 1.1 : 1); if (s === B.p && t && t.d && t.d.undead && has('silvercross')) d *= 1.25; if (s.st.weak) d *= .75; if (t && t.st.vuln) d *= 1.5; return Math.max(0, Math.floor(d)); };
 function hurt(t, amt, att) {
   const isP = t === B.p; if (!isP && t.st.aegis) return 0; if (!isP && t.st.intang) amt = Math.ceil(amt / 2);
   const u = Math.min(t.block, amt); t.block -= u; const left = amt - u;
@@ -26,7 +26,7 @@ function hurt(t, amt, att) {
   if (isP && R.hp <= 0 && has('feather') && !R.feather) { R.feather = 1; R.hp = Math.floor(R.maxHp * .3); }
   return left;
 }
-function killE(e) { e.dead = true; e.hp = 0; R.kills++; if (has('fang')) heal(3); const od = CARDS && e.d.onDie; if (od && !e.fled) od(e, BE); }
+function killE(e) { e.dead = true; e.hp = 0; R.kills++; if (has('fang')) heal(3); if (has('wolffang')) addSt(B.p, 'str', 1); const od = CARDS && e.d.onDie; if (od && !e.fled) od(e, BE); }
 const heal = n => { R.hp = Math.min(R.maxHp, R.hp + n); };
 function boom(t) { const d = 20 + (B.p.st.dist ? 5 : 0) + (has('mic') ? 6 : 0); t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0); hurt(t, d); if (has('metro') && !B.p.metroUsed) { B.p.metroUsed = 1; B.p.energy++; } }
 function drawCards(n) { for (let i = 0; i < n; i++) { if (B.p.noDraw || B.hand.length >= 10) return; if (!B.draw.length) { if (!B.disc.length) return; B.draw = shuffle(B.disc); B.disc = []; } B.hand.push(B.draw.pop()); } }
@@ -153,19 +153,20 @@ function endTurn() {
 }
 function battle(keys, kind) {
   B = { kind, en: keys.map(mkE), p: { block: 0, energy: 0, st: {}, noDraw: 0 }, draw: shuffle(R.deck.map(c => ({ ...c }))), hand: [], disc: [], exh: [], turn: 0, atk: 0 };
-  if (has('charm')) B.p.st.str = 1; 
+  if (has('charm')) B.p.st.str = 1; if (has('lantern')) B.p.st.dex = (B.p.st.dex || 0) + 1; 
   if (has('suzu')) B.p.st.kek = 2 + (has('omamori') ? 2 : 0); else if (has('omamori')) B.p.st.kek = 2;
   if (has('phones')) B.en.forEach(e => e.st.res = 2); if (has('spikes')) B.p.st.thorns = 3; if (has('wardrum')) B.en.forEach(e => e.st.vuln = 1);
   B.en.filter(e => e.key === 'gob_bomb').forEach((e, i) => e.st.fuse = 3 + i);
   B.en.forEach(e => e.move = e.d.ai(e, BE));
-  startTurn(true);
+  if (has('batcloak')) B.p.block = 8;
+  startTurn(true); if (has('pocketwatch')) drawCards(2);
   for (let t = 0; t < 60; t++) {
     botTurn(); if (R.hp <= 0 && !revive()) return false; if (!alive().length) break;
     endTurn(); if (R.hp <= 0 && !revive()) return false; if (!alive().length) break;
     startTurn(false);
   }
   if (alive().length) return false;
-  if ((has('gameboy') || has('phones') || has('suzu') || has('cauldron')) && !has('crown')) heal(4);
+  if ((has('gameboy') || has('phones') || has('suzu') || has('cauldron')) && !has('crown')) heal(4); if (has('grail')) heal(5);
   return true;
 }
 function revive() { const i = R.pots.indexOf('fairy'); if (i < 0) return false; R.pots.splice(i, 1); R.hp = Math.floor(R.maxHp * .3); return true; }
@@ -175,7 +176,7 @@ const TIER = { r: 3, u: 2, c: 1 };
 function reward() { const cs = rollCards(3);
   if (SMART) { const kw = KEYW[R.char], sc = id => { const d = CARDS[id]; let v = TIER[d.rar] + (d.ch ? .5 : 0); try { if (kw.test(d.desc(0))) v += 1.5; } catch (e) {} v -= (R.picks[id] || 0) * 1.2; return v; };
     const best = cs.sort((a, b) => sc(b) - sc(a))[0]; if (sc(best) < 1.5 && R.deck.length > 18) return; R.deck.push(mk(best)); R.picks[best] = (R.picks[best] || 0) + 1; return; } if (R.deck.length > 26 && Math.random() < .5) return; const best = cs.sort((a, b) => TIER[CARDS[b].rar] - TIER[CARDS[a].rar] + (CARDS[b].ch ? .5 : 0) - (CARDS[a].ch ? .5 : 0))[0]; R.deck.push(mk(best)); R.picks[best] = (R.picks[best] || 0) + 1; }
-function relic() { const pool = Object.values(RELICS).filter(r => r.rar !== 'start' && mine(r) && !has(r.id)); if (!pool.length) return; const r = pickOne(pool); R.relics.push(r.id); if (r.id === 'herb') { R.maxHp += 10; R.hp += 10; } if (r.id === 'crown') { R.maxHp -= 10; R.hp = Math.min(R.hp, R.maxHp); } }
+function relic() { const pool = Object.values(RELICS).filter(r => r.rar !== 'start' && mine(r) && !has(r.id)); if (!pool.length) return; const r = pickOne(pool); R.relics.push(r.id); if (r.id === 'herb') { R.maxHp += 10; R.hp += 10; } if (r.id === 'crown') { R.maxHp -= 10; R.hp = Math.min(R.hp, R.maxHp); } if (r.id === 'grail') { R.maxHp -= 5; R.hp = Math.min(R.hp, R.maxHp); } }
 function run(char) {
   uid = 1; R = { char, hp: 80, maxHp: 80, deck: STARTERS[char].map(id => mk(id)), relics: [{ heroine: 'phones', miko: 'suzu', witch: 'cauldron' }[char] || 'gameboy'], kills: 0, picks: {}, floor: 0, pots: [], act: 1 };
   for (const [act, EN] of [[1, ENCOUNTERS], [2, ENCOUNTERS2]]) {
