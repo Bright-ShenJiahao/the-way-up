@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=bgm14_11110456';
-import { createAudio } from './audio.js?v=bgm14_11110456';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=bgm14_11110456';
+import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=story1_11110513';
+import { createAudio } from './audio.js?v=story1_11110513';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=story1_11110513';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -188,12 +188,13 @@ const A_ = n => (R && R.asc || 0) >= n;
 const ONLINE = !/githack|localhost|127\.0\.0\.1|^file/.test(location.href); /* 试玩链接上没有后台 */
 const API = /netlify\.app$/.test(location.hostname) ? '/api/scores' : 'https://the-way-up.netlify.app/api/scores'; /* itch.io 等外部站点连 Netlify 后台 */
 const CHARINFO = {
-  miko: { diff: 1, tip: '结界越叠越厚，每回合自动加格挡。防守稳，最适合新手。' },
-  hero: { diff: 2, tip: '打牌攒光弹，回合结束自动扫射。光弹越多打得越猛，规则最简单。' },
-  witch: { diff: 2, tip: '随机炼金瓶 + 剧毒，慢慢把敌人磨死。每局手感都不一样。' },
-  heroine: { diff: 3, tip: '给敌人叠共鸣，满 10 层爆音。要算层数，玩好了伤害最高。' },
+  miko: { diff: 1, tip: '结界越叠越厚，每回合自动加格挡。防守稳，最适合新手。', line: '“神社的铃，也能替异世界的人挡一挡灾。”', bio: '千早从小在日本的神社帮忙。祭典散场后，她常留下来收灯笼，也总记得把最靠近台阶的那盏留到最后。到了异世界，她手里的神乐铃能撑起护住同伴的结界，破魔箭能净化不死的怪物。平时她说话轻声细气，可只要还有人没撤到安全的地方，谁也劝不动她先走。一路上，最难开口的反倒是那句“我撑不住了”。她慢慢学着在手开始发抖时，就喊同伴的名字。' },
+  hero: { diff: 2, tip: '打牌攒光弹，回合结束自动扫射。光弹越多打得越猛，规则最简单。', line: '“这关我熟！……喂，等等，咱们一起走啊。”', bio: '林拓是个爱打游戏的普通初中生。那台旧掌机的电池盖用胶带粘着，他还是天天把它塞进书包。穿越以后，掌机能射出光弹，充一次电就是装填一次弹药。他嘴上喊着“这关我熟”，等光弹打光了，才想起自己根本没问撤退路线。比起打不过的敌人，他更怕有人说“接下来各走各的”。后来有一次，他终于肯蹲在路边给掌机充电，抬头问了一句：“能等我一下吗？”' },
+  witch: { diff: 2, tip: '随机炼金瓶 + 剧毒，慢慢把敌人磨死。每局手感都不一样。', line: '“村子里还有人在等我。跟紧，左边那条路能上山。”', bio: '莉泽是山脚村庄的小魔女，也是个还没出师的炼金学徒。药水调得不错，毒药调得更好，就是瓶塞上的记号画得太像，有时得迎着光看半天，才敢递给同伴。村民被抓走后，她把能用的瓶瓶罐罐全塞进挎包，独自上山找帮手。她认得山上每一种草，知道哪段坡下过雨就不能走。可一到自己也没去过的岔路口，她还是习惯咬着牙挑一条。直到有一次，她把地图摊在大家中间，承认自己也拿不准。' },
+  heroine: { diff: 3, tip: '给敌人叠共鸣，满 10 层爆音。要算层数，玩好了伤害最高。', line: '“……耳机先摘一只。你们说，我在听。”', bio: '苏音总戴着一副粉色耳机，喜欢把同一段旋律反复听上好几遍。身边太吵的时候，只要把音量调高一点，她就能安静下来。到了异世界，耳机里的音乐能在敌人身上叠起共鸣，等震动积到足够强，她就踩着节拍将它引爆。队伍里数她最安静，可每次开打，大家都会下意识地等她那一拍落下来。有一回，她只顾数拍子，错过了同伴喊她的声音。从那以后，她开始把一边耳罩拨开。' },
 };
 const ORDER = ['miko', 'hero', 'witch', 'heroine'];
+const SOON = `<div class="reward cc soon"><div class="qm">?</div><b>？？？</b><span class="cd">即将加入</span><span class="ct">那道光里，好像还有别人的影子……</span></div>`; /* 留白：以后加角色 */
 function title() {
   R = null; B = null; setMusic('menu');
   view.innerHTML = `<div class="bg" style="background:url(assets/bg/title.jpg) center/cover,url(assets/bg/battle_castle.jpg) center/cover"></div><div class="tshade"></div>
@@ -279,8 +280,8 @@ function submitScore(win) {
 
 function pickChar() {
   view.innerHTML = `${bgHTML()}<div class="panel csel"><h2>选择角色</h2><div class="row">${ORDER.map(k => { const c = CHARS[k], i = CHARINFO[k];
-    return `<div class="reward cc" data-c="${k}"><img src="assets/${c.dir}/portrait.png"><b>${tr(c.name)}</b><span class="cd">${tr(c.desc)}</span>
-     <span class="diff">上手难度 <i>${'★'.repeat(i.diff)}${'☆'.repeat(3 - i.diff)}</i> ${['', '简单', '普通', '困难'][i.diff]}</span><span class="ct">${i.tip}</span></div>`; }).join('')}</div>
+    return `<div class="reward cc" data-c="${k}"><img src="assets/${c.dir}/portrait.png"><b>${tr(c.name)}</b><span class="cl">${i.line}</span><span class="cd">${tr(c.desc)}</span>
+     <span class="diff">上手难度 <i>${'★'.repeat(i.diff)}${'☆'.repeat(3 - i.diff)}</i> ${['', '简单', '普通', '困难'][i.diff]}</span><span class="ct">${i.tip}</span></div>`; }).join('')}${SOON}</div>
    <div class="ascbar">进阶难度 <button class="btn" id="am">−</button><b id="av"></b><button class="btn" id="ap">＋</button><span id="ad"></span></div>
    <button class="btn" id="back">返回</button></div>`;
   const M = metaGet(); let asc = 0, cur = 'miko';
@@ -610,7 +611,7 @@ async function checkEnd() {
     B.over = true; render(); await sleep(600); if (B !== b0) return true;
     if ((has('gameboy') || has('phones') || has('suzu') || has('cauldron')) && !has('crown')) R.hp = Math.min(R.maxHp, R.hp + 4); if (has('grail')) R.hp = Math.min(R.maxHp, R.hp + 5);
     if (B.kind === 'elite') R.elites = (R.elites || 0) + 1;
-    if (B.kind === 'boss') { R.bosses = (R.bosses || 0) + 1; if (ACT() === 1) return act2Choice(); clearSave(); B = null; return story('story_end2', ['伯爵化为了灰烬，天终于亮了。被关押的村民们，终于重获自由。', '可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。', '“回家的路……还在更高的地方。”'], () => endScreen(true)); }
+    if (B.kind === 'boss') { R.bosses = (R.bosses || 0) + 1; if (ACT() === 1) return act2Choice(); clearSave(); B = null; return story('story_end2', ['伯爵化为了灰烬，天终于亮了。被关押的村民们，终于重获自由。', '可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。', '“回家的路……还在更高的地方。”'], () => story('story_party', ['天亮了。大家并肩站在晨光里，笑得满脸是灰。', '“走吧，往上。”'], () => endScreen(true))); }
     delete R.pending; delete R.pendEnc; delete R.snap; save(); /* 打赢后不能刷新重打 */
     rewardScreen(); return true;
   }
@@ -780,7 +781,7 @@ function rewardScreen() {
 // ---------- 营火 ----------
 function restScreen() {
   const heal = Math.floor(R.maxHp * (A_(5) ? .2 : .3));
-  view.innerHTML = `${bgHTML()}${topBar()}<div class="panel"><h2>营火</h2><p>篝火噼啪作响，难得的安宁。</p><div class="row">
+  view.innerHTML = `${bgHTML(false, 'c' + ACT() + '_rest')}${topBar()}<div class="panel"><h2>营火</h2><p>篝火噼啪作响，难得的安宁。</p><div class="row">
    <button class="btn" id="rest">休息：回复 ${heal} 生命</button><button class="btn" id="smith" ${R.deck.some(c => !c.up) ? '' : 'disabled'}>锻造：升级一张牌</button></div></div>`;
   bindTop();
   $('#rest').onclick = () => { R.hp = Math.min(R.maxHp, R.hp + heal); audio.holy(); mapScreen(); };
@@ -806,7 +807,7 @@ function shopScreen() {
   const pots = [rollPotion(), rollPotion()].map(id => ({ id, p: id === 'fairy' ? 120 : rnd(45, 60) }));
   let removed = false;
   const draw = () => {
-    view.innerHTML = `${bgHTML()}${topBar()}<div class="panel" style="top:53%;width:1000px;padding:14px 26px"><h2 style="margin-bottom:8px">哥布林商人</h2>
+    view.innerHTML = `${bgHTML(false, 'c' + ACT() + '_shop')}${topBar()}<div class="panel" style="top:53%;width:1000px;padding:14px 26px"><h2 style="margin-bottom:8px">哥布林商人</h2>
      <div class="row" style="flex-wrap:nowrap">${cards.map((x, i) => `<div class="shopitem" data-c="${i}">${x.c ? cardHTML(x.c) : '<div style="width:129px;height:181px"></div>'}<span class="price ${x.p > R.gold ? 'no' : ''}">${x.c ? '● ' + x.p : '已售出'}</span></div>`).join('')}</div>
      <div class="row" style="margin-top:14px">${rels.map((x, i) => `<div class="relicbig" data-r="${i}" title="${x.id ? esc(RELICS[x.id].desc) : ''}">${x.id ? `<img src="${RELICS[x.id].img}">${RELICS[x.id].name}<span class="price ${x.p > R.gold ? 'no' : ''}">● ${x.p}</span>` : '已售出'}</div>`).join('')}
 ${pots.map((x, i) => `<div class="relicbig" data-pt="${i}" title="${x.id ? esc(POTIONS[x.id].desc) : ''}">${x.id ? `<img src="${POTIONS[x.id].img}">${POTIONS[x.id].name}<span class="price ${x.p > R.gold ? 'no' : ''}">● ${x.p}</span>` : '已售出'}</div>`).join('')}
@@ -947,9 +948,11 @@ const CONCEPTS = [
   ['分数', [['排行榜积分', '层数×20 + 击杀×3 + 精英×25；通关再加 300，以及剩余生命×2。同一个名字只记最高的一局，调试模式不记录。']]],
 ];
 function book(tab = 'card', sub = 'miko', up = 0) {
-  const tabs = [['card', '卡牌'], ['relic', '遗物'], ['pot', '药水'], ['mon', '怪物'], ['rule', '概念说明']];
+  const tabs = [['who', '人物'], ['card', '卡牌'], ['relic', '遗物'], ['pot', '药水'], ['mon', '怪物'], ['rule', '概念说明']];
   let body = '';
-  if (tab === 'card') {
+  if (tab === 'who') {
+    body = `<div class="bgrid who">${ORDER.map(k => `<div class="bi"><img src="assets/${CHARS[k].dir}/portrait.png"><div><b>${CHARS[k].name}</b><p class="cl">${CHARINFO[k].line}</p><p>${CHARINFO[k].bio}</p></div></div>`).join('')}<div class="bi soon"><div class="qm">?</div><div><b>？？？</b><p>那道光里，好像还有别人的影子……</p></div></div></div>`;
+  } else if (tab === 'card') {
     const subs = [...ORDER.map(k => [k, CHARS[k].name]), ['all', '共用']];
     const list = Object.values(CARDS).filter(d => sub === 'all' ? !d.ch : d.ch === sub).sort((a, b) => ('start c u r gen'.indexOf(a.rar)) - ('start c u r gen'.indexOf(b.rar)));
     body = `<div class="bsub">${subs.map(([k, n]) => `<b class="${k === sub ? 'on' : ''}" data-sub="${k}">${n}</b>`).join('')}<label class="ck"><input type="checkbox" id="bup" ${up ? 'checked' : ''}><span>查看升级后</span></label></div>
