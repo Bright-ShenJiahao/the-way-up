@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=c2ic11110305';
-import { createAudio } from './audio.js?v=c2ic11110305';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=c2ic11110305';
+import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=story11110330';
+import { createAudio } from './audio.js?v=story11110330';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=story11110330';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -286,7 +286,7 @@ function pickChar() {
   const M = metaGet(); let asc = 0, cur = 'miko';
   const mx = k => DEBUG ? 8 : Math.min(8, M.asc[k] || 0);
   const show = () => { asc = Math.min(asc, mx(cur)); $('#av').textContent = asc; $('#ad').textContent = asc ? ASC.slice(1, asc + 1).join('，') : `标准难度（用这个角色通关可解锁进阶 1，当前最高 ${mx(cur)}）`; };
-  view.querySelectorAll('[data-c]').forEach(el => { el.onmouseenter = () => { cur = el.dataset.c; show(); }; el.onclick = () => { newRun(el.dataset.c, Math.min(asc, mx(el.dataset.c))); save(); mapScreen(); }; });
+  view.querySelectorAll('[data-c]').forEach(el => { el.onmouseenter = () => { cur = el.dataset.c; show(); }; el.onclick = () => { newRun(el.dataset.c, Math.min(asc, mx(el.dataset.c))); save(); story('story_intro', ['放学路上，三个互不相识的少年少女，被一道光卷进了异世界。', '迎接他们的，是本地的小魔女莉泽——她的村民被哥布林抓上了山。', '“回家的方法，也许就在山顶。”四个人，一起出发吧。'], mapScreen, 'introSeen'); }; });
   $('#am').onclick = () => { asc = Math.max(0, asc - 1); show(); }; $('#ap').onclick = () => { asc = Math.min(mx(cur), asc + 1); if (asc === mx(cur) && asc < 8) tip(`${CHARS[cur].name}：通关进阶 ${asc} 后解锁下一级`); show(); }; show();
   $('#back').onclick = mainMenu;
 }
@@ -609,7 +609,7 @@ async function checkEnd() {
     B.over = true; render(); await sleep(600); if (B !== b0) return true;
     if ((has('gameboy') || has('phones') || has('suzu') || has('cauldron')) && !has('crown')) R.hp = Math.min(R.maxHp, R.hp + 4); if (has('grail')) R.hp = Math.min(R.maxHp, R.hp + 5);
     if (B.kind === 'elite') R.elites = (R.elites || 0) + 1;
-    if (B.kind === 'boss') { R.bosses = (R.bosses || 0) + 1; if (ACT() === 1) return act2Choice(); clearSave(); return endScreen(true); }
+    if (B.kind === 'boss') { R.bosses = (R.bosses || 0) + 1; if (ACT() === 1) return act2Choice(); clearSave(); B = null; return story('story_end2', ['伯爵化为了灰烬，天终于亮了。被关押的村民们，终于重获自由。', '可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。', '“回家的路……还在更高的地方。”'], () => endScreen(true)); }
     delete R.pending; delete R.pendEnc; delete R.snap; save(); /* 打赢后不能刷新重打 */
     rewardScreen(); return true;
   }
@@ -843,16 +843,25 @@ function eventScreen() {
 }
 
 // ---------- 结束 ----------
+function story(img, lines, done, once) {
+  stage.querySelectorAll('.say').forEach(x => x.remove());
+  if (once && LS(once)) return done(); if (once) localStorage.setItem(once, '1');
+  view.innerHTML = `<div class="bg"><img class="full px" src="assets/bg/${img}.jpg" style="object-fit:cover"></div><div class="storybox"><p></p><div class="row" style="justify-content:flex-end;gap:12px"><button class="btn" id="stskip">${t('跳过')}</button><button class="btn gold" id="stnext">${t('继续')}</button></div></div>`;
+  let i = 0; const show = () => { view.querySelector('.storybox p').textContent = t(lines[i]); };
+  show(); $('#stskip').onclick = done; $('#stnext').onclick = () => { if (++i >= lines.length) done(); else show(); };
+}
 function act2Choice() {
   B = null; save(); audio.setMode('menu');
-  view.innerHTML = `${bgHTML(true, 'c2_exterior')}<div class="panel" style="width:760px;text-align:center"><h2>${t('哥布林大王倒下了')}</h2>
+  view.innerHTML = `${bgHTML(false, 'story_road')}<div class="panel" style="width:760px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('哥布林大王倒下了')}</h2>
    <p>${t('远处山顶的古堡亮起了血红的光。被抓走的村民，就关在那里。')}</p><p style="color:#ffb0b0">${t('进入第二章：血月古堡（回复 50% 生命）')}</p>
    <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="go2">${t('前往古堡')}</button><button class="btn" id="end1">${t('到此为止')}</button></div></div>`;
   $('#go2').onclick = () => { R.act = 2; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .5)); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = pickOne(ENCOUNTERS2.boss)[0];
     delete R.pending; delete R.pendEnc; delete R.snap; save(); mapScreen(); };
   $('#end1').onclick = () => { clearSave(); endScreen(true); };
+  /* 第二章通关结局：先看结局插图 */
 }
 function endScreen(win) {
+  stage.querySelectorAll('.say').forEach(x => x.remove());
   B = null; audio.setMode('menu');
   const k = R.kills || 0, el = R.elites || 0, hp = Math.max(0, R.hp);
   const rows = [[`攀登的层数 (${R.floor})`, R.floor * 20], [`击杀的敌人 (${k})`, k * 3], [`击败的精英 (${el})`, el * 25], [`打败 Boss (${R.bosses || 0})`, (R.bosses || 0) * 300], [`通关时剩余生命 (${win ? hp : 0})`, win ? hp * 2 : 0]];
@@ -862,7 +871,7 @@ function endScreen(win) {
   if (!DEBUG) { M.xp += total; if (win && (R.asc || 0) >= (M.asc[R.char] || 0) && (M.asc[R.char] || 0) < 8) { M.asc[R.char] = (R.asc || 0) + 1; news.push(`${CHARS[R.char].name} 解锁进阶 ${M.asc[R.char]}`); } metaSet(M); }
   UNLOCKS.forEach(u => { if (before < u.xp && M.xp >= u.xp) news.push('解锁：' + [...u.cards.map(c => CARDS[c].name), ...u.relics.map(x => RELICS[x].name)].join('、')); });
   const nx = UNLOCKS.find(u => M.xp < u.xp), left = UNLOCKS.filter(u => M.xp < u.xp).length;
-  view.innerHTML = `${bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
+  view.innerHTML = `${win && ACT() === 2 ? bgHTML(true, 'story_end2') : bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
    <p class="endsub" data-noi18n>${win && ACT() === 2 ? `${t('{0}化为了灰烬，古堡的血月熄灭了。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第二章完 · 感谢游玩！')}</b>${t('山顶上，还有更深的黑暗在等待……')}` : win ? `${t('{0}倒下了，翠绿之地恢复了平静。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第一章完 · 感谢游玩！')}</b>${t('远处山顶的古堡，亮起了血红的光……')}<br><b style="color:#ff8a8a">${t('第二章：血月古堡（制作中）')}</b>` : t(ACT() === 2 ? '{0}倒在了血月古堡第 {1} 层。' : '{0}倒在了翠绿之地第 {1} 层。', tr(CHARS[R.char || 'hero'].name), R.floor)}</p>
    <table class="score">${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}<tr class="tot"><td>分数</td><td>${total}</td></tr></table>
    <div class="xpw"><div class="xpb"><i style="width:${nx ? Math.min(100, M.xp / nx.xp * 100) : 100}%"></i></div><span>${nx ? `[${M.xp}/${nx.xp}]` : `[${M.xp}] 全部解锁`}</span><span>剩余解锁：${left}</span></div>
