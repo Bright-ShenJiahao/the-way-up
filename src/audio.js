@@ -2,7 +2,7 @@
 // 音乐：4 首西方奇幻风——地图（鲁特琴+长笛）、战斗（弦乐+提琴）、精英（号角+战鼓）、Boss（合唱+铜管）。哥布林叫声也是合成的。
 // 首次点击/按键后才能出声（浏览器规定）。M 键静音。
 export function createAudio(){
- let ac=null,master,musicBus,sfxBus,on=true,mode='menu',inten=0,started=false,next=0,step=0;
+ let ac=null,master,musicBus,sfxBus,on=true,mode='silent',inten=0,started=false,next=0,step=0;
  try{on=localStorage.getItem('mute')!=='1'}catch(e){}
  let V={m:1,mu:1,s:1};try{Object.assign(V,JSON.parse(localStorage.getItem('tw_vol')||'{}'))}catch(e){}
  function init(){if(ac)return;ac=new (window.AudioContext||window.webkitAudioContext)();master=ac.createGain();master.gain.value=on?.9*V.m:0;master.connect(ac.destination);
@@ -47,6 +47,7 @@ export function createAudio(){
  const snare=(t,v=.1)=>{noise(t,.14,{vol:v,hp:1500,bus:musicBus});tone(t,55,.04,{type:'triangle',vol:v*.5,rel:.05})};
  const tamb=(t,v=.03)=>noise(t,.05,{vol:v,hp:7000,bus:musicBus});
  function bar(t,beat,bi){
+  if(mode==='silent')return;
   const S=SONGS[mode]||SONGS.menu,k=bi%8,c=S.ch[k],e=inten,mel=S.mel.slice(k*8,k*8+8);
   const notes=[];for(let i=0;i<8;i++)if(mel[i]>=0){let L=1;while(i+L<8&&mel[i+L]<0)L++;notes.push([i,mel[i],L])}
   if(mode==='menu'){ // 地图：鲁特琴 + 长笛 + 手鼓
