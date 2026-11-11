@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112614';
-import { createAudio } from './audio.js?v=live2_11112614';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112614';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112615';
+import { createAudio } from './audio.js?v=live2_11112615';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112615';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -947,7 +947,7 @@ function setMusic(m) {
   if (bgmNow && bgmNow !== want) { BGM[bgmNow].pause(); bgmNow = null; }
   if (!want) { audio.setMode(m); return; }
   audio.setMode('silent');
-  const el = BGM[want] || (BGM[want] = Object.assign(new Audio(`assets/music/${want}.mp3`), { loop: true }));
+  const el = BGM[want] || (BGM[want] = Object.assign(new Audio(`assets/music/${want}.mp3?v=2`), { loop: true }));
   const V = audio.vol || { m: 1, mu: 1 }; el.volume = audio.muted ? 0 : Math.min(1, .55 * (V.m ?? 1) * (V.mu ?? 1));
   if (bgmNow !== want) { el.currentTime = 0; el.play().catch(() => {}); bgmNow = want; }
 }
