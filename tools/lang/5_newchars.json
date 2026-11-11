@@ -1886,5 +1886,53 @@
  "“": [
   "“",
   "「"
+ ],
+ "对所有敌人造成 {0} 点伤害。回合结束没打出就消失。消耗。": [
+  "Deal {0} damage to ALL enemies. Disappears if not played by end of turn. Exhaust.",
+  "敵全体に{0}ダメージ。ターン終了までに使わないと消える。廃棄。"
+ ],
+ "抽 {0} 张牌，得到 {1} 点能量（每回合只有第一张风门给能量）。回合结束没打出就消失。消耗。": [
+  "Draw {0} cards. Gain {1} Energy (only the first Wind Gate each turn). Disappears if not played by end of turn. Exhaust.",
+  "カードを{0}枚引き、エナジーを{1}得る（毎ターン最初の風門のみ）。ターン終了までに使わないと消える。廃棄。"
+ ],
+ "获得 {0} 点格挡。回合结束没打出就消失。消耗。": [
+  "Gain {0} Block. Disappears if not played by end of turn. Exhaust.",
+  "ブロック{0}を得る。ターン終了までに使わないと消える。廃棄。"
+ ],
+ "获得 {0} 点格挡，抽 {1} 张牌。回合结束没打出就消失。消耗。": [
+  "Gain {0} Block. Draw {1} cards. Disappears if not played by end of turn. Exhaust.",
+  "ブロック{0}を得る。カードを{1}枚引く。ターン終了までに使わないと消える。廃棄。"
+ ],
+ "获得 {0} 点格挡，给予所有敌人 {1} 层虚弱。回合结束没打出就消失。消耗。": [
+  "Gain {0} Block. Apply {1} Weak to ALL enemies. Disappears if not played by end of turn. Exhaust.",
+  "ブロック{0}を得る。敵全体に脱力{1}。ターン終了までに使わないと消える。廃棄。"
+ ],
+ "造成 {0} 点伤害 {1} 次。回合结束没打出就消失。消耗。": [
+  "Deal {0} damage {1} times. Disappears if not played by end of turn. Exhaust.",
+  "{0}ダメージを{1}回。ターン終了までに使わないと消える。廃棄。"
+ ],
+ "造成 {0} 点伤害。回合结束没打出就消失。消耗。": [
+  "Deal {0} damage. Disappears if not played by end of turn. Exhaust.",
+  "{0}ダメージ。ターン終了までに使わないと消える。廃棄。"
+ ],
+ "造成 {0} 点伤害，抽 {1} 张牌。回合结束没打出就消失。消耗。": [
+  "Deal {0} damage. Draw {1} card. Disappears if not played by end of turn. Exhaust.",
+  "{0}ダメージ。カードを{1}枚引く。ターン終了までに使わないと消える。廃棄。"
+ ],
+ "造成 {0} 点伤害，给予 {1} 层易伤。回合结束没打出就消失。消耗。": [
+  "Deal {0} damage. Apply {1} Vulnerable. Disappears if not played by end of turn. Exhaust.",
+  "{0}ダメージ。脆弱{1}を与える。ターン終了までに使わないと消える。廃棄。"
+ ],
+ "指定一张牌架上已有的牌或同一门前后两点内的牌，从牌池或弃牌区拿 {0} 张到牌架。消耗。": [
+  "Name a tile already in your rack, or one within two numbers of it in the same suit, and take {0} from the wall or tile discard into your rack. Exhaust.",
+  "牌架にある牌、または同じ色で前後2つ以内の牌を指定し、山か捨て牌から{0}枚を牌架に加える。廃棄。"
+ ],
+ "本回合团子的指令是扑击时，扑击改为造成 {0} 点伤害 {1} 次（追踪哨的加成每次都算）。消耗。": [
+  "If Dango's command this turn is Pounce, it deals {0} damage {1} times instead (Tracking Whistle's bonus applies to each hit). Exhaust.",
+  "このターン団子の指示が飛びかかりなら、{0}ダメージを{1}回に変わる（追跡笛のボーナスは毎回乗る）。廃棄。"
+ ],
+ "现在打不出": [
+  "Can't play this now",
+  "今は使えない"
  ]
 }

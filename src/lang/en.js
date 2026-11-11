@@ -1572,5 +1572,17 @@ export default {
 "回家之前，谁都不许散伙——到家以后也不许。": "Nobody splits up before we get home, and not after either.",
 "两只耳机都摘了。今天，我想听你们说话。": "Both earphones off. Today, I want to hear you talk.",
 "村子里的人都回来了……原来我，也算够格了吧。": "Everyone in the village is back... I guess I'm good enough after all.",
-"“": "“"
+"“": "“",
+"对所有敌人造成 {0} 点伤害。回合结束没打出就消失。消耗。": "Deal {0} damage to ALL enemies. Disappears if not played by end of turn. Exhaust.",
+"抽 {0} 张牌，得到 {1} 点能量（每回合只有第一张风门给能量）。回合结束没打出就消失。消耗。": "Draw {0} cards. Gain {1} Energy (only the first Wind Gate each turn). Disappears if not played by end of turn. Exhaust.",
+"获得 {0} 点格挡。回合结束没打出就消失。消耗。": "Gain {0} Block. Disappears if not played by end of turn. Exhaust.",
+"获得 {0} 点格挡，抽 {1} 张牌。回合结束没打出就消失。消耗。": "Gain {0} Block. Draw {1} cards. Disappears if not played by end of turn. Exhaust.",
+"获得 {0} 点格挡，给予所有敌人 {1} 层虚弱。回合结束没打出就消失。消耗。": "Gain {0} Block. Apply {1} Weak to ALL enemies. Disappears if not played by end of turn. Exhaust.",
+"造成 {0} 点伤害 {1} 次。回合结束没打出就消失。消耗。": "Deal {0} damage {1} times. Disappears if not played by end of turn. Exhaust.",
+"造成 {0} 点伤害。回合结束没打出就消失。消耗。": "Deal {0} damage. Disappears if not played by end of turn. Exhaust.",
+"造成 {0} 点伤害，抽 {1} 张牌。回合结束没打出就消失。消耗。": "Deal {0} damage. Draw {1} card. Disappears if not played by end of turn. Exhaust.",
+"造成 {0} 点伤害，给予 {1} 层易伤。回合结束没打出就消失。消耗。": "Deal {0} damage. Apply {1} Vulnerable. Disappears if not played by end of turn. Exhaust.",
+"指定一张牌架上已有的牌或同一门前后两点内的牌，从牌池或弃牌区拿 {0} 张到牌架。消耗。": "Name a tile already in your rack, or one within two numbers of it in the same suit, and take {0} from the wall or tile discard into your rack. Exhaust.",
+"本回合团子的指令是扑击时，扑击改为造成 {0} 点伤害 {1} 次（追踪哨的加成每次都算）。消耗。": "If Dango's command this turn is Pounce, it deals {0} damage {1} times instead (Tracking Whistle's bonus applies to each hit). Exhaust.",
+"现在打不出": "Can't play this now"
 };

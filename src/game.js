@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112000';
-import { createAudio } from './audio.js?v=live2_11112000';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112000';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112100';
+import { createAudio } from './audio.js?v=live2_11112100';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112100';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -122,9 +122,9 @@ function cardHTML(c, extra = '', energy = 99) {
    <div class="cost ${no ? 'no' : ''}"${d.unplay ? ' style="visibility:hidden"' : ''}>${cost}</div><div class="cname">${d.name}${c.up ? '+' : ''}</div></div>`;
 }
 function overlay(html) { const o = document.createElement('div'); o.className = 'overlay'; o.innerHTML = html; stage.appendChild(o); return o; }
-function pickOpt(title, opts) { /* 出牌时的选择：返回所选 val，点取消返回 undefined */
-  return new Promise(res => { const o = overlay(`<h2>${t(title)}</h2><div class="row pickrow">${opts.map((x, k) => `<div class="pko" data-k="${k}">${x.html || `<button class="btn">${t(x.label)}</button>`}</div>`).join('')}</div><button class="btn" id="pkx">${t('取消')}</button>`);
-    o.querySelectorAll('.pko').forEach(el => el.onclick = () => { o.remove(); res(opts[+el.dataset.k].val); }); o.querySelector('#pkx').onclick = () => { o.remove(); res(undefined); }; });
+function pickOpt(title, opts, noCancel) { /* 出牌时的选择：返回所选 val，点取消返回 undefined */
+  return new Promise(res => { const o = overlay(`<h2>${t(title)}</h2><div class="row pickrow">${opts.map((x, k) => `<div class="pko" data-k="${k}">${x.html || `<button class="btn">${t(x.label)}</button>`}</div>`).join('')}</div>${noCancel ? '' : `<button class="btn" id="pkx">${t('取消')}</button>`}`);
+    o.querySelectorAll('.pko').forEach(el => el.onclick = () => { o.remove(); res(opts[+el.dataset.k].val); }); const x = o.querySelector('#pkx'); if (x) x.onclick = () => { o.remove(); res(undefined); }; });
 }
 function showPile(title, cards) {
   const o = overlay(`<h2>${title}（${cards.length}）</h2><div class="grid">${cards.map(c => cardHTML(c)).join('') || '<p>空</p>'}</div><button class="btn">关闭</button>`);
@@ -407,6 +407,7 @@ function hurt(tgt, amt, attacker, direct = true) {
   const isP = tgt === B.p;
   if (!isP && tgt.st.aegis) { fx(tgt.id, '免疫', 'blk'); return 0; } if (!isP && tgt.d && tgt.d.undead && has('silvercross')) amt = Math.floor(amt * 1.25); if (!isP && tgt.st.intang) amt = Math.ceil(amt / 2); if (!isP && tgt.st.fly) { amt = Math.ceil(amt / 2); addSt(tgt, 'fly', -1); if (!tgt.st.fly) { tgt.grounded = 1; fx(tgt.id, '坠落！', 'st'); } } if (!isP && attacker === B.p && direct) tgt.hitT = 1; const eAtk = isP && attacker && attacker !== B.p; if (eAtk) amt = MECH.preBlock(G, amt, attacker); let blk = tgt.block, left = amt;
   const used = Math.min(blk, left); tgt.block -= used; left -= used; if (eAtk) left = MECH.postBlock(G, left, attacker);
+  const hpLost = isP ? left : Math.min(left, Math.max(0, tgt.hp)); /* 实际打掉的生命（不算溢出） */
   if (isP) { R.hp -= left; } else { tgt.hp -= left; }
   fx(isP ? 'hero' : tgt.id, left > 0 ? `-${left}` : '格挡', left > 0 ? 'dmg' : 'blk'); B.hitSet.add(isP ? 'hero' : tgt.id);
   if (attacker && tgt.st.thorns && attacker !== tgt) { const th = tgt.st.thorns; hurt(attacker, th); }
@@ -418,7 +419,7 @@ function hurt(tgt, amt, attacker, direct = true) {
   if (false && isP && R.hp <= 0 && (R.potions || []).includes('fairy')) { R.potions.splice(R.potions.indexOf('fairy'), 1); R.hp = Math.floor(R.maxHp * .3); fx('hero', '复活药水！', 'heal'); }
   if (false && isP && R.hp <= 0) { if (has('feather') && !R.feather) { R.feather = 1; R.hp = Math.floor(R.maxHp * .3); fx('hero', '凤凰重生！', 'heal'); } }
   if (left > 0) { if (isP) { audio.hurt(); heroAct('hurt'); } else audio.hit('mel'); }
-  return left;
+  return hpLost;
 }
 function pDeath() { /* 掉到 0 血时：先复活药水，再凤凰羽 */
   if (R.hp > 0) return;
@@ -437,7 +438,7 @@ function boom(t) { // 爆音：伤害后保留 3 层（失真再 +3），多出�
   const d = 20 + (B.p.st.dist ? 8 : 0) + (has('mic') ? 6 : 0);
   t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0);
   fx(t.id, '爆音！', 'st'); hurt(t, d); if (has('metro') && !B.p.metroUsed) { B.p.metroUsed = 1; B.p.energy++; } }
-function healP(n) { if (n <= 0) return; R.hp = Math.min(R.maxHp, R.hp + n); fx('hero', `+${n}`, 'heal'); }
+function healP(n) { if (n <= 0 || R.hp <= 0) return 0; const k = Math.min(n, R.maxHp - R.hp); R.hp += k; if (k > 0) fx('hero', `+${k}`, 'heal'); return k; } /* 生命已归零时普通回复无效 */
 function addSt(t, k, n) { t.st[k] = (t.st[k] || 0) + n; if (t.st[k] === 0) delete t.st[k]; }
 
 // 卡牌用的接口
@@ -462,7 +463,7 @@ const G = {
   self(k, n) { addSt(B.p, k, n); fx('hero', `${STATUS[k][0]}+${n}`, 'st'); },
   draw(n) { drawCards(n); }, energy(n) { B.p.energy += n; },
   loseHp(n) { R.hp -= n; fx('hero', `-${n}`, 'dmg'); B.hitSet.add('hero'); pDeath(); },
-  heal(n) { healP(n); },
+  heal(n) { return healP(n); },
   pm() { return B.p.st.sage ? 2 : 1; }, ppm() { return B.p.st.sage ? 1.5 : 1; },
   potion(n, id) { const ps = ['p_fire', 'p_frost', 'p_heal', 'p_poison', 'p_boom']; for (let i = 0; i < n; i++) { const c = mkCard(id || pickOne(ps)); (B.hand.length < 10 ? B.hand : B.disc).push(c); } fx('hero', `药瓶+${n}`, 'st'); },
   poison(t, n) { if (!t || t.dead || n <= 0) return; n += has('toad') ? 1 : 0; addSt(t, 'poison', n); fx(t.id, `中毒+${n}`, 'st'); },
@@ -549,7 +550,8 @@ async function playCard(i, tgt) {
   if (d.unplay) { tip('这张牌不能打出'); return; }
   if (cost === 'X') cost = B.p.energy; if (cost > B.p.energy) { tip('能量不足'); return; }
   if (d.tgt === 'one' && !tgt) { const a = alive(); if (a.length === 1) tgt = a[0]; else { B.sel = B.sel === i ? -1 : i; B.aimI = 0; render(); return; } }
-  let pk; if (d.pick) { const opts = d.pick === 1 ? B.hand.filter(x => x !== c).map(x => ({ val: x.uid, html: cardHTML(x) })) : d.pick(G); if (opts.length) { B.anim = true; pk = await pickOpt(d.pickT || '选择一张手牌', opts); B.anim = false; if (pk === undefined) return; i = B.hand.indexOf(c); if (i < 0) return; } }
+  if (d.can && !d.can(G, c.up)) { fx('hero', '现在打不出', 'st'); flushFx(); return; }
+  let pk; if (d.pick) { const opts = d.pick === 1 ? B.hand.filter(x => x !== c).map(x => ({ val: x.uid, html: cardHTML(x) })) : d.pick(G, c.up); if (opts.length) { B.anim = true; pk = await pickOpt(d.pickT || '选择一张手牌', opts, d.noCancel); B.anim = false; if (pk === undefined) return; i = B.hand.indexOf(c); if (i < 0) return; } }
   B.hitSet = new Set();
   const el = view.querySelector(`#hand .card[data-i="${i}"]`);
   B.p.energy -= cost; G.x = cost; B.hand.splice(i, 1); B.sel = -1; B.anim = true;

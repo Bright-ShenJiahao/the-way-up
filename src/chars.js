@@ -13,19 +13,21 @@ export const RECIPE = { 火火火: 'sp_meteor', 火火水: 'sp_steam', 火火风
 export const elKey = el => [...el].sort((a, b) => EL.indexOf(a) - EL.indexOf(b)).join('');
 const kinds = g => new Set(P(g).el || []).size;
 function writeEl(g, x) {
-  const p = P(g); p.el = p.el || [...EL]; p.el.shift(); p.el.push(x);
+  const p = P(g); p.el = p.el || [...EL]; p.el.shift(); p.el.push(x); elCheck(g);
+}
+function elCheck(g) { const p = P(g);
   if (kinds(g) === 3 && !p.noteT && p.st.enote) { p.noteT = 1; g.draw(1); if (p.st.enote > 1) g.block(3); }
   if (kinds(g) === 1 && g.has('lens') && !p.lensU) { p.lensU = 1; g.block(6, true); }
 }
-function invoke(g) {
+function invoke(g, free) {
   const p = P(g); p.el = p.el || [...EL];
-  if ((p.invN || 0) >= 2) { g.note('本回合已祈唤 2 次'); return false; }
+  if (!free && (p.invN || 0) >= 2) { g.note('本回合已祈唤 2 次'); return false; }
   if (g.handSize() >= 10) { g.note('手牌满了'); return false; }
-  p.invN = (p.invN || 0) + 1; g.addHand(RECIPE[elKey(p.el)]); return true;
+  if (!free) p.invN = (p.invN || 0) + 1; g.addHand(RECIPE[elKey(p.el)]); return true;
 }
 const elPick = g => EL.map(x => ({ val: x, html: btn(`<span>写入</span> <span>${x}</span>`) }));
 const elBot = (g, opts) => { const el = P(g).el || EL, c = x => el.filter(y => y === x).length; return [...opts].sort((a, b) => c(b.val) - c(a.val))[0]; };
-const spell = (name, type, tgt, desc, play) => ({ ch: 'erin', spell: 1, name, type, rar: 'gen', cost: [0, 0], icon: type === 'atk' ? 'ic_flame' : 'ic_water', tgt, exhaust: 1, ethereal: 1, desc: () => desc + '消耗。', play });
+const spell = (name, type, tgt, desc, play) => ({ ch: 'erin', spell: 1, name, type, rar: 'gen', cost: [0, 0], icon: type === 'atk' ? 'ic_flame' : 'ic_water', tgt, exhaust: 1, ethereal: 1, desc: () => desc + '回合结束没打出就消失。消耗。', play });
 const ERIN = {
   sp_meteor: spell('陨星', 'atk', 'one', '造成 14 点伤害。', (g, u, t) => g.attack(t, 14)),
   sp_steam: spell('蒸爆', 'atk', 'all', '对所有敌人造成 7 点伤害。', g => g.attackAll(7)),
@@ -50,11 +52,11 @@ const ERIN = {
   e_chant: { ch: 'erin', invoke: 1, name: '防御咏唱', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_aura', tgt: 'self', desc: u => `祈唤，获得 ${v(u, 4, 6)} 点格挡。`, play: (g, u) => { g.block(v(u, 4, 6)); invoke(g); } },
   e_twin: { ch: 'erin', name: '双轨射线', type: 'atk', rar: 'u', cost: [1, 1], icon: 'ic_thunder', tgt: 'one', desc: u => `造成 ${v(u, 8, 10)} 点伤害。元素位里恰好有两种元素时，再造成 ${v(u, 5, 6)} 点伤害。`, play: (g, u, t) => { g.attack(t, v(u, 8, 10)); if (kinds(g) === 2) g.attack(t, v(u, 5, 6)); } },
   e_pure: { ch: 'erin', name: '纯相爆发', type: 'atk', rar: 'u', cost: [2, 2], icon: 'ic_gods', tgt: 'one', desc: u => `造成 ${v(u, 17, 21)} 点伤害；三格元素相同时改为 ${v(u, 26, 31)} 点。`, play: (g, u, t) => g.attack(t, kinds(g) === 1 ? v(u, 26, 31) : v(u, 17, 21)) },
-  e_refill: { ch: 'erin', name: '回填', type: 'skill', rar: 'u', cost: [1, 1], icon: 'ic_orbit', tgt: 'self', desc: u => `把最早的一格改成最新一格的元素，获得 ${v(u, 8, 11)} 点格挡。`, play: (g, u) => { const p = P(g); p.el = p.el || [...EL]; writeEl(g, p.el[2]); g.block(v(u, 8, 11)); } },
+  e_refill: { ch: 'erin', name: '回填', type: 'skill', rar: 'u', cost: [1, 1], icon: 'ic_orbit', tgt: 'self', desc: u => `把最早的一格改成最新一格的元素，获得 ${v(u, 8, 11)} 点格挡。`, play: (g, u) => { const p = P(g); p.el = p.el || [...EL]; p.el[0] = p.el[2]; elCheck(g); g.block(v(u, 8, 11)); } },
   e_impro: { ch: 'erin', invoke: 1, name: '临场变式', type: 'skill', rar: 'u', cost: [1, 1], icon: 'ic_vortex', tgt: 'self', pick: elPick, pickT: '选择要写入的元素', bot: elBot, desc: u => `${v(u, '', '抽 1 张牌，')}写入任一元素，然后祈唤。`, play: (g, u, t, c, k) => { if (u) g.draw(1); writeEl(g, k || '火'); invoke(g); } },
   e_split: { ch: 'erin', name: '分流', type: 'skill', rar: 'u', cost: [0, 0], icon: 'b_cd', tgt: 'self', exhaust: 1, pick: elPick, pickT: '选择要写入的元素', bot: elBot, desc: u => `写入任一元素，得到 1 点能量。${v(u, '', '获得 3 点格挡。')}消耗。`, play: (g, u, t, c, k) => { writeEl(g, k || '火'); g.energy(1); if (u) g.block(3); } },
   e_notes: { ch: 'erin', name: '元素笔记', type: 'power', rar: 'u', cost: [1, 1], icon: 'sk_pouch', tgt: 'self', desc: u => `每回合第一次凑齐三种不同元素时，抽 1 张牌${v(u, '', '，获得 3 点格挡')}。`, play: (g, u) => { P(g).st.enote = u ? 2 : 1; } },
-  e_rewrite: { ch: 'erin', invoke: 1, name: '复写仪式', type: 'skill', rar: 'r', cost: [2, 1], icon: 'ic_rune', tgt: 'self', exhaust: 1, pick: elPick, pickT: '第二次祈唤前写入哪种元素', bot: elBot, desc: () => `祈唤；再写入任一元素，再祈唤一次（这张不占每回合 2 次的上限）。消耗。`, play: (g, u, t, c, k) => { const p = P(g); p.invN = Math.max(0, (p.invN || 0) - 2); invoke(g); writeEl(g, k || '火'); invoke(g); } },
+  e_rewrite: { ch: 'erin', invoke: 1, name: '复写仪式', type: 'skill', rar: 'r', cost: [2, 1], icon: 'ic_rune', tgt: 'self', exhaust: 1, pick: elPick, pickT: '第二次祈唤前写入哪种元素', bot: elBot, desc: () => `祈唤；再写入任一元素，再祈唤一次（这张不占每回合 2 次的上限）。消耗。`, play: (g, u, t, c, k) => { invoke(g, true); writeEl(g, k || '火'); invoke(g, true); } },
   e_crown: { ch: 'erin', name: '三相冠冕', type: 'power', rar: 'r', cost: [1, 1], icon: 'm_crown', tgt: 'self', desc: u => `每回合打出第一张三格相同的法术（陨星、冰镜、风门）后，获得 ${v(u, 5, 8)} 点格挡，抽 1 张牌。`, play: (g, u) => { P(g).st.ecrown = v(u, 5, 8); } },
   e_seasons: { ch: 'erin', name: '四季轮转', type: 'power', rar: 'r', cost: [2, 1], icon: 'sk_orb', tgt: 'self', desc: () => `每回合打出第二张法术时，如果和第一张的配方不同，对所有敌人造成 7 点伤害。`, play: g => { P(g).st.eseason = 1; } },
 };
@@ -66,7 +68,8 @@ const ERIN = {
    连段：本回合已经打出的攻击牌张数。原案「可选」的花费（可射出、可花内力）简化为条件满足就自动执行。 */
 const sw = g => P(g).st.sword || 0;
 function addSword(g, n) { const p = P(g), a = sw(g), b = Math.min(5, a + n); if (b > a) p.st.sword = b; return a + n - b; }
-function shootSword(g, t, k, dmg = 5) { const p = P(g); k = Math.min(k, sw(g)); if (!k) return 0; p.st.sword -= k; if (!p.st.sword) delete p.st.sword; p.fh = 0; for (let i = 0; i < k; i++) { const a = g.alive(); if (!a.length) break; g.attack(t && !t.dead ? t : a[0], dmg); } return k; }
+function shootSword(g, t, k, dmg = 5) { const p = P(g); k = Math.min(k, sw(g)); if (!k) return 0; p.st.sword -= k; if (!p.st.sword) delete p.st.sword; const fh = p.fh; p.fh = 0; for (let i = 0; i < k; i++) { const a = g.alive(); if (!a.length) break; g.attack(t && !t.dead ? t : a[0], dmg); } p.fh = fh; return k; }
+const live = (g, t) => (t && !t.dead ? t : g.alive()[0]);
 function gainQi(g, n) { const p = P(g); p.st.qi = Math.min(12, (p.st.qi || 0) + n); }
 function spendQi(g, n) { const p = P(g); if ((p.st.qi || 0) < n) return false; p.st.qi -= n; if (!p.st.qi) delete p.st.qi; if (p.st.qiflow && !p.qiT) { p.qiT = 1; g.block(p.st.qiflow, true); } return true; }
 function burnBlood(g) { const p = P(g); if (g.has('jade') && !p.jadeU) p.jadeU = 1; else g.loseHp(2); if (!p.burnT) { p.burnT = 1; gainQi(g, 3); if (p.st.revqi) { gainQi(g, 2); g.draw(1); } } }
@@ -86,12 +89,12 @@ const GU = {
   g_palm: { ch: 'gu', name: '绵掌', type: 'atk', rar: 'c', cost: [1, 1], icon: 'sk_fist', tgt: 'one', desc: u => `造成 ${v(u, 7, 9)} 点伤害。内力不少于 3 时，花掉 3 点再打 1 次。`, play: (g, u, t) => { g.attack(t, v(u, 7, 9)); if (spendQi(g, 3)) g.attack(t, v(u, 7, 9)); } },
   g_qi: { ch: 'gu', name: '运气', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_aura', tgt: 'self', desc: u => `获得 ${v(u, 7, 9)} 点格挡。内力不少于 3 时，花掉 3 点再获得 ${v(u, 6, 8)} 点格挡。`, play: (g, u) => { g.block(v(u, 7, 9)); if (spendQi(g, 3)) g.block(v(u, 6, 8)); } },
   g_three: { ch: 'gu', name: '并指三剑', type: 'skill', rar: 'u', cost: [1, 1], icon: 'sk_gsword', tgt: 'self', desc: u => `得到 2 把飞剑；超过上限的每把改为获得 ${v(u, 4, 6)} 点格挡。`, play: (g, u) => { const o = addSword(g, 2); if (o > 0) g.block(o * v(u, 4, 6)); } },
-  g_rain: { ch: 'gu', name: '长空落剑', type: 'atk', rar: 'u', cost: [1, 1], icon: 'ic_xbow', tgt: 'one', desc: u => `射出全部飞剑（每把 5 点伤害），再造成 ${v(u, 5, 8)} 点伤害。`, play: (g, u, t) => { shootSword(g, t, 5); g.attack(t, v(u, 5, 8)); } },
+  g_rain: { ch: 'gu', name: '长空落剑', type: 'atk', rar: 'u', cost: [1, 1], icon: 'ic_xbow', tgt: 'one', desc: u => `射出全部飞剑（每把 5 点伤害），再造成 ${v(u, 5, 8)} 点伤害。`, play: (g, u, t) => { shootSword(g, t, 5); g.attack(live(g, t), v(u, 5, 8)); } },
   g_horse: { ch: 'gu', name: '回马势', type: 'skill', rar: 'u', cost: [1, 1], icon: 'sk_wolf', tgt: 'self', desc: u => `切换剑势。获得 ${v(u, 8, 11)} 点格挡。`, play: (g, u) => { stance(g); g.block(v(u, 8, 11)); } },
   g_snow: { ch: 'gu', name: '雪径连斩', type: 'atk', rar: 'u', cost: [1, 1], icon: 'fx_slash', tgt: 'one', desc: u => `造成 ${v(u, 8, 10)} 点伤害。本回合已打出 2 张攻击牌时，再对所有敌人造成 ${v(u, 6, 8)} 点伤害。`, play: (g, u, t) => { const c = P(g).combo || 0; g.attack(t, v(u, 8, 10)); if (c >= 2) g.attackAll(v(u, 6, 8)); } },
   g_quake: { ch: 'gu', name: '震山掌', type: 'atk', rar: 'u', cost: [2, 2], icon: 'ic_palm', tgt: 'one', desc: u => `造成 ${v(u, 16, 20)} 点伤害。有 2 个以上敌人且内力不少于 5 时，花掉 5 点改为打所有敌人。`, play: (g, u, t) => { if (g.alive().length >= 2 && spendQi(g, 5)) g.attackAll(v(u, 16, 20)); else g.attack(t, v(u, 16, 20)); } },
   g_flow: { ch: 'gu', name: '气走周天', type: 'power', rar: 'u', cost: [1, 1], icon: 'ic_orbit', tgt: 'self', desc: u => `每回合第一次花掉内力时，获得 ${v(u, 4, 6)} 点格挡。`, play: (g, u) => { P(g).st.qiflow = v(u, 4, 6); } },
-  g_myriad: { ch: 'gu', name: '万剑归一', type: 'atk', rar: 'r', cost: [2, 2], icon: 'sk_gsword', tgt: 'one', desc: u => `射出全部飞剑，每把改为 ${v(u, 9, 11)} 点伤害，然后得到 2 把飞剑。`, play: (g, u, t) => { shootSword(g, t, 5, v(u, 9, 11)); addSword(g, 2); } },
+  g_myriad: { ch: 'gu', name: '万剑归一', type: 'atk', rar: 'r', cost: [2, 2], icon: 'sk_gsword', tgt: 'one', desc: u => `射出全部飞剑，每把改为 ${v(u, 9, 11)} 点伤害，然后得到 2 把飞剑。`, play: (g, u, t) => { shootSword(g, t, 5, v(u, 9, 11)); P(g).fh = 0; addSword(g, 2); } },
   g_rev: { ch: 'gu', name: '逆行经脉', type: 'power', rar: 'r', cost: [2, 1], icon: 'm_anger', tgt: 'self', desc: () => `每回合第一次燃血时，额外得到 2 点内力并抽 1 张牌。`, play: g => { P(g).st.revqi = 1; } },
   g_dual: { ch: 'gu', name: '双势归元', type: 'power', rar: 'r', cost: [1, 1], icon: 'ic_hexa', tgt: 'self', desc: u => `同一回合里两种剑势都切入过时（每回合一次），得到 1 点能量，抽 1 张牌${v(u, '', '，获得 5 点格挡')}。`, play: (g, u) => { P(g).st.dualst = u ? 2 : 1; } },
 };
@@ -132,11 +135,12 @@ const SYL = {
    每回合有一个免费指令（默认护卫，每回合能改一次）：
    护卫：替米娅挡下一次敌人直接攻击的前 6 点（受团子剩余生命限制）；扑击：回合结束攻击目标；休息：回合结束团子回 3 生命。
    团子活着且这场执行过两种不同指令，胜利后得 1 成长点；累计 3 / 7 点升到 2 / 3 级。 */
+function catDid(g, k) { const p = P(g), c = p.cat; if (c.did[k]) return; c.did[k] = 1; if (p.st.mjump) g.block(p.st.mjump, true); if (Object.keys(c.did).length >= 2 && g.has('lynx') && !p.lynxU) { p.lynxU = 1; p.lynxD = 1; } }
 const CATLV = [null, { max: 12, atk: 3 }, { max: 16, atk: 4 }, { max: 20, atk: 5 }];
 const cat = g => P(g).cat;
 const catUp = g => cat(g) && !cat(g).down;
 const healCat = (g, n) => { const c = cat(g); if (!c || c.down) return 0; const k = Math.min(n, c.max - c.hp); c.hp += k; return k; };
-const isPT = (g, t) => t && cat(g) && cat(g).cmd === 'pounce' && cat(g).pt === t.id;
+const isPT = (g, t) => t && catUp(g) && cat(g).cmd === 'pounce' && cat(g).pt === t.id;
 const MIA = {
   m_staff: { ch: 'mia', name: '猫杖点射', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_rune', tgt: 'one', desc: u => `造成 ${v(u, 8, 11)} 点伤害。团子在扑击时，扑击目标改成这个敌人。`, play: (g, u, t) => { g.attack(t, v(u, 8, 11)); const c = cat(g); if (c && c.cmd === 'pounce' && t) c.pt = t.id; } },
   m_side: { ch: 'mia', name: '并肩防守', type: 'skill', rar: 'start', cost: [1, 1], icon: 'sk_hshield', tgt: 'self', desc: u => `获得 ${v(u, 7, 9)} 点格挡。团子在护卫时，本轮能多挡 ${v(u, 2, 3)} 点。`, play: (g, u) => { g.block(v(u, 7, 9)); if (cat(g)) cat(g).gB = (cat(g).gB || 0) + v(u, 2, 3); } },
@@ -155,10 +159,10 @@ const MIA = {
   m_mint: { ch: 'mia', name: '猫薄荷团', type: 'skill', rar: 'u', cost: [1, 1], icon: 'sk_treant', tgt: 'self', desc: u => `团子回复 ${v(u, 5, 7)} 生命；实际回复不少于 3 点时，得到 1 点能量。`, play: (g, u) => { if (healCat(g, v(u, 5, 7)) >= 3) g.energy(1); } },
   m_jump: { ch: 'mia', name: '练习跳台', type: 'power', rar: 'u', cost: [1, 1], icon: 'ic_stride', tgt: 'self', desc: u => `每场战斗每种指令第一次执行时，米娅获得 ${v(u, 4, 6)} 点格挡。`, play: (g, u) => { P(g).st.mjump = v(u, 4, 6); } },
   m_cloud: { ch: 'mia', name: '云步', type: 'skill', rar: 'u', cost: [1, 1], icon: 'sk_flamestep', tgt: 'self', desc: u => `获得 ${v(u, 10, 13)} 点格挡。团子倒地时再获得 5 点格挡并抽 1 张牌。`, play: (g, u) => { g.block(v(u, 10, 13)); if (cat(g) && cat(g).down) { g.block(5); g.draw(1); } } },
-  m_bigpounce: { ch: 'mia', name: '大猫扑杀', type: 'skill', rar: 'r', cost: [2, 2], icon: 'p_exec', tgt: 'self', exhaust: 1, desc: u => `本回合团子的指令是扑击时，扑击改为造成 ${v(u, 14, 17)} 点伤害 2 次。消耗。`, play: (g, u) => { if (cat(g)) cat(g).big = v(u, 14, 17); } },
-  m_hold: { ch: 'mia', name: '绝不松手', type: 'skill', rar: 'r', cost: [1, 1], icon: 'p_rev', tgt: 'self', exhaust: 1, desc: u => `获得 ${v(u, 10, 13)} 点格挡。团子倒地时，让它带着 ${v(u, 6, 9)} 生命回到场上。消耗。`, play: (g, u) => { g.block(v(u, 10, 13)); const c = cat(g); if (c && c.down) { c.down = 0; c.hp = Math.min(c.max, v(u, 6, 9)); } } },
+  m_bigpounce: { ch: 'mia', name: '大猫扑杀', type: 'skill', rar: 'r', cost: [2, 2], icon: 'p_exec', tgt: 'self', exhaust: 1, desc: u => `本回合团子的指令是扑击时，扑击改为造成 ${v(u, 14, 17)} 点伤害 2 次（追踪哨的加成每次都算）。消耗。`, play: (g, u) => { if (cat(g)) cat(g).big = v(u, 14, 17); } },
+  m_hold: { ch: 'mia', name: '绝不松手', type: 'skill', rar: 'r', cost: [1, 1], icon: 'p_rev', tgt: 'self', exhaust: 1, desc: u => `获得 ${v(u, 10, 13)} 点格挡。团子倒地时，让它带着 ${v(u, 6, 9)} 生命回到场上。消耗。`, play: (g, u) => { g.block(v(u, 10, 13)); const c = cat(g); if (c && c.down) { c.down = 0; c.hp = Math.min(c.max, v(u, 6, 9)); c.cmd = 'guard'; c.set = 0; c.big = 0; c.pB = 0; } } },
   m_gate: { ch: 'mia', name: '云猫守门', type: 'power', rar: 'r', cost: [2, 1], icon: 'm_ward', tgt: 'self', desc: () => `团子护卫时多挡 3 点；团子护卫真的受了伤，下回合米娅抽 1 张牌。`, play: g => { P(g).st.mgate = 1; } },
-  m_sac: { ch: 'mia', name: '献祭', type: 'atk', rar: 'r', cost: [2, 2], icon: 'p_svamp', tgt: 'all', exhaust: 1, desc: u => `团子${v(u, '倒地', '只剩 1 生命')}，对所有敌人造成团子最大生命一半的伤害。消耗。`, play: (g, u) => { const c = cat(g); if (!c || c.down) return; g.attackAll(Math.floor(c.max / 2)); if (u) c.hp = 1; else { c.hp = 0; c.down = 1; } } },
+  m_sac: { ch: 'mia', can: g => catUp(g), name: '献祭', type: 'atk', rar: 'r', cost: [2, 2], icon: 'p_svamp', tgt: 'all', exhaust: 1, desc: u => `团子${v(u, '倒地', '只剩 1 生命')}，对所有敌人造成团子最大生命一半的伤害。消耗。`, play: (g, u) => { const c = cat(g); if (!c || c.down) return; g.attackAll(Math.floor(c.max / 2)); if (u) c.hp = 1; else { c.hp = 0; c.down = 1; } } },
 };
 
 /* ======================= 绯月 · 鲜血 / 吸血 / 蝙蝠 =======================
@@ -168,11 +172,11 @@ const MIA = {
 const vb = g => P(g).st.vblood || 0;
 function donate(g, n, safe = true) { const R = g.R; if (safe && R.hp <= R.maxHp / 2) return false; if (R.hp <= n) return false; g.loseHp(n); const p = P(g); p.st.vblood = Math.min(12, vb(g) + n); p.donT = 1; if (p.st.vpulse && !p.vpT) { p.vpT = 1; g.block(p.st.vpulse, true); } return true; }
 function spendB(g, n) { const p = P(g); if (vb(g) < n) return false; p.st.vblood -= n; if (!p.st.vblood) delete p.st.vblood; if (n >= 4 && p.st.vdawn && !p.vdT) { p.vdT = 1; g.energy(1); g.block(p.st.vdawn, true); } return true; }
-function leech(g, dealt, n) { const p = P(g); let k = Math.min(dealt, n, 8 - (p.ls || 0)); if (k <= 0) return; if (g.has('redpin') && !p.pinU) { p.pinU = 1; k = Math.min(k + 2, 8 - (p.ls || 0)); } p.ls = (p.ls || 0) + k; g.heal(k); if (p.st.vowb && !p.vowT) { p.vowT = 1; p.st.vblood = Math.min(12, vb(g) + 1); g.draw(1); } }
+function leech(g, dealt, n) { const p = P(g); let k = Math.min(dealt, n, 8 - (p.ls || 0)); if (k <= 0) return; const pin = g.has('redpin') && !p.pinU; if (pin) k = Math.min(k + 2, 8 - (p.ls || 0)); const got = g.heal(k) || 0; if (got <= 0) return; if (pin) p.pinU = 1; p.ls = (p.ls || 0) + got; /* 满血时回不到血，不扣额度也不触发 */ if (p.st.vowb && !p.vowT) { p.vowT = 1; p.st.vblood = Math.min(12, vb(g) + 1); g.draw(1); } }
 const bats = g => P(g).st.bat || 0;
 function addBat(g, n) { const p = P(g); p.st.bat = Math.min(4, bats(g) + n); if (!p.st.bat) delete p.st.bat; }
-function markT(g) { const a = g.alive(); return a.find(e => e.id === P(g).mark) || a[0]; }
-function hunt(g, t, per = 3) { const p = P(g), k = bats(g); if (!k) return; t = t && !t.dead ? t : markT(g); if (!t) return; const sc = t.st.scar || 0; delete t.st.scar; delete p.st.bat; p.fh = 0;
+function markT(g) { const a = g.alive(), p = P(g); let t = a.find(e => e.id === p.mark); if (!t && a[0]) { t = a[0]; p.mark = t.id; } return t; }
+function hunt(g, t, per = 3) { const p = P(g), k = bats(g); if (!k) return; if (t && t.dead) return; t = t || markT(g); if (!t) return; /* 指定的目标已经倒下：蝙蝠留着 */ const sc = t.st.scar || 0; delete t.st.scar; delete p.st.bat; p.fh = 0;
   for (let i = 0; i < k && !t.dead; i++) g.attack(t, per + (i === 0 ? sc : 0));
   if (k >= 4 && g.has('cup') && !p.cupU) { p.cupU = 1; addBat(g, 1); g.draw(1); } }
 const FEI = {
@@ -181,7 +185,7 @@ const FEI = {
   f_bats: { ch: 'feiyue', name: '放蝠', type: 'skill', rar: 'start', cost: [1, 1], icon: 'sk_undead', tgt: 'self', desc: u => `得到 2 只蝙蝠，获得 ${v(u, 3, 6)} 点格挡。`, play: (g, u) => { addBat(g, 2); g.block(v(u, 3, 6)); } },
   f_line: { ch: 'feiyue', name: '血线', type: 'atk', rar: 'c', cost: [1, 1], icon: 'ic_whip', tgt: 'one', desc: u => `造成 ${v(u, 8, 10)} 点伤害。鲜血不少于 2 时，花掉 2 点再造成 ${v(u, 6, 8)} 点伤害。`, play: (g, u, t) => { g.attack(t, v(u, 8, 10)); if (spendB(g, 2)) g.attack(t, v(u, 6, 8)); } },
   f_moon: { ch: 'feiyue', name: '血月飞刃', type: 'atk', rar: 'c', cost: [1, 1], icon: 'ic_boomer', tgt: 'all', desc: u => `对所有敌人造成 ${v(u, 5, 7)} 点伤害；生命高于一半时献血 1，改为 ${v(u, 7, 9)} 点。`, play: (g, u) => g.attackAll(donate(g, 1) ? v(u, 7, 9) : v(u, 5, 7)) },
-  f_gap: { ch: 'feiyue', name: '寻隙', type: 'atk', rar: 'c', cost: [1, 1], icon: 'ic_rapier', tgt: 'one', desc: u => `造成 ${v(u, 7, 10)} 点伤害。打穿了目标的格挡时，获得 5 点格挡。`, play: (g, u, t) => { const b = t ? t.block : 0; g.attack(t, v(u, 7, 10)); if (b > 0 && t && t.block === 0) g.block(5); } },
+  f_gap: { ch: 'feiyue', name: '寻隙', type: 'atk', rar: 'c', cost: [1, 1], icon: 'ic_rapier', tgt: 'one', desc: u => `造成 ${v(u, 7, 10)} 点伤害。打穿了目标的格挡时，获得 5 点格挡。`, play: (g, u, t) => { const b = t ? t.block : 0, d = g.attack(t, v(u, 7, 10)); if (b > 0 && d > 0) g.block(5); } },
   f_drink: { ch: 'feiyue', name: '夜饮', type: 'atk', rar: 'c', cost: [1, 1], icon: 'b_vamp', tgt: 'one', desc: u => `造成 ${v(u, 7, 9)} 点伤害，吸血 ${v(u, 3, 4)}。`, play: (g, u, t) => leech(g, g.attack(t, v(u, 7, 9)), v(u, 3, 4)) },
   f_gauze: { ch: 'feiyue', name: '纱布', type: 'skill', rar: 'c', cost: [1, 1], icon: 'b_regen', tgt: 'self', desc: u => `获得 ${v(u, 8, 10)} 点格挡。鲜血不少于 2 时，花掉 2 点再获得 ${v(u, 6, 8)} 点格挡。`, play: (g, u) => { g.block(v(u, 8, 10)); if (spendB(g, 2)) g.block(v(u, 6, 8)); } },
   f_shade: { ch: 'feiyue', name: '蝠影', type: 'skill', rar: 'c', cost: [1, 1], icon: 'sk_shadow', tgt: 'self', desc: u => `获得 ${v(u, 7, 10)} 点格挡，得到 1 只蝙蝠。`, play: (g, u) => { g.block(v(u, 7, 10)); addBat(g, 1); } },
@@ -207,15 +211,15 @@ const SUIT = ['万', '条', '筒'];
 export const tileName = x => `${x[1]}<i>${SUIT['msp'.indexOf(x[0])]}</i>`;
 const btn = h => `<button class="btn">${h}</button>`;
 const sameT = (a, b) => a === b;
-function tiles(g) { const p = P(g); return p.rack ? [...p.rack, ...(p.eighth ? [p.eighth] : [])] : []; }
-function findPat(ts) { /* 返回能结算的每一种牌型（各取一组），按价值排序 */
+function tiles(g) { const p = P(g); return p.rack ? [...p.rack] : []; }
+function findPat(ts, e8) { /* 返回能结算的每一种牌型（各取一组），按价值排序 */
   const out = [], cnt = {}; ts.forEach(t => cnt[t] = (cnt[t] || 0) + 1);
   const keys = Object.keys(cnt);
   const trip = keys.find(k => cnt[k] >= 3); if (trip) out.push({ k: 'trip', use: [trip, trip, trip] });
   const pair = keys.find(k => cnt[k] >= 2); if (pair) out.push({ k: 'pair', use: [pair, pair] });
   for (const s of 'msp') for (let n = 1; n <= 7; n++) { const a = s + n, b = s + (n + 1), c = s + (n + 2); if (cnt[a] && cnt[b] && cnt[c]) { out.push({ k: 'run', use: [a, b, c] }); n = 99; break; } }
   for (const s of 'msp') { const su = ts.filter(t => t[0] === s); if (su.length >= 5) { out.push({ k: 'flush', use: su.slice(0, 5) }); break; } }
-  const hu = smallWin(ts); if (hu) out.push({ k: 'hu', use: hu });
+  const hu = smallWin(ts.concat(e8 ? [e8] : [])); if (hu) out.push({ k: 'hu', use: hu });
   const V = { hu: 5, flush: 4, trip: 3, run: 2, pair: 1 }; return out.sort((a, b) => V[b.k] - V[a.k]);
 }
 function smallWin(ts) { /* 两个面子 + 一个对子，共 8 张 */
@@ -229,12 +233,12 @@ function smallWin(ts) { /* 两个面子 + 一个对子，共 8 张 */
 }
 const PATN = { pair: '对子', trip: '刻子', run: '顺子', flush: '清一色', hu: '小胡' };
 function isoScore(ts, x) { let s = 0; for (const y of ts) { if (y === x) continue; if (sameT(y, x)) s += 3; else if (y[0] === x[0] && Math.abs(+y[1] - +x[1]) === 1) s += 2; else if (y[0] === x[0] && Math.abs(+y[1] - +x[1]) === 2) s += 1; } return s + ts.filter(y => y === x).length * 3 - 3; }
-function mjDiscard(g) { const p = P(g); while (p.rack.length > 7) { let bi = 0, bs = 1e9; p.rack.forEach((x, i) => { const s = isoScore(p.rack, x); if (s < bs) { bs = s; bi = i; } }); const x = p.rack.splice(bi, 1)[0];
-    if (bs <= 0 && g.has('chips') && !p.chipU) { p.chipU = 1; drawTile(g, 1, true); }
-    if (x === p.lastT && !p.eighth) p.eighth = x; else p.mdisc.push(x); } }
+function mjDiscard(g) { const p = P(g); while (p.rack.length > 7) { let bi = 0, bs = 1e9; p.rack.forEach((x, i) => { const s = isoScore(p.rack, x); if (s < bs || (s === bs && i === p.rack.length - 1)) { bs = s; bi = i; } }); const newest = bi === p.rack.length - 1, x = p.rack.splice(bi, 1)[0];
+    if (newest && !p.eighth) p.eighth = x; else p.mdisc.push(x); /* 只有最新摸到的那张能留在临时位，而且只能用来凑小胡 */
+    if (bs <= 0 && g.has('chips') && !p.chipU) { p.chipU = 1; drawTile(g, 1); } } }
 function drawTile(g, n = 1, noDiscard) { const p = P(g); for (let i = 0; i < n; i++) { if (!p.pool.length) { p.pool = shuf(p.mdisc); p.mdisc = []; } if (!p.pool.length) break; const x = p.pool.pop(); p.rack.push(x); p.lastT = x; p.drawnT = (p.drawnT || 0) + 1; } if (!noDiscard) mjDiscard(g); }
 const shuf = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-function removeTiles(g, use) { const p = P(g); for (const x of use) { let i = p.rack.indexOf(x); if (i >= 0) p.rack.splice(i, 1); else if (p.eighth === x) p.eighth = null; p.mdisc.push(x); } }
+function removeTiles(g, use) { const p = P(g); for (const x of use) { let i = p.rack.indexOf(x); if (i >= 0) p.rack.splice(i, 1); else if (p.eighth === x) p.eighth = null; else continue; p.mdisc.push(x); } }
 function settle(g, pat, t) { /* 结算一个牌型；每回合只能主动结算一次 */
   const p = P(g); if (!pat || p.setT) { if (p.setT) g.note('本回合已经结算过牌型'); return null; }
   p.setT = 1; removeTiles(g, pat.use); p.patT = p.patT || {}; p.patT[pat.k] = 1; p.patB = p.patB || {}; p.patB[pat.k] = 1;
@@ -246,15 +250,17 @@ function settle(g, pat, t) { /* 结算一个牌型；每回合只能主动结算
   if (g.has('scorebook') && !p.sbU && Object.keys(p.patB).length >= 3) { p.sbU = 1; g.energy(2); g.draw(2); }
   return pat;
 }
-const patPick = only => g => findPat(tiles(g)).filter(x => !only || only.includes(x.k)).map(x => ({ val: x, html: btn(`<span>${PATN[x.k]}</span>：<span class="tiles">${x.use.map(y => `<b class="tile">${tileName(y)}</b>`).join('')}</span>`) }));
+const patPick = only => g => findPat(tiles(g), P(g).eighth).filter(x => !only || only.includes(x.k)).map(x => ({ val: x, html: btn(`<span>${PATN[x.k]}</span>：<span class="tiles">${x.use.map(y => `<b class="tile">${tileName(y)}</b>`).join('')}</span>`) }));
 const patBot = (g, o) => o[0];
 function cheat(g, mode) { /* 出千：自动挑一张牌换成牌池或弃牌区里有的牌，使牌型最好 */
-  const p = P(g), have = [...p.pool, ...p.mdisc]; let best = null, bv = -1;
+  const p = P(g), have = [...p.pool, ...p.mdisc]; let best = null, bv;
   const val = ts => { const f = findPat(ts); const V = { hu: 50, flush: 30, trip: 20, run: 15, pair: 6 }; return f.reduce((s, x) => s + V[x.k], 0); };
+  bv = val(p.rack); /* 不比现在好就不换，免得拆掉已有的对子 */
   p.rack.forEach((x, i) => { const cands = mode === 'suit' ? 'msp'.split('').filter(s => s !== x[0]).map(s => s + x[1]) : [x[0] + (+x[1] - 1), x[0] + (+x[1] + 1)].filter(y => +y[1] >= 1 && +y[1] <= 9);
     for (const y of cands) { if (!have.includes(y)) continue; const ts = [...p.rack]; ts[i] = y; const s = val(ts); if (s > bv) { bv = s; best = [i, y]; } } });
-  if (!best) return; const [i, y] = best, old = p.rack[i]; p.rack[i] = y; const pi = p.pool.indexOf(y); if (pi >= 0) p.pool.splice(pi, 1); else p.mdisc.splice(p.mdisc.indexOf(y), 1); p.mdisc.push(old);
+  if (!best) return false; const [i, y] = best, old = p.rack[i]; p.rack[i] = y; const pi = p.pool.indexOf(y); if (pi >= 0) p.pool.splice(pi, 1); else p.mdisc.splice(p.mdisc.indexOf(y), 1); p.mdisc.push(old); return true;
 }
+function canCheat(g, mode) { const p = P(g); if (!p.rack) return false; const save = [p.rack.slice(), p.pool.slice(), p.mdisc.slice()]; const ok = cheat(g, mode); [p.rack, p.pool, p.mdisc] = save; return !!ok; }
 const SQ = {
   q_fly: { ch: 'shenque', name: '飞牌', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_boomer', tgt: 'one', desc: u => `造成 ${v(u, 8, 11)} 点伤害。摸 1 张麻将牌。`, play: (g, u, t) => { g.attack(t, v(u, 8, 11)); drawTile(g, 1); } },
   q_tidy: { ch: 'shenque', name: '拢牌', type: 'skill', rar: 'start', cost: [1, 1], icon: 'b_armor', tgt: 'self', desc: u => `获得 ${v(u, 7, 10)} 点格挡。摸 1 张麻将牌，再弃掉最孤立的 1 张。`, play: (g, u) => { g.block(v(u, 7, 10)); const p = P(g); drawTile(g, 1, true); if (p.rack.length) { let bi = 0, bs = 1e9; p.rack.forEach((x, i) => { const s = isoScore(p.rack, x); if (s < bs) { bs = s; bi = i; } }); p.mdisc.push(p.rack.splice(bi, 1)[0]); } } },
@@ -262,18 +268,18 @@ const SQ = {
   q_toss: { ch: 'shenque', name: '顺手一甩', type: 'atk', rar: 'c', cost: [1, 1], icon: 'sk_wedge', tgt: 'one', desc: u => `造成 ${v(u, 8, 11)} 点伤害；本回合结算过顺子时，改为对所有敌人造成 8 点。`, play: (g, u, t) => { if (P(g).patT && P(g).patT.run) g.attackAll(8); else g.attack(t, v(u, 8, 11)); } },
   q_three: { ch: 'shenque', name: '三声连响', type: 'atk', rar: 'c', cost: [1, 1], icon: 'ic_drum', tgt: 'one', desc: u => `造成 ${v(u, 7, 9)} 点伤害；本回合结算过刻子时，再造成 ${v(u, 6, 8)} 点。`, play: (g, u, t) => { g.attack(t, v(u, 7, 9)); if (P(g).patT && P(g).patT.trip) g.attack(t, v(u, 6, 8)); } },
   q_keep: { ch: 'shenque', name: '留张', type: 'skill', rar: 'c', cost: [1, 1], icon: 'sk_hshield', tgt: 'self', desc: u => `获得 ${v(u, 8, 11)} 点格挡。摸 1 张麻将牌。`, play: (g, u) => { g.block(v(u, 8, 11)); drawTile(g, 1); } },
-  q_swap: { ch: 'shenque', name: '偷换一张', type: 'skill', rar: 'c', cost: [0, 0], icon: 'p_gamble', tgt: 'self', exhaust: 1, desc: u => `出千：把一张牌的点数 ±1（同一门，自动挑最好的）。${v(u, '', '获得 4 点格挡。')}消耗。`, play: (g, u) => { cheat(g); if (u) g.block(4); } },
-  q_pon: { ch: 'shenque', name: '碰一下', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_hammer', tgt: 'one', pick: patPick(['pair', 'trip']), pickT: '选择对子或刻子', bot: patBot, desc: u => `结算一个对子或刻子，抽 1 张牌。${v(u, '', '获得 4 点格挡。')}`, play: (g, u, t, c, k) => { settle(g, k, t); g.draw(1); if (u) g.block(4); } },
+  q_swap: { ch: 'shenque', can: (g, u) => u || canCheat(g), name: '偷换一张', type: 'skill', rar: 'c', cost: [0, 0], icon: 'p_gamble', tgt: 'self', exhaust: 1, desc: u => `出千：把一张牌的点数 ±1（同一门，自动挑最好的）。${v(u, '', '获得 4 点格挡。')}消耗。`, play: (g, u) => { cheat(g); if (u) g.block(4); } },
+  q_pon: { ch: 'shenque', can: g => !P(g).setT && findPat(tiles(g), P(g).eighth).some(x => x.k === 'pair' || x.k === 'trip'), name: '碰一下', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_hammer', tgt: 'one', pick: patPick(['pair', 'trip']), pickT: '选择对子或刻子', bot: patBot, desc: u => `结算一个对子或刻子，抽 1 张牌。${v(u, '', '获得 4 点格挡。')}`, play: (g, u, t, c, k) => { settle(g, k, t); g.draw(1); if (u) g.block(4); } },
   q_quick: { ch: 'shenque', name: '快摸', type: 'skill', rar: 'c', cost: [0, 0], icon: 'sk_pouch', tgt: 'self', exhaust: 1, desc: u => `摸 2 张麻将牌。${v(u, '', '获得 3 点格挡。')}消耗。`, play: (g, u) => { drawTile(g, 2); if (u) g.block(3); } },
   q_fill: { ch: 'shenque', name: '补位', type: 'atk', rar: 'c', cost: [1, 1], icon: 'ic_mine', tgt: 'one', desc: u => `造成 ${v(u, 8, 11)} 点伤害。弃掉最孤立的 1 张麻将牌，再摸 1 张。`, play: (g, u, t) => { g.attack(t, v(u, 8, 11)); const p = P(g); if (p.rack.length) { let bi = 0, bs = 1e9; p.rack.forEach((x, i) => { const s = isoScore(p.rack, x); if (s < bs) { bs = s; bi = i; } }); p.mdisc.push(p.rack.splice(bi, 1)[0]); } drawTile(g, 1); } },
-  q_guard: { ch: 'shenque', name: '护对子', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_barrier', tgt: 'self', desc: u => `获得 ${v(u, 8, 10)} 点格挡；牌架里有对子时再获得 ${v(u, 4, 5)} 点。`, play: (g, u) => g.block(v(u, 8, 10) + (findPat(tiles(g)).some(x => x.k === 'pair' || x.k === 'trip') ? v(u, 4, 5) : 0)) },
+  q_guard: { ch: 'shenque', name: '护对子', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_barrier', tgt: 'self', desc: u => `获得 ${v(u, 8, 10)} 点格挡；牌架里有对子时再获得 ${v(u, 4, 5)} 点。`, play: (g, u) => g.block(v(u, 8, 10) + (findPat(tiles(g), P(g).eighth).some(x => x.k === 'pair' || x.k === 'trip') ? v(u, 4, 5) : 0)) },
   q_door: { ch: 'shenque', name: '换门', type: 'skill', rar: 'u', cost: [1, 1], icon: 'ic_vortex', tgt: 'self', desc: u => `出千：把一张牌换成同点数的另一门（自动挑最好的）。获得 ${v(u, 5, 8)} 点格挡。`, play: (g, u) => { cheat(g, 'suit'); g.block(v(u, 5, 8)); } },
-  q_rush: { ch: 'shenque', name: '冲刻', type: 'atk', rar: 'u', cost: [1, 1], icon: 'sk_fist', tgt: 'one', desc: u => `造成 ${v(u, 7, 10)} 点伤害。有刻子时立刻结算它（算本回合的一次结算）。`, play: (g, u, t) => { g.attack(t, v(u, 7, 10)); const tp = findPat(tiles(g)).find(x => x.k === 'trip'); if (tp && !P(g).setT) settle(g, tp, t); } },
+  q_rush: { ch: 'shenque', name: '冲刻', type: 'atk', rar: 'u', cost: [1, 1], icon: 'sk_fist', tgt: 'one', desc: u => `造成 ${v(u, 7, 10)} 点伤害。有刻子时立刻结算它（算本回合的一次结算）。`, play: (g, u, t) => { g.attack(t, v(u, 7, 10)); const tp = findPat(tiles(g), P(g).eighth).find(x => x.k === 'trip'); if (tp && !P(g).setT) settle(g, tp, t); } },
   q_dealer: { ch: 'shenque', name: '连庄', type: 'power', rar: 'u', cost: [1, 1], icon: 'ic_hexa', tgt: 'self', desc: u => `每回合第一次结算牌型后，摸 1 张麻将牌${v(u, '', '，获得 3 点格挡')}。`, play: (g, u) => { P(g).st.renzhuang = u ? 2 : 1; } },
-  q_wait: { ch: 'shenque', name: '听口', type: 'skill', rar: 'u', cost: [1, 1], icon: 'p_mag', tgt: 'self', pick: g => { const p = P(g); if (!p.pool.length) { p.pool = shuf(p.mdisc); p.mdisc = []; } return p.pool.slice(-3).reverse().map((x, i) => ({ val: x, html: btn(`<b class="tile">${tileName(x)}</b>`) })); }, pickT: '选择收进牌架的牌', desc: u => `看牌池接下来的 ${v(u, 3, 4)} 张，选 1 张收进牌架，其余弃掉。获得 6 点格挡。`, play: (g, u, t, c, k) => { const p = P(g), n = v(u, 3, 4), top = p.pool.splice(-Math.min(n, p.pool.length)); const i = k ? top.indexOf(k) : top.length - 1; const pick = top.splice(i >= 0 ? i : top.length - 1, 1)[0]; if (pick) { p.rack.push(pick); p.lastT = pick; } p.mdisc.push(...top); mjDiscard(g); g.block(6); } },
-  q_table: { ch: 'shenque', name: '开桌', type: 'skill', rar: 'u', cost: [1, 1], icon: 'box', tgt: 'one', pick: patPick(), pickT: '选择要结算的牌型', bot: patBot, desc: u => `结算一个牌型；用掉至少 5 张时，抽 2 张牌。${v(u, '', '获得 4 点格挡。')}`, play: (g, u, t, c, k) => { const r = settle(g, k, t); if (r && r.use.length >= 5) g.draw(2); if (u) g.block(4); } },
+  q_wait: { ch: 'shenque', name: '听口', type: 'skill', rar: 'u', cost: [1, 1], icon: 'p_mag', tgt: 'self', noCancel: 1, pick: (g, u) => { const p = P(g); if (p.pool.length < 4) { p.pool = shuf(p.mdisc).concat(p.pool); p.mdisc = []; } return p.pool.slice(-v(u, 3, 4)).reverse().map((x, i) => ({ val: x, html: btn(`<b class="tile">${tileName(x)}</b>`) })); }, pickT: '选择收进牌架的牌', desc: u => `看牌池接下来的 ${v(u, 3, 4)} 张，选 1 张收进牌架，其余弃掉。获得 6 点格挡。`, play: (g, u, t, c, k) => { const p = P(g), n = v(u, 3, 4), top = p.pool.splice(-Math.min(n, p.pool.length)); const i = k ? top.indexOf(k) : top.length - 1; const pick = top.splice(i >= 0 ? i : top.length - 1, 1)[0]; if (pick) { p.rack.push(pick); p.lastT = pick; } p.mdisc.push(...top); mjDiscard(g); g.block(6); } },
+  q_table: { ch: 'shenque', can: (g, u) => u || (!P(g).setT && findPat(tiles(g), P(g).eighth).length > 0), name: '开桌', type: 'skill', rar: 'u', cost: [1, 1], icon: 'box', tgt: 'one', pick: patPick(), pickT: '选择要结算的牌型', bot: patBot, desc: u => `结算一个牌型；用掉至少 5 张时，抽 2 张牌。${v(u, '', '获得 4 点格挡。')}`, play: (g, u, t, c, k) => { const r = settle(g, k, t); if (r && r.use.length >= 5) g.draw(2); if (u) g.block(4); } },
   q_combo: { ch: 'shenque', name: '摸打连手', type: 'atk', rar: 'u', cost: [1, 1], icon: 'p_crit', tgt: 'all', desc: u => `对所有敌人造成 ${v(u, 5, 7)} 点伤害；本回合摸过至少 4 张麻将牌时，打两次。`, play: (g, u) => g.attackAll(v(u, 5, 7), (P(g).drawnT || 0) >= 4 ? 2 : 1) },
-  q_last: { ch: 'shenque', name: '绝张', type: 'skill', rar: 'r', cost: [2, 1], icon: 'p_exec', tgt: 'self', exhaust: 1, pick: g => { const p = P(g), have = new Set([...p.pool, ...p.mdisc]), want = new Set(); for (const x of p.rack) { want.add(x); for (const d of [-2, -1, 1, 2]) { const n = +x[1] + d; if (n >= 1 && n <= 9) want.add(x[0] + n); } } return [...want].filter(x => have.has(x)).slice(0, 12).map(x => ({ val: x, html: btn(`<b class="tile">${tileName(x)}</b>`) })); }, pickT: '指定一张牌', desc: () => `指定一种牌，从牌池或弃牌区拿 1 张到牌架。消耗。`, play: (g, u, t, c, k) => { const p = P(g); if (!k) return; let i = p.pool.indexOf(k); if (i >= 0) p.pool.splice(i, 1); else { i = p.mdisc.indexOf(k); if (i < 0) return; p.mdisc.splice(i, 1); } p.rack.push(k); p.lastT = k; mjDiscard(g); } },
+  q_last: { ch: 'shenque', name: '绝张', type: 'skill', rar: 'r', cost: [2, 1], icon: 'p_exec', tgt: 'self', exhaust: 1, pick: g => { const p = P(g), have = new Set([...p.pool, ...p.mdisc]), want = new Set(); for (const x of p.rack) { want.add(x); for (const d of [-2, -1, 1, 2]) { const n = +x[1] + d; if (n >= 1 && n <= 9) want.add(x[0] + n); } } return [...want].filter(x => have.has(x)).slice(0, 12).map(x => ({ val: x, html: btn(`<b class="tile">${tileName(x)}</b>`) })); }, pickT: '指定一张牌', can: g => { const p = P(g); return !!(p.rack && p.rack.length); }, noCancel: 1, desc: () => `指定一张牌架上已有的牌或同一门前后两点内的牌，从牌池或弃牌区拿 1 张到牌架。消耗。`, play: (g, u, t, c, k) => { const p = P(g); if (!k) return; let i = p.pool.indexOf(k); if (i >= 0) p.pool.splice(i, 1); else { i = p.mdisc.indexOf(k); if (i < 0) return; p.mdisc.splice(i, 1); } p.rack.push(k); p.lastT = k; mjDiscard(g); } },
   q_sanyuan: { ch: 'shenque', name: '大三元', type: 'power', rar: 'r', cost: [2, 1], icon: 'm_crown', tgt: 'self', desc: () => `每回合第一个刻子额外造成 7 点伤害，第一个顺子额外获得 6 点格挡。`, play: g => { P(g).st.sanyuan = 1; } },
   q_menzen: { ch: 'shenque', name: '门前清', type: 'power', rar: 'r', cost: [1, 1], icon: 'p_luck', tgt: 'self', desc: u => `清一色或小胡额外对所有敌人造成 ${v(u, 5, 8)} 点伤害；每场第一次小胡后得到 2 点能量。`, play: (g, u) => { P(g).st.menzen = v(u, 5, 8); } },
 };
@@ -333,11 +339,12 @@ export const MECH = {
     if (c === 'sylvie' && g.has('eggshard')) gainDB(g, 2);
     if (c === 'mia' && g.has('catbell')) { R.cat = R.cat || { lv: 1, pts: 0 }; const L = CATLV[R.cat.lv]; p.cat = { hp: L.max, max: L.max, atk: L.atk, cmd: 'guard', set: 0, did: {}, took: 0 }; }
     if (c === 'feiyue' && g.has('ribbon')) p.st.vblood = 2;
-    if (c === 'shenque' && g.has('mjbox')) { p.pool = []; for (const s of 'msp') for (let n = 1; n <= 9; n++) p.pool.push(s + n, s + n); p.pool = shuf(p.pool); p.rack = []; p.mdisc = []; drawTile(g, 2); }
+    if (c === 'shenque' && g.has('mjbox')) { p.pool = []; for (const s of 'msp') for (let n = 1; n <= 9; n++) p.pool.push(s + n, s + n, s + n); p.pool = shuf(p.pool); p.rack = []; p.mdisc = []; drawTile(g, 2); }
   },
   turnStart(g, first) { const p = P(g);
-    for (const k of ['invN', 'gateT', 'noteT', 'spells', 'windT', 'mtnT', 'windDisc', 'mtnB', 'dualT', 'combo', 'burnT', 'qiT', 'frostT', 'donT', 'vpT', 'vowT', 'vdT', 'setT', 'patT', 'syT', 'syR', 'rzT', 'drawnT', 'eighth', 'avT', 'drHit']) delete p[k];
-    if (g.R.char === 'gu' && !first) gainQi(g, 1);
+    for (const k of ['invN', 'gateT', 'noteT', 'spells', 'windT', 'mtnT', 'windDisc', 'mtnB', 'dualT', 'combo', 'burnT', 'qiT', 'frostT', 'donT', 'vpT', 'vowT', 'vdT', 'setT', 'patT', 'syT', 'syR', 'rzT', 'drawnT', 'avT', 'drHit', 'crT']) delete p[k];
+    if (p.eighth) { p.mdisc.push(p.eighth); p.eighth = null; }
+    if (g.R.char === 'gu') gainQi(g, 1);
     delete p.st.frost;
     if (p.st.dragon && !first) { p.st.dragon--; if (!p.st.dragon) { delete p.st.dragon; if (g.has('dayscale') && !p.dsU) { p.dsU = 1; gainDB(g, 3); } else g.self('weak', 1); if (p.st.wake) { g.draw(2); g.block(5, true); if (p.st.wake > 1) g.energy(1); } } }
     if (p.manualD) { g.draw(2); p.manualD = 0; }
@@ -347,16 +354,16 @@ export const MECH = {
   },
   /* 玩家回合结束、敌人行动前 */
   turnEnd(g) { const p = P(g), c = p.cat;
-    if (c && !c.down) { const did = k => { if (!c.did[k]) { c.did[k] = 1; if (p.st.mjump) g.block(p.st.mjump, true); if (Object.keys(c.did).length >= 2 && g.has('lynx') && !p.lynxU) { p.lynxU = 1; p.lynxD = 1; } } };
-      if (c.cmd === 'pounce') { const a = g.alive(), t = a.find(e => e.id === c.pt) || a[0]; if (t) { p.fh = 0; if (c.big) g.attack(t, c.big, 2); else g.attack(t, c.atk + (c.pB || 0)); } did('pounce'); }
+    if (c && !c.down) { const did = k => catDid(g, k);
+      if (c.cmd === 'pounce') { const a = g.alive(), t = a.find(e => e.id === c.pt) || a[0]; if (t) { p.fh = 0; if (c.big) g.attack(t, c.big + (c.pB || 0), 2); else g.attack(t, c.atk + (c.pB || 0)); } did('pounce'); }
       else if (c.cmd === 'rest') { let n = 3 + (c.rB || 0); if (g.has('catbed') && !p.bedU) { p.bedU = 1; n += 4; } healCat(g, n); did('rest'); }
-      else if (c.cmd === 'guard') { c.guardOn = 1; did('guard'); } }
+      else if (c.cmd === 'guard') c.guardOn = 1; }
     if (bats(g)) { const t = markT(g); if (t) t.st.scar = Math.min(4, (t.st.scar || 0) + bats(g)); }
     p.ePhase = 1;
   },
   /* 敌人攻击打到玩家：格挡之前（团子护卫） */
   preBlock(g, amt, e) { const p = P(g), c = p.cat;
-    if (c && !c.down && c.cmd === 'guard' && c.guardOn && amt > 0) { c.guardOn = 0; const capN = 6 + (c.gB || 0) + (p.st.mgate ? 3 : 0), k = Math.min(amt, capN, c.hp); if (k > 0) { const hurtC = Math.max(0, k - (c.sR || 0)); c.hp -= hurtC; c.tookN = (c.tookN || 0) + k; amt -= k; g.note(`团子挡下 ${k}`); if (hurtC > 0 && p.st.mgate) p.gateD = 1; if (c.hp <= 0) { c.hp = 0; c.down = 1; g.note('团子倒下了'); } } }
+    if (c && !c.down && c.cmd === 'guard' && c.guardOn && amt > 0) { c.guardOn = 0; const capN = 6 + (c.gB || 0) + (p.st.mgate ? 3 : 0), k = Math.min(amt, capN, c.hp); if (k > 0) { const hurtC = Math.max(0, k - (c.sR || 0)); c.hp -= hurtC; c.tookN = (c.tookN || 0) + k; amt -= k; catDid(g, 'guard'); g.note(`团子挡下 ${k}`); if (hurtC > 0 && p.st.mgate) p.gateD = 1; if (c.hp <= 0) { c.hp = 0; c.down = 1; g.note('团子倒下了'); } } }
     return amt; },
   /* 格挡之后（霜龙减伤、霜甲） */
   postBlock(g, left, e) { const p = P(g); if (left <= 0) return left;
@@ -398,5 +405,5 @@ export const MECH = {
     if (p.el) out.push({ h: `${p.el.map(x => `<span class="el el${EL.indexOf(x)}">${x}</span>`).join('')} ➜ <span>${(NEWCARDS[RECIPE[elKey(p.el)]] || {}).name || ''}</span>`, c: '#ffb070', tip: '元素位：祈唤会得到箭头后面的法术' });
     if (p.cat) out.push({ h: p.cat.down ? '<span>团子倒地</span>' : `<span>团子</span> ${p.cat.hp}/${p.cat.max} · <span>${{ guard: '护卫', pounce: '扑击', rest: '休息' }[p.cat.cmd]}</span>`, c: '#ffc0e0', tip: `团子 ${g.R.cat ? g.R.cat.lv : 1} 级，攻击 ${p.cat.atk}` });
     return out; },
-  rack(g) { const p = P(g); if (!p.rack) return null; const sorted = [...p.rack].sort(); return { tiles: sorted.map(tileName), eighth: p.eighth ? tileName(p.eighth) : null, pats: findPat(tiles(g)).map(x => PATN[x.k]), pool: p.pool.length, set: !!p.setT }; },
+  rack(g) { const p = P(g); if (!p.rack) return null; const sorted = [...p.rack].sort(); return { tiles: sorted.map(tileName), eighth: p.eighth ? tileName(p.eighth) : null, pats: findPat(tiles(g), P(g).eighth).map(x => PATN[x.k]), pool: p.pool.length, set: !!p.setT }; },
 };

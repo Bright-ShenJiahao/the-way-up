@@ -24,17 +24,18 @@ const atkVal = (s, t, b, m = 1) => { let d = (b + (s.st.str || 0) * m) * (s.d ? 
 function hurt(t, amt, att, direct = true) {
   const isP = t === B.p; if (!isP && t.st.aegis) return 0; if (!isP && t.d && t.d.undead && has('silvercross')) amt = Math.floor(amt * 1.25); if (!isP && t.st.intang) amt = Math.ceil(amt / 2); if (!isP && t.st.fly) { amt = Math.ceil(amt / 2); addSt(t, 'fly', -1); if (!t.st.fly) t.grounded = 1; } if (!isP && att === B.p && direct) t.hitT = 1;
   const eAtk = isP && att && att !== B.p; if (eAtk) amt = MECH.preBlock(G, amt, att); const u = Math.min(t.block, amt); t.block -= u; let left = amt - u; if (eAtk) left = MECH.postBlock(G, left, att);
+  const hpLost = isP ? left : Math.min(left, Math.max(0, t.hp));
   if (isP) R.hp -= left; else t.hp -= left;
   if (att && t.st.thorns && att !== t) hurt(att, t.st.thorns);
   if (!isP && t.hp <= 0 && !t.dead) killE(t);
   if (!isP && !t.dead && left > 0 && t.d.onHurt) t.d.onHurt(t, BE);
-  if (!isP && !t.dead && t.key === 'gob_wolf' && t.hp <= t.max / 2) { t.key = 'wolf'; t.d = ENEMIES.wolf; t.move = t.d.ai(t, BE); const g = mkE('goblin'); g.hp = g.max = 8; g.move = g.d.ai(g, BE); B.en.push(g); }
+  if (!isP && !t.dead && t.key === 'gob_wolf' && t.hp <= t.max / 2) { t.key = 'wolf'; t.d = ENEMIES.wolf; t.max = Math.max(t.hp, ENEMIES.wolf.hp[1]); t.move = t.d.ai(t, BE); const g = mkE('goblin'); g.hp = g.max = 8; g.move = g.d.ai(g, BE); B.en.splice(B.en.indexOf(t) + 1, 0, g); }
   if (isP) pDeath();
-  return left;
+  return hpLost;
 }
 function killE(e) { e.dead = true; e.hp = 0; R.kills++; if (!e.rewarded && !e.fled) { e.rewarded = 1; if (has('fang')) heal(3); if (has('wolffang')) addSt(B.p, 'str', 1); if (B && B.p.st.chain) { G.ammo(3 * B.p.st.chain); drawCards(B.p.st.chain); } } const od = CARDS && e.d.onDie; if (od && !e.fled) od(e, BE); }
 function pDeath() { if (R.hp > 0) return; const i = R.pots.indexOf('fairy'); if (i >= 0) { R.pots.splice(i, 1); R.hp = Math.floor(R.maxHp * .3); return; } if (has('feather') && !R.feather) { R.feather = 1; R.hp = Math.floor(R.maxHp * .3); } }
-const heal = n => { R.hp = Math.min(R.maxHp, R.hp + n); };
+const heal = n => { if (n <= 0 || R.hp <= 0) return 0; const k = Math.min(n, R.maxHp - R.hp); R.hp += k; return k; };
 function boom(t) { const d = 20 + (B.p.st.dist ? 8 : 0) + (has('mic') ? 6 : 0); t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0); hurt(t, d); if (has('metro') && !B.p.metroUsed) { B.p.metroUsed = 1; B.p.energy++; } }
 function drawCards(n) { for (let i = 0; i < n; i++) { if (B.p.noDraw || B.hand.length >= 10) return; if (!B.draw.length) { if (!B.disc.length) return; B.draw = shuffle(B.disc); B.disc = []; } B.hand.push(B.draw.pop()); } }
 const G = {
@@ -81,10 +82,10 @@ const BE = {
 };
 let eid = 1;
 function mkE(key) { const d = ENEMIES[key], hm = 1 + (A_(1) && d.elite ? .15 : 0) + (A_(2) && !d.elite && !d.boss ? .1 : 0) + (A_(6) && d.boss ? .15 : 0), hp = Math.round(rnd(d.hp[0], d.hp[1]) * hm * (R.act === 2 ? RULES.act2Mul : 1)); const e = { key, d, hp, max: hp, dmul: (1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0)) * (R.act === 2 ? RULES.act2Mul : 1), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++ }; d.init && d.init(e); return e; }
-const cost0 = c => { const d = CARDS[c.id]; if (c.free) return 0; if (c.rc != null) return c.rc; return d.cost[c.up ? 1 : 0]; };
+const cost0 = c => { const d = CARDS[c.id]; if (c.free) return 0; if (c.rc != null) return c.rc; const k = d.cost[c.up ? 1 : 0]; return c.disc && k !== 'X' ? Math.max(0, k - 1) : k; };
 const cost = c => { const k = cost0(c); return B && typeof k === 'number' ? Math.max(0, k + MECH.costMod(G, CARDS[c.id])) : k; };
 function startTurn(first) {
-  B.turn++; if (R.act === 2 && B.turn === RULES.bloodTurn) alive().filter(e => e.d.undead).forEach(e => addSt(e, 'str', RULES.bloodStr)); B.forceEnd = 0; [...B.draw, ...B.disc, ...B.hand].forEach(c => delete c.rc); B.p.block = 0;
+  B.turn++; B.forceEnd = 0; [...B.draw, ...B.disc, ...B.hand].forEach(c => delete c.rc); B.p.block = 0;
   B.p.energy = 3 + (has('crown') ? 1 : 0) + (first && has('hourglass') ? 1 : 0); B.p.noDraw = 0; B.p.disc = 0;
   B.p.pot = 0; if (first && has('cauldron')) G.potion(1); if (B.p.st.satchel && B.turn % 2 === 1) G.potion(B.p.st.satchel);
   if (B.p.st.plague) alive().forEach(e => G.poison(e, B.p.st.plague));
@@ -95,6 +96,7 @@ function startTurn(first) {
   drawCards(5 + (first && has('scroll') ? 2 : 0));
   if (B.p.st.confuse) { B.hand.forEach(c => { if (typeof cost(c) === 'number') c.rc = rnd(0, 3); }); addSt(B.p, 'confuse', -1); }
   MECH.turnStart(G, first);
+  if (first && has('dice')) { const cs = B.hand.filter(c => typeof cost(c) === 'number' && cost(c) >= 1); if (cs.length) pickOne(cs).disc = 1; }
 }
 function postPlay(d) { /* 打出一张牌后的通用结算（狡诈自动打出也走这里） */
   MECH.postPlay(G, d);
@@ -105,10 +107,10 @@ function postPlay(d) { /* 打出一张牌后的通用结算（狡诈自动打出
     if (B.p.st.concert && (B.p.cplays = (B.p.cplays || 0) + 1) <= 4) G.resAll(B.p.st.concert);
 }
 function play(i, t) {
-  const c = B.hand[i], d = CARDS[c.id]; if (d.unplay) return false; let k = cost(c); if (k === 'X') k = B.p.energy; if (k > B.p.energy) return false;
+  const c = B.hand[i], d = CARDS[c.id]; if (d.unplay || (d.can && !d.can(G, c.up))) return false; let k = cost(c); if (k === 'X') k = B.p.energy; if (k > B.p.energy) return false;
   if (d.tgt === 'one' && !t) t = alive().sort((a, b) => a.hp - b.hp)[0];
   B.p.energy -= k; G.x = k; B.hand.splice(i, 1);
-  let pk; if (d.pick) { const opts = d.pick === 1 ? B.hand.map(x => ({ val: x.uid, c: x })) : d.pick(G); if (opts.length) pk = (d.bot ? d.bot(G, opts) : botPick(opts)).val; }
+  let pk; if (d.pick) { const opts = d.pick === 1 ? B.hand.map(x => ({ val: x.uid, c: x })) : d.pick(G, c.up); if (opts.length) pk = (d.bot ? d.bot(G, opts) : botPick(opts)).val; }
   B.p.fh = d.type === 'atk' ? 1 : 0; d.play(G, c.up, t, c, pk); delete c.rc; B.p.fh = 0;
   postPlay(d);
   if (d.type !== 'power') (d.exhaust ? B.exh : B.disc).push(c);
@@ -134,7 +136,7 @@ function usePots() {
 function botTurn() { usePots(); if (!alive().length) return; MECH.bot(G, incoming() - B.p.block);
   for (let guard = 0; guard < 30 && alive().length; guard++) {
     const need = incoming() - B.p.block;
-    const opts = B.hand.map((c, i) => ({ c, i, d: CARDS[c.id], k: cost(c) === 'X' ? B.p.energy : cost(c) })).filter(o => !o.d.unplay && o.k <= B.p.energy && !(o.k === 'X' && B.p.energy === 0));
+    const opts = B.hand.map((c, i) => ({ c, i, d: CARDS[c.id], k: cost(c) === 'X' ? B.p.energy : cost(c) })).filter(o => !o.d.unplay && (!o.d.can || o.d.can(G, o.c.up)) && o.k <= B.p.energy && !(o.k === 'X' && B.p.energy === 0));
     if (!opts.length) break;
     const hpLeft = alive().reduce((m, e) => m + e.hp + e.block, 0), dmgHand = opts.filter(o => o.d.type === 'atk').reduce((m, o) => m + estDmg(o), 0), lethal = dmgHand >= hpLeft;
     const sc = o => { const d = o.d; let s = 0;
@@ -164,12 +166,12 @@ function botTurn() { usePots(); if (!alive().length) return; MECH.bot(G, incomin
     opts.sort((a, b) => sc(b) - sc(a));
     const o = opts[0]; if (sc(o) <= 0) break;
     let t = null; if (o.d.tgt === 'one') { const a = alive(); t = ['crack', 'high', 'wave'].includes(o.d.id) ? a.sort((x, y) => (y.st.res || 0) - (x.st.res || 0))[0] : ['deadly', 'catalyst'].includes(o.d.id) ? a.sort((x, y) => (y.st.poison || 0) - (x.st.poison || 0))[0] : a.sort((x, y) => x.hp - y.hp)[0]; }
-    play(o.i, t); if (R.hp <= 0 || B.forceEnd) return;
+    play(o.i, t); if (R.hp <= 0 || B.forceEnd) return; MECH.bot(G, incoming() - B.p.block);
   }
 }
 function endTurn() {
   if (B.p.st.ammo) G.volley(true); if (!alive().length) return;
-  for (const c of B.hand) if (CARDS[c.id].burn) R.hp -= CARDS[c.id].burn; pDeath(); if (R.hp <= 0) return;
+  for (const c of B.hand) if (CARDS[c.id].burn) { R.hp -= CARDS[c.id].burn; pDeath(); } if (R.hp <= 0) return;
   MECH.turnEnd(G); if (!alive().length) return;
   for (const c of B.hand) (CARDS[c.id].ethereal ? B.exh : B.disc).push(c); B.hand = [];
   if (B.p.st.metal) G.block(B.p.st.metal, true); if (B.p.st.regen && (B.p.regenN = (B.p.regenN || 0) + 1) <= 3) heal(B.p.st.regen);
@@ -188,7 +190,7 @@ function endTurn() {
     e.hist.push(e.move); e.d.after && e.d.after(e);
   }
   for (const k of ['vuln', 'weak']) if (pre[k] && B.p.st[k]) addSt(B.p, k, -1);
-  if (R.act === 2 && B.turn === 5 && !B.bloodMoon) { B.bloodMoon = 1; alive().filter(e => e.d.undead).forEach(e => addSt(e, 'str', 1)); }
+  if (R.act === 2 && B.turn === RULES.bloodTurn && !B.bloodMoon) { B.bloodMoon = 1; alive().filter(e => e.d.undead).forEach(e => addSt(e, 'str', RULES.bloodStr)); }
   for (const e of alive()) { if (e.st.ritual) addSt(e, 'str', e.st.ritual); if (isFury(e.turn)) addSt(e, 'str', 1); for (const k of ['vuln', 'weak']) if (e.st[k]) addSt(e, k, -1); e.turn++; e.move = e.d.ai(e, BE); }
 }
 let TIMEOUT = 0;
