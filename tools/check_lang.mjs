@@ -18,3 +18,4 @@ for (const s of Object.values(D.STATUS)) { add(s[0]); add(s[1]); }
 for (const ev of [...D.EVENTS, ...D.EVENTS2]) { add(ev.title); add(ev.text); for (const o of ev.opts) add(o.t); }
 for (const s of need) { const k = split(s); if (!(s in EN) && !(k in EN)) { console.log('数据缺翻译:', k); bad++; } }
 console.log(bad ? `共 ${bad} 处问题` : `OK：${ek.length} 个 key，en / ja 一致，数据全部有翻译`);
+if (bad) process.exitCode = 1;

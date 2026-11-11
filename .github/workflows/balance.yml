@@ -2,8 +2,9 @@ name: balance
 on:
   workflow_dispatch:
     inputs:
-      n: { description: '每个角色每档局数', default: '1000' }
+      n: { description: '每个角色每档局数（至少 200）', default: '1000' }
       lock: { description: '解锁档 0-4', default: '4' }
+      asc: { description: '进阶难度 0-8', default: '0' }
   push:
     branches: [preview]
     paths: ['src/data.js', 'tools/sim.mjs']
@@ -17,12 +18,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ch: [miko, hero, witch, heroine]
+        ch: [miko, hero, witch, heroine, erin, gu, sylvie, mia, feiyue, shenque]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
-      - run: node tools/sim.mjs ${{ inputs.n || '1000' }} ${{ inputs.lock || '4' }} ${{ matrix.ch }} | tee -a $GITHUB_STEP_SUMMARY
+      - run: node tools/sim.mjs ${{ inputs.n || '1000' }} ${{ inputs.lock || '4' }} ${{ matrix.ch }} ${{ inputs.asc || '0' }} | tee -a $GITHUB_STEP_SUMMARY
       - run: mv data/balance.md data/balance_${{ matrix.ch }}.md
       - uses: actions/upload-artifact@v4
         with: { name: 'bal-${{ matrix.ch }}', path: 'data/balance_${{ matrix.ch }}.md' }
@@ -31,11 +32,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
       - uses: actions/download-artifact@v4
         with: { path: parts, merge-multiple: true }
       - name: 合并并提交回 preview
         run: |
-          cat parts/balance_*.md > data/balance.md; cat data/balance.md >> $GITHUB_STEP_SUMMARY
+          cp data/balance.md /tmp/old_balance.md 2>/dev/null || true
+          node -e "const fs=require('fs');const fs2=fs.readdirSync('parts').sort();let head='',body={novice:[],smart:[]};for(const f of fs2){const t=fs.readFileSync('parts/'+f,'utf8').split('\n');head=head||t.slice(0,5).join('\n');let sec='';for(const l of t){if(l.startsWith('## '))sec=l.includes('熟练')?'smart':'novice';else if(/^\| [a-z]/.test(l)&&!l.startsWith('| 角色'))body[sec].push(l);}}const th='| 角色 | 第一章通关 | 第二章通关 | 第一章 Boss 战胜率 | 第二章通关剩余生命 | 超时 | 最常死在 |\n|---|---|---|---|---|---|---|';fs.writeFileSync('data/balance.md',head+'\n\n## 新手机器人\n\n'+th+'\n'+body.novice.join('\n')+'\n\n## 熟练机器人（≈ 真人）\n\n'+th+'\n'+body.smart.join('\n')+'\n')"
+          cat data/balance.md >> $GITHUB_STEP_SUMMARY
           git config user.name "balance-bot"; git config user.email "bot@users.noreply.github.com"
-          git add data/balance.md; git commit -m "平衡测试结果 [skip ci]" || exit 0
+          git add data/balance.md; git commit -m "平衡测试结果 [skip ci]" || true
           git pull --rebase origin preview && git push origin HEAD:preview
+      - name: 回归门禁（掉超过 5 个百分点就标红）
+        run: node tools/gate.mjs /tmp/old_balance.md data/balance.md | tee -a $GITHUB_STEP_SUMMARY; exit ${PIPESTATUS[0]}

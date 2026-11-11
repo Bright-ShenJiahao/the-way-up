@@ -1,0 +1,1798 @@
+{
+ "打击": [
+  "Strike",
+  "ストライク"
+ ],
+ "火种": [
+  "Ember",
+  "火種"
+ ],
+ "水纹": [
+  "Ripple",
+  "波紋"
+ ],
+ "初阶祈唤": [
+  "Basic Invoke",
+  "初級祈唤"
+ ],
+ "追风针": [
+  "Wind Needle",
+  "追風針"
+ ],
+ "蒸汽弹": [
+  "Steam Shot",
+  "蒸気弾"
+ ],
+ "三色光": [
+  "Tricolor Ray",
+  "三色光"
+ ],
+ "冰幕": [
+  "Ice Veil",
+  "氷幕"
+ ],
+ "点火": [
+  "Ignite",
+  "点火"
+ ],
+ "换向": [
+  "Veer",
+  "転向"
+ ],
+ "调和": [
+  "Attune",
+  "調和"
+ ],
+ "防御咏唱": [
+  "Warding Chant",
+  "防御詠唱"
+ ],
+ "双轨射线": [
+  "Twin Beam",
+  "双軌光線"
+ ],
+ "纯相爆发": [
+  "Pure Burst",
+  "純相爆発"
+ ],
+ "回填": [
+  "Refill",
+  "埋め戻し"
+ ],
+ "临场变式": [
+  "Improvise",
+  "臨機変式"
+ ],
+ "分流": [
+  "Divert",
+  "分流"
+ ],
+ "元素笔记": [
+  "Elemental Notes",
+  "元素ノート"
+ ],
+ "复写仪式": [
+  "Rewrite Rite",
+  "複写の儀"
+ ],
+ "三相冠冕": [
+  "Triune Crown",
+  "三相の冠"
+ ],
+ "四季轮转": [
+  "Turning Seasons",
+  "四季巡り"
+ ],
+ "陨星": [
+  "Meteor",
+  "隕星"
+ ],
+ "蒸爆": [
+  "Steam Blast",
+  "蒸爆"
+ ],
+ "火旋": [
+  "Fire Whirl",
+  "火旋"
+ ],
+ "暖流": [
+  "Warm Current",
+  "暖流"
+ ],
+ "虹闪": [
+  "Prism Flash",
+  "虹閃"
+ ],
+ "炎矢": [
+  "Flame Arrows",
+  "炎矢"
+ ],
+ "冰镜": [
+  "Ice Mirror",
+  "氷鏡"
+ ],
+ "寒雾": [
+  "Chill Fog",
+  "寒霧"
+ ],
+ "踏浪": [
+  "Wave Step",
+  "波乗り"
+ ],
+ "风门": [
+  "Wind Gate",
+  "風門"
+ ],
+ "收剑式": [
+  "Sheathing Cut",
+  "納刀の型"
+ ],
+ "吐纳": [
+  "Breathing",
+  "吐納"
+ ],
+ "易势": [
+  "Shift Stance",
+  "構え替え"
+ ],
+ "归鞘": [
+  "Return to Sheath",
+  "帰鞘"
+ ],
+ "指剑": [
+  "Finger Sword",
+  "指剣"
+ ],
+ "风过松": [
+  "Wind Through Pines",
+  "松風"
+ ],
+ "断崖": [
+  "Cliff Split",
+  "断崖"
+ ],
+ "守中": [
+  "Hold Center",
+  "守中"
+ ],
+ "焚脉": [
+  "Burning Veins",
+  "焚脈"
+ ],
+ "绵掌": [
+  "Soft Palm",
+  "綿掌"
+ ],
+ "运气": [
+  "Channel Qi",
+  "運気"
+ ],
+ "并指三剑": [
+  "Triple Sword Sign",
+  "三剣指"
+ ],
+ "长空落剑": [
+  "Falling Sky Swords",
+  "長空落剣"
+ ],
+ "回马势": [
+  "Turning Horse",
+  "回馬の構え"
+ ],
+ "雪径连斩": [
+  "Snowpath Combo",
+  "雪径連斬"
+ ],
+ "震山掌": [
+  "Mountain Shaker",
+  "震山掌"
+ ],
+ "气走周天": [
+  "Qi Circulation",
+  "気の周天"
+ ],
+ "万剑归一": [
+  "Myriad Swords",
+  "万剣帰一"
+ ],
+ "逆行经脉": [
+  "Reverse Meridians",
+  "逆行経脈"
+ ],
+ "双势归元": [
+  "Twin Stance Unity",
+  "双勢帰元"
+ ],
+ "霜枪": [
+  "Frost Lance",
+  "霜槍"
+ ],
+ "鳞守": [
+  "Scale Guard",
+  "鱗守り"
+ ],
+ "龙脉吐纳": [
+  "Dragon Breathing",
+  "竜脈吐納"
+ ],
+ "裂冰": [
+  "Ice Crack",
+  "裂氷"
+ ],
+ "逆鳞刺": [
+  "Reverse Scale Thrust",
+  "逆鱗突き"
+ ],
+ "横扫冰原": [
+  "Glacier Sweep",
+  "氷原薙ぎ"
+ ],
+ "结霜": [
+  "Rime",
+  "結霜"
+ ],
+ "借寒": [
+  "Borrow Cold",
+  "借寒"
+ ],
+ "凝息": [
+  "Held Breath",
+  "凝息"
+ ],
+ "冰下潜行": [
+  "Under the Ice",
+  "氷下潜行"
+ ],
+ "晶碎": [
+  "Crystal Shatter",
+  "晶砕"
+ ],
+ "龙爪二式": [
+  "Dragon Claw II",
+  "竜爪二式"
+ ],
+ "血脉回响": [
+  "Bloodline Echo",
+  "血脈の残響"
+ ],
+ "冰棺": [
+  "Ice Coffin",
+  "氷棺"
+ ],
+ "收鳞": [
+  "Gather Scales",
+  "鱗収め"
+ ],
+ "龙吼": [
+  "Dragon Roar",
+  "竜吼"
+ ],
+ "冰晶脊": [
+  "Crystal Spine",
+  "氷晶の背"
+ ],
+ "极夜龙息": [
+  "Polar Night Breath",
+  "極夜竜息"
+ ],
+ "雪崩之心": [
+  "Avalanche Heart",
+  "雪崩の心"
+ ],
+ "冬眠苏醒": [
+  "Awaken",
+  "冬眠明け"
+ ],
+ "猫杖点射": [
+  "Cat Staff Shot",
+  "猫杖射撃"
+ ],
+ "并肩防守": [
+  "Side by Side",
+  "肩並べ防御"
+ ],
+ "递零食": [
+  "Treat",
+  "おやつ"
+ ],
+ "绕背": [
+  "Flank",
+  "背面取り"
+ ],
+ "铃铛波": [
+  "Bell Wave",
+  "鈴の波"
+ ],
+ "弹跳绳": [
+  "Jump Rope",
+  "跳び縄"
+ ],
+ "双层围巾": [
+  "Double Scarf",
+  "二重マフラー"
+ ],
+ "追踪哨": [
+  "Tracking Whistle",
+  "追跡笛"
+ ],
+ "暖窝": [
+  "Warm Nest",
+  "ぬくぬく寝床"
+ ],
+ "一起蹲下": [
+  "Duck Together",
+  "一緒にしゃがむ"
+ ],
+ "拍拍背": [
+  "Pat Pat",
+  "ぽんぽん"
+ ],
+ "夹击": [
+  "Pincer",
+  "挟み撃ち"
+ ],
+ "护主反扑": [
+  "Loyal Counter",
+  "主を守る反撃"
+ ],
+ "交换站位": [
+  "Swap Places",
+  "立ち位置交代"
+ ],
+ "猫薄荷团": [
+  "Catnip Ball",
+  "またたび玉"
+ ],
+ "练习跳台": [
+  "Practice Ramp",
+  "練習ジャンプ台"
+ ],
+ "云步": [
+  "Cloud Step",
+  "雲歩"
+ ],
+ "大猫扑杀": [
+  "Big Cat Pounce",
+  "大猫の狩り"
+ ],
+ "绝不松手": [
+  "Never Let Go",
+  "絶対離さない"
+ ],
+ "云猫守门": [
+  "Cloud Cat Gate",
+  "雲猫の門番"
+ ],
+ "献祭": [
+  "Sacrifice",
+  "献身"
+ ],
+ "红爪": [
+  "Red Claw",
+  "紅爪"
+ ],
+ "挽袖": [
+  "Roll Up Sleeve",
+  "袖まくり"
+ ],
+ "放蝠": [
+  "Release Bats",
+  "蝙蝠放ち"
+ ],
+ "血线": [
+  "Blood Line",
+  "血線"
+ ],
+ "血月飞刃": [
+  "Blood Moon Blades",
+  "血月飛刃"
+ ],
+ "寻隙": [
+  "Find the Gap",
+  "隙突き"
+ ],
+ "夜饮": [
+  "Night Drink",
+  "夜の一杯"
+ ],
+ "纱布": [
+  "Gauze",
+  "ガーゼ"
+ ],
+ "蝠影": [
+  "Bat Shadow",
+  "蝠影"
+ ],
+ "响指": [
+  "Snap",
+  "指鳴らし"
+ ],
+ "止渴": [
+  "Quench",
+  "渇き止め"
+ ],
+ "红幕": [
+  "Crimson Curtain",
+  "紅の幕"
+ ],
+ "破脉": [
+  "Vein Break",
+  "破脈"
+ ],
+ "翼刃": [
+  "Wing Blade",
+  "翼刃"
+ ],
+ "借血还血": [
+  "Blood for Blood",
+  "血には血を"
+ ],
+ "收翼": [
+  "Fold Wings",
+  "翼収め"
+ ],
+ "夜行脉搏": [
+  "Night Pulse",
+  "夜行の脈"
+ ],
+ "血色誓约": [
+  "Crimson Vow",
+  "紅の誓い"
+ ],
+ "万翼降临": [
+  "Ten Thousand Wings",
+  "万翼降臨"
+ ],
+ "血尽天明": [
+  "Dawn After Blood",
+  "血尽きて夜明け"
+ ],
+ "飞牌": [
+  "Tile Toss",
+  "牌投げ"
+ ],
+ "拢牌": [
+  "Tidy Tiles",
+  "理牌"
+ ],
+ "报牌": [
+  "Call",
+  "宣言"
+ ],
+ "顺手一甩": [
+  "Casual Flick",
+  "さらりと一投"
+ ],
+ "三声连响": [
+  "Triple Clack",
+  "三連打"
+ ],
+ "留张": [
+  "Keep a Tile",
+  "一枚残し"
+ ],
+ "偷换一张": [
+  "Sleight Swap",
+  "すり替え"
+ ],
+ "碰一下": [
+  "Pon",
+  "ポン"
+ ],
+ "快摸": [
+  "Quick Draw",
+  "早ツモ"
+ ],
+ "补位": [
+  "Fill In",
+  "補充"
+ ],
+ "护对子": [
+  "Guard the Pair",
+  "対子守り"
+ ],
+ "换门": [
+  "Change Suit",
+  "色替え"
+ ],
+ "冲刻": [
+  "Rush Triplet",
+  "刻子突撃"
+ ],
+ "连庄": [
+  "Dealer Repeat",
+  "連荘"
+ ],
+ "听口": [
+  "Tenpai",
+  "聴牌"
+ ],
+ "开桌": [
+  "Open Table",
+  "卓開き"
+ ],
+ "摸打连手": [
+  "Draw and Strike",
+  "ツモ打ち連携"
+ ],
+ "绝张": [
+  "Last Tile",
+  "絶張"
+ ],
+ "大三元": [
+  "Big Three Dragons",
+  "大三元"
+ ],
+ "门前清": [
+  "Concealed Hand",
+  "門前清"
+ ],
+ "退魔": [
+  "Exorcise",
+  "退魔"
+ ],
+ "旧世界法杖": [
+  "Old World Staff",
+  "旧世界の杖"
+ ],
+ "定相透镜": [
+  "Fixing Lens",
+  "定相レンズ"
+ ],
+ "裂色棱镜": [
+  "Split Prism",
+  "裂色プリズム"
+ ],
+ "雪纹剑穗": [
+  "Snow Tassel",
+  "雪紋の剣房"
+ ],
+ "护脉玉": [
+  "Meridian Jade",
+  "護脈の玉"
+ ],
+ "旧剑谱": [
+  "Old Sword Manual",
+  "古い剣譜"
+ ],
+ "寒卵碎片": [
+  "Cold Egg Shard",
+  "寒卵の欠片"
+ ],
+ "断角护符": [
+  "Broken Horn Charm",
+  "折れ角の護符"
+ ],
+ "极昼鳞": [
+  "Polar Day Scale",
+  "極昼の鱗"
+ ],
+ "团子的铃铛": [
+  "Dango's Bell",
+  "団子の鈴"
+ ],
+ "旅行猫窝": [
+  "Travel Cat Bed",
+  "旅の猫ベッド"
+ ],
+ "山猫纹章": [
+  "Lynx Crest",
+  "山猫の紋章"
+ ],
+ "家书缎带": [
+  "Letter Ribbon",
+  "手紙のリボン"
+ ],
+ "红银针": [
+  "Red Silver Needle",
+  "紅銀の針"
+ ],
+ "倒悬杯": [
+  "Upturned Cup",
+  "逆さ杯"
+ ],
+ "旧麻将盒": [
+  "Old Mahjong Box",
+  "古い麻雀箱"
+ ],
+ "三色筹码": [
+  "Tricolor Chips",
+  "三色チップ"
+ ],
+ "牌社记分簿": [
+  "Club Scorebook",
+  "麻雀部の点数帳"
+ ],
+ "飞剑": [
+  "Flying Swords",
+  "飛剣"
+ ],
+ "内力": [
+  "Qi",
+  "内力"
+ ],
+ "疾风势": [
+  "Gale Stance",
+  "疾風の構え"
+ ],
+ "破岳势": [
+  "Mountain Stance",
+  "破岳の構え"
+ ],
+ "龙血": [
+  "Dragon Blood",
+  "竜血"
+ ],
+ "霜龙形态": [
+  "Frost Dragon Form",
+  "霜竜形態"
+ ],
+ "霜甲": [
+  "Frost Armor",
+  "霜甲"
+ ],
+ "鲜血": [
+  "Blood",
+  "鮮血"
+ ],
+ "蝙蝠": [
+  "Bats",
+  "蝙蝠"
+ ],
+ "血痕": [
+  "Blood Mark",
+  "血痕"
+ ],
+ "一回合切入过两种势时得到能量并抽牌": [
+  "Gain Energy and draw after entering both stances in one turn",
+  "1ターンに両方の構えに入るとエナジーとドロー"
+ ],
+ "不出猎时每回合结束给标记目标 {0} 层血痕；出猎时每只造成 {1} 点伤害（最多 {2} 只）": [
+  "When not hunting, each bat gives the marked target {0} Blood Mark at end of turn. When hunting, each deals {1} damage (max {2}).",
+  "狩りをしない間は毎ターン終了時、1匹につき標的に血痕{0}。狩りでは1匹{1}ダメージ（最大{2}匹）"
+ ],
+ "二选一：得到 {0} 点龙血，或 {1} 层霜甲。消耗。": [
+  "Choose one: gain {0} Dragon Blood, or {1} Frost Armor. Exhaust.",
+  "どちらか1つ：竜血{0}、または霜甲{1}を得る。廃棄。"
+ ],
+ "云猫团子和你并肩作战，每回合可以给它一个指令。战斗结束时回复 {0} 点生命。": [
+  "The cloud cat Dango fights beside you; give it one command each turn. Heal {0} HP at the end of combat.",
+  "雲猫の団子が一緒に戦う。毎ターン1つ指示を出せる。戦闘終了時HPを{0}回復。"
+ ],
+ "光弹补到 {0} 发。": [
+  "Fill Ammo up to {0}.",
+  "光弾を{0}発まで補充する。"
+ ],
+ "写入任一元素，得到 {0} 点能量。消耗。": [
+  "Write any element. Gain {0} Energy. Exhaust.",
+  "任意の元素を書き込む。エナジーを{0}得る。廃棄。"
+ ],
+ "写入任一元素，得到 {0} 点能量。获得 {1} 点格挡。消耗。": [
+  "Write any element. Gain {0} Energy. Gain {1} Block. Exhaust.",
+  "任意の元素を書き込む。エナジーを{0}得る。ブロック{1}を得る。廃棄。"
+ ],
+ "写入任一元素，抽 {0} 张牌。": [
+  "Write any element. Draw {0} cards.",
+  "任意の元素を書き込む。カードを{0}枚引く。"
+ ],
+ "写入任一元素，抽 {0} 张牌。获得 {1} 点格挡。": [
+  "Write any element. Draw {0} cards. Gain {1} Block.",
+  "任意の元素を書き込む。カードを{0}枚引く。ブロック{1}を得る。"
+ ],
+ "写入任一元素，然后祈唤。": [
+  "Write any element, then Invoke.",
+  "任意の元素を書き込み、祈唤する。"
+ ],
+ "写入火，抽 {0} 张牌。消耗。": [
+  "Write Fire. Draw {0} card. Exhaust.",
+  "火を書き込む。カードを{0}枚引く。廃棄。"
+ ],
+ "写入火，抽 {0} 张牌。获得 {1} 点格挡。消耗。": [
+  "Write Fire. Draw {0} card. Gain {1} Block. Exhaust.",
+  "火を書き込む。カードを{0}枚引く。ブロック{1}を得る。廃棄。"
+ ],
+ "写入风，获得 {0} 点格挡。消耗。": [
+  "Write Wind. Gain {0} Block. Exhaust.",
+  "風を書き込む。ブロック{0}を得る。廃棄。"
+ ],
+ "出千：把一张牌换成同点数的另一门（自动挑最好的）。获得 {0} 点格挡。": [
+  "Cheat: change one tile to the same number in another suit (best choice is automatic). Gain {0} Block.",
+  "イカサマ：1枚を同じ数字の別の色に替える（最善を自動選択）。ブロック{0}を得る。"
+ ],
+ "出千：把一张牌的点数 ±{0}（同一门，自动挑最好的）。消耗。": [
+  "Cheat: change one tile's number by ±{0} (same suit, best choice is automatic). Exhaust.",
+  "イカサマ：1枚の数字を±{0}する（同じ色、最善を自動選択）。廃棄。"
+ ],
+ "出千：把一张牌的点数 ±{0}（同一门，自动挑最好的）。获得 {1} 点格挡。消耗。": [
+  "Cheat: change one tile's number by ±{0} (same suit, best choice is automatic). Gain {1} Block. Exhaust.",
+  "イカサマ：1枚の数字を±{0}する（同じ色、最善を自動選択）。ブロック{1}を得る。廃棄。"
+ ],
+ "切入时：本回合下一张攻击牌少 {0} 费": [
+  "On entering: your next Attack this turn costs {0} less",
+  "入った時：このターン次のアタックのコスト-{0}"
+ ],
+ "切入时：本回合下一张攻击牌第一击 {0}": [
+  "On entering: your next Attack's first hit this turn gets {0}",
+  "入った時：このターン次のアタックの最初の一撃{0}"
+ ],
+ "切换剑势。获得 {0} 点格挡。": [
+  "Switch stance. Gain {0} Block.",
+  "構えを切り替える。ブロック{0}を得る。"
+ ],
+ "切换剑势，抽 {0} 张牌。消耗。": [
+  "Switch stance. Draw {0} card. Exhaust.",
+  "構えを切り替える。カードを{0}枚引く。廃棄。"
+ ],
+ "切换剑势，抽 {0} 张牌。获得 {1} 点格挡。消耗。": [
+  "Switch stance. Draw {0} card. Gain {1} Block. Exhaust.",
+  "構えを切り替える。カードを{0}枚引く。ブロック{1}を得る。廃棄。"
+ ],
+ "同一回合里两种剑势都切入过时（每回合一次），得到 {0} 点能量，抽 {1} 张牌。": [
+  "When you have entered both stances in the same turn (once per turn), gain {0} Energy and draw {1} card.",
+  "同じターンに両方の構えに入った時（毎ターン1回）、エナジーを{0}得て、カードを{1}枚引く。"
+ ],
+ "同一回合里两种剑势都切入过时（每回合一次），得到 {0} 点能量，抽 {1} 张牌，获得 {2} 点格挡。": [
+  "When you have entered both stances in the same turn (once per turn), gain {0} Energy, draw {1} card and gain {2} Block.",
+  "同じターンに両方の構えに入った時（毎ターン1回）、エナジーを{0}得て、カードを{1}枚引き、ブロック{2}を得る。"
+ ],
+ "团子倒地，对所有敌人造成团子最大生命一半的伤害。消耗。": [
+  "Dango is knocked out. Deal damage equal to half of Dango's Max HP to ALL enemies. Exhaust.",
+  "団子は倒れる。敵全体に団子の最大HPの半分のダメージ。廃棄。"
+ ],
+ "团子只剩 {0} 生命，对所有敌人造成团子最大生命一半的伤害。消耗。": [
+  "Dango drops to {0} HP. Deal damage equal to half of Dango's Max HP to ALL enemies. Exhaust.",
+  "団子のHPが{0}になる。敵全体に団子の最大HPの半分のダメージ。廃棄。"
+ ],
+ "团子回复 {0} 生命，米娅获得 {1} 点格挡。": [
+  "Dango heals {0} HP. Mia gains {1} Block.",
+  "団子のHPを{0}回復。ミアはブロック{1}を得る。"
+ ],
+ "团子回复 {0} 生命，米娅获得 {1} 点格挡。消耗。": [
+  "Dango heals {0} HP. Mia gains {1} Block. Exhaust.",
+  "団子のHPを{0}回復。ミアはブロック{1}を得る。廃棄。"
+ ],
+ "团子回复 {0} 生命；实际回复不少于 {1} 点时，得到 {2} 点能量。": [
+  "Dango heals {0} HP. If it actually healed at least {1}, gain {2} Energy.",
+  "団子のHPを{0}回復。実際に{1}以上回復したらエナジーを{2}得る。"
+ ],
+ "团子护卫多挡 {0} 点，受伤后下回合抽牌": [
+  "Dango's Guard blocks {0} more; draw next turn after it takes damage",
+  "団子の護衛が{0}多く防ぐ。傷を負うと次ターンにドロー"
+ ],
+ "团子护卫时多挡 {0} 点；团子护卫真的受了伤，下回合米娅抽 {1} 张牌。": [
+  "Dango's Guard blocks {0} more. Whenever Dango actually takes damage while guarding, Mia draws {1} card next turn.",
+  "団子の護衛が{0}多く防ぐ。護衛で実際に傷を負うと、次のターンにミアはカードを{1}枚引く。"
+ ],
+ "对所有敌人造成 {0} 点伤害。得到 {1} 点龙血。": [
+  "Deal {0} damage to ALL enemies. Gain {1} Dragon Blood.",
+  "敵全体に{0}ダメージ。竜血を{1}得る。"
+ ],
+ "对所有敌人造成 {0} 点伤害；元素位里同时有火和水时改为 {1} 点。": [
+  "Deal {0} damage to ALL enemies; {1} instead if your slots hold both Fire and Water.",
+  "敵全体に{0}ダメージ。元素枠に火と水が両方あれば{1}。"
+ ],
+ "对所有敌人造成 {0} 点伤害；本回合摸过至少 {1} 张麻将牌时，打两次。": [
+  "Deal {0} damage to ALL enemies. Hits twice if you drew at least {1} tiles this turn.",
+  "敵全体に{0}ダメージ。このターン麻雀牌を{1}枚以上引いていたら2回。"
+ ],
+ "对所有敌人造成 {0} 点伤害；生命高于一半时献血 {1}，改为 {2} 点。": [
+  "Deal {0} damage to ALL enemies. If above half HP, Donate {1} and deal {2} instead.",
+  "敵全体に{0}ダメージ。HPが半分より多ければ献血{1}して{2}ダメージ。"
+ ],
+ "对所有敌人造成 {0} 点伤害；霜龙形态下改为 {1} 点。": [
+  "Deal {0} damage to ALL enemies; {1} in Frost Dragon Form.",
+  "敵全体に{0}ダメージ。霜竜形態なら{1}。"
+ ],
+ "对所有敌人造成结界层数 ×{0} 的伤害（至少 {1}，最多算 {2} 层）。": [
+  "Deal Ward ×{0} damage to ALL enemies (at least {1}, counts up to {2} Ward).",
+  "敵全体に結界×{0}のダメージ（最低{1}、最大{2}層まで）。"
+ ],
+ "对每个敌人造成 {0} 点伤害，再加上它的共鸣层数。": [
+  "Deal {0} damage plus its Resonance to each enemy.",
+  "各敵に{0}＋その敵の共鳴の分のダメージ。"
+ ],
+ "射出全部飞剑（每把 {0} 点伤害），再造成 {1} 点伤害。": [
+  "Launch all Flying Swords ({0} damage each), then deal {1} damage.",
+  "飛剣をすべて射出（1本{0}ダメージ）、その後{1}ダメージ。"
+ ],
+ "射出全部飞剑，每把改为 {0} 点伤害，然后得到 {1} 把飞剑。": [
+  "Launch all Flying Swords, {0} damage each, then gain {1} Flying Swords.",
+  "飛剣をすべて射出、1本{0}ダメージ。その後飛剣を{1}本得る。"
+ ],
+ "带来麻将牌架：战斗开始先摸 {0} 张，之后每回合摸 {1} 张。战斗结束时回复 {2} 点生命。": [
+  "Brings a mahjong rack: draw {0} tiles at the start of combat, then {1} each turn. Heal {2} HP at the end of combat.",
+  "麻雀の牌架：戦闘開始時に{0}枚、その後毎ターン{1}枚引く。戦闘終了時HPを{2}回復。"
+ ],
+ "得到 {0} 只蝙蝠，立刻全部对目标出猎，每只改为 {1} 点伤害。消耗。": [
+  "Gain {0} Bats, then all Hunt the target at once, {1} damage each. Exhaust.",
+  "蝙蝠を{0}匹得て、すぐに全員で標的を狩る。1匹{1}ダメージ。廃棄。"
+ ],
+ "得到 {0} 只蝙蝠，获得 {1} 点格挡。": [
+  "Gain {0} Bats. Gain {1} Block.",
+  "蝙蝠を{0}匹得る。ブロック{1}を得る。"
+ ],
+ "得到 {0} 把飞剑；超过上限的每把改为获得 {1} 点格挡。": [
+  "Gain {0} Flying Swords; each one over the cap gives {1} Block instead.",
+  "飛剣を{0}本得る。上限を超えた分は1本につきブロック{1}。"
+ ],
+ "得到 {0} 点龙血，获得 {1} 点格挡。": [
+  "Gain {0} Dragon Blood. Gain {1} Block.",
+  "竜血を{0}得る。ブロック{1}を得る。"
+ ],
+ "得到 {0} 点龙血；霜龙形态下改为获得 {1} 点格挡并抽 {2} 张牌。": [
+  "Gain {0} Dragon Blood; in Frost Dragon Form, gain {1} Block and draw {2} card instead.",
+  "竜血を{0}得る。霜竜形態ならブロック{1}を得てカードを{2}枚引く。"
+ ],
+ "战斗开始时得到 {0} 把飞剑。战斗结束时回复 {1} 点生命。": [
+  "Start each combat with {0} Flying Sword. Heal {1} HP at the end of combat.",
+  "戦闘開始時に飛剣を{0}本得る。戦闘終了時HPを{1}回復。"
+ ],
+ "战斗开始时得到 {0} 点鲜血。战斗结束时回复 {1} 点生命。": [
+  "Start each combat with {0} Blood. Heal {1} HP at the end of combat.",
+  "戦闘開始時に鮮血を{0}得る。戦闘終了時HPを{1}回復。"
+ ],
+ "战斗开始时得到 {0} 点龙血。战斗结束时回复 {1} 点生命。": [
+  "Start each combat with {0} Dragon Blood. Heal {1} HP at the end of combat.",
+  "戦闘開始時に竜血を{0}得る。戦闘終了時HPを{1}回復。"
+ ],
+ "手里每有 {0} 个炼金瓶，给予 {1} 层中毒（最多算 {2} 个，至少 {3} 层）。": [
+  "For each {0} Flask in your hand, apply {1} Poison (counts up to {2}, at least {3}).",
+  "手札の錬金瓶{0}個につき毒{1}を与える（最大{2}個まで、最低{3}）。"
+ ],
+ "把团子的指令改成护卫，米娅获得 {0} 点格挡。消耗。": [
+  "Change Dango's command to Guard. Mia gains {0} Block. Exhaust.",
+  "団子の指示を護衛に変える。ミアはブロック{0}を得る。廃棄。"
+ ],
+ "把最多 {0} 层霜甲转成等量龙血。抽 {1} 张牌。消耗。": [
+  "Convert up to {0} Frost Armor into the same amount of Dragon Blood. Draw {1} card. Exhaust.",
+  "霜甲を最大{0}まで同量の竜血に変える。カードを{1}枚引く。廃棄。"
+ ],
+ "把最多 {0} 层霜甲转成等量龙血。消耗。": [
+  "Convert up to {0} Frost Armor into the same amount of Dragon Blood. Exhaust.",
+  "霜甲を最大{0}まで同量の竜血に変える。廃棄。"
+ ],
+ "把最早的一格改成最新一格的元素，获得 {0} 点格挡。": [
+  "Change your oldest slot to your newest element. Gain {0} Block.",
+  "一番古い枠を一番新しい元素に変える。ブロック{0}を得る。"
+ ],
+ "抽 {0} 张牌。本回合不能再抽牌。消耗。": [
+  "Draw {0} cards. You cannot draw more this turn. Exhaust.",
+  "カードを{0}枚引く。このターンはもう引けない。廃棄。"
+ ],
+ "抽 {0} 张牌，写入任一元素，然后祈唤。": [
+  "Draw {0} card. Write any element, then Invoke.",
+  "カードを{0}枚引く。任意の元素を書き込み、祈唤する。"
+ ],
+ "抽 {0} 张牌，得到 {1} 点能量（每回合只有第一张风门给能量）。消耗。": [
+  "Draw {0} cards. Gain {1} Energy (only the first Wind Gate each turn). Exhaust.",
+  "カードを{0}枚引き、エナジーを{1}得る（毎ターン最初の風門のみ）。廃棄。"
+ ],
+ "指定一种牌，从牌池或弃牌区拿 {0} 张到牌架。消耗。": [
+  "Name a tile and take {0} from the wall or the tile discard into your rack. Exhaust.",
+  "牌を1種指定し、山か捨て牌から{0}枚を牌架に加える。廃棄。"
+ ],
+ "摸 {0} 张麻将牌。消耗。": [
+  "Draw {0} tiles. Exhaust.",
+  "麻雀牌を{0}枚引く。廃棄。"
+ ],
+ "摸 {0} 张麻将牌。获得 {1} 点格挡。消耗。": [
+  "Draw {0} tiles. Gain {1} Block. Exhaust.",
+  "麻雀牌を{0}枚引く。ブロック{1}を得る。廃棄。"
+ ],
+ "攒满 {0} 点后可以变身霜龙": [
+  "At {0}, you can transform into the Frost Dragon",
+  "{0}たまると霜竜に変身できる"
+ ],
+ "攻击牌第一击 {0}；每个敌方回合第一段打穿格挡的伤害 {1}。数字是剩余回合": [
+  "Attacks' first hit {0}; the first hit through Block each enemy turn takes {1}. The number is turns left",
+  "アタックの最初の一撃{0}。敵ターンごとにブロックを貫いた最初のダメージ{1}。数字は残りターン"
+ ],
+ "收回最多 {0} 只蝙蝠，每只获得 {1} 点格挡，抽 {2} 张牌。": [
+  "Recall up to {0} Bats; gain {1} Block for each. Draw {2} card.",
+  "蝙蝠を最大{0}匹戻し、1匹につきブロック{1}。カードを{2}枚引く。"
+ ],
+ "本回合团子扑击 {0} 点伤害，抽 {1} 张牌。消耗。": [
+  "Dango's Pounce deals {0} damage this turn. Draw {1} card. Exhaust.",
+  "このターン団子の飛びかかり{0}ダメージ。カードを{1}枚引く。廃棄。"
+ ],
+ "本回合团子的指令是扑击时，扑击改为造成 {0} 点伤害 {1} 次。消耗。": [
+  "If Dango's command this turn is Pounce, it deals {0} damage {1} times instead. Exhaust.",
+  "このターン団子の指示が飛びかかりなら、{0}ダメージを{1}回に変わる。廃棄。"
+ ],
+ "每 {0} 回合开始时，随机获得 {1} 个炼金瓶（多张不叠加）。": [
+  "At the start of every {0} turns, gain {1} random Flask (does not stack).",
+  "{0}ターンごとの開始時、ランダムな錬金瓶を{1}個得る（重複しない）。"
+ ],
+ "每 {0} 回合开始时，随机获得 {1} 个炼金瓶（多张不叠加）。每回合结束时获得 {2} 点格挡（可叠加）。": [
+  "At the start of every {0} turns, gain {1} random Flask (does not stack). Gain {2} Block at the end of each turn (stacks).",
+  "{0}ターンごとの開始時、ランダムな錬金瓶を{1}個得る（重複しない）。毎ターン終了時ブロック{2}を得る（重複する）。"
+ ],
+ "每个敌方回合，霜甲第一次挡下伤害后，攻击者受到 {0} 点伤害。": [
+  "Each enemy turn, the first time Frost Armor absorbs damage, the attacker takes {0} damage.",
+  "敵ターンごとに、霜甲が最初にダメージを防いだ後、攻撃者に{0}ダメージ。"
+ ],
+ "每回合开始 {0}，由牌消耗（最多 {1}）": [
+  "{0} at the start of each turn; spent by cards (max {1})",
+  "毎ターン開始時{0}。カードで消費（最大{1}）"
+ ],
+ "每回合打出第一张三格相同的法术（陨星、冰镜、风门）后，获得 {0} 点格挡，抽 {1} 张牌。": [
+  "After your first triple-element spell each turn (Meteor, Ice Mirror, Wind Gate), gain {0} Block and draw {1} card.",
+  "毎ターン最初の三同元素の術（隕星・氷鏡・風門）の後、ブロック{0}を得てカードを{1}枚引く。"
+ ],
+ "每回合打出第二张法术时，如果和第一张的配方不同，对所有敌人造成 {0} 点伤害。": [
+  "When you play your second spell each turn, if its recipe differs from the first, deal {0} damage to ALL enemies.",
+  "毎ターン2枚目の術が1枚目と別の組み合わせなら、敵全体に{0}ダメージ。"
+ ],
+ "每回合第一个刻子、顺子额外加成": [
+  "Bonus for the first triplet and run each turn",
+  "毎ターン最初の刻子・順子にボーナス"
+ ],
+ "每回合第一个刻子额外造成 {0} 点伤害，第一个顺子额外获得 {1} 点格挡。": [
+  "Your first triplet each turn deals {0} extra damage; your first run each turn gives {1} extra Block.",
+  "毎ターン最初の刻子は追加{0}ダメージ、最初の順子は追加ブロック{1}。"
+ ],
+ "每回合第一张三格相同的法术后获得格挡并抽牌": [
+  "Block and draw after the first triple-element spell each turn",
+  "毎ターン最初の三同元素の術の後ブロックとドロー"
+ ],
+ "每回合第一次一口气花 {0} 点以上鲜血时得到能量和格挡": [
+  "Energy and Block the first time each turn you spend {0}+ Blood at once",
+  "毎ターン初めて鮮血を一度に{0}以上使うとエナジーとブロック"
+ ],
+ "每回合第一次一口气花掉至少 {0} 点鲜血时，得到 {1} 点能量，获得 {2} 点格挡。": [
+  "The first time each turn you spend at least {0} Blood at once, gain {1} Energy and {2} Block.",
+  "毎ターン初めて鮮血を一度に{0}以上使った時、エナジーを{1}、ブロック{2}を得る。"
+ ],
+ "每回合第一次凑齐三种不同元素时，抽 {0} 张牌。": [
+  "The first time each turn your slots hold three different elements, draw {0} card.",
+  "毎ターン初めて3種の元素がそろった時、カードを{0}枚引く。"
+ ],
+ "每回合第一次凑齐三种不同元素时，抽 {0} 张牌，获得 {1} 点格挡。": [
+  "The first time each turn your slots hold three different elements, draw {0} card and gain {1} Block.",
+  "毎ターン初めて3種の元素がそろった時、カードを{0}枚引き、ブロック{1}を得る。"
+ ],
+ "每回合第一次凑齐三种元素时抽牌": [
+  "Draw the first time each turn you hold all three elements",
+  "毎ターン初めて3元素がそろうとドロー"
+ ],
+ "每回合第一次吸血后得到鲜血并抽牌": [
+  "Blood and a draw after your first Lifesteal each turn",
+  "毎ターン最初の吸血の後に鮮血とドロー"
+ ],
+ "每回合第一次吸血成功后，得到 {0} 点鲜血，抽 {1} 张牌。": [
+  "After your first successful Lifesteal each turn, gain {0} Blood and draw {1} card.",
+  "毎ターン最初に吸血が成功した後、鮮血を{0}得てカードを{1}枚引く。"
+ ],
+ "每回合第一次燃血时，额外得到 {0} 点内力并抽 {1} 张牌。": [
+  "The first time you Burn Blood each turn, gain {0} extra Qi and draw {1} card.",
+  "毎ターン最初の燃血で、内力をさらに{0}得てカードを{1}枚引く。"
+ ],
+ "每回合第一次燃血额外得到内力并抽牌": [
+  "Extra Qi and a draw on your first Burn Blood each turn",
+  "毎ターン最初の燃血で追加の内力とドロー"
+ ],
+ "每回合第一次献血后获得格挡": [
+  "Block after your first Donation each turn",
+  "毎ターン最初の献血の後にブロック"
+ ],
+ "每回合第一次献血后，获得 {0} 点格挡。": [
+  "After your first Donation each turn, gain {0} Block.",
+  "毎ターン最初の献血の後、ブロック{0}を得る。"
+ ],
+ "每回合第一次结算后摸 {0} 张麻将牌": [
+  "Draw {0} tile after your first hand each turn",
+  "毎ターン最初の和了の後に牌を{0}枚引く"
+ ],
+ "每回合第一次结算牌型后，摸 {0} 张麻将牌。": [
+  "After you score your first hand each turn, draw {0} tile.",
+  "毎ターン最初に役を精算した後、麻雀牌を{0}枚引く。"
+ ],
+ "每回合第一次结算牌型后，摸 {0} 张麻将牌，获得 {1} 点格挡。": [
+  "After you score your first hand each turn, draw {0} tile and gain {1} Block.",
+  "毎ターン最初に役を精算した後、麻雀牌を{0}枚引き、ブロック{1}を得る。"
+ ],
+ "每回合第一次花内力时获得格挡": [
+  "Block the first time you spend Qi each turn",
+  "毎ターン初めて内力を使うとブロック"
+ ],
+ "每回合第一次花掉内力时，获得 {0} 点格挡。": [
+  "The first time you spend Qi each turn, gain {0} Block.",
+  "毎ターン初めて内力を使った時、ブロック{0}を得る。"
+ ],
+ "每回合第一次获得霜甲时多得几层": [
+  "Extra Frost Armor the first time you gain it each turn",
+  "毎ターン最初の霜甲獲得時に追加"
+ ],
+ "每回合第一次获得霜甲时，再多 {0} 层。": [
+  "The first time you gain Frost Armor each turn, gain {0} more.",
+  "毎ターン初めて霜甲を得た時、さらに{0}得る。"
+ ],
+ "每回合第二张不同配方的法术打出后全体受伤": [
+  "Damage all enemies after a second, different spell each turn",
+  "毎ターン2枚目の別の術の後に敵全体へダメージ"
+ ],
+ "每场战斗团子第一次休息，额外回复 {0} 生命。": [
+  "The first time Dango Rests each combat, it heals {0} more.",
+  "各戦闘で団子が初めて休む時、HPをさらに{0}回復。"
+ ],
+ "每场战斗每种指令第一次执行时，米娅获得 {0} 点格挡。": [
+  "The first time each command is carried out each combat, Mia gains {0} Block.",
+  "各戦闘で各指示を初めて実行した時、ミアはブロック{0}を得る。"
+ ],
+ "每场战斗第一张祈唤牌少 {0} 费。战斗结束时回复 {1} 点生命。": [
+  "Your first Invoke card each combat costs {0} less. Heal {1} HP at the end of combat.",
+  "各戦闘で最初の祈唤カードのコスト-{0}。戦闘終了時HPを{1}回復。"
+ ],
+ "每场战斗第一次 {0} 只蝙蝠一起出猎后，返还 {1} 只蝙蝠，抽 {2} 张牌。": [
+  "The first time {0} Bats Hunt together each combat, get {1} Bat back and draw {2} card.",
+  "各戦闘で初めて{0}匹で狩った後、蝙蝠が{1}匹戻り、カードを{2}枚引く。"
+ ],
+ "每场战斗第一次一回合打出 {0} 张攻击牌后，下回合多抽 {1} 张牌。": [
+  "The first time you play {0} Attacks in one turn each combat, draw {1} extra cards next turn.",
+  "各戦闘で初めて1ターンにアタックを{0}枚使った後、次のターンに{1}枚多く引く。"
+ ],
+ "每场战斗第一次三格元素相同时，获得 {0} 点格挡。": [
+  "The first time all three slots match each combat, gain {0} Block.",
+  "各戦闘で初めて3枠の元素がそろった時、ブロック{0}を得る。"
+ ],
+ "每场战斗第一次变身时，获得 {0} 点格挡。": [
+  "The first time you transform each combat, gain {0} Block.",
+  "各戦闘で初めて変身した時、ブロック{0}を得る。"
+ ],
+ "每场战斗第一次吸血时多回复 {0} 生命（仍算进每场 {1} 点的上限）。": [
+  "Your first Lifesteal each combat heals {0} more (still counts toward the {1} per-combat cap).",
+  "各戦闘で最初の吸血のHP回復+{0}（1戦闘{1}の上限に含む）。"
+ ],
+ "每场战斗第一次弃掉一张孤张后，再摸 {0} 张麻将牌。": [
+  "The first time you discard an isolated tile each combat, draw {0} more tile.",
+  "各戦闘で初めて孤立牌を捨てた後、麻雀牌をさらに{0}枚引く。"
+ ],
+ "每场战斗第一次打出两种不同配方的法术后，抽 {0} 张牌，得到 {1} 点能量。": [
+  "The first time you have played spells of two different recipes each combat, draw {0} cards and gain {1} Energy.",
+  "各戦闘で初めて2種類の術を使った後、カードを{0}枚引き、エナジーを{1}得る。"
+ ],
+ "每场战斗第一次执行过两种不同指令后，下回合抽 {0} 张牌，得到 {1} 点能量。": [
+  "The first time two different commands have been carried out each combat, draw {0} card and gain {1} Energy next turn.",
+  "各戦闘で初めて2種類の指示を実行した後、次のターンにカードを{0}枚引き、エナジーを{1}得る。"
+ ],
+ "每场战斗第一次燃血不失去生命。": [
+  "Your first Burn Blood each combat costs no HP.",
+  "各戦闘で最初の燃血はHPを失わない。"
+ ],
+ "每场战斗第一次结算过三种不同牌型时，得到 {0} 点能量，抽 {1} 张牌。": [
+  "The first time you have scored three different hands each combat, gain {0} Energy and draw {1} cards.",
+  "各戦闘で初めて3種類の役を精算した時、エナジーを{0}得てカードを{1}枚引く。"
+ ],
+ "每场战斗第一次退出霜龙形态时不会虚弱，并得到 {0} 点龙血。": [
+  "The first time you leave Frost Dragon Form each combat, you are not Weakened and gain {0} Dragon Blood.",
+  "各戦闘で初めて霜竜形態が解けた時、脱力にならず竜血を{0}得る。"
+ ],
+ "每层抵消 {0} 点打穿格挡的敌人攻击伤害，你的回合开始时清空": [
+  "Each stack reduces enemy attack damage that gets through Block by {0}; clears at the start of your turn",
+  "1層につきブロックを貫いた敵の攻撃ダメージを{0}軽減。自分のターン開始時に消える"
+ ],
+ "每把让攻击牌的第一击 {0} 伤害；可以被射出，每把造成 {1} 点伤害（最多 {2} 把）": [
+  "Each gives your Attacks' first hit {0} damage; can be launched for {1} damage each (max {2})",
+  "1本につきアタックの最初の一撃{0}。射出すると1本{1}ダメージ（最大{2}本）"
+ ],
+ "每次退出霜龙形态的那个回合，额外抽 {0} 张牌，获得 {1} 点格挡。": [
+  "On the turn you leave Frost Dragon Form, draw {0} extra cards and gain {1} Block.",
+  "霜竜形態が解けたターン、カードを{0}枚多く引き、ブロック{1}を得る。"
+ ],
+ "每次退出霜龙形态的那个回合，额外抽 {0} 张牌，获得 {1} 点格挡，得到 {2} 点能量。": [
+  "On the turn you leave Frost Dragon Form, draw {0} extra cards, gain {1} Block and {2} Energy.",
+  "霜竜形態が解けたターン、カードを{0}枚多く引き、ブロック{1}とエナジー{2}を得る。"
+ ],
+ "每种指令第一次执行时获得格挡": [
+  "Block the first time each command is carried out",
+  "各指示の初回実行時にブロック"
+ ],
+ "清一色、小胡额外伤害": [
+  "Extra damage for Full Flush and Small Win",
+  "清一色・小和に追加ダメージ"
+ ],
+ "清一色或小胡额外对所有敌人造成 {0} 点伤害；每场第一次小胡后得到 {1} 点能量。": [
+  "Full Flush and Small Win deal {0} extra damage to ALL enemies; gain {1} Energy after your first Small Win each combat.",
+  "清一色と小和で敵全体に追加{0}ダメージ。各戦闘で最初の小和の後エナジーを{1}得る。"
+ ],
+ "燃血（失去 {0} 生命，得到 {1} 点内力，每回合只有第一次给内力）。获得 {2} 点格挡。": [
+  "Burn Blood (lose {0} HP, gain {1} Qi; only the first each turn gives Qi). Gain {2} Block.",
+  "燃血（HPを{0}失い内力{1}を得る。内力は毎ターン初回のみ）。ブロック{2}を得る。"
+ ],
+ "献血得到，由牌消耗（最多 {0}）": [
+  "Gained by Donating, spent by cards (max {0})",
+  "献血で得て、カードで消費（最大{0}）"
+ ],
+ "生命高于一半时献血 {0}。抽 {1} 张牌。消耗。": [
+  "If above half HP, Donate {0}. Draw {1} card. Exhaust.",
+  "HPが半分より多ければ献血{0}。カードを{1}枚引く。廃棄。"
+ ],
+ "生命高于一半时献血 {0}。抽 {1} 张牌。获得 {2} 点格挡。消耗。": [
+  "If above half HP, Donate {0}. Draw {1} card. Gain {2} Block. Exhaust.",
+  "HPが半分より多ければ献血{0}。カードを{1}枚引く。ブロック{2}を得る。廃棄。"
+ ],
+ "看牌池接下来的 {0} 张，选 {1} 张收进牌架，其余弃掉。获得 {2} 点格挡。": [
+  "Look at the next {0} tiles of the wall; put {1} into your rack and discard the rest. Gain {2} Block.",
+  "山の次の{0}枚を見て、{1}枚を牌架に加え、残りは捨てる。ブロック{2}を得る。"
+ ],
+ "祈唤，获得 {0} 点格挡。": [
+  "Invoke. Gain {0} Block.",
+  "祈唤する。ブロック{0}を得る。"
+ ],
+ "祈唤：把当前元素组合的法术放进手牌。": [
+  "Invoke: add the spell for your current element combo to your hand.",
+  "祈唤：今の元素の組み合わせの術を手札に加える。"
+ ],
+ "祈唤；再写入任一元素，再祈唤一次（这张不占每回合 {0} 次的上限）。消耗。": [
+  "Invoke; then write any element and Invoke again (doesn't count toward the {0}-per-turn limit). Exhaust.",
+  "祈唤し、任意の元素を書き込んでもう一度祈唤（毎ターン{0}回の上限に数えない）。廃棄。"
+ ],
+ "立刻额外射出一轮光弹（最多 {0} 发）。光弹不会减少，回合结束时照常再射一次。": [
+  "Fire an extra volley now (up to {0} shots). Ammo isn't used up and still fires at the end of turn.",
+  "今すぐ光弾をもう一斉射（最大{0}発）。光弾は減らず、ターン終了時にも通常通り撃つ。"
+ ],
+ "结算一个对子或刻子，抽 {0} 张牌。": [
+  "Score a pair or triplet. Draw {0} card.",
+  "対子か刻子を1つ精算する。カードを{0}枚引く。"
+ ],
+ "结算一个对子或刻子，抽 {0} 张牌。获得 {1} 点格挡。": [
+  "Score a pair or triplet. Draw {0} card. Gain {1} Block.",
+  "対子か刻子を1つ精算する。カードを{0}枚引く。ブロック{1}を得る。"
+ ],
+ "结算一个牌型（每回合一次），另获得 {0} 点格挡。": [
+  "Score a hand (once per turn). Also gain {0} Block.",
+  "役を1つ精算する（毎ターン1回）。さらにブロック{0}を得る。"
+ ],
+ "结算一个牌型；用掉至少 {0} 张时，抽 {1} 张牌。": [
+  "Score a hand; if it used at least {0} tiles, draw {1} cards.",
+  "役を1つ精算する。{0}枚以上使ったらカードを{1}枚引く。"
+ ],
+ "结算一个牌型；用掉至少 {0} 张时，抽 {1} 张牌。获得 {2} 点格挡。": [
+  "Score a hand; if it used at least {0} tiles, draw {1} cards. Gain {2} Block.",
+  "役を1つ精算する。{0}枚以上使ったらカードを{1}枚引く。ブロック{2}を得る。"
+ ],
+ "给予所有敌人 {0} 层虚弱；霜龙形态下再给予 {1} 层易伤。": [
+  "Apply {0} Weak to ALL enemies; in Frost Dragon Form also apply {1} Vulnerable.",
+  "敵全体に脱力{0}。霜竜形態なら脆弱{1}も与える。"
+ ],
+ "花掉最多 {0} 点鲜血，每点获得 {1} 点格挡；另获得 {2} 点格挡。": [
+  "Spend up to {0} Blood; gain {1} Block for each. Also gain {2} Block.",
+  "鮮血を最大{0}使い、1につきブロック{1}。さらにブロック{2}を得る。"
+ ],
+ "获得 {0} 点格挡。内力不少于 {1} 时，花掉 {2} 点再获得 {3} 点格挡。": [
+  "Gain {0} Block. If you have at least {1} Qi, spend {2} to gain {3} more Block.",
+  "ブロック{0}を得る。内力が{1}以上なら{2}使ってさらにブロック{3}。"
+ ],
+ "获得 {0} 点格挡。写入水。": [
+  "Gain {0} Block. Write Water.",
+  "ブロック{0}を得る。水を書き込む。"
+ ],
+ "获得 {0} 点格挡。卸下最多 {1} 发光弹，每发再 {2}（最多共 {3} 点）。": [
+  "Gain {0} Block. Unload up to {1} Ammo, {2} Block each (up to {3} total).",
+  "ブロック{0}を得る。光弾を最大{1}発外し、1発につき{2}（合計最大{3}）。"
+ ],
+ "获得 {0} 点格挡。团子休息时额外回复 {1} 生命。": [
+  "Gain {0} Block. If Dango Rests, it heals {1} more.",
+  "ブロック{0}を得る。団子が休むならHPをさらに{1}回復。"
+ ],
+ "获得 {0} 点格挡。团子倒地时再获得 {1} 点格挡并抽 {2} 张牌。": [
+  "Gain {0} Block. If Dango is down, gain {1} more Block and draw {2} card.",
+  "ブロック{0}を得る。団子が倒れていればさらにブロック{1}を得てカードを{2}枚引く。"
+ ],
+ "获得 {0} 点格挡。团子倒地时，让它带着 {1} 生命回到场上。消耗。": [
+  "Gain {0} Block. If Dango is down, it returns with {1} HP. Exhaust.",
+  "ブロック{0}を得る。団子が倒れていればHP{1}で復帰させる。廃棄。"
+ ],
+ "获得 {0} 点格挡。团子在护卫时，本轮能多挡 {1} 点。": [
+  "Gain {0} Block. If Dango is guarding, it blocks {1} more this round.",
+  "ブロック{0}を得る。団子が護衛中なら、このラウンド{1}多く防ぐ。"
+ ],
+ "获得 {0} 点格挡。团子护卫时，它自己受到的伤害 {1}。": [
+  "Gain {0} Block. While Dango guards, damage it takes {1}.",
+  "ブロック{0}を得る。団子の護衛中、団子が受けるダメージ{1}。"
+ ],
+ "获得 {0} 点格挡。团子还在场时抽 {1} 张牌。": [
+  "Gain {0} Block. Draw {1} card if Dango is still up.",
+  "ブロック{0}を得る。団子が健在ならカードを{1}枚引く。"
+ ],
+ "获得 {0} 点格挡。得到 {1} 把飞剑。": [
+  "Gain {0} Block. Gain {1} Flying Sword.",
+  "ブロック{0}を得る。飛剣を{1}本得る。"
+ ],
+ "获得 {0} 点格挡。得到 {1} 点内力。": [
+  "Gain {0} Block. Gain {1} Qi.",
+  "ブロック{0}を得る。内力を{1}得る。"
+ ],
+ "获得 {0} 点格挡。摸 {1} 张麻将牌。": [
+  "Gain {0} Block. Draw {1} tile.",
+  "ブロック{0}を得る。麻雀牌を{1}枚引く。"
+ ],
+ "获得 {0} 点格挡。摸 {1} 张麻将牌，再弃掉最孤立的 {2} 张。": [
+  "Gain {0} Block. Draw {1} tile, then discard your most isolated {2}.",
+  "ブロック{0}を得る。麻雀牌を{1}枚引き、最も孤立した{2}枚を捨てる。"
+ ],
+ "获得 {0} 点格挡。本回合主动弃过牌则再 {1}。": [
+  "Gain {0} Block; {1} more if you discarded a card this turn.",
+  "ブロック{0}を得る。このターン自分でカードを捨てていたら{1}。"
+ ],
+ "获得 {0} 点格挡。本回合可以再改一次团子的指令。": [
+  "Gain {0} Block. You may change Dango's command once more this turn.",
+  "ブロック{0}を得る。このターン団子の指示をもう一度変えられる。"
+ ],
+ "获得 {0} 点格挡。消耗。": [
+  "Gain {0} Block. Exhaust.",
+  "ブロック{0}を得る。廃棄。"
+ ],
+ "获得 {0} 点格挡。生命高于一半时献血 {1}。": [
+  "Gain {0} Block. If above half HP, Donate {1}.",
+  "ブロック{0}を得る。HPが半分より多ければ献血{1}。"
+ ],
+ "获得 {0} 点格挡。疾风势下抽 {1} 张牌。": [
+  "Gain {0} Block. In Gale Stance, draw {1} card.",
+  "ブロック{0}を得る。疾風の構えならカードを{1}枚引く。"
+ ],
+ "获得 {0} 点格挡。霜龙形态下抽 {1} 张牌。": [
+  "Gain {0} Block. In Frost Dragon Form, draw {1} card.",
+  "ブロック{0}を得る。霜竜形態ならカードを{1}枚引く。"
+ ],
+ "获得 {0} 点格挡。鲜血不少于 {1} 时，花掉 {2} 点再获得 {3} 点格挡。": [
+  "Gain {0} Block. If you have at least {1} Blood, spend {2} to gain {3} more Block.",
+  "ブロック{0}を得る。鮮血が{1}以上なら{2}使ってさらにブロック{3}。"
+ ],
+ "获得 {0} 点格挡和 {1} 层霜甲。": [
+  "Gain {0} Block and {1} Frost Armor.",
+  "ブロック{0}と霜甲{1}を得る。"
+ ],
+ "获得 {0} 点格挡，得到 {1} 只蝙蝠。": [
+  "Gain {0} Block. Gain {1} Bat.",
+  "ブロック{0}を得る。蝙蝠を{1}匹得る。"
+ ],
+ "获得 {0} 点格挡，抽 {1} 张牌。消耗。": [
+  "Gain {0} Block. Draw {1} cards. Exhaust.",
+  "ブロック{0}を得る。カードを{1}枚引く。廃棄。"
+ ],
+ "获得 {0} 点格挡，祈唤：把当前元素组合的法术放进手牌。": [
+  "Gain {0} Block. Invoke: add the spell for your current element combo to your hand.",
+  "ブロック{0}を得る。祈唤：今の元素の組み合わせの術を手札に加える。"
+ ],
+ "获得 {0} 点格挡，给予所有敌人 {1} 层虚弱。消耗。": [
+  "Gain {0} Block. Apply {1} Weak to ALL enemies. Exhaust.",
+  "ブロック{0}を得る。敵全体に脱力{1}。廃棄。"
+ ],
+ "获得 {0} 点格挡，给予目标 {1} 层虚弱。": [
+  "Gain {0} Block. Apply {1} Weak to the target.",
+  "ブロック{0}を得る。対象に脱力{1}。"
+ ],
+ "获得 {0} 点格挡；牌架里有对子时再获得 {1} 点。": [
+  "Gain {0} Block; {1} more if your rack has a pair.",
+  "ブロック{0}を得る。牌架に対子があればさらに{1}。"
+ ],
+ "获得 {0} 点能量，抽 {1} 张牌。消耗。": [
+  "Gain {0} Energy. Draw {1} card. Exhaust.",
+  "エナジーを{0}得る。カードを{1}枚引く。廃棄。"
+ ],
+ "蝙蝠全部对目标出猎。消耗。": [
+  "All Bats Hunt the target. Exhaust.",
+  "蝙蝠全員で標的を狩る。廃棄。"
+ ],
+ "蝙蝠全部对目标出猎。获得 {0} 点格挡。消耗。": [
+  "All Bats Hunt the target. Gain {0} Block. Exhaust.",
+  "蝙蝠全員で標的を狩る。ブロック{0}を得る。廃棄。"
+ ],
+ "蝙蝠出猎时每层 {0} 伤害（最多 {1} 层）": [
+  "Each stack adds {0} damage when Bats Hunt (max {1})",
+  "蝙蝠が狩る時1層につき{0}ダメージ（最大{1}層）"
+ ],
+ "选 {0} 张手牌弃掉，再随机弃 {1} 张，然后抽 {2} 张牌。": [
+  "Choose {0} card to discard, discard {1} more at random, then draw {2} cards.",
+  "手札を{0}枚選んで捨て、さらにランダムに{1}枚捨て、カードを{2}枚引く。"
+ ],
+ "造成 {0} 点伤害 {1} 次。消耗。": [
+  "Deal {0} damage {1} times. Exhaust.",
+  "{0}ダメージを{1}回。廃棄。"
+ ],
+ "造成 {0} 点伤害 {1} 次。霜龙形态下第一击再 {2}。": [
+  "Deal {0} damage {1} times. In Frost Dragon Form the first hit gets {2}.",
+  "{0}ダメージを{1}回。霜竜形態なら最初の一撃{2}。"
+ ],
+ "造成 {0} 点伤害。三种元素齐全时抽 {1} 张牌。": [
+  "Deal {0} damage. Draw {1} card if all three elements are present.",
+  "{0}ダメージ。3元素がそろっていればカードを{1}枚引く。"
+ ],
+ "造成 {0} 点伤害。元素位里恰好有两种元素时，再造成 {1} 点伤害。": [
+  "Deal {0} damage. If your slots hold exactly two elements, deal {1} more.",
+  "{0}ダメージ。元素枠がちょうど2種なら追加で{1}ダメージ。"
+ ],
+ "造成 {0} 点伤害。内力不少于 {1} 时，花掉 {2} 点再打 {3} 次。": [
+  "Deal {0} damage. If you have at least {1} Qi, spend {2} to hit {3} more time.",
+  "{0}ダメージ。内力が{1}以上なら{2}使ってもう{3}回。"
+ ],
+ "造成 {0} 点伤害。写入火。": [
+  "Deal {0} damage. Write Fire.",
+  "{0}ダメージ。火を書き込む。"
+ ],
+ "造成 {0} 点伤害。写入风。": [
+  "Deal {0} damage. Write Wind.",
+  "{0}ダメージ。風を書き込む。"
+ ],
+ "造成 {0} 点伤害。团子在扑击时，扑击目标改成这个敌人。": [
+  "Deal {0} damage. If Dango is Pouncing, it switches to this enemy.",
+  "{0}ダメージ。団子が飛びかかり中なら、標的をこの敵に変える。"
+ ],
+ "造成 {0} 点伤害。弃掉最孤立的 {1} 张麻将牌，再摸 {2} 张。": [
+  "Deal {0} damage. Discard your most isolated {1} tile, then draw {2}.",
+  "{0}ダメージ。最も孤立した麻雀牌を{1}枚捨て、{2}枚引く。"
+ ],
+ "造成 {0} 点伤害。得到 {1} 把飞剑。": [
+  "Deal {0} damage. Gain {1} Flying Sword.",
+  "{0}ダメージ。飛剣を{1}本得る。"
+ ],
+ "造成 {0} 点伤害。得到 {1} 点龙血。": [
+  "Deal {0} damage. Gain {1} Dragon Blood.",
+  "{0}ダメージ。竜血を{1}得る。"
+ ],
+ "造成 {0} 点伤害。打穿了目标的格挡时，获得 {1} 点格挡。": [
+  "Deal {0} damage. If it broke the target's Block, gain {1} Block.",
+  "{0}ダメージ。対象のブロックを破ったらブロック{1}を得る。"
+ ],
+ "造成 {0} 点伤害。摸 {1} 张麻将牌。": [
+  "Deal {0} damage. Draw {1} tile.",
+  "{0}ダメージ。麻雀牌を{1}枚引く。"
+ ],
+ "造成 {0} 点伤害。有 {1} 个以上敌人且内力不少于 {2} 时，花掉 {3} 点改为打所有敌人。": [
+  "Deal {0} damage. With {1}+ enemies and at least {2} Qi, spend {3} to hit ALL enemies instead.",
+  "{0}ダメージ。敵が{1}体以上で内力{2}以上なら、{3}使って敵全体に。"
+ ],
+ "造成 {0} 点伤害。有刻子时立刻结算它（算本回合的一次结算）。": [
+  "Deal {0} damage. If you have a triplet, score it now (counts as this turn's hand).",
+  "{0}ダメージ。刻子があればすぐ精算する（このターンの精算に数える）。"
+ ],
+ "造成 {0} 点伤害。有飞剑时，再射出 {1} 把。": [
+  "Deal {0} damage. If you have Flying Swords, launch {1}.",
+  "{0}ダメージ。飛剣があれば{1}本射出する。"
+ ],
+ "造成 {0} 点伤害。本回合已打出 {1} 张攻击牌时，再对所有敌人造成 {2} 点伤害。": [
+  "Deal {0} damage. If you've already played {1} Attacks this turn, deal {2} to ALL enemies too.",
+  "{0}ダメージ。このターンすでにアタックを{1}枚使っていれば、敵全体にも{2}ダメージ。"
+ ],
+ "造成 {0} 点伤害。本回合已打出 {1} 张攻击牌时，抽 {2} 张牌。": [
+  "Deal {0} damage. If you've already played {1} Attacks this turn, draw {2} card.",
+  "{0}ダメージ。このターンすでにアタックを{1}枚使っていればカードを{2}枚引く。"
+ ],
+ "造成 {0} 点伤害。本回合献过血时，吸血 {1}。": [
+  "Deal {0} damage. If you Donated this turn, Lifesteal {1}.",
+  "{0}ダメージ。このターン献血していれば吸血{1}。"
+ ],
+ "造成 {0} 点伤害。消耗最多 {1} 层结界，每层再 {2}。": [
+  "Deal {0} damage. Spend up to {1} Ward, {2} damage each.",
+  "{0}ダメージ。結界を最大{1}消費し、1層につき{2}。"
+ ],
+ "造成 {0} 点伤害。花掉最多 {1} 层霜甲，每层 {2}。": [
+  "Deal {0} damage. Spend up to {1} Frost Armor, {2} each.",
+  "{0}ダメージ。霜甲を最大{1}使い、1層につき{2}。"
+ ],
+ "造成 {0} 点伤害。若有结界，花掉 {1} 层，给予 {2} 层易伤。": [
+  "Deal {0} damage. If you have Ward, spend {1} to apply {2} Vulnerable.",
+  "{0}ダメージ。結界があれば{1}消費して脆弱{2}を与える。"
+ ],
+ "造成 {0} 点伤害。霜龙形态下给予 {1} 层易伤。": [
+  "Deal {0} damage. In Frost Dragon Form, apply {1} Vulnerable.",
+  "{0}ダメージ。霜竜形態なら脆弱{1}を与える。"
+ ],
+ "造成 {0} 点伤害。鲜血不少于 {1} 时，花掉 {2} 点再打 {3} 次。": [
+  "Deal {0} damage. If you have at least {1} Blood, spend {2} to hit {3} more time.",
+  "{0}ダメージ。鮮血が{1}以上なら{2}使ってもう{3}回。"
+ ],
+ "造成 {0} 点伤害。鲜血不少于 {1} 时，花掉 {2} 点再造成 {3} 点伤害。": [
+  "Deal {0} damage. If you have at least {1} Blood, spend {2} to deal {3} more.",
+  "{0}ダメージ。鮮血が{1}以上なら{2}使って追加で{3}ダメージ。"
+ ],
+ "造成 {0} 点伤害，再加上上一轮团子替你挡下的伤害（最多 {1}）。": [
+  "Deal {0} damage plus the damage Dango blocked for you last round (up to {1}).",
+  "{0}ダメージ＋前のラウンドに団子がかばったダメージ（最大{1}）。"
+ ],
+ "造成 {0} 点伤害，再加上当前霜甲层数（最多 {1}）。": [
+  "Deal {0} damage plus your current Frost Armor (up to {1}).",
+  "{0}ダメージ＋現在の霜甲（最大{1}）。"
+ ],
+ "造成 {0} 点伤害，吸血 {1}。": [
+  "Deal {0} damage. Lifesteal {1}.",
+  "{0}ダメージ。吸血{1}。"
+ ],
+ "造成 {0} 点伤害，抽 {1} 张牌。消耗。": [
+  "Deal {0} damage. Draw {1} card. Exhaust.",
+  "{0}ダメージ。カードを{1}枚引く。廃棄。"
+ ],
+ "造成 {0} 点伤害，然后蝙蝠全部对它出猎。": [
+  "Deal {0} damage, then all Bats Hunt it.",
+  "{0}ダメージ。その後蝙蝠全員でその敵を狩る。"
+ ],
+ "造成 {0} 点伤害，给予 {1} 层易伤。消耗。": [
+  "Deal {0} damage. Apply {1} Vulnerable. Exhaust.",
+  "{0}ダメージ。脆弱{1}を与える。廃棄。"
+ ],
+ "造成 {0} 点伤害；三格元素相同时改为 {1} 点。": [
+  "Deal {0} damage; {1} instead if all three slots match.",
+  "{0}ダメージ。3枠の元素が同じなら{1}。"
+ ],
+ "造成 {0} 点伤害；本回合结算过刻子时，再造成 {1} 点。": [
+  "Deal {0} damage; {1} more if you scored a triplet this turn.",
+  "{0}ダメージ。このターン刻子を精算していれば追加で{1}。"
+ ],
+ "造成 {0} 点伤害；本回合结算过顺子时，改为对所有敌人造成 {1} 点。": [
+  "Deal {0} damage; if you scored a run this turn, deal {1} to ALL enemies instead.",
+  "{0}ダメージ。このターン順子を精算していれば敵全体に{1}。"
+ ],
+ "造成 {0} 点伤害；目标是团子的扑击目标时再 {1}。": [
+  "Deal {0} damage; {1} if the target is Dango's Pounce target.",
+  "{0}ダメージ。団子の飛びかかり標的なら{1}。"
+ ],
+ "造成 {0} 点伤害；目标是团子的扑击目标时给予 {1} 层易伤。": [
+  "Deal {0} damage; apply {1} Vulnerable if the target is Dango's Pounce target.",
+  "{0}ダメージ。団子の飛びかかり標的なら脆弱{1}を与える。"
+ ],
+ "造成 {0} 点伤害；破岳势下再 {1}。": [
+  "Deal {0} damage; {1} in Mountain Stance.",
+  "{0}ダメージ。破岳の構えなら{1}。"
+ ],
+ "造成等同于你当前格挡值的伤害（格挡不会减少）。": [
+  "Deal damage equal to your current Block (Block is not lost).",
+  "現在のブロックと同じダメージ（ブロックは減らない）。"
+ ],
+ "造成等同于你当前格挡值的伤害，再 {0}（格挡不会减少）。": [
+  "Deal damage equal to your current Block, {0} (Block is not lost).",
+  "現在のブロックと同じダメージ、さらに{0}（ブロックは減らない）。"
+ ],
+ "造成 {0} 点伤害。": [
+  "Deal {0} damage.",
+  "{0}ダメージ。"
+ ],
+ "测试中": [
+  "Testing",
+  "テスト中"
+ ],
+ "选择一张手牌": [
+  "Choose a card in your hand",
+  "手札を1枚選ぶ"
+ ],
+ "取消": [
+  "Cancel",
+  "キャンセル"
+ ],
+ "选择目标": [
+  "Choose a target",
+  "対象を選ぶ"
+ ],
+ "选择要写入的元素": [
+  "Choose an element to write",
+  "書き込む元素を選ぶ"
+ ],
+ "借寒：选一样": [
+  "Borrow Cold: choose one",
+  "借寒：1つ選ぶ"
+ ],
+ "第二次祈唤前写入哪种元素": [
+  "Element to write before the second Invoke",
+  "2回目の祈唤の前に書き込む元素"
+ ],
+ "选择要结算的牌型": [
+  "Choose a hand to score",
+  "精算する役を選ぶ"
+ ],
+ "选择对子或刻子": [
+  "Choose a pair or triplet",
+  "対子か刻子を選ぶ"
+ ],
+ "选择收进牌架的牌": [
+  "Choose a tile for your rack",
+  "牌架に入れる牌を選ぶ"
+ ],
+ "指定一张牌": [
+  "Name a tile",
+  "牌を1つ指定"
+ ],
+ "写入": [
+  "Write",
+  "書き込む"
+ ],
+ "火": [
+  "Fire",
+  "火"
+ ],
+ "水": [
+  "Water",
+  "水"
+ ],
+ "风": [
+  "Wind",
+  "風"
+ ],
+ "得到龙血": [
+  "Gain Dragon Blood",
+  "竜血を得る"
+ ],
+ "得到霜甲": [
+  "Gain Frost Armor",
+  "霜甲を得る"
+ ],
+ "对子": [
+  "Pair",
+  "対子"
+ ],
+ "刻子": [
+  "Triplet",
+  "刻子"
+ ],
+ "顺子": [
+  "Run",
+  "順子"
+ ],
+ "清一色": [
+  "Full Flush",
+  "清一色"
+ ],
+ "小胡": [
+  "Small Win",
+  "小和"
+ ],
+ "万": [
+  "C",
+  "萬"
+ ],
+ "条": [
+  "B",
+  "索"
+ ],
+ "筒": [
+  "D",
+  "筒"
+ ],
+ "护卫": [
+  "Guard",
+  "護衛"
+ ],
+ "扑击": [
+  "Pounce",
+  "飛びかかり"
+ ],
+ "休息": [
+  "Rest",
+  "休む"
+ ],
+ "团子": [
+  "Dango",
+  "団子"
+ ],
+ "团子倒地": [
+  "Dango is down",
+  "団子ダウン"
+ ],
+ "变身（龙血 {0}/{1}）": [
+  "Transform (Dragon Blood {0}/{1})",
+  "変身（竜血 {0}/{1}）"
+ ],
+ "霜龙 {0} 回合": [
+  "Frost Dragon: {0} turns",
+  "霜竜 残り{0}ターン"
+ ],
+ "标记": [
+  "Mark",
+  "標的"
+ ],
+ "元素位：祈唤会得到箭头后面的法术": [
+  "Element slots: Invoke gives the spell after the arrow",
+  "元素枠：祈唤すると矢印の先の術を得る"
+ ],
+ "团子 {0} 级，攻击 {1}": [
+  "Dango Lv {0}, Attack {1}",
+  "団子 Lv{0}、攻撃{1}"
+ ],
+ "麻将": [
+  "Mahjong",
+  "麻雀"
+ ],
+ "本回合已结算": [
+  "Already scored this turn",
+  "このターンは精算済み"
+ ],
+ "还没有牌型": [
+  "No hands yet",
+  "まだ役なし"
+ ],
+ "牌池 {0}": [
+  "Wall {0}",
+  "山 {0}"
+ ],
+ "本回合最后摸到的牌，只能用来凑小胡": [
+  "The last tile you drew this turn; only usable for a Small Win",
+  "このターン最後に引いた牌。小和にだけ使える"
+ ],
+ "本回合已祈唤 {0} 次": [
+  "Already Invoked {0} times this turn",
+  "このターンはすでに{0}回祈唤した"
+ ],
+ "手牌满了": [
+  "Hand is full",
+  "手札がいっぱい"
+ ],
+ "团子挡下 {0}": [
+  "Dango blocked {0}",
+  "団子が{0}防いだ"
+ ],
+ "团子倒下了": [
+  "Dango is down!",
+  "団子が倒れた"
+ ],
+ "霜龙形态！": [
+  "Frost Dragon Form!",
+  "霜竜形態！"
+ ],
+ "本回合已经结算过牌型": [
+  "You already scored a hand this turn",
+  "このターンはもう役を精算した"
+ ],
+ "团子长大了！（{0} 级）": [
+  "Dango grew up! (Lv {0})",
+  "団子が成長した！（Lv{0}）"
+ ],
+ "团子得到 {0} 点成长": [
+  "Dango gained {0} growth",
+  "団子が成長ポイントを{0}得た"
+ ],
+ "血月当空：不死系敌人力量 {0}（从它们下一次攻击开始）": [
+  "Blood Moon: undead enemies gain {0} Strength (from their next attack)",
+  "血の月：アンデッドの筋力{0}（次の攻撃から）"
+ ],
+ "战意：战斗拖得太久，敌人从现在起每两回合力量 {0}（从下一次攻击开始）": [
+  "Fury: the fight has dragged on; enemies now gain {0} Strength every two turns (from their next attack)",
+  "戦意：戦いが長引いた。敵は今から2ターンごとに筋力{0}（次の攻撃から）"
+ ],
+ "第一次被打倒时，带着 {0}% 生命复活（负面状态清空）": [
+  "Revives with {0}% HP the first time it falls (debuffs are cleared)",
+  "初めて倒れた時、HP{0}%で復活（デバフは消える）"
+ ],
+ "三个元素位，写入火、水、风；「{0}」按组合把 {1} 种法术之一放进手牌。": [
+  "Three element slots take Fire, Water and Wind; 「{0}」 adds one of {1} spells to your hand based on the combo.",
+  "3つの元素枠に火・水・風を書き込む。「{0}」で組み合わせに応じた{1}種の術の1つを手札に加える。"
+ ],
+ "祈唤": [
+  "Invoke",
+  "祈唤"
+ ],
+ "飞剑加第一击伤害，也能一口气射出；燃血换内力；疾风、破岳两种剑势来回切。": [
+  "Flying Swords boost your first hit or launch all at once; Burn Blood for Qi; switch between Gale and Mountain stances.",
+  "飛剣で最初の一撃を強化、または一斉射出。燃血で内力を得て、疾風と破岳の構えを切り替える。"
+ ],
+ "攒满 {0} 点龙血点「{1}」，霜龙形态的三回合打得最狠；也能靠霜甲稳稳挡住。": [
+  "Fill {0} Dragon Blood and press 「{1}」: the three Frost Dragon turns hit hardest. Or hold steady with Frost Armor.",
+  "竜血を{0}ためて「{1}」。霜竜形態の3ターンが最大火力。霜甲で守る道もある。"
+ ],
+ "变身": [
+  "Transform",
+  "変身"
+ ],
+ "每回合给团子一个指令：护卫替你挡刀、扑击打人、休息回血。团子会越打越大。": [
+  "Give Dango a command each turn: Guard takes hits for you, Pounce attacks, Rest heals. Dango grows as you fight.",
+  "毎ターン団子に指示：護衛でかばう、飛びかかりで攻撃、休んで回復。団子は戦うほど大きくなる。"
+ ],
+ "献血换鲜血，攻击吸血回本；蝙蝠给目标叠血痕，再一口气出猎。": [
+  "Donate HP for Blood and Lifesteal it back; Bats stack Blood Marks, then Hunt all at once.",
+  "献血で鮮血を得て吸血で取り戻す。蝙蝠で血痕を重ね、一斉に狩る。"
+ ],
+ "每回合摸 {0} 张麻将牌，用「{1}」结算对子、刻子、顺子、清一色或小胡。": [
+  "Draw {0} mahjong tiles each turn; use 「{1}」 to score a pair, triplet, run, Full Flush or Small Win.",
+  "毎ターン麻雀牌を{0}枚引き、「{1}」で対子・刻子・順子・清一色・小和を精算する。"
+ ],
+ "三同专精": [
+  "Triple Specialist",
+  "三同特化"
+ ],
+ "把三格写成同一种元素，打出陨星、冰镜、风门这类大法术。": [
+  "Fill all three slots with one element for big spells like Meteor, Ice Mirror and Wind Gate.",
+  "3枠を同じ元素にして、隕星・氷鏡・風門などの大技を放つ。"
+ ],
+ "混合应变": [
+  "Mixed Improviser",
+  "混合応変"
+ ],
+ "每回合换组合，多写入、多祈唤，吃不同配方的奖励。": [
+  "Change combos every turn; write and Invoke often to earn rewards for different recipes.",
+  "毎ターン組み合わせを変え、書き込みと祈唤を重ねて別レシピのボーナスを得る。"
+ ],
+ "剑宗": [
+  "Sword School",
+  "剣宗"
+ ],
+ "气宗": [
+  "Qi School",
+  "気宗"
+ ],
+ "剑势连段": [
+  "Stance Combo",
+  "構え連携"
+ ],
+ "攒满飞剑，第一击越来越重，关键时刻全部射出。": [
+  "Fill up on Flying Swords for heavier first hits, then launch them all when it counts.",
+  "飛剣をためて最初の一撃を重くし、ここぞで全て射出。"
+ ],
+ "燃血换内力，再用内力换双倍出手和厚格挡。": [
+  "Burn Blood for Qi, then spend Qi on double hits and thick Block.",
+  "燃血で内力を得て、二連撃や厚いブロックに使う。"
+ ],
+ "一回合切两次剑势、连出攻击牌。": [
+  "Switch stances twice in a turn and chain Attacks.",
+  "1ターンに構えを2回切り替え、アタックを連続で使う。"
+ ],
+ "抢变身": [
+  "Rush Transform",
+  "速攻変身"
+ ],
+ "尽快攒满龙血，把霜龙三回合对准敌人最凶的时候。": [
+  "Fill Dragon Blood fast and time the three dragon turns for the enemy's worst moment.",
+  "竜血を素早くため、霜竜の3ターンを敵の一番危ない時に合わせる。"
+ ],
+ "霜甲反击": [
+  "Frost Counter",
+  "霜甲反撃"
+ ],
+ "不急着变身，叠霜甲挡伤害再反打。": [
+  "No rush to transform: stack Frost Armor, absorb damage, then strike back.",
+  "変身を急がず、霜甲を重ねて防ぎ、反撃する。"
+ ],
+ "团子当主攻，配合扑击目标打出加成。": [
+  "Dango leads the attack; bonus damage against its Pounce target.",
+  "団子が主攻。飛びかかり標的にボーナス。"
+ ],
+ "团子替你挡刀，再把挡下的伤害还回去。": [
+  "Dango takes hits for you, and you pay that damage back.",
+  "団子がかばい、その分を返す。"
+ ],
+ "照料": [
+  "Care",
+  "お世話"
+ ],
+ "保住团子让它一路长大。": [
+  "Keep Dango safe so it keeps growing.",
+  "団子を守って成長させる。"
+ ],
+ "主动献血，攒够鲜血打出爆发。": [
+  "Donate on purpose and cash in a burst once you have enough Blood.",
+  "自分から献血し、鮮血がたまったら一気に放つ。"
+ ],
+ "吸血": [
+  "Lifesteal",
+  "吸血"
+ ],
+ "靠吸血把献掉的血补回来。": [
+  "Win back donated HP with Lifesteal.",
+  "献血した分を吸血で取り戻す。"
+ ],
+ "放出蝙蝠叠血痕，再全部出猎。": [
+  "Release Bats to stack Blood Marks, then send them all to Hunt.",
+  "蝙蝠で血痕を重ね、全員で狩る。"
+ ],
+ "快牌": [
+  "Fast Hands",
+  "早和了"
+ ],
+ "有牌型就马上结算，吃每回合的结算奖励。": [
+  "Score whenever you can to collect the per-turn scoring bonuses.",
+  "役ができたらすぐ精算し、毎ターンのボーナスを得る。"
+ ],
+ "做牌": [
+  "Build a Hand",
+  "手作り"
+ ],
+ "出千、听口，攒一手清一色或小胡。": [
+  "Cheat and wait for tiles to build a Full Flush or Small Win.",
+  "イカサマと聴牌で清一色か小和を作る。"
+ ],
+ "霜甲每个敌方回合第一次挡伤后反击 {0} 点": [
+  "Frost Armor strikes back for {0} the first time it absorbs damage each enemy turn",
+  "霜甲が敵ターンごとに初めてダメージを防ぐと{0}反撃"
+ ],
+ "退出霜龙形态的回合额外抽牌和格挡": [
+  "Extra draw and Block on the turn you leave Frost Dragon Form",
+  "霜竜形態が解けたターンに追加ドローとブロック"
+ ]
+}

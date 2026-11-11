@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11111520';
-import { createAudio } from './audio.js?v=live2_11111520';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11111520';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11111900';
+import { createAudio } from './audio.js?v=live2_11111900';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11111900';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -48,7 +48,7 @@ let R = null; // 当前一局
 let uidN = 1;
 const mkCard = (id, up = 0) => ({ id, up, uid: uidN++ });
 function newRun(char = 'hero', asc = 0) {
-  R = { char, hp: 80, maxHp: 80, gold: 120, potions: [], asc, deck: STARTERS[char].map(id => mkCard(id)), relics: [{ heroine: 'phones', miko: 'suzu', witch: 'cauldron' }[char] || (CHARS[char].temp ? null : 'gameboy')].filter(Boolean), map: genMap(), pos: null,
+  R = { char, hp: 80, maxHp: 80, gold: 120, potions: [], asc, deck: STARTERS[char].map(id => mkCard(id)), relics: [STARTRELIC[char]].filter(Boolean), map: genMap(), pos: null,
     floor: 0, fights: 0, removeCost: 75, boss: pickOne(ENCOUNTERS.boss)[0], feather: 0 };
   if (asc >= 4) { R.maxHp -= 8; R.hp = R.maxHp; }
 }
@@ -57,7 +57,7 @@ const snap = () => { const { snap: _, ...o } = R; R.snap = JSON.stringify(o); };
 const mine = d => (!d.ch || d.ch === (R.char || 'hero')) && (!d.act2 || (R && R.act === 2));
 function save() { try { localStorage.setItem('theway_run_v2', JSON.stringify(R)); } catch (e) {} }
 function clearSave() { try { localStorage.removeItem('theway_run_v2'); } catch (e) {} }
-function load() { try { const s = JSON.parse(localStorage.getItem('theway_run_v2')); if (s) { if (!CHARS[s.char] || !Array.isArray(s.deck) || !Array.isArray(s.map)) return null; s.potions = (s.potions || []).filter(p => POTIONS[p]); s.deck = s.deck.filter(c => CARDS[c.id]); s.relics = (s.relics || []).filter(r => RELICS[r]); uidN = 1 + Math.max(0, ...s.deck.map(c => c.uid)); } return s; } catch (e) { return null; } }
+function load() { try { const s = JSON.parse(localStorage.getItem('theway_run_v2')); if (s) { if (!CHARS[s.char] || !Array.isArray(s.deck) || !Array.isArray(s.map)) return null; s.potions = (s.potions || []).filter(p => POTIONS[p]); s.deck = s.deck.filter(c => CARDS[c.id]); s.relics = (s.relics || []).filter(r => RELICS[r]); uidN = 1 + Math.max(0, ...s.deck.map(c => c.uid)); s.act = s.act === 2 ? 2 : 1; const bl = (s.act === 2 ? ENCOUNTERS2 : ENCOUNTERS).boss.map(b => b[0]); if (!bl.includes(s.boss)) s.boss = pickOne(bl); s.floor = Math.max(0, Math.min(ROWS + 1, s.floor | 0)); } return s; } catch (e) { return null; } }
 
 // ---------- 地图生成 ----------
 const ROWS = 15, COLS = 7;
@@ -112,7 +112,8 @@ const foreHTML = () => `<div id="fore"><img src="assets/fg/bush.png" style="left
 
 // ---------- 卡牌显示 ----------
 const TYPE = { atk: '攻击', skill: '技能', power: '能力' };
-function cardCost(c) { const d = CARDS[c.id]; if (c.free) return 0; if (c.rc != null) return c.rc; const k = d.cost[c.up ? 1 : 0]; return c.disc && k !== 'X' ? Math.max(0, k - 1) : k; }
+function cardCost(c) { const k0 = cardCost0(c); return B && R && typeof k0 === 'number' ? Math.max(0, k0 + MECH.costMod(G, CARDS[c.id])) : k0; }
+function cardCost0(c) { const d = CARDS[c.id]; if (c.free) return 0; if (c.rc != null) return c.rc; const k = d.cost[c.up ? 1 : 0]; return c.disc && k !== 'X' ? Math.max(0, k - 1) : k; }
 function cardHTML(c, extra = '', energy = 99) {
   const d = CARDS[c.id], cost = cardCost(c), no = cost !== 'X' && cost > energy;
   const rr = d.rar === 'start' || d.rar === 'gen' ? 'c' : d.rar;
@@ -121,6 +122,10 @@ function cardHTML(c, extra = '', energy = 99) {
    <div class="cost ${no ? 'no' : ''}"${d.unplay ? ' style="visibility:hidden"' : ''}>${cost}</div><div class="cname">${d.name}${c.up ? '+' : ''}</div></div>`;
 }
 function overlay(html) { const o = document.createElement('div'); o.className = 'overlay'; o.innerHTML = html; stage.appendChild(o); return o; }
+function pickOpt(title, opts) { /* 出牌时的选择：返回所选 val，点取消返回 undefined */
+  return new Promise(res => { const o = overlay(`<h2>${t(title)}</h2><div class="row pickrow">${opts.map((x, k) => `<div class="pko" data-k="${k}">${x.html || `<button class="btn">${t(x.label)}</button>`}</div>`).join('')}</div><button class="btn" id="pkx">${t('取消')}</button>`);
+    o.querySelectorAll('.pko').forEach(el => el.onclick = () => { o.remove(); res(opts[+el.dataset.k].val); }); o.querySelector('#pkx').onclick = () => { o.remove(); res(undefined); }; });
+}
 function showPile(title, cards) {
   const o = overlay(`<h2>${title}（${cards.length}）</h2><div class="grid">${cards.map(c => cardHTML(c)).join('') || '<p>空</p>'}</div><button class="btn">关闭</button>`);
   o.querySelector('.btn').onclick = () => o.remove();
@@ -132,12 +137,12 @@ function pickDeck(mode, done) {
   if (!list.length) { done && done(); return; }
   const o = overlay(`<h2>${T[mode]}</h2><div class="grid">${list.map(c => cardHTML(c)).join('')}</div>${mode === 'upgrade' ? '<button class="btn">取消</button>' : ''}`);
   o.querySelector('.btn')?.addEventListener('click', () => { o.remove(); done && done(false); });
-  o.querySelectorAll('.card').forEach(el => el.onclick = () => {
+  o.querySelectorAll('.card').forEach(el => el.onclick = (ev, ok) => {
     const i = R.deck.findIndex(c => c.uid == el.dataset.uid), c = R.deck[i];
-    if (mode === 'upgrade' && !el.dataset.ok) { /* 先预览升级效果，确认后再升级 */
+    if (mode === 'upgrade' && ok !== true) { /* 先预览升级效果，确认后再升级 */
       const pv = overlay(`<h2>升级预览</h2><div class="upgpv">${cardHTML(c)}<span class="arr">➜</span>${cardHTML({ ...c, up: 1 })}</div><div class="row"><button class="btn gold" id="upy">确认升级</button><button class="btn" id="upn">换一张</button></div>`);
       pv.querySelector('#upn').onclick = () => pv.remove();
-      pv.querySelector('#upy').onclick = () => { pv.remove(); el.dataset.ok = 1; el.onclick(); };
+      pv.querySelector('#upy').onclick = () => { pv.remove(); el.onclick(null, true); };
       return; }
     if (mode === 'remove') R.deck.splice(i, 1);
     if (mode === 'dup') R.deck.push(mkCard(c.id, c.up));
@@ -188,19 +193,18 @@ const A_ = n => (R && R.asc || 0) >= n;
 const ONLINE = !/githack|localhost|127\.0\.0\.1|^file/.test(location.href); /* 试玩链接上没有后台 */
 const API = /netlify\.app$/.test(location.hostname) ? '/api/scores' : 'https://the-way-up.netlify.app/api/scores'; /* itch.io 等外部站点连 Netlify 后台 */
 const CHARINFO = {
-  erin: { diff: 3, tip: '头顶三个元素位，组合火、水、风，「祈唤」出 10 种法术。', line: '“火、水、风……这次搓哪一个呢。”', bio: '艾琳是精灵族的年轻魔法师，天生能同时感受到火、水、风三种元素。族里的长老说她太急躁，总想把三种元素搅在一起用。她偏偏觉得，把元素组合起来才是最有趣的魔法。听说雪山顶上有连通所有世界的门，她想去看看门那边的元素长什么样。', builds: [] },
-  gu: { diff: 2, tip: '飞剑加伤害、内力越打越强、剑招连段一口气收招。', line: '“剑在，人就在。”', bio: '顾清寒是雪山剑派的弟子。剑派因为「练气」还是「练剑」吵成了两派，她两边都偷偷学了，结果被两边都当成异类。魔王占了山顶后，剑派被赶下了山，她背着剑一个人走下来，想找能一起打回去的人。', builds: [] },
-  sylvie: { diff: 2, tip: '攒满龙血变身霜龙，三回合内龙息横扫。', line: '“……别让我变回那个样子。”', bio: '希尔薇是远古白龙最后的后裔，住在雪山的冰窟里，外表是冷淡安静的少女。情绪激动时，她会变回霜龙的样子，这让她很害怕自己。山顶的魔王占据了祖先的龙巢，她不得不下山，也不得不学着控制体内的龙血。', builds: [] },
-  mia: { diff: 1, tip: '云猫团子替你挨打、自己攻击，还会一路长大。', line: '“团子，拜托你了喵。”', bio: '米娅是人类和猫耳族的混血女孩，两边的族人都不太接纳她，从小只和云猫幼崽团子相依为命。团子的母亲是山里的守护神，被哥布林抓走了。米娅抱着团子上山，嘴上说着「拜托你了喵」，其实最舍不得团子受伤。', builds: [] },
-  feiyue: { diff: 3, tip: '用自己的血换力量，攻击吸血续命，还能放蝙蝠群。', line: '“……血的味道，我才不喜欢。”', bio: '绯月是日本的高中生，被光卷进异世界的人之一。她一直不知道，母亲那边流着吸血鬼的血。古堡的血月唤醒了她的血脉，伯爵认出了她，想把她留下。她拒绝了。她害怕自己越来越不像人类，却又不得不依靠这股力量保护同伴。', builds: [] },
-  shenque: { diff: 2, tip: '凑对子、刻子、顺子、清一色，胡牌一击定胜负。', line: '“这一局，我要胡了。”', bio: '沈雀是高中麻将社的王牌，平时安安静静，一坐上牌桌就像变了个人。那天她背着装麻将的书包回家，也被那道光卷进了异世界。到了这边，书包里的麻将牌开始发光，凑出牌型就能放出魔法。她的口头禅是：「这一局，我要胡了。」', builds: [] },
+  erin: { diff: 3, tip: '三个元素位，写入火、水、风；「祈唤」按组合把 10 种法术之一放进手牌。', line: '“火、水、风……这次搓哪一个呢。”', bio: '艾琳是精灵族的年轻魔法师，天生能同时感受到火、水、风三种元素。族里的长老说她太急躁，总想把三种元素搅在一起用。她偏偏觉得，把元素组合起来才是最有趣的魔法。听说雪山顶上有连通所有世界的门，她想去看看门那边的元素长什么样。', builds: [['三同专精', '把三格写成同一种元素，打出陨星、冰镜、风门这类大法术。', ['纯相爆发', '三相冠冕', '冰幕', '点火']], ['混合应变', '每回合换组合，多写入、多祈唤，吃不同配方的奖励。', ['临场变式', '四季轮转', '三色光', '调和']]] },
+  gu: { diff: 2, tip: '飞剑加第一击伤害，也能一口气射出；燃血换内力；疾风、破岳两种剑势来回切。', line: '“剑在，人就在。”', bio: '顾清寒是雪山剑派的弟子。剑派因为「练气」还是「练剑」吵成了两派，她两边都偷偷学了，结果被两边都当成异类。魔王占了山顶后，剑派被赶下了山，她背着剑一个人走下来，想找能一起打回去的人。', builds: [['剑宗 · 飞剑', '攒满飞剑，第一击越来越重，关键时刻全部射出。', ['万剑归一', '长空落剑', '并指三剑', '归鞘']], ['气宗 · 内力', '燃血换内力，再用内力换双倍出手和厚格挡。', ['震山掌', '绵掌', '焚脉', '逆行经脉']], ['剑势连段', '一回合切两次剑势、连出攻击牌。', ['双势归元', '雪径连斩', '回马势', '风过松']]] },
+  sylvie: { diff: 2, tip: '攒满 10 点龙血点「变身」，霜龙形态的三回合打得最狠；也能靠霜甲稳稳挡住。', line: '“……别让我变回那个样子。”', bio: '希尔薇是远古白龙最后的后裔，住在雪山的冰窟里，外表是冷淡安静的少女。情绪激动时，她会变回霜龙的样子，这让她很害怕自己。山顶的魔王占据了祖先的龙巢，她不得不下山，也不得不学着控制体内的龙血。', builds: [['抢变身', '尽快攒满龙血，把霜龙三回合对准敌人最凶的时候。', ['极夜龙息', '血脉回响', '龙爪二式', '冬眠苏醒']], ['霜甲反击', '不急着变身，叠霜甲挡伤害再反打。', ['雪崩之心', '冰棺', '逆鳞刺', '冰晶脊']]] },
+  mia: { diff: 1, tip: '每回合给团子一个指令：护卫替你挡刀、扑击打人、休息回血。团子会越打越大。', line: '“团子，拜托你了喵。”', bio: '米娅是人类和猫耳族的混血女孩，两边的族人都不太接纳她，从小只和云猫幼崽团子相依为命。团子的母亲是山里的守护神，被哥布林抓走了。米娅抱着团子上山，嘴上说着「拜托你了喵」，其实最舍不得团子受伤。', builds: [['扑击', '团子当主攻，配合扑击目标打出加成。', ['大猫扑杀', '夹击', '追踪哨', '绕背']], ['护卫', '团子替你挡刀，再把挡下的伤害还回去。', ['云猫守门', '护主反扑', '双层围巾', '交换站位']], ['照料', '保住团子让它一路长大。', ['猫薄荷团', '暖窝', '绝不松手', '拍拍背']]] },
+  feiyue: { diff: 3, tip: '献血换鲜血，攻击吸血回本；蝙蝠给目标叠血痕，再一口气出猎。', line: '“……血的味道，我才不喜欢。”', bio: '绯月是日本的高中生，被光卷进异世界的人之一。她一直不知道，母亲那边流着吸血鬼的血。古堡的血月唤醒了她的血脉，伯爵认出了她，想把她留下。她拒绝了。她害怕自己越来越不像人类，却又不得不依靠这股力量保护同伴。', builds: [['鲜血', '主动献血，攒够鲜血打出爆发。', ['破脉', '血尽天明', '红幕', '血线']], ['吸血', '靠吸血把献掉的血补回来。', ['血色誓约', '借血还血', '夜饮', '红爪']], ['蝙蝠', '放出蝙蝠叠血痕，再全部出猎。', ['万翼降临', '翼刃', '蝠影', '响指']]] },
+  shenque: { diff: 2, tip: '每回合摸 2 张麻将牌，用「报牌」结算对子、刻子、顺子、清一色或小胡。', line: '“这一局，我要胡了。”', bio: '沈雀是高中麻将社的王牌，平时安安静静，一坐上牌桌就像变了个人。那天她背着装麻将的书包回家，也被那道光卷进了异世界。到了这边，书包里的麻将牌开始发光，凑出牌型就能放出魔法。她的口头禅是：「这一局，我要胡了。」', builds: [['快牌', '有牌型就马上结算，吃每回合的结算奖励。', ['大三元', '冲刻', '连庄', '三声连响']], ['做牌', '出千、听口，攒一手清一色或小胡。', ['门前清', '绝张', '听口', '开桌']]] },
   miko: { diff: 1, tip: '结界越叠越厚，每回合自动加格挡。防守稳，最适合新手。', line: '“神社的铃，也能替异世界的人挡一挡灾。”', bio: '千早从小在日本的神社帮忙。祭典散场后，她常留下来收灯笼，也总记得把最靠近台阶的那盏留到最后。到了异世界，她手里的神乐铃能撑起护住同伴的结界，破魔箭能净化不死的怪物。平时她说话轻声细气，可只要还有人没撤到安全的地方，谁也劝不动她先走。一路上，最难开口的反倒是那句“我撑不住了”。她慢慢学着在手开始发抖时，就喊同伴的名字。', builds: [['结界防守流', '每回合自动叠结界，白拿格挡，稳稳磨死敌人。', ['神乐舞', '注连绳', '御神木', '护身符']], ['结界爆发流', '先把结界叠高，再一口气换成伤害。', ['破邪结界', '破魔·满月', '镇魂歌', '破魔箭']]] },
   hero: { diff: 2, tip: '打牌攒光弹，回合结束自动扫射。光弹越多打得越猛，规则最简单。', line: '“这关我熟！……喂，等等，咱们一起走啊。”', bio: '林拓是个爱打游戏的普通初中生。那台旧掌机的电池盖用胶带粘着，他还是天天把它塞进书包。穿越以后，掌机能射出光弹，充一次电就是装填一次弹药。他嘴上喊着“这关我熟”，等光弹打光了，才想起自己根本没问撤退路线。比起打不过的敌人，他更怕有人说“接下来各走各的”。后来有一次，他终于肯蹲在路边给掌机充电，抬头问了一句：“能等我一下吗？”', builds: [['弹幕流', '光弹越多越好，回合结束自动扫射。', ['充电', '电池扩容', '满弹连射', '全屏扫射']], ['重弹流', '光弹不用多，提高每一发的伤害。', ['双持', '超频', '速射', '连射']]] },
   witch: { diff: 2, tip: '随机炼金瓶 + 剧毒，慢慢把敌人磨死。每局手感都不一样。', line: '“村子里还有人在等我。跟紧，左边那条路能上山。”', bio: '莉泽是山脚村庄的小魔女，也是个还没出师的炼金学徒。药水调得不错，毒药调得更好，就是瓶塞上的记号画得太像，有时得迎着光看半天，才敢递给同伴。村民被抓走后，她把能用的瓶瓶罐罐全塞进挎包，独自上山找帮手。她认得山上每一种草，知道哪段坡下过雨就不能走。可一到自己也没去过的岔路口，她还是习惯咬着牙挑一条。直到有一次，她把地图摊在大家中间，承认自己也拿不准。', builds: [['剧毒流', '叠毒慢慢磨，再翻倍或一次引爆。', ['疫病', '毒雾', '催化剂', '毒爆']], ['炼金瓶流', '攒很多炼金瓶，配合加成连续扔。', ['药剂腰包', '调药', '贤者之石', '炼金爆发']]] },
   heroine: { diff: 3, tip: '给敌人叠共鸣，满 10 层爆音。要算层数，玩好了伤害最高。', line: '“……耳机先摘一只。你们说，我在听。”', bio: '苏音总戴着一副粉色耳机，喜欢把同一段旋律反复听上好几遍。身边太吵的时候，只要把音量调高一点，她就能安静下来。到了异世界，耳机里的音乐能在敌人身上叠起共鸣，等震动积到足够强，她就踩着节拍将它引爆。队伍里数她最安静，可每次开打，大家都会下意识地等她那一拍落下来。有一回，她只顾数拍子，错过了同伴喊她的声音。从那以后，她开始把一边耳罩拨开。', builds: [['爆音流', '把共鸣叠到 10 层，反复触发爆音。', ['低频', '演唱会', '回声', '失真']], ['清算流', '不等爆音，直接把共鸣换成伤害。', ['重低音', '高音', '破音', '共鸣冲击']]] },
 };
 const ORDER = ['miko', 'hero', 'witch', 'heroine', 'erin', 'gu', 'sylvie', 'mia', 'feiyue', 'shenque'];
-const STARTRELIC = { hero: 'gameboy', heroine: 'phones', miko: 'suzu', witch: 'cauldron' };
 const SOON = `<div class="reward cc soon"><div class="qm">?</div><b>？？？</b><span class="cd">即将加入</span><span class="ct">那道光里，好像还有别人的影子……</span></div>`; /* 留白：以后加角色 */
 function title() {
   R = null; B = null; setMusic('menu');
@@ -227,7 +231,7 @@ function mainMenu() {
   $('#start').onclick = () => askName(() => { if (!sv) return pickChar();
     const y = overlay(`<h2>开始新的冒险？</h2><p>当前存档（${CHARS[sv.char || 'hero'].name} · 第 ${sv.floor} 层）会被放弃。</p><div class="row"><button class="btn red" id="y1">放弃旧档，重新开始</button><button class="btn" id="y0">取消</button></div>`);
     y.querySelector('#y0').onclick = () => y.remove(); y.querySelector('#y1').onclick = () => { y.remove(); clearSave(); pickChar(); }; });
-  $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending && R.snap) { try { const o = JSON.parse(R.snap); R = Object.assign(o, { snap: R.snap }); } catch (e) {} } if (R.act2wait) act2Choice(); else if (R.pending) enterNode(R.pending); else mapScreen(); });
+  $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending && R.snap) { try { const o = JSON.parse(R.snap); R = Object.assign(o, { snap: R.snap }); } catch (e) {} } if (R.act2wait) act2Choice(); else if (R.loot) rewardScreen(); else if (R.pending) enterNode(R.pending); else mapScreen(); });
   $('#book').onclick = () => book();
   $('#rank').onclick = rankBoard; $('#set').onclick = () => settings(false); $('#back').onclick = title;
 }
@@ -287,7 +291,7 @@ function submitScore(win) {
 
 function pickChar() {
   view.innerHTML = `${bgHTML()}<div class="panel csel"><h2>选择角色</h2><div class="row">${ORDER.map(k => { const c = CHARS[k], i = CHARINFO[k];
-    return `<div class="reward cc${c.temp ? ' locked' : ''}" ${c.temp ? '' : `data-c="${k}"`}>${c.temp ? `<i class="lockb">${t('即将推出')}</i>` : ''}<img src="assets/${c.dir}/portrait.png"><b>${tr(c.name)}</b><span class="cl">${i.line}</span><span class="cd">${tr(c.desc)}</span>
+    const lk = c.temp && !DEBUG; return `<div class="reward cc${lk ? ' locked' : ''}" ${lk ? '' : `data-c="${k}"`}>${lk ? `<i class="lockb">${t('即将推出')}</i>` : c.temp ? `<i class="lockb">${t('测试中')}</i>` : ''}<img src="assets/${c.dir}/portrait.png"><b>${tr(c.name)}</b><span class="cl">${i.line}</span><span class="cd">${tr(c.desc)}</span>
      <span class="diff">上手难度 <i>${'★'.repeat(i.diff)}${'☆'.repeat(3 - i.diff)}</i> ${['', '简单', '普通', '困难'][i.diff]}</span><span class="ct">${i.tip}</span></div>`; }).join('')}</div>
    <div class="ascbar">进阶难度 <button class="btn" id="am">−</button><b id="av"></b><button class="btn" id="ap">＋</button><span id="ad"></span></div>
    <button class="btn" id="back">返回</button></div>`;
@@ -351,7 +355,7 @@ function mkEnemy(key) {
   const d = ENEMIES[key], hp = rnd(d.hp[0], d.hp[1]);
   const hm = 1 + (A_(1) && d.elite ? .15 : 0) + (A_(2) && !d.elite && !d.boss ? .1 : 0) + (A_(6) && d.boss ? .15 : 0);
   const hp1 = Math.round(hp * hm * (ACT() === 2 ? RULES.act2Mul : 1));
-  const e = { key, d, name: d.name, hp: hp1, max: hp1, dmul: (1.1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0)) * (ACT() === 2 ? RULES.act2Mul : 1), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++, move: null };
+  const e = { key, d, name: d.name, hp: hp1, max: hp1, dmul: (1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0)) * (ACT() === 2 ? RULES.act2Mul : 1), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++, move: null };
   d.init && d.init(e); return e;
 }
 const alive = () => B.en.filter(e => !e.dead);
@@ -368,6 +372,7 @@ function battle(keys, kind) {
   if (has('wardrum')) B.en.forEach(e => e.st.vuln = 1);
   B.en.filter(e => e.key === 'gob_bomb').forEach((e, i) => e.st.fuse = 3 + i); // 多个炸弹兵错开倒计时
   B.en.forEach(e => e.move = e.d.ai(e, BE));
+  MECH.battleStart(G);
   startTurn(true);
   if (has('batcloak')) B.p.block += 8;
   if (has('pocketwatch')) drawCards(2);
@@ -398,10 +403,10 @@ function atkVal(src, tgt, base, strMul = 1) {
 }
 function fx(who, text, cls) { B.fx.push({ who, text, cls }); }
 // 对目标造成伤害（已计算好的数值），返回未被格挡的伤害
-function hurt(tgt, amt, attacker) {
+function hurt(tgt, amt, attacker, direct = true) {
   const isP = tgt === B.p;
-  if (!isP && tgt.st.aegis) { fx(tgt.id, '免疫', 'blk'); return 0; } if (!isP && tgt.d && tgt.d.undead && has('silvercross')) amt = Math.floor(amt * 1.25); if (!isP && tgt.st.intang) amt = Math.ceil(amt / 2); if (!isP && tgt.st.fly) { amt = Math.ceil(amt / 2); addSt(tgt, 'fly', -1); if (!tgt.st.fly) { tgt.grounded = 1; fx(tgt.id, '坠落！', 'st'); } } if (!isP) tgt.hitT = 1; let blk = tgt.block, left = amt;
-  const used = Math.min(blk, left); tgt.block -= used; left -= used;
+  if (!isP && tgt.st.aegis) { fx(tgt.id, '免疫', 'blk'); return 0; } if (!isP && tgt.d && tgt.d.undead && has('silvercross')) amt = Math.floor(amt * 1.25); if (!isP && tgt.st.intang) amt = Math.ceil(amt / 2); if (!isP && tgt.st.fly) { amt = Math.ceil(amt / 2); addSt(tgt, 'fly', -1); if (!tgt.st.fly) { tgt.grounded = 1; fx(tgt.id, '坠落！', 'st'); } } if (!isP && attacker === B.p && direct) tgt.hitT = 1; const eAtk = isP && attacker && attacker !== B.p; if (eAtk) amt = MECH.preBlock(G, amt, attacker); let blk = tgt.block, left = amt;
+  const used = Math.min(blk, left); tgt.block -= used; left -= used; if (eAtk) left = MECH.postBlock(G, left, attacker);
   if (isP) { R.hp -= left; } else { tgt.hp -= left; }
   fx(isP ? 'hero' : tgt.id, left > 0 ? `-${left}` : '格挡', left > 0 ? 'dmg' : 'blk'); B.hitSet.add(isP ? 'hero' : tgt.id);
   if (attacker && tgt.st.thorns && attacker !== tgt) { const th = tgt.st.thorns; hurt(attacker, th); }
@@ -440,12 +445,17 @@ const G = {
   has: id => has(id), handSize() { return B.hand.length; }, potsInHand() { return B.hand.filter(c => CARDS[c.id].potion).length; },
   kekSpend(n) { if ((B.p.st.kek || 0) < n) return false; addSt(B.p, 'kek', -n); return true; },
   execute(t) { if (t && !t.dead) { t.hp = 0; killE(t); } },
-  discard(n) { const pool = [...B.hand]; for (let k = 0; k < n && pool.length; k++) { const c = pool.splice(Math.floor(Math.random() * pool.length), 1)[0], d = CARDS[c.id]; const hi = B.hand.indexOf(c); if (hi < 0) { k--; continue; } B.hand.splice(hi, 1);
-    if (d.sly) { const a = alive(); try { d.play(G, c.up, d.tgt === 'one' ? a[Math.floor(Math.random() * a.length)] : null, c); } catch (e) {} postPlay(d); (d.exhaust ? B.exh : B.disc).push(c); } else B.disc.push(c); } },
-  get p() { return B.p; }, x: 0,
-  attack(t, base, times = 1, strMul = 1) { let s = 0; for (let i = 0; i < times; i++) { if (!t || t.dead) break; s += hurt(t, atkVal(B.p, t, base, strMul), B.p); } audio.slash(); return s; },
-  attackAll(base, times = 1) { let s = 0; for (let i = 0; i < times; i++) for (const e of alive()) s += hurt(e, atkVal(B.p, e, base), B.p); audio.slash(); return s; },
-  attackRandom(base, times) { for (let i = 0; i < times; i++) { const a = alive(); if (!a.length) break; const e = pickOne(a); hurt(e, atkVal(B.p, e, base), B.p); } audio.slash(); },
+  discardPick(uid) { const i = B.hand.findIndex(c => c.uid === uid); if (i < 0) return; const c = B.hand.splice(i, 1)[0], d = CARDS[c.id]; B.p.disc = 1;
+    if (d.sly) { const a = alive(); B.p.fh = d.type === 'atk' ? 1 : 0; try { d.play(G, c.up, d.tgt === 'one' ? a[Math.floor(Math.random() * a.length)] : null, c); } catch (e) {} postPlay(d); (d.exhaust ? B.exh : B.disc).push(c); } else B.disc.push(c); },
+  discard(n) { if (n > 0 && B.hand.length) B.p.disc = 1; const pool = [...B.hand]; for (let k = 0; k < n && pool.length; k++) { const c = pool.splice(Math.floor(Math.random() * pool.length), 1)[0], d = CARDS[c.id]; const hi = B.hand.indexOf(c); if (hi < 0) { k--; continue; } B.hand.splice(hi, 1);
+    if (d.sly) { const a = alive(); B.p.fh = d.type === 'atk' ? 1 : 0; try { d.play(G, c.up, d.tgt === 'one' ? a[Math.floor(Math.random() * a.length)] : null, c); } catch (e) {} postPlay(d); (d.exhaust ? B.exh : B.disc).push(c); } else B.disc.push(c); } },
+  get p() { return B.p; }, get R() { return R; }, x: 0, alive: () => alive(),
+  addHand(id, up = 0) { if (B.hand.length >= 10) return false; B.hand.push(mkCard(id, up)); return true; },
+  note(t) { fx('hero', t, 'st'); }, hitE(e, n) { if (e && !e.dead) hurt(e, n, null, false); },
+  fhb() { if (!B.p.fh) return 0; B.p.fh = 0; return MECH.firstHit(G); }, /* 攻击牌第一击的角色加成（飞剑、破岳、霜龙） */
+  attack(t, base, times = 1, strMul = 1) { let s = 0; const fb = G.fhb(); for (let i = 0; i < times; i++) { if (!t || t.dead) break; s += hurt(t, atkVal(B.p, t, base + (i ? 0 : fb), strMul), B.p); } audio.slash(); return s; },
+  attackAll(base, times = 1) { let s = 0; const fb = G.fhb(); for (let i = 0; i < times; i++) for (const e of alive()) s += hurt(e, atkVal(B.p, e, base + (i ? 0 : fb)), B.p); audio.slash(); return s; },
+  attackRandom(base, times) { const fb = G.fhb(); for (let i = 0; i < times; i++) { const a = alive(); if (!a.length) break; const e = pickOne(a); hurt(e, atkVal(B.p, e, base + (i ? 0 : fb)), B.p); } audio.slash(); },
   block(n, raw) { const v = Math.max(0, raw ? n : n + (B.p.st.dex || 0)); B.p.block += v; if (v) { fx('hero', `+${v}`, 'blk'); audio.holy(); heroAct('block'); } },
   apply(t, k, n) { if (t && !t.dead) { addSt(t, k, n); fx(t.id, `${STATUS[k][0]}+${n}`, 'st'); } },
   applyAll(k, n) { alive().forEach(e => G.apply(e, k, n)); },
@@ -456,14 +466,14 @@ const G = {
   pm() { return B.p.st.sage ? 2 : 1; }, ppm() { return B.p.st.sage ? 1.5 : 1; },
   potion(n, id) { const ps = ['p_fire', 'p_frost', 'p_heal', 'p_poison', 'p_boom']; for (let i = 0; i < n; i++) { const c = mkCard(id || pickOne(ps)); (B.hand.length < 10 ? B.hand : B.disc).push(c); } fx('hero', `药瓶+${n}`, 'st'); },
   poison(t, n) { if (!t || t.dead || n <= 0) return; n += has('toad') ? 1 : 0; addSt(t, 'poison', n); fx(t.id, `中毒+${n}`, 'st'); },
-  volley(clear = true) { // 光弹齐射：每发 3 点（+双持 +超频），打随机敌人或全体
-    const n = B.p.st.ammo || 0; if (!n) return; const dmg = 4 + (B.p.st.dual || 0) + (B.p.oc || 0);
+  volley(clear = true, max = 99) { // 光弹齐射：每发 4 点（+双持 +超频），打随机敌人或全体
+    const n = Math.min(max, B.p.st.ammo || 0); if (!n) return; const dmg = 4 + (B.p.st.dual || 0) + (B.p.oc || 0);
     for (let i = 0; i < n; i++) { const a = alive(); if (!a.length) break; (B.p.aoe ? a : []).forEach(e => B.fx.push({ who: e.id, cls: 'bul', n: i })); if (B.p.aoe) a.forEach(e => hurt(e, atkVal(B.p, e, dmg), B.p)); else { const e = pickOne(a); B.fx.push({ who: e.id, cls: 'bul', n: i }); hurt(e, atkVal(B.p, e, dmg), B.p); } }
     if (B.p.st.rapid) G.block(B.p.st.rapid * n, true);
-    if (clear) { B.shots = (B.shots || 0) + n; if (has('pad')) { B.p.padDraw = Math.floor(B.shots / 4); B.shots %= 4; } delete B.p.st.ammo; }
+    if (clear) { B.shots = (B.shots || 0) + n; if (has('pad')) { B.p.padDraw = Math.floor(B.shots / 4); B.shots %= 4; } addSt(B.p, 'ammo', -Math.min(n, B.p.st.ammo || 0)); } /* 齐射途中“连锁反应”新得到的光弹留到下回合 */
     audio.slash && audio.slash(); },
   usePotion() { const i = B.hand.findIndex(c => CARDS[c.id].potion); if (i < 0) return false; B.exh.push(B.hand.splice(i, 1)[0]); return true; },
-  hit(t, n) { if (t && !t.dead) hurt(t, n, B.p); },
+  hit(t, n) { if (t && !t.dead) hurt(t, n, B.p, false); }, /* 药水伤害：不算“打到”监工 */
   kek(n) { addSt(B.p, 'kek', n); fx('hero', `结界+${n}`, 'st'); },
   ammo(n) { const a = Math.min(10, (B.p.st.ammo || 0) + n); if (a !== B.p.st.ammo) { B.p.st.ammo = a; fx('hero', `光弹+${n}`, 'st'); } },
   spend(n) { const k = Math.min(n, B.p.st.ammo || 0); if (!k) return 0; addSt(B.p, 'ammo', -k); if (B.p.st.rapid) G.block(B.p.st.rapid * k, true);
@@ -485,7 +495,7 @@ const BE = {
   eBlock(e, n) { e.block += n; fx(e.id, `+${n}`, 'blk'); },
   allies: e => alive().filter(a => a !== e), alive: () => alive(),
   healE(e, n) { e.hp = Math.min(e.max, e.hp + n); fx(e.id, `+${n}`, 'heal'); },
-  revive(e, f) { e.revived = 1; e.dead = false; e.hp = Math.max(1, Math.floor(e.max * f)); e.anim = null; if (R) R.kills--; fx(e.id, '复活', 'heal'); if (e.key === 'skeleton') say('（骨头咔嚓咔嚓地重新拼了起来）'); },
+  revive(e, f) { e.revived = 1; e.dead = false; for (const k of ['poison', 'weak', 'vuln', 'res']) delete e.st[k]; e.hp = Math.max(1, Math.floor(e.max * f)); e.anim = null; if (R) R.kills--; fx(e.id, '复活', 'heal'); if (e.key === 'skeleton') say('（骨头咔嚓咔嚓地重新拼了起来）'); },
   flee(e) { if (e.dead) return; e.fled = 1; e.dead = true; e.hp = 0; fx(e.id, '逃跑', 'st'); }, say: t => say(t),
   addCard(id, n = 1) { for (let k = 0; k < n; k++) B.disc.push(mkCard(id)); fx('hero', `+${CARDS[id].name}${n > 1 ? '×' + n : ''}`, 'st'); },
   kill(e) { killE(e); B.hitSet.add(e.id); },
@@ -505,13 +515,12 @@ function drawCards(n) {
 function startTurn(first) {
   setTimeout(() => { if (B && !B.over && !alive().length) checkEnd(); }, 0); /* 回合开始的共鸣/中毒/秘宝伤害若打死最后一个敌人，也要结算胜利 */
   B.turn++; B.hitSet = new Set(); B.forceEnd = 0; [...B.draw, ...B.disc, ...B.hand].forEach(c => delete c.rc);
-  if (!B.p.st.keep) B.p.block = 0;
+  B.p.block = 0;
   B.p.energy = 3 + (has('crown') ? 1 : 0) + (first && has('hourglass') ? 1 : 0);
-  B.p.noDraw = 0;
-  if (B.p.st.rage) addSt(B.p, 'str', B.p.st.rage);
+  B.p.noDraw = 0; B.p.disc = 0;
   B.p.pot = 0;
   if (first && has('cauldron')) G.potion(1);
-  if (B.p.st.satchel) G.potion(B.p.st.satchel);
+  if (B.p.st.satchel && B.turn % 2 === 1) G.potion(B.p.st.satchel);
   if (B.p.st.plague) alive().forEach(e => G.poison(e, B.p.st.plague));
   if (B.p.st.kagura) G.kek(B.p.st.kagura);
   if (B.p.st.kek) G.block(B.p.st.shinboku ? B.p.st.kek + Math.min(B.p.st.kek, 8) : B.p.st.kek, true);
@@ -521,10 +530,12 @@ function startTurn(first) {
   if (first && has('anchor')) B.p.block += 10;
   drawCards(5 + (first && has('scroll') ? 2 : 0));
   if (B.p.st.confuse) { B.hand.forEach(c => { if (typeof cardCost(c) === 'number') c.rc = rnd(0, 3); }); addSt(B.p, 'confuse', -1); }
+  MECH.turnStart(G, first);
   if (first && has('dice')) { const cs = B.hand.filter(c => typeof cardCost(c) === 'number' && cardCost(c) >= 1); if (cs.length) pickOne(cs).disc = 1; }
   B.sel = -1; B.busy = false; render();
 }
 function postPlay(d) { /* 打出一张牌后的通用结算（狡诈自动打出也走这里） */
+  MECH.postPlay(G, d);
   alive().forEach(e => e.d.onCard && e.d.onCard(e, d.type, BE));
   if (d.type === 'atk') { B.atkCnt++; if (has('quiver') && B.atkCnt % 3 === 0) for (const e of alive()) hurt(e, 5); heroAct('shoot'); }
     if (d.potion) { B.p.pot = (B.p.pot || 0) + 1; if (has('hat')) G.block(2, true); }
@@ -538,19 +549,21 @@ async function playCard(i, tgt) {
   if (d.unplay) { tip('这张牌不能打出'); return; }
   if (cost === 'X') cost = B.p.energy; if (cost > B.p.energy) { tip('能量不足'); return; }
   if (d.tgt === 'one' && !tgt) { const a = alive(); if (a.length === 1) tgt = a[0]; else { B.sel = B.sel === i ? -1 : i; B.aimI = 0; render(); return; } }
+  let pk; if (d.pick) { const opts = d.pick === 1 ? B.hand.filter(x => x !== c).map(x => ({ val: x.uid, html: cardHTML(x) })) : d.pick(G); if (opts.length) { B.anim = true; pk = await pickOpt(d.pickT || '选择一张手牌', opts); B.anim = false; if (pk === undefined) return; i = B.hand.indexOf(c); if (i < 0) return; } }
   B.hitSet = new Set();
   const el = view.querySelector(`#hand .card[data-i="${i}"]`);
   B.p.energy -= cost; G.x = cost; B.hand.splice(i, 1); B.sel = -1; B.anim = true;
   if (el) flyCard(el, d.type); render(); await sleep(260);
   if (B !== b0) return; B.anim = false; B.hitSet = new Set();
-  try { d.play(G, c.up, tgt, c); } catch (err) { console.error(err); tip(tr('这张牌出错了，已跳过')); }
-  delete c.rc;
+  B.p.fh = d.type === 'atk' ? 1 : 0;
+  try { d.play(G, c.up, tgt, c, pk); } catch (err) { console.error(err); tip(tr('这张牌出错了，已跳过')); }
+  delete c.rc; B.p.fh = 0;
 
   postPlay(d);
   if (d.type === 'power') {} else if (d.exhaust) B.exh.push(c); else B.disc.push(c);
   pDeath();
   render(); await checkEnd();
-  if (B === b0 && B.forceEnd && !B.over) { B.forceEnd = 0; banner(tr('时间停止：回合被强制结束')); await sleep(500); endTurn(); }
+  if (B === b0 && B.forceEnd && !B.over) { banner(tr('时间停止：回合被强制结束')); await sleep(500); if (B === b0 && !B.over) endTurn(); } /* forceEnd 保持到下回合开始，等待期间不能再出牌 */
 }
 function flyCard(el, type) {
   const sc = stage._s || 1, sr = stage.getBoundingClientRect(), r = el.getBoundingClientRect();
@@ -595,6 +608,7 @@ async function endTurn() {
   if (B.p.st.ammo) { G.volley(true); render(); await sleep(350); if (B !== b0 || await checkEnd()) return; }
   for (const c of B.hand) if (CARDS[c.id].burn) G.loseHp(CARDS[c.id].burn); /* 烧伤 */
   pDeath(); if (R.hp <= 0) { B.busy = false; return checkEnd(); }
+  MECH.turnEnd(G); if (!alive().length) { render(); await sleep(300); B.busy = false; return checkEnd(); }
   for (const c of B.hand) (CARDS[c.id].ethereal ? B.exh : B.disc).push(c); B.hand = [];
   if (B.p.st.metal) G.block(B.p.st.metal, true);
   if (B.p.st.regen && (B.p.regenN = (B.p.regenN || 0) + 1) <= 3) healP(B.p.st.regen);
@@ -623,12 +637,11 @@ async function endTurn() {
     if (await checkEnd()) return;
   }
   B.lunge = null; B.hitSet = new Set();
-  if (ACT() === 2 && B.turn === RULES.bloodTurn && !B.bloodMoon) { B.bloodMoon = 1; banner(tr('血月当空：不死系敌人力量 +1')); alive().filter(e => e.d.undead).forEach(e => BE.addSt(e, 'str', RULES.bloodStr)); }
+  if (ACT() === 2 && B.turn === RULES.bloodTurn && !B.bloodMoon) { B.bloodMoon = 1; banner(tr('血月当空：不死系敌人力量 +1（从它们下一次攻击开始）')); alive().filter(e => e.d.undead).forEach(e => BE.addSt(e, 'str', RULES.bloodStr)); }
   for (const k of ['vuln', 'weak']) if (pre[k] && B.p.st[k]) addSt(B.p, k, -1);
   for (const e of alive()) {
     if (e.st.ritual) addSt(e, 'str', e.st.ritual);
-    if (isFury(e.turn)) { addSt(e, 'str', 1); if (!B.rageShown) { B.rageShown = 1; banner('战意：敌人每两回合力量 +1'); } } /* 拖得越久敌人越强 */
-    if (e.st.heal) BE.healE(e, e.st.heal);
+    if (isFury(e.turn)) { addSt(e, 'str', 1); if (!B.rageShown) { B.rageShown = 1; banner(tr('战意：战斗拖得太久，敌人从现在起每两回合力量 +1（从下一次攻击开始）')); } } /* 拖得越久敌人越强 */
     for (const k of ['vuln', 'weak']) if (e.st[k]) addSt(e, k, -1);
     e.turn++; e.move = e.d.ai(e, BE);
   }
@@ -639,7 +652,8 @@ async function checkEnd() {
   if (R.hp <= 0) { B.over = true; heroAct('down'); render(); sting('lose', 2600); await sleep(1400); clearSave(); return endScreen(false); }
   if (!alive().length) {
     B.over = true; render(); sting(B.kind === 'boss' ? 'bossWin' : 'win', B.kind === 'boss' ? 2600 : 1400); await sleep(600); if (B !== b0) return true;
-    if ((has('gameboy') || has('phones') || has('suzu') || has('cauldron')) && !has('crown')) R.hp = Math.min(R.maxHp, R.hp + 4); if (has('grail')) R.hp = Math.min(R.maxHp, R.hp + 5);
+    if (R.relics.some(x => RELICS[x] && RELICS[x].rar === 'start') && !has('crown')) R.hp = Math.min(R.maxHp, R.hp + 4);
+    { const m = MECH.victory(G); if (m) say(tr(m)); } if (has('grail')) R.hp = Math.min(R.maxHp, R.hp + 5);
     if (B.en.some(e => (e.st.hostage || 0) > 0)) { R.gold += 40; say(tr('（被救下的村民塞给你 40 金币：“谢谢你们！”）')); }
     if (B.kind === 'elite') R.elites = (R.elites || 0) + 1;
     if (B.kind === 'boss') { R.bosses = (R.bosses || 0) + 1; if (ACT() === 1) return act2Choice(); clearSave(); B = null; return story('story_end2', [R.boss === 'vamp_count' ? '伯爵化为了灰烬，天终于亮了。被关押的村民们，终于重获自由。' : t('{0}倒下了。古堡的血月熄灭，天终于亮了。被关押的村民们重获自由。', tr((ENEMIES[R.boss] || {}).name || '')), '可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。', '“回家的路……还在更高的地方。”'], () => story('story_party', ['天亮了。大家并肩站在晨光里，笑得满脸是灰。', '“走吧，往上。”'], () => endScreen(true))); }
@@ -690,21 +704,35 @@ function render() {
     return cardHTML(c, `${sel ? 'sel' : ''} ${off ? 'off' : ''}`, energy).replace('class="card', `data-i="${i}" style="left:${x0 + i * gap}px;transform:translateY(${sel ? -100 : dy}px) rotate(${sel ? 0 : rot}deg);z-index:${i + 1}" class="card`);
   }).join('');
   view.innerHTML = `${bgHTML(true, B.bg)}${topBar()}
-   <div id="hero" class="unit ${hs.has('hero') ? 'hit' : ''} ${heroAnimCls}" data-id="hero"><div class="intent"></div><div class="sprw"><img class="spr" decoding="async" src="${heroFrame()}" style="height:${CHARS[R.char || 'hero'].h}px"><i class="shd" style="width:150px"></i></div>${barHTML(R.hp, R.maxHp, B.p.block, 1)}${stsHTML(B.p.st)}<div class="uname">${CHARS[R.char || 'hero'].name}</div></div>
+   <div id="hero" class="unit ${hs.has('hero') ? 'hit' : ''} ${heroAnimCls}" data-id="hero"><div class="intent"></div><div class="sprw"><img class="spr" decoding="async" src="${heroFrame()}" style="height:${CHARS[R.char || 'hero'].h}px"><i class="shd" style="width:150px"></i></div>${barHTML(R.hp, R.maxHp, B.p.block, 1)}${stsHTML(B.p.st)}${mechChips()}<div class="uname">${CHARS[R.char || 'hero'].name}</div></div>
    <div id="enemies">${enemies}</div>${foreHTML()}
    <div id="energy" class="${energy ? '' : 'empty'}">${energy}/${Math.max(energy, 3 + (has('crown') ? 1 : 0))}</div>
    <button class="btn" id="endturn" ${B.busy ? 'disabled' : ''}>${B.busy ? '敌人回合' : '结束回合 (E)'}</button>
    <div class="pile" id="drawp"><b>${B.draw.length}</b>抽牌堆</div><div class="pile" id="discp"><b>${B.disc.length}</b>弃牌堆</div><div class="pile" id="exhp"><b>${B.exh.length}</b>消耗</div>
-   <div id="hand">${hand}</div>${B.sel >= 0 ? '<div id="tip">选择目标（Esc 取消）</div>' : ''}`;
+   ${mechUI()}<div id="hand">${hand}</div>${B.sel >= 0 ? '<div id="tip">选择目标（Esc 取消）</div>' : ''}`;
   heroAnimCls = '';
   bindTop();
   $('#endturn').onclick = endTurn;
+  bindMech();
   $('#drawp').onclick = () => showPile('抽牌堆（顺序已打乱）', [...B.draw].sort((a, b) => a.id < b.id ? -1 : 1));
   $('#discp').onclick = () => showPile('弃牌堆', B.disc);
   $('#exhp').onclick = () => showPile('消耗', B.exh);
   view.querySelectorAll('#hand .card').forEach(el => el.onclick = ev => { ev.stopPropagation(); if (TOUCH || DRAGGED) return; kwHide(); playCard(+el.dataset.i); });
   view.querySelectorAll('.enemy').forEach(el => el.onclick = () => { if (B.potSel != null) { const e = B.en.find(x => x.id === el.dataset.eid); if (e && !e.dead) usePotion(B.potSel, e); return; } if (B.sel >= 0) { const e = B.en.find(x => x.id === el.dataset.eid); if (e && !e.dead) playCard(B.sel, e); } });
   flushFx(); dbgPanel(); aimMark();
+}
+/* 新角色的头顶显示、角色按钮、麻将牌架 */
+function mechChips() { const cs = MECH.chips(G); return cs.length ? `<div class="sts">${cs.map(c => `<b class="mchip" style="border-color:${c.c};color:${c.c}" title="${esc(c.tip)}">${c.h}</b>`).join('')}</div>` : ''; }
+function mechUI() {
+  const as = MECH.actions(G), rk = MECH.rack(G);
+  const btns = as.length ? `<div id="mechb">${as.map(a => `<button class="btn mb${a.on ? ' on' : ''}" data-a="${a.id}" ${a.dis || B.busy ? 'disabled' : ''}>${a.label}</button>`).join('')}</div>` : '';
+  const rack = rk ? `<div id="rack"><span class="rl">麻将</span>${rk.tiles.map(x => `<b class="tile">${x}</b>`).join('')}${rk.eighth ? `<b class="tile t8" title="本回合最后摸到的牌，只能用来凑小胡">${rk.eighth}</b>` : ''}<span class="rp">${rk.set ? '本回合已结算' : rk.pats.length ? rk.pats.map(x => `<i>${x}</i>`).join('') : '还没有牌型'}</span><span class="rn">牌池 ${rk.pool}</span></div>` : '';
+  return btns + rack;
+}
+function bindMech() {
+  view.querySelectorAll('#mechb [data-a]').forEach(el => el.onclick = async ev => { ev.stopPropagation(); if (!B || B.busy || B.anim || B.over) return; const id = el.dataset.a;
+    if (MECH.act(G, id) === 'enemy') { const a = alive(); const v = a.length === 1 ? a[0].id : await pickOpt('选择目标', a.map(e => ({ val: e.id, html: `<button class="btn"><span>${e.d.name}</span> ${Math.max(0, e.hp)}/${e.max}</button>` }))); if (v === undefined || !B) return; MECH.act(G, id, v); }
+    audio.gem && audio.gem(); render(); });
 }
 function flushFx() {
   const s = stage._s || 1, sr = stage.getBoundingClientRect();
@@ -787,25 +815,28 @@ addEventListener('pointercancel', () => dragEnd(true));
 view.addEventListener('contextmenu', e => { if (B && B.sel >= 0) { e.preventDefault(); B.sel = -1; render(); } });
 
 // ---------- 战后奖励 ----------
-function rewardScreen() {
-  const kind = B.kind; B = null; setMusic('menu');
-  const items = [];
-  const gold = Math.round((kind === 'elite' ? rnd(25, 35) : rnd(10, 20)) * (A_(7) ? .7 : 1));
-  items.push({ html: `<img src="assets/icons/goldbag.png">${gold} 金币`, go: () => { R.gold += gold; } });
-  if (has('clover')) items.push({ html: `<img src="${RELICS.clover.img}">四叶草：15 金币`, go: () => { R.gold += 15; } });
-  if (kind === 'elite') { const rl = rollRelic(); if (rl) items.push({ html: `<img src="${RELICS[rl].img}"><span>秘宝：</span>${RELICS[rl].name}`, go: () => gainRelic(rl) }); }
-  if (Math.random() < (kind === 'elite' ? .6 : .4)) { const pid = rollPotion(); items.push({ html: `<img src="${POTIONS[pid].img}"><span>药水：</span>${POTIONS[pid].name}`, go: () => gainPotion(pid) }); }
-  const cards = rollCards(3, kind === 'elite' ? .07 : 0);
-  items.push({ html: `<img src="assets/icons/p_arc.png">选择一张牌加入牌组`, card: true, go: done => chooseCard(cards, ok => done(ok)) });
+function rewardScreen() { /* 战利品先存进存档（R.loot），刷新页面也不会丢 */
+  if (B) { const kind = B.kind; B = null; const L = [];
+    L.push({ t: 'gold', n: Math.round((kind === 'elite' ? rnd(25, 35) : rnd(10, 20)) * (A_(7) ? .7 : 1)) });
+    if (has('clover')) L.push({ t: 'clover' });
+    if (kind === 'elite') { const rl = rollRelic(); if (rl) L.push({ t: 'relic', id: rl }); }
+    if (Math.random() < (kind === 'elite' ? .6 : .4)) L.push({ t: 'potion', id: rollPotion() });
+    L.push({ t: 'cards', ids: rollCards(3, kind === 'elite' ? .07 : 0).map(c => c.id) });
+    R.loot = L; save(); }
+  setMusic('menu');
+  const L = R.loot || [];
+  const html = it => it.t === 'gold' ? `<img src="assets/icons/goldbag.png">${it.n} 金币` : it.t === 'clover' ? `<img src="${RELICS.clover.img}">四叶草：15 金币` : it.t === 'relic' ? `<img src="${RELICS[it.id].img}"><span>秘宝：</span>${RELICS[it.id].name}` : it.t === 'potion' ? `<img src="${POTIONS[it.id].img}"><span>药水：</span>${POTIONS[it.id].name}` : `<img src="assets/icons/p_arc.png">选择一张牌加入牌组`;
+  const take = i => { L.splice(i, 1); save(); draw(); };
   const draw = () => {
-    view.innerHTML = `${bgHTML()}${topBar()}<div class="panel"><h2>战利品</h2>${items.map((it, i) => `<div class="reward" data-i="${i}">${it.html}</div>`).join('')}<br><button class="btn" id="go">继续前进</button></div>`;
+    view.innerHTML = `${bgHTML()}${topBar()}<div class="panel"><h2>战利品</h2>${L.map((it, i) => `<div class="reward" data-i="${i}">${html(it)}</div>`).join('')}<br><button class="btn" id="go">继续前进</button></div>`;
     bindTop();
     view.querySelectorAll('.reward').forEach(el => el.onclick = () => {
-      const i = +el.dataset.i, it = items[i];
-      if (it.card) it.go(ok => { if (ok) { items.splice(i, 1); } draw(); });
-      else { if (it.go() === false) return; items.splice(i, 1); audio.gem(); draw(); }
+      const i = +el.dataset.i, it = L[i];
+      if (it.t === 'cards') return chooseCard(it.ids.map(id => mkCard(id)), ok => { if (ok) take(i); else draw(); });
+      if (it.t === 'gold') R.gold += it.n; else if (it.t === 'clover') R.gold += 15; else if (it.t === 'relic') gainRelic(it.id); else if (it.t === 'potion') { if (gainPotion(it.id) === false) return; }
+      audio.gem(); take(i);
     });
-    $('#go').onclick = mapScreen;
+    $('#go').onclick = () => { delete R.loot; save(); mapScreen(); };
   };
   draw();
 }
@@ -916,7 +947,7 @@ function endScreen(win) {
   if (R.asc) rows.push([`进阶难度 ${R.asc}（×${(1 + R.asc * .1).toFixed(1)}）`, Math.round(rows.reduce((a, r) => a + r[1], 0) * R.asc * .1)]);
   const total = rows.reduce((a, r) => a + r[1], 0);
   const M = metaGet(), before = M.xp; let news = [];
-  if (!DEBUG) { M.xp += total; if (win && (R.asc || 0) >= (M.asc[R.char] || 0) && (M.asc[R.char] || 0) < 8) { M.asc[R.char] = (R.asc || 0) + 1; news.push(`${CHARS[R.char].name} 解锁进阶 ${M.asc[R.char]}`); } metaSet(M); }
+  if (!DEBUG) { M.xp += total; if (win && ACT() === 2 && (R.asc || 0) >= (M.asc[R.char] || 0) && (M.asc[R.char] || 0) < 8) { M.asc[R.char] = (R.asc || 0) + 1; news.push(`${CHARS[R.char].name} 解锁进阶 ${M.asc[R.char]}`); } metaSet(M); }
   UNLOCKS.forEach(u => { if (before < u.xp && M.xp >= u.xp) news.push('解锁：' + [...u.cards.map(c => CARDS[c].name), ...u.relics.map(x => RELICS[x].name)].join('、')); });
   const nx = UNLOCKS.find(u => M.xp < u.xp), left = UNLOCKS.filter(u => M.xp < u.xp).length;
   view.innerHTML = `${win && ACT() === 2 ? bgHTML(true, 'story_end2') : bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
@@ -991,7 +1022,7 @@ function moveText(m, key) {
   const MB = { applyP: (k, n) => add(t(`给你 {0} 层${SN(k)}`, n)), addSt: (x, k, n) => add(k === 'str' ? t(`${who(x)}力量 +{0}`, n) : t(`${who(x)}获得${SN(k)}`)),
     eBlock: (x, n) => add(x === SELF ? t('获得 {0} 点格挡', n) : t(`给${who(x)} {0} 点格挡`, n)), healE: (x, n) => add(t(`${who(x)}回复 {0} 点生命`, n)),
     addCard: (id, n) => add(t('塞给你 {0} 张「{1}」', n || 1, tr(CARDS[id] ? CARDS[id].name : id))), summon: k => add(t('召唤「{0}」', tr(ENEMIES[k] ? ENEMIES[k].name : k))),
-    kill: () => add(t('自己也会死掉')), revive: (e, f) => add(t('第一次被打倒时，带着 {0}% 生命复活', Math.round(f * 100))), flee: () => add(t('同伴会逃跑')),
+    kill: () => add(t('自己也会死掉')), revive: (e, f) => add(t('第一次被打倒时，带着 {0}% 生命复活（负面状态清空）', Math.round(f * 100))), flee: () => add(t('同伴会逃跑')),
     allies: () => [ALLY], alive: () => [ALL], say: () => {} };
   if (m.f) try { m.f(Object.assign(SELF, { st: { fuse: 1 }, turn: 1, hp: 10, max: 20, key, hist: [] }), MB); } catch (e) {}
   return out.join(t('，'));
