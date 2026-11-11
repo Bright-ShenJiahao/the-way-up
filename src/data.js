@@ -1,5 +1,5 @@
-import { tr } from './i18n.js?v=live2_11112200';
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, MECH } from './chars.js?v=live2_11112200';
+import { tr } from './i18n.js?v=live2_11112300';
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, MECH } from './chars.js?v=live2_11112300';
 export { MECH, NEWKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
@@ -541,18 +541,18 @@ export const EVENTS = [
       { t: '离开', go: () => '你假装没听见。' }] },
   { title: '神社遗迹', pic: 'shrine', img: 'ic_bell', text: '林间立着一座倒塌的小神社，铃绳还挂在梁上。',
     opts: [
-      { t: '（巫女）重新祭拜：最大生命 +8，回满生命', ok: R => R.char === 'miko', go: (R, A) => { A.maxHp(8); A.heal(999); return '铃声响起，熟悉的神力流遍全身。'; } },
+      { t: '重新祭拜：最大生命 +4（千早改为最大生命 +8 并回满生命）', go: (R, A) => { if (R.char === 'miko') { A.maxHp(8); A.heal(999); return '铃声响起，熟悉的神力流遍全身。'; } A.maxHp(4); return '你学着巫女的样子拜了拜，心里踏实了一些。'; } },
       { t: '摇铃祈福：回复 15 生命', go: (R, A) => { A.heal(15); return '清脆的铃声让人安心。'; } },
       { t: '捡走香火钱：获得 35 金币，失去 4 生命', go: (R, A) => { A.gold(35); A.hurt(4); return '一阵阴风刮过，你打了个寒战。'; } }] },
   { title: '魔女的旧实验室', pic: 'lab', img: 'pot', text: '一间被藤蔓吞没的小屋，桌上堆满落灰的瓶瓶罐罐。',
     opts: [
-      { t: '（魔女）翻找笔记：获得一张稀有牌', ok: R => R.char === 'witch', go: (R, A) => { A.rareCard(); return '原来是师父留下的配方！'; } },
+      { t: '翻找笔记：选一张牌（莉泽改为稀有牌）', go: (R, A) => { if (R.char === 'witch') { A.rareCard(); return '原来是师父留下的配方！'; } A.card(); return '笔记上的字一半看不懂，但有几页还用得上。'; } },
       { t: '喝下可疑的药：50% 最大生命 +6，50% 失去 8 生命', go: (R, A) => { if (Math.random() < .5) { A.maxHp(6); return '浑身发热……你感觉更强壮了。'; } A.hurt(8); return '一阵剧痛，你吐了个昏天黑地。'; } },
       { t: '带走两瓶药水', go: (R, A) => { const a = A.potion(), b = A.potion(); return `你收起了「${a}」和「${b}」。`; } }] },
   { title: '掉线的掌机', pic: 'console', img: 'gb', text: '路边草丛里躺着一台和你很像的掌机，屏幕还在闪。',
     opts: [
-      { t: '（林拓）插上卡带：获得一张稀有牌', ok: R => R.char === 'hero', go: (R, A) => { A.rareCard(); return '“新关卡已解锁。”'; } },
-      { t: '戴上耳机听一听（苏音）：最大生命 +5', ok: R => R.char === 'heroine', go: (R, A) => { A.maxHp(5); return '是你最喜欢的那首歌。'; } },
+      { t: '插上卡带：选一张牌（林拓改为稀有牌）', go: (R, A) => { if (R.char === 'hero') { A.rareCard(); return '“新关卡已解锁。”'; } A.card(); return '屏幕上跳出了几张卡牌的图案。'; } },
+      { t: '戴上耳机听一听：回复 10 生命（苏音改为最大生命 +5）', go: (R, A) => { if (R.char === 'heroine') { A.maxHp(5); return '是你最喜欢的那首歌。'; } A.heal(10); return '一段陌生又温柔的旋律。'; } },
       { t: '拆了卖零件：获得 30 金币', go: (R, A) => { A.gold(30); return '哥布林商人一定会喜欢这些零件。'; } }] },
   { title: '哥布林的晚餐', pic: 'dinner', img: 'meat', text: '营地里一锅肉汤正咕嘟作响，哥布林们都不见了。',
     opts: [

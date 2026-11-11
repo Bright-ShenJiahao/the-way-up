@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112200';
-import { createAudio } from './audio.js?v=live2_11112200';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112200';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112300';
+import { createAudio } from './audio.js?v=live2_11112300';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112300';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -898,7 +898,7 @@ function eventScreen() {
   const A = {
     heal: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, gold: n => { R.gold += n; }, hurt: n => { R.hp = Math.max(1, R.hp - n); },
     maxHp: n => { R.maxHp += n; R.hp = Math.min(R.hp, R.maxHp); }, relic: () => { const id = rollRelic(); gainRelic(id); return id ? RELICS[id].name : '（空）'; },
-    pick: (m, n = 1) => setTimeout(() => { const go = k => pickDeck(m, () => k > 1 ? go(k - 1) : draw2()); go(n); }, 50), curse: id => { R.deck.push(mkCard(id)); }, rareCard: () => setTimeout(() => chooseCard(rollCards(3, 0, true), () => draw2()), 50),
+    pick: (m, n = 1) => setTimeout(() => { const go = k => pickDeck(m, () => k > 1 ? go(k - 1) : draw2()); go(n); }, 50), curse: id => { R.deck.push(mkCard(id)); }, rareCard: () => setTimeout(() => chooseCard(rollCards(3, 0, true), () => draw2()), 50), card: () => setTimeout(() => chooseCard(rollCards(3), () => draw2()), 50),
     potion: () => { const id = rollPotion(); return gainPotion(id) ? POTIONS[id].name : '（药水栏满了，没拿上）'; },
   };
   let result = null;
@@ -999,9 +999,20 @@ function potionClick(i) {
   const id = R.potions[i], P = POTIONS[id]; if (!P) return;
   if (!B || B.over || B.busy || B.anim) { const o = overlay(`<h2>${P.name}</h2><img src="${P.img}" style="width:80px"><p>${P.desc}</p><div class="row"><button class="btn red" id="pd">丢掉</button><button class="btn" id="px">关闭</button></div>`);
     o.querySelector('#px').onclick = () => o.remove(); o.querySelector('#pd').onclick = () => { R.potions.splice(i, 1); o.remove(); B ? render() : mapScreen(); }; return; }
-  if (P.tgt === 'auto') { tip('复活药水会在倒下时自动使用'); return; }
-  if (P.tgt === 'one' && alive().length > 1) { B.potSel = B.potSel === i ? null : i; B.sel = -1; render(); if (B.potSel != null) tip('点一个敌人'); return; }
-  usePotion(i, alive()[0]);
+  if (B.potSel === i) { B.potSel = null; render(); return; }
+  potPop(i);
+}
+function potPop(i) { /* 药水说明小框：贴着药水栏，点框外关闭 */
+  const id = R.potions[i], P = POTIONS[id], el = view.querySelector(`[data-pot="${i}"]`); if (!P || !el) return;
+  const sr = stage.getBoundingClientRect(), sc = sr.width / (stage.offsetWidth || 1) || 1, r = el.getBoundingClientRect();
+  const w = document.createElement('div'); w.className = 'potpopw'; const auto = P.tgt === 'auto';
+  w.innerHTML = `<div class="potpop" style="left:${Math.max(8, (r.left - sr.left) / sc - 20)}px;top:${(r.bottom - sr.top) / sc + 8}px"><b>${P.name}</b><p>${P.desc}</p><div class="row">${auto ? `<span class="pa">${t('倒下时自动使用')}</span>` : `<button class="btn" id="pu">${t('使用')}</button>`}<button class="btn red" id="pdx">${t('丢掉')}</button></div></div>`;
+  stage.appendChild(w);
+  w.onclick = ev => { if (ev.target === w) w.remove(); };
+  w.querySelector('#pdx').onclick = () => { w.remove(); R.potions.splice(i, 1); render(); };
+  const u = w.querySelector('#pu'); if (u) u.onclick = () => { w.remove(); if (!B || B.over || B.busy || B.anim) return;
+    if (P.tgt === 'one' && alive().length > 1) { B.potSel = i; B.sel = -1; render(); tip('点一个敌人'); return; }
+    usePotion(i, alive()[0]); };
 }
 async function usePotion(i, t) {
   const id = R.potions[i]; B.potSel = null; R.potions.splice(i, 1); B.hitSet = new Set();

@@ -1584,5 +1584,15 @@ export default {
 "造成 {0} 点伤害，给予 {1} 层易伤。回合结束没打出就消失。消耗。": "Deal {0} damage. Apply {1} Vulnerable. Disappears if not played by end of turn. Exhaust.",
 "指定一张牌架上已有的牌或同一门前后两点内的牌，从牌池或弃牌区拿 {0} 张到牌架。消耗。": "Name a tile already in your rack, or one within two numbers of it in the same suit, and take {0} from the wall or tile discard into your rack. Exhaust.",
 "本回合团子的指令是扑击时，扑击改为造成 {0} 点伤害 {1} 次（追踪哨的加成每次都算）。消耗。": "If Dango's command this turn is Pounce, it deals {0} damage {1} times instead (Tracking Whistle's bonus applies to each hit). Exhaust.",
-"现在打不出": "Can't play this now"
+"现在打不出": "Can't play this now",
+"插上卡带：选一张牌（林拓改为稀有牌）": "Insert the cartridge: choose a card (Lin: a rare card instead)",
+"戴上耳机听一听：回复 {0} 生命（苏音改为最大生命 {1}）": "Put on the headphones: heal {0} HP (Suin: Max HP {1} instead)",
+"重新祭拜：最大生命 {0}（千早改为最大生命 {1} 并回满生命）": "Pray again: Max HP {0} (Chihaya: Max HP {1} and fully heal instead)",
+"翻找笔记：选一张牌（莉泽改为稀有牌）": "Dig through the notes: choose a card (Lise: a rare card instead)",
+"屏幕上跳出了几张卡牌的图案。": "A few card pictures pop up on the screen.",
+"一段陌生又温柔的旋律。": "An unfamiliar, gentle melody.",
+"你学着巫女的样子拜了拜，心里踏实了一些。": "You bow the way a shrine maiden would, and feel a little steadier.",
+"笔记上的字一半看不懂，但有几页还用得上。": "Half the notes are unreadable, but a few pages are still useful.",
+"倒下时自动使用": "Used automatically when you fall",
+"使用": "Use"
 };
