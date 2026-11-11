@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112400';
-import { createAudio } from './audio.js?v=live2_11112400';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112400';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112500';
+import { createAudio } from './audio.js?v=live2_11112500';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112500';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -434,7 +434,7 @@ function dismount(e) { // 骑狼兵半血落马：变成野狼 + 一只小兵
 }
 const VSZ = { gob_kid: 1.45, gob_bomb: 1.25, gob_giant: .6, gob_king: .55, gob_hero: .85, gob_paladin: .85, gob_shaman: 1.15 };
 function gv(e, k) { if (e.key === 'wolf') { if (k === 'atk' || k === 'die') audio.gob(k === 'die' ? 'howl' : 'growl'); return; } audio.gob(k, VSZ[e.key] || 1); }
-function killE(e) { const od = ENEMIES[e.key].onDie; gv(e, 'die'); if (R) R.kills = (R.kills || 0) + 1; eAct(e, 'down'); e.dead = true; e.hp = 0; audio.kill(); if (!e.rewarded && !e.fled) { e.rewarded = 1; if (has('fang')) { healP(3); } if (has('wolffang') && B) addSt(B.p, 'str', 1); if (B && B.p.st.chain) { G.ammo(3 * B.p.st.chain); drawCards(B.p.st.chain); } } if (e.stolen && !e.fled) { R.gold += e.stolen; fx('hero', `+${e.stolen} 金币`, 'heal'); e.stolen = 0; } if (od && !e.fled) od(e, BE); }
+function killE(e) { const od = ENEMIES[e.key].onDie; gv(e, 'die'); if (R) R.kills = (R.kills || 0) + 1; eAct(e, 'down'); e.dead = true; e.hp = 0; e.deadAt = Date.now(); audio.kill(); if (!e.rewarded && !e.fled) { e.rewarded = 1; if (has('fang')) { healP(3); } if (has('wolffang') && B) addSt(B.p, 'str', 1); if (B && B.p.st.chain) { G.ammo(3 * B.p.st.chain); drawCards(B.p.st.chain); } } if (e.stolen && !e.fled) { R.gold += e.stolen; fx('hero', `+${e.stolen} 金币`, 'heal'); e.stolen = 0; } if (od && !e.fled) od(e, BE); }
 function boom(t) { // 爆音：伤害后保留 3 层（失真再 +3），多出的层数也保留
   const d = 20 + (B.p.st.dist ? 8 : 0) + (has('mic') ? 6 : 0);
   t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0);
@@ -498,13 +498,13 @@ const BE = {
   allies: e => alive().filter(a => a !== e), alive: () => alive(),
   healE(e, n) { e.hp = Math.min(e.max, e.hp + n); fx(e.id, `+${n}`, 'heal'); },
   revive(e, f) { e.revived = 1; e.dead = false; for (const k of ['poison', 'weak', 'vuln', 'res']) delete e.st[k]; e.hp = Math.max(1, Math.floor(e.max * f)); e.anim = null; if (R) R.kills--; fx(e.id, '复活', 'heal'); if (e.key === 'skeleton') say('（骨头咔嚓咔嚓地重新拼了起来）'); },
-  flee(e) { if (e.dead) return; e.fled = 1; e.dead = true; e.hp = 0; fx(e.id, '逃跑', 'st'); }, say: t => say(t),
+  flee(e) { if (e.dead) return; e.fled = 1; e.dead = true; e.hp = 0; e.deadAt = Date.now(); fx(e.id, '逃跑', 'st'); }, say: t => say(t),
   addCard(id, n = 1) { for (let k = 0; k < n; k++) B.disc.push(mkCard(id)); fx('hero', `+${CARDS[id].name}${n > 1 ? '×' + n : ''}`, 'st'); },
   kill(e) { killE(e); B.hitSet.add(e.id); },
   steal(e, n) { const k = Math.min(n, R.gold); R.gold -= k; e.stolen = (e.stolen || 0) + k; e.stoleT = e.turn; fx('hero', `-${k} 金币`, 'dmg'); },
   split(e, key, n) { const i = B.en.indexOf(e), hp = Math.max(1, Math.floor(e.hp / n)), bits = []; for (let k = 0; k < n; k++) { const b = mkEnemy(key); b.hp = b.max = hp; b.move = b.d.ai(b, BE); bits.push(b); } e.dead = true; e.fled = 1; e.hp = 0; B.en.splice(i, 1, ...bits); say('（缝合怪裂成了两块！）'); },
   endPlayerTurn() { B.forceEnd = 1; },
-  summon(key, hp) { if (alive().length >= 5) return; const e = mkEnemy(key); if (hp) e.hp = e.max = hp; e.move = e.d.ai(e, BE); B.en.unshift(e); },
+  summon(key, hp) { if (alive().length >= 5) return; const e = mkEnemy(key); if (hp) e.hp = e.max = hp; e.move = e.d.ai(e, BE); const i = B.en.findIndex(x => x.dead && !(x.d.prePhase && !x.revived && !x.fled)); if (i >= 0) B.en[i] = e; else B.en.unshift(e); } /* 召唤物优先填进已经死掉的位置，队伍不会越排越长 */,
 };
 
 function drawCards(n) {
@@ -659,7 +659,7 @@ async function checkEnd() {
     { const m = MECH.victory(G); if (m) say(tr(m)); } if (has('grail')) R.hp = Math.min(R.maxHp, R.hp + 5);
     if (B.en.some(e => (e.st.hostage || 0) > 0)) { R.gold += 40; say(tr('（被救下的村民塞给你 40 金币：“谢谢你们！”）')); }
     if (B.kind === 'elite') R.elites = (R.elites || 0) + 1;
-    if (B.kind === 'boss') { R.bosses = (R.bosses || 0) + 1; if (ACT() === 1) return act2Choice(); clearSave(); B = null; return story('story_end2', [R.boss === 'vamp_count' ? '伯爵化为了灰烬，天终于亮了。被关押的村民们，终于重获自由。' : t('{0}倒下了。古堡的血月熄灭，天终于亮了。被关押的村民们重获自由。', tr((ENEMIES[R.boss] || {}).name || '')), '可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。', '“回家的路……还在更高的地方。”'], () => story('story_party', ['天亮了。大家并肩站在晨光里，笑得满脸是灰。', '“走吧，往上。”'], () => endScreen(true))); }
+    if (B.kind === 'boss') { R.bosses = (R.bosses || 0) + 1; if (ACT() === 1) { delete R.pending; delete R.pendEnc; delete R.snap; R.after = 'act2'; save(); rewardScreen(); return true; } clearSave(); B = null; return story('story_end2', [R.boss === 'vamp_count' ? '伯爵化为了灰烬，天终于亮了。被关押的村民们，终于重获自由。' : t('{0}倒下了。古堡的血月熄灭，天终于亮了。被关押的村民们重获自由。', tr((ENEMIES[R.boss] || {}).name || '')), '可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。', '“回家的路……还在更高的地方。”'], () => story('story_party', ['天亮了。大家并肩站在晨光里，笑得满脸是灰。', '“走吧，往上。”'], () => endScreen(true))); }
     delete R.pending; delete R.pendEnc; delete R.snap; save(); /* 打赢后不能刷新重打 */
     rewardScreen(); return true;
   }
@@ -691,7 +691,7 @@ let frame = 0;
 function render() {
   if (!B) return;
   const hs = B.hitSet || new Set();
-  const enemies = B.en.map(e => {
+  const enemies = B.en.filter(e => !(e.dead && e.deadAt && Date.now() - e.deadAt > 1500 && !(e.d.prePhase && !e.revived && !e.fled))).map(e => { /* 死透的敌人 1.5 秒后不再占位置（骷髅等会复活的除外） */
     const img = e.dead ? 'a' : (frame % 2 ? 'b' : 'a'), h = ENEMIES[e.key].sc * 1.3, hd = ENEMIES[e.key].hd;
     const tg = B.sel >= 0 && !e.dead;
     return `<div class="unit enemy ${hd ? 'hd' : ''} ${tg ? 'tg' : ''} ${hs.has(e.id) ? 'hit' : ''} ${B.lunge === e.id ? 'lunge' : ''} ${e.dead ? 'dead' : ''}" data-id="${e.id}" data-eid="${e.id}">
@@ -732,7 +732,10 @@ function mechUI() {
   const rack = rk ? `<div id="rack"><span class="rl">麻将</span>${rk.tiles.map(x => `<b class="tile">${x}</b>`).join('')}${rk.eighth ? `<b class="tile t8" title="本回合最后摸到的牌，只能用来凑小胡">${rk.eighth}</b>` : ''}<span class="rp">${rk.set ? '本回合已结算' : rk.pats.length ? rk.pats.map(x => `<i>${x}</i>`).join('') : '还没有牌型'}</span><span class="rn">牌池 ${rk.pool}</span></div>` : '';
   return btns + rack;
 }
-function fixIntents() { /* 高个子敌人的意图文字被顶栏挡住时，往下挪到顶栏下面（压在头上也比看不到好） */
+function fitEnemies() { const row = $('#enemies'), hero = $('#hero'); if (!row || !hero) return; row.style.transform = '';
+  const rr = row.getBoundingClientRect(), hr = hero.getBoundingClientRect(), room = rr.right - (hr.right + 16);
+  if (rr.width > room && room > 50) { row.style.transformOrigin = 'right bottom'; row.style.transform = `scale(${Math.max(.55, room / rr.width)})`; } }
+function fixIntents() { fitEnemies(); /* 高个子敌人的意图文字被顶栏挡住时，往下挪到顶栏下面（压在头上也比看不到好） */
   const tb = $('#top'); if (!tb) return; const lim = tb.getBoundingClientRect().bottom + 4, sc = stage.getBoundingClientRect().width / (stage.offsetWidth || 1) || 1;
   view.querySelectorAll('.enemy .intent').forEach(el => { el.style.transform = ''; const r = el.getBoundingClientRect(); if (r.height && r.top < lim) { el.style.transform = `translateY(${(lim - r.top) / sc}px)`; el.classList.add('pushed'); } });
 }
@@ -824,11 +827,12 @@ view.addEventListener('contextmenu', e => { if (B && B.sel >= 0) { e.preventDefa
 // ---------- 战后奖励 ----------
 function rewardScreen() { /* 战利品先存进存档（R.loot），刷新页面也不会丢 */
   if (B) { const kind = B.kind; B = null; const L = [];
-    L.push({ t: 'gold', n: Math.round((kind === 'elite' ? rnd(25, 35) : rnd(10, 20)) * (A_(7) ? .7 : 1)) });
+    L.push({ t: 'gold', n: Math.round((kind === 'boss' ? rnd(90, 110) : kind === 'elite' ? rnd(25, 35) : rnd(10, 20)) * (A_(7) ? .7 : 1)) });
     if (has('clover')) L.push({ t: 'clover' });
     if (kind === 'elite') { const rl = rollRelic(); if (rl) L.push({ t: 'relic', id: rl }); }
+    if (kind === 'boss') { const rl = rollRelic(['r']); if (rl) L.push({ t: 'relic', id: rl }); }
     if (Math.random() < (kind === 'elite' ? .6 : .4)) L.push({ t: 'potion', id: rollPotion() });
-    L.push({ t: 'cards', ids: rollCards(3, kind === 'elite' ? .07 : 0).map(c => c.id) });
+    L.push({ t: 'cards', ids: (kind === 'boss' ? rollCards(3, 0, true) : rollCards(3, kind === 'elite' ? .07 : 0)).map(c => c.id) }); /* Boss：三选一稀有牌 */
     R.loot = L; save(); }
   setMusic('menu');
   const L = R.loot || [];
@@ -843,7 +847,7 @@ function rewardScreen() { /* 战利品先存进存档（R.loot），刷新页面
       if (it.t === 'gold') R.gold += it.n; else if (it.t === 'clover') R.gold += 15; else if (it.t === 'relic') gainRelic(it.id); else if (it.t === 'potion') { if (gainPotion(it.id) === false) return; }
       audio.gem(); take(i);
     });
-    $('#go').onclick = () => { delete R.loot; save(); mapScreen(); };
+    $('#go').onclick = () => { delete R.loot; if (R.after === 'act2') { delete R.after; save(); return act2Choice(); } save(); mapScreen(); };
   };
   draw();
 }
