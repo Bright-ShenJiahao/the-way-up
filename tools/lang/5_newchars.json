@@ -3182,5 +3182,9 @@
  "不出猎时每回合结束给标记目标 {0} 层血痕；出猎时每只造成 {1} 点伤害；攒满 {2} 只时回合结束自动出猎": [
   "When not hunting, gives the Mark {0} Blood Mark at end of turn. When hunting, each deals {1} damage. At {2} Bats, they hunt automatically at end of turn",
   "狩りをしない間は毎ターン終了時に標的へ血痕{0}。狩りでは1匹{1}ダメージ。{2}匹たまるとターン終了時に自動で狩る"
+ ],
+ "变身时对所有敌人造成 {0} 点伤害；攻击牌第一击 {1}；每个敌方回合第一段打穿格挡的伤害 {2}。数字是剩余回合": [
+  "On transforming, deal {0} damage to ALL enemies. Attacks' first hit {1}; the first hit through Block each enemy turn takes {2}. The number is turns left",
+  "変身時に敵全体に{0}ダメージ。アタックの最初の一撃{1}。敵ターンごとにブロックを貫いた最初のダメージ{2}。数字は残りターン"
  ]
 }
