@@ -1,4 +1,4 @@
-import { tr } from './i18n.js?v=live2_11111200';
+import { tr } from './i18n.js?v=live2_11111520';
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
 const I = n => n.includes('/') ? `assets/${n}.png` : `assets/icons/${n}.png`;
@@ -10,7 +10,7 @@ export const CARDS = {
     desc: u => `造成 ${v(u, 6, 9)} 点伤害。得到 1 发光弹。`, play: (g, u, t) => { g.attack(t, v(u, 6, 9)); g.ammo(1); } },
   load: { ch: 'hero', name: '装填', type: 'skill', rar: 'start', cost: [1, 0], icon: 'gb', tgt: 'self',
     desc: () => `得到 3 发光弹。抽 1 张牌。`, play: g => { g.ammo(3); g.draw(1); } },
-  charge: { ch: 'hero', name: '速射', type: 'skill', rar: 'start', cost: [1, 0], icon: 'p_arc', tgt: 'self',
+  charge: { ch: 'hero', name: '速射', type: 'skill', rar: 'start', cost: [2, 1], icon: 'p_arc', tgt: 'self',
     desc: () => `立刻额外射出一轮光弹。光弹不会减少，回合结束时照常再射一次。`, play: g => g.volley(false) },
   recharge: { ch: 'hero', name: '充电', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_crystal', tgt: 'self',
     desc: u => `得到 ${v(u, 4, 5)} 发光弹。`, play: (g, u) => g.ammo(v(u, 4, 5)) },
@@ -28,7 +28,7 @@ export const CARDS = {
     desc: u => `失去 2 点生命。得到 ${v(u, 3, 4)} 发光弹。`, play: (g, u) => { g.loseHp(2); g.ammo(v(u, 3, 4)); } },
   cannon: { ch: 'hero', name: '超频', type: 'skill', rar: 'u', cost: [1, 1], icon: 'p_boom', tgt: 'self',
     exhaust: 1, desc: u => `本回合每发光弹的伤害 +${v(u, 2, 3)}。消耗。`, play: (g, u) => { g.p.oc = (g.p.oc || 0) + v(u, 2, 3); } },
-  expand: { ch: 'hero', name: '电池扩容', type: 'power', rar: 'u', cost: [1, 1], icon: 'b_amt', tgt: 'self',
+  expand: { ch: 'hero', name: '电池扩容', type: 'power', rar: 'u', cost: [2, 2], icon: 'b_amt', tgt: 'self',
     desc: u => `每回合开始时，得到 ${v(u, 1, 2)} 发光弹。`, play: (g, u) => g.self('gen', v(u, 1, 2)) },
   rapid: { ch: 'hero', name: '连发模式', type: 'power', rar: 'u', cost: [1, 1], icon: 'sk_hshield', tgt: 'self',
     desc: u => `回合结束每射出 1 发光弹，获得 ${v(u, 1, 2)} 点格挡。`, play: (g, u) => g.self('rapid', v(u, 1, 2)) },
@@ -75,7 +75,7 @@ export const CARDS = {
 
   // ======== 巫女 · 结界 ========
   arrow: { ch: 'miko', name: '射箭', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_bow', tgt: 'one',
-    desc: u => `造成 ${v(u, 6, 9)} 点伤害。`, play: (g, u, t) => g.attack(t, v(u, 6, 9)) },
+    desc: u => `造成 ${v(u, 7, 10)} 点伤害。`, play: (g, u, t) => g.attack(t, v(u, 7, 10)) },
   kekkai: { ch: 'miko', name: '张设结界', type: 'skill', rar: 'start', cost: [1, 0], icon: 'sk_sigil', tgt: 'self',
     desc: () => `结界 +1。获得 4 点格挡。`, play: g => { g.kek(1); g.block(4); } },
   hama: { ch: 'miko', name: '破魔箭', type: 'atk', rar: 'start', cost: [1, 1], icon: 'sk_holyorb', tgt: 'one',
@@ -95,13 +95,13 @@ export const CARDS = {
   shiniki: { ch: 'miko', name: '神域', type: 'skill', rar: 'u', cost: [2, 2], icon: 'sk_sigil', tgt: 'self',
     desc: u => `结界 +${v(u, 2, 3)}。获得 ${v(u, 10, 14)} 点格挡。`, play: (g, u) => { g.kek(v(u, 2, 3)); g.block(v(u, 10, 14)); } },
   twinarrow: { ch: 'miko', name: '连射', type: 'atk', rar: 'c', cost: [1, 1], icon: 'ic_xbow', tgt: 'one',
-    desc: u => `造成 ${v(u, 4, 6)} 点伤害 2 次。`, play: (g, u, t) => g.attack(t, v(u, 4, 6), 2) },
+    desc: u => `造成 ${v(u, 5, 7)} 点伤害 2 次。`, play: (g, u, t) => g.attack(t, v(u, 5, 7), 2) },
   piercing: { ch: 'miko', name: '穿云箭', type: 'atk', rar: 'c', cost: [1, 1], icon: 'sk_hawk', tgt: 'one',
     desc: u => `移除目标的格挡，造成 ${v(u, 9, 12)} 点伤害。`, play: (g, u, t) => { t.block = 0; g.attack(t, v(u, 9, 12)); } },
   yumihari: { ch: 'miko', name: '弓张月', type: 'atk', rar: 'u', cost: [1, 0], icon: 'p_arc', tgt: 'one',
     desc: () => `造成等同于你当前格挡值的伤害。`, play: (g, u, t) => g.attack(t, g.p.block) },
   mangetsu: { ch: 'miko', name: '破魔·满月', type: 'atk', rar: 'u', cost: [2, 2], icon: 'ic_gods', tgt: 'one',
-    desc: u => `消耗最多 4 层结界，每层造成 ${v(u, 8, 10)} 点伤害。`, play: (g, u, t) => { const n = Math.min(4, g.p.st.kek || 0); if (n) { g.p.st.kek -= n; if (!g.p.st.kek) delete g.p.st.kek; g.attack(t, n * v(u, 8, 10)); } } },
+    desc: u => `消耗最多 4 层结界，每层造成 ${v(u, 10, 12)} 点伤害。`, play: (g, u, t) => { const n = Math.min(4, g.p.st.kek || 0); if (n) { g.p.st.kek -= n; if (!g.p.st.kek) delete g.p.st.kek; g.attack(t, n * v(u, 10, 12)); } } },
   kagura: { ch: 'miko', name: '神乐舞', type: 'power', rar: 'u', cost: [1, 0], icon: 'sk_fairy', tgt: 'self',
     desc: () => `每回合开始时，结界 +1。`, play: g => g.self('kagura', 1) },
   shinboku: { ch: 'miko', name: '御神木', type: 'power', rar: 'r', cost: [2, 1], icon: 'sk_treant', tgt: 'self',
@@ -213,11 +213,11 @@ export const CARDS = {
   haja: { ch: 'miko', act2: 1, name: '破邪结界', type: 'skill', rar: 'r', cost: [2, 1], icon: 'icons2/haja', tgt: 'self', exhaust: 1,
     desc: () => `结界层数翻倍（至少 +1）。消耗。`, play: g => g.kek(Math.max(1, g.p.st.kek || 0)) },
   chinkon: { ch: 'miko', act2: 1, name: '镇魂歌', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/chinkon', tgt: 'all',
-    desc: u => `对所有敌人造成结界层数 ×${v(u, 2, 3)} 的伤害（至少 4）。`, play: (g, u) => g.attackAll(Math.max(4, (g.p.st.kek || 0) * v(u, 2, 3))) },
+    desc: u => `对所有敌人造成结界层数 ×${v(u, 3, 4)} 的伤害（至少 6）。`, play: (g, u) => g.attackAll(Math.max(6, (g.p.st.kek || 0) * v(u, 3, 4))) },
   shinju: { ch: 'miko', act2: 1, name: '神木之盾', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/shinju', tgt: 'self',
     desc: u => `获得 ${v(u, 10, 14)} 点格挡。结界 +1。`, play: (g, u) => { g.block(v(u, 10, 14)); g.kek(1); } },
   fullmag: { ch: 'hero', act2: 1, name: '满弹连射', type: 'skill', rar: 'r', cost: [2, 1], icon: 'icons2/fullmag', tgt: 'self',
-    desc: () => `光弹装满（10 发）。`, play: g => g.ammo(10) },
+    exhaust: 1, desc: () => `光弹装满（10 发）。消耗。`, play: g => g.ammo(10) },
   silverbul: { ch: 'hero', act2: 1, name: '银弹', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/silverbul', tgt: 'one',
     desc: u => `造成 ${v(u, 7, 9)} 点伤害，对亡灵翻倍。得到 2 发光弹。`, play: (g, u, t) => { g.attack(t, v(u, 7, 9) * (t && t.d.undead ? 2 : 1)); g.ammo(2); } },
   reload2: { ch: 'hero', act2: 1, name: '快速换弹', type: 'skill', rar: 'u', cost: [0, 0], icon: 'icons2/reload2', tgt: 'self',

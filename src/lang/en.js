@@ -651,6 +651,7 @@ export default {
 "爆音后多保留 {0} 层共鸣，爆音伤害 {1}": "Burst keeps {0} more Resonance, Burst damage {1}",
 "你每打出一张技能牌，他力量 {0}（每回合最多 {1}）。血量掉到一半时会暴怒，叫来两个手下。": "Gains Strength {0} whenever you play a Skill (max {1} per turn). At half HP he flies into a rage and calls two minions.",
 "临时攻击": "Temp Strike",
+"光弹装满（{0} 发）。消耗。": "Fill Ammo to max ({0}). Exhaust.",
 "哥布林小兵": "Goblin Grunt",
 "哥布林小鬼": "Goblin Imp",
 "哥布林刀手": "Goblin Blade",
