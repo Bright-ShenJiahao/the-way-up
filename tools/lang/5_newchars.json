@@ -1978,5 +1978,13 @@
  "丢掉": [
   "Discard",
   "捨てる"
+ ],
+ "本回合结束时，每发光弹改为打所有敌人。得到 {0} 发光弹。": [
+  "At the end of this turn, each shot hits ALL enemies. Gain {0} Ammo.",
+  "このターン終了時、光弾が敵全体に当たる。光弾を{0}発得る。"
+ ],
+ "结界层数翻倍（至少 {0}）。获得 {1} 点格挡。消耗。": [
+  "Double your Ward (at least {0}). Gain {1} Block. Exhaust.",
+  "結界を2倍にする（最低{0}）。ブロック{1}を得る。廃棄。"
  ]
 }

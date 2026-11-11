@@ -1,5 +1,5 @@
-import { tr } from './i18n.js?v=live2_11112400';
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, MECH } from './chars.js?v=live2_11112400';
+import { tr } from './i18n.js?v=live2_11112600';
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, MECH } from './chars.js?v=live2_11112600';
 export { MECH, NEWKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
@@ -35,7 +35,7 @@ export const CARDS = {
   rapid: { ch: 'hero', name: '连发模式', type: 'power', rar: 'u', cost: [1, 1], icon: 'sk_hshield', tgt: 'self',
     desc: u => `回合结束每射出 1 发光弹，获得 ${v(u, 1, 2)} 点格挡。`, play: (g, u) => g.self('rapid', v(u, 1, 2)) },
   screen: { ch: 'hero', name: '全屏扫射', type: 'skill', rar: 'r', cost: [2, 2], icon: 'ic_vortex', tgt: 'self',
-    desc: () => `本回合结束时，每发光弹改为打所有敌人。`, play: g => { g.p.aoe = 1; } },
+    desc: u => `本回合结束时，每发光弹改为打所有敌人。${v(u, '', '得到 2 发光弹。')}`, play: (g, u) => { g.p.aoe = 1; if (u) g.ammo(2); } },
   dual: { ch: 'hero', name: '双持', type: 'power', rar: 'r', cost: [3, 2], icon: 'p_critd', tgt: 'self',
     desc: () => `每发光弹的伤害永久 +1。`, play: g => g.self('dual', 1) },
 
@@ -215,7 +215,7 @@ export const CARDS = {
     desc: () => `不能打出。回合结束时若在手中，失去 1 点生命。`, play: () => {} },
   /* ===== 第二章专属卡牌（只在血月古堡出现） ===== */
   haja: { ch: 'miko', act2: 1, name: '破邪结界', type: 'skill', rar: 'r', cost: [2, 2], icon: 'icons2/haja', tgt: 'self', exhaust: 1,
-    desc: () => `结界层数翻倍（至少 +1）。消耗。`, play: g => g.kek(Math.max(1, g.p.st.kek || 0)) },
+    desc: u => `结界层数翻倍（至少 +${v(u, 1, 2)}）。${v(u, '', '获得 6 点格挡。')}消耗。`, play: (g, u) => { g.kek(Math.max(v(u, 1, 2), g.p.st.kek || 0)); if (u) g.block(6); } },
   chinkon: { ch: 'miko', act2: 1, name: '镇魂歌', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/chinkon', tgt: 'all',
     desc: u => `对所有敌人造成结界层数 ×${v(u, 2, 3)} 的伤害（至少 4，最多算 6 层）。`, play: (g, u) => g.attackAll(Math.max(4, Math.min(6, g.p.st.kek || 0) * v(u, 2, 3))) },
   shinju: { ch: 'miko', act2: 1, name: '神木之盾', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/shinju', tgt: 'self',
@@ -229,7 +229,7 @@ export const CARDS = {
   holywater: { ch: 'witch', act2: 1, name: '圣水瓶', type: 'atk', rar: 'u', cost: [0, 0], icon: 'icons2/holywater', tgt: 'one', exhaust: 1,
     desc: u => `造成 ${v(u, 10, 14)} 点伤害，对亡灵翻倍。消耗。`, play: (g, u, t) => g.attack(t, v(u, 10, 14) * (t && t.d.undead ? 2 : 1)) },
   megabrew: { ch: 'witch', act2: 1, name: '炼成大爆发', type: 'skill', rar: 'r', cost: [2, 2], icon: 'icons2/megabrew', tgt: 'self',
-    desc: () => `随机获得 4 个炼金瓶。`, play: g => g.potion(4) },
+    desc: u => `随机获得 ${v(u, 4, 5)} 个炼金瓶。`, play: (g, u) => g.potion(v(u, 4, 5)) },
   fogpoison: { ch: 'witch', act2: 1, name: '毒雾结界', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/fogpoison', tgt: 'all',
     desc: u => `给所有敌人 ${v(u, 4, 6)} 层中毒。`, play: (g, u) => g.eachEnemy(e => g.poison(e, v(u, 4, 6))) },
   requiem: { ch: 'heroine', act2: 1, name: '安魂曲', type: 'skill', rar: 'r', cost: [2, 2], icon: 'icons2/requiem', tgt: 'all',
@@ -237,7 +237,7 @@ export const CARDS = {
   echo2: { ch: 'heroine', act2: 1, name: '残响', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/echo2', tgt: 'one',
     desc: u => `造成 4 点伤害。给予 ${v(u, 7, 9)} 层共鸣。`, play: (g, u, t) => { g.attack(t, 4); g.res(t, v(u, 7, 9)); } },
   mute2: { ch: 'heroine', act2: 1, name: '静音', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/mute2', tgt: 'one', exhaust: 1,
-    desc: () => `给予 3 层虚弱和 3 层共鸣。消耗。`, play: (g, u, t) => { g.apply(t, 'weak', 3); g.res(t, 3); } },
+    desc: u => `给予 ${v(u, 3, 4)} 层虚弱和 ${v(u, 3, 4)} 层共鸣。消耗。`, play: (g, u, t) => { g.apply(t, 'weak', v(u, 3, 4)); g.res(t, v(u, 3, 4)); } },
   silvercross_c: { act2: 1, name: '银之十字', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/silvercross_c', tgt: 'self',
     desc: u => `获得 ${v(u, 8, 11)} 点格挡。`, play: (g, u) => g.block(v(u, 8, 11)) },
   garlic: { act2: 1, name: '大蒜', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/garlic', tgt: 'all', exhaust: 1,

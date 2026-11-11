@@ -18,4 +18,5 @@ for (const s of Object.values(D.STATUS)) { add(s[0]); add(s[1]); }
 for (const ev of [...D.EVENTS, ...D.EVENTS2]) { add(ev.title); add(ev.text); for (const o of ev.opts) add(o.t); }
 for (const s of need) { const k = split(s); if (!(s in EN) && !(k in EN)) { console.log('数据缺翻译:', k); bad++; } }
 console.log(bad ? `共 ${bad} 处问题` : `OK：${ek.length} 个 key，en / ja 一致，数据全部有翻译`);
+for (const d of Object.values(D.CARDS)) { if (['gen', 'curse', 'status'].includes(d.rar) || d.unplay) continue; let a, b; try { a = d.desc(0); b = d.desc(1); } catch (e) { continue; } if (a === b && JSON.stringify(d.cost[0]) === JSON.stringify(d.cost[1])) { console.log('升级无变化: ' + d.id + ' ' + d.name); bad++; } }
 if (bad) process.exitCode = 1;
