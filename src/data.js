@@ -1,5 +1,5 @@
-import { tr } from './i18n.js?v=live2_11112618';
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11112618';
+import { tr } from './i18n.js?v=live2_11120130';
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11120130';
 export { MECH, NEWKEYW, OLDKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
@@ -13,19 +13,19 @@ export const CARDS = {
   load: { ch: 'hero', name: '装填', type: 'skill', rar: 'start', cost: [1, 0], icon: 'gb', tgt: 'self',
     desc: () => `得到 2 发光弹。抽 1 张牌。`, play: g => { g.ammo(2); g.draw(1); } },
   charge: { ch: 'hero', name: '速射', type: 'skill', rar: 'start', cost: [1, 0], icon: 'p_arc', tgt: 'self',
-    desc: u => `立刻额外射出一轮光弹（最多 ${v(u, 4, 6)} 发）。光弹不会减少，回合结束时照常再射一次。`, play: (g, u) => g.volley(false, v(u, 4, 6)) },
+    desc: u => `立刻额外射出一轮光弹（最多 ${v(u, 2, 3)} 发）。光弹不会减少，回合结束时照常再射一次。`, play: (g, u) => g.volley(false, v(u, 2, 3)) },
   recharge: { ch: 'hero', name: '充电', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_crystal', tgt: 'self',
-    desc: u => `得到 ${v(u, 4, 5)} 发光弹。`, play: (g, u) => g.ammo(v(u, 4, 5)) },
+    desc: u => `得到 ${v(u, 3, 4)} 发光弹。`, play: (g, u) => g.ammo(v(u, 3, 4)) },
   burst: { ch: 'hero', name: '三连发', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/burst', tgt: 'one',
     desc: u => `造成 ${v(u, 7, 10)} 点伤害。得到 1 发光弹。`, play: (g, u, t) => { g.attack(t, v(u, 7, 10)); g.ammo(1); } },
   barrage: { ch: 'hero', name: '弹幕', type: 'atk', rar: 'c', cost: [1, 1], icon: 'ic_orbit', tgt: 'all',
     desc: u => `对所有敌人造成 ${v(u, 5, 7)} 点伤害。得到 1 发光弹。`, play: (g, u) => { g.attackAll(v(u, 5, 7)); g.ammo(1); } },
   eshield: { ch: 'hero', name: '能量护盾', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_barrier', tgt: 'self',
-    desc: u => `获得 ${v(u, 6, 8)} 点格挡。卸下最多 3 发光弹，每发再 +3（最多共 ${v(u, 12, 14)} 点）。`, play: (g, u) => { const k = Math.min(3, g.p.st.ammo || 0); if (k) g.p.st.ammo -= k; if (!g.p.st.ammo) delete g.p.st.ammo; g.block(Math.min(v(u, 12, 14), v(u, 6, 8) + k * 3)); } },
+    desc: u => `获得 ${v(u, 6, 8)} 点格挡。卸下最多 2 发光弹，每发再 +3。`, play: (g, u) => { const k = Math.min(2, g.p.st.ammo || 0); if (k) g.p.st.ammo -= k; if (!g.p.st.ammo) delete g.p.st.ammo; g.block(v(u, 6, 8) + k * 3); } },
   standby: { ch: 'hero', name: '待机模式', type: 'skill', rar: 'c', cost: [1, 1], icon: 'p_tough', tgt: 'self',
     desc: u => `获得 ${v(u, 5, 7)} 点格挡。得到 1 发光弹。`, play: (g, u) => { g.block(v(u, 5, 7)); g.ammo(1); } },
   heatsink: { ch: 'hero', name: '散热片', type: 'skill', rar: 'c', cost: [1, 1], icon: 'b_armor', tgt: 'self',
-    desc: u => `获得 ${v(u, 8, 11)} 点格挡。`, play: (g, u) => g.block(v(u, 8, 11)) },
+    desc: u => `获得 ${v(u, 7, 10)} 点格挡；本回合打出过攻击牌时抽 1 张牌。`, play: (g, u) => { g.block(v(u, 7, 10)); if (g.p.combo) g.draw(1); } },
   overload: { ch: 'hero', name: '超载', type: 'skill', rar: 'u', cost: [0, 0], icon: 'ic_thunder', tgt: 'self',
     desc: u => `失去 2 点生命。得到 ${v(u, 3, 4)} 发光弹。`, play: (g, u) => { g.loseHp(2); g.ammo(v(u, 3, 4)); } },
   cannon: { ch: 'hero', name: '超频', type: 'skill', rar: 'u', cost: [1, 1], icon: 'p_boom', tgt: 'self',
@@ -35,7 +35,7 @@ export const CARDS = {
   rapid: { ch: 'hero', name: '连发模式', type: 'power', rar: 'u', cost: [1, 1], icon: 'sk_hshield', tgt: 'self',
     desc: u => `回合结束每射出 1 发光弹，获得 ${v(u, 1, 2)} 点格挡。`, play: (g, u) => g.self('rapid', v(u, 1, 2)) },
   screen: { ch: 'hero', name: '全屏扫射', type: 'skill', rar: 'r', cost: [2, 2], icon: 'ic_vortex', tgt: 'self',
-    desc: u => `本回合结束时，每发光弹改为打所有敌人。${v(u, '', '得到 2 发光弹。')}`, play: (g, u) => { g.p.aoe = 1; if (u) g.ammo(2); } },
+    desc: u => `本回合结束时，前 ${v(u, 5, 7)} 发光弹改为打所有敌人。`, play: (g, u) => { g.p.aoe = v(u, 5, 7); } },
   dual: { ch: 'hero', name: '双持', type: 'power', rar: 'r', cost: [3, 2], icon: 'p_critd', tgt: 'self',
     desc: () => `每发光弹的伤害永久 +1。`, play: g => g.self('dual', 1) },
 
@@ -57,7 +57,7 @@ export const CARDS = {
   skip: { ch: 'heroine', name: '切歌', type: 'skill', rar: 'c', cost: [0, 0], icon: 'p_gamble', tgt: 'self',
     desc: u => `抽 1 张牌。随机给一个敌人 ${v(u, 2, 3)} 层共鸣。`, play: (g, u) => { g.draw(1); g.resRandom(v(u, 2, 3)); } },
   mute: { ch: 'heroine', name: '隔音墙', type: 'skill', rar: 'c', cost: [1, 1], icon: 'sk_hwall', tgt: 'self',
-    desc: u => `获得 ${v(u, 7, 10)} 点格挡。本回合主动弃过牌则再 +4。`, play: (g, u) => g.block(v(u, 7, 10) + (g.p.disc ? 4 : 0)) },
+    desc: u => `获得 ${v(u, 7, 10)} 点格挡。本回合主动弃过牌则再 +3，并给 1 个随机敌人 1 层共鸣。`, play: (g, u) => { g.block(v(u, 7, 10) + (g.p.disc ? 3 : 0)); if (g.p.disc) { const a = g.alive(); if (a.length) g.res(a[Math.floor(Math.random() * a.length)], 1); } } },
   refrain: { ch: 'heroine', name: '副歌', type: 'atk', rar: 'c', cost: [1, 1], icon: 'ic_bell', tgt: 'one',
     desc: u => `造成 ${v(u, 8, 10)} 点伤害；目标共鸣不少于 8 层时改为 ${v(u, 16, 20)} 点并再给 2 层。`, play: (g, u, t) => { if ((t.st.res || 0) >= 8) { g.attack(t, v(u, 16, 20)); g.res(t, 2); } else g.attack(t, v(u, 8, 10)); } },
   harmony: { ch: 'heroine', name: '和声', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_aura', tgt: 'all',
@@ -65,7 +65,7 @@ export const CARDS = {
   echo: { ch: 'heroine', name: '回声', type: 'skill', rar: 'u', cost: [1, 0], icon: 'sk_vortex', tgt: 'one',
     desc: () => `目标的共鸣层数翻倍（最多增加 8 层）。`, play: (g, u, t) => g.res(t, Math.min(8, t.st.res || 0)) },
   crack: { ch: 'heroine', name: '破音', type: 'atk', rar: 'u', cost: [1, 1], icon: 'p_knock', tgt: 'one',
-    desc: u => `清空目标的共鸣，每层造成 ${v(u, 2, 3)} 点伤害。`, play: (g, u, t) => { const n = t.st.res || 0; delete t.st.res; g.attack(t, n * v(u, 2, 3)); } },
+    desc: u => `造成 ${v(u, 5, 7)} 点伤害；移除目标最多 4 层共鸣，每层再 +2。`, play: (g, u, t) => { const n = Math.min(4, t.st.res || 0); if (n) { t.st.res -= n; if (!t.st.res) delete t.st.res; } g.attack(t, v(u, 5, 7) + 2 * n); } },
   wave: { ch: 'heroine', name: '共鸣冲击', type: 'atk', rar: 'u', cost: [1, 1], icon: 'sk_waterel', tgt: 'all',
     desc: u => `对每个敌人造成 ${v(u, 3, 4)} 点伤害，再加上它的共鸣层数。`, play: (g, u) => g.eachEnemy(e => g.attack(e, v(u, 3, 4) + (e.st.res || 0))) },
   lowf: { ch: 'heroine', name: '低频', type: 'power', rar: 'u', cost: [1, 1], icon: 'ic_hexa', tgt: 'self',
@@ -141,7 +141,7 @@ export const CARDS = {
   kekarrow: { noart: 1, ch: 'miko', name: '结界箭', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_kekarrow', tgt: 'one',
     desc: u => `造成 ${v(u, 5, 7)} 点伤害。结界 +1。`, play: (g, u, t) => { g.attack(t, v(u, 5, 7)); g.kek(1); } },
   renju: { noart: 1, ch: 'miko', name: '连珠箭', type: 'atk', rar: 'c', cost: [0, 0], icon: 'icons2/n_renju', tgt: 'one',
-    desc: u => `造成 ${v(u, 3, 5)} 点伤害。`, play: (g, u, t) => g.attack(t, v(u, 3, 5)) },
+    desc: u => `造成 ${v(u, 3, 5)} 点伤害；本回合打出过至少 2 张技能牌时再造成 ${v(u, 3, 5)} 点。`, play: (g, u, t) => { g.attack(t, v(u, 3, 5)); if ((g.p.skillN || 0) >= 2) g.attack(t, v(u, 3, 5)); } },
   offbeat: { noart: 1, ch: 'heroine', name: '切分音', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_offbeat', tgt: 'self', sly: 1,
     desc: u => `获得 ${v(u, 6, 9)} 点格挡，给予所有敌人 1 层共鸣。狡诈。`, play: (g, u) => { g.block(v(u, 6, 9)); g.resAll(1); } },
   dropbeat: { noart: 1, ch: 'heroine', name: '落拍', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_dropbeat', tgt: 'one', sly: 1,
@@ -171,7 +171,7 @@ export const CARDS = {
   firebrew: { ch: 'witch', name: '火焰配方', type: 'skill', rar: 'c', cost: [1, 1], icon: 'sk_fireel', tgt: 'self',
     desc: u => `获得 1 瓶火焰瓶。获得 ${v(u, 4, 7)} 点格挡。`, play: (g, u) => { g.potion(1, 'p_fire'); g.block(v(u, 4, 7)); } },
   antidote: { ch: 'witch', name: '解毒剂', type: 'skill', rar: 'c', cost: [0, 0], icon: 'holywater', tgt: 'self',
-    desc: u => `清除自身虚弱和易伤。获得 ${v(u, 4, 7)} 点格挡。`, play: (g, u) => { delete g.p.st.weak; delete g.p.st.vuln; g.block(v(u, 4, 7)); } },
+    exhaust: 1, desc: u => `清除自身虚弱和易伤，获得 ${v(u, 3, 5)} 点格挡；清除了至少一种时得到 1 瓶毒药瓶。消耗。`, play: (g, u) => { const had = g.p.st.weak || g.p.st.vuln; delete g.p.st.weak; delete g.p.st.vuln; g.block(v(u, 3, 5)); if (had) g.potion(1, 'p_poison'); } },
   distill: { ch: 'witch', name: '蒸馏', type: 'skill', rar: 'u', cost: [1, 1], icon: 'ic_crystal', tgt: 'self',
     desc: u => `消耗手里 1 个炼金瓶（没有就先随机获得 1 个），获得 2 点能量。${v(u, '', '抽 1 张牌。')}`, play: (g, u) => { if (!g.potsInHand()) g.potion(1); if (g.usePotion()) g.energy(2); if (u) g.draw(1); } },
   catalyst: { ch: 'witch', name: '催化剂', type: 'skill', rar: 'u', cost: [1, 0], icon: 'ic_crystal', tgt: 'one', exhaust: 1,

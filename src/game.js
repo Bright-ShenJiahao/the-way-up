@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112618';
-import { createAudio } from './audio.js?v=live2_11112618';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112618';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11120130';
+import { createAudio } from './audio.js?v=live2_11120130';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11120130';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -154,6 +154,17 @@ function pickDeck(mode, done) {
   });
 }
 // 卡牌奖励池
+/* 三选一保底：三张全是攻击或全是非攻击时，把稀有度最低的一张换成另一类（优先同稀有度） */
+function mixTypes(out, okFn) {
+  if (out.length < 3) return out; const isA = id => CARDS[id].type === 'atk', RK = { c: 0, u: 1, r: 2 };
+  const nA = out.filter(isA).length; if (nA > 0 && nA < out.length) return out;
+  const wantA = nA === 0; let i = 0; out.forEach((id, k) => { if ((RK[CARDS[id].rar] ?? 0) < (RK[CARDS[out[i]].rar] ?? 0)) i = k; });
+  const rar = CARDS[out[i]].rar, base = Object.values(CARDS).filter(d => okFn(d) && !out.includes(d.id) && (d.type === 'atk') === wantA);
+  const pool = base.filter(d => d.rar === rar).length ? base.filter(d => d.rar === rar) : base;
+  if (pool.length) out[i] = pool[Math.floor(Math.random() * pool.length)].id;
+  for (let k = out.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [out[k], out[j]] = [out[j], out[k]]; }
+  return out;
+}
 function rollCards(n, rareBonus = 0, onlyRare = false) {
   const out = [], L = lockedSet(), ok = d => mine(d) && !L.has(d.id) && !out.includes(d.id) && d.rar !== 'start' && d.rar !== 'gen';
   for (let tries = 0; out.length < n && tries < 60; tries++) {
@@ -164,6 +175,7 @@ function rollCards(n, rareBonus = 0, onlyRare = false) {
     if (!pool.length) break;
     out.push(pickOne(pool).id);
   }
+  mixTypes(out, d => ok(d) && (!onlyRare || d.rar === 'r'));
   return out.map(id => mkCard(id));
 }
 function chooseCard(cards, done, title = '选择一张牌加入牌组') {
@@ -473,7 +485,7 @@ const G = {
   poison(t, n) { if (!t || t.dead || n <= 0) return; n += has('toad') ? 1 : 0; addSt(t, 'poison', n); fx(t.id, `中毒+${n}`, 'st'); },
   volley(clear = true, max = 99) { // 光弹齐射：每发 4 点（+双持 +超频），打随机敌人或全体
     const n = Math.min(max, B.p.st.ammo || 0); if (!n) return; const dmg = 4 + (B.p.st.dual || 0) + (B.p.oc || 0);
-    for (let i = 0; i < n; i++) { const a = alive(); if (!a.length) break; (B.p.aoe ? a : []).forEach(e => B.fx.push({ who: e.id, cls: 'bul', n: i })); if (B.p.aoe) a.forEach(e => hurt(e, atkVal(B.p, e, dmg), B.p)); else { const e = pickOne(a); B.fx.push({ who: e.id, cls: 'bul', n: i }); hurt(e, atkVal(B.p, e, dmg), B.p); } }
+    for (let i = 0; i < n; i++) { const a = alive(); if (!a.length) break; const ao = B.p.aoe && i < B.p.aoe; (ao ? a : []).forEach(e => B.fx.push({ who: e.id, cls: 'bul', n: i })); if (ao) a.forEach(e => hurt(e, atkVal(B.p, e, dmg), B.p)); else { const e = pickOne(a); B.fx.push({ who: e.id, cls: 'bul', n: i }); hurt(e, atkVal(B.p, e, dmg), B.p); } }
     if (B.p.st.rapid) G.block(B.p.st.rapid * n, true);
     if (clear) { B.shots = (B.shots || 0) + n; if (has('pad')) { B.p.padDraw = Math.floor(B.shots / 4); B.shots %= 4; } addSt(B.p, 'ammo', -Math.min(n, B.p.st.ammo || 0)); } /* 齐射途中“连锁反应”新得到的光弹留到下回合 */
     audio.slash && audio.slash(); },

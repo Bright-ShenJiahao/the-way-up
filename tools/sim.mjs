@@ -64,7 +64,7 @@ const G = {
   poison(t, n) { if (!t || t.dead || n <= 0) return; addSt(t, 'poison', n + (has('toad') ? 1 : 0)); },
   volley(clear = true, max = 99) { // 光弹齐射
     const n = Math.min(max, B.p.st.ammo || 0); if (!n) return; const dmg = 4 + (B.p.st.dual || 0) + (B.p.oc || 0);
-    for (let i = 0; i < n; i++) { const a = alive(); if (!a.length) break; if (B.p.aoe) a.forEach(e => hurt(e, atkVal(B.p, e, dmg), B.p)); else { const e = pickOne(a); hurt(e, atkVal(B.p, e, dmg), B.p); } }
+    for (let i = 0; i < n; i++) { const a = alive(); if (!a.length) break; if (B.p.aoe && i < B.p.aoe) a.forEach(e => hurt(e, atkVal(B.p, e, dmg), B.p)); else { const e = pickOne(a); hurt(e, atkVal(B.p, e, dmg), B.p); } }
     if (B.p.st.rapid) G.block(B.p.st.rapid * n, true);
     if (clear) { B.shots = (B.shots || 0) + n; if (has('pad')) { B.p.padDraw = Math.floor(B.shots / 4); B.shots %= 4; } addSt(B.p, 'ammo', -Math.min(n, B.p.st.ammo || 0)); }
     },
@@ -225,7 +225,19 @@ function battle(keys, kind) {
 }
 function revive() { pDeath(); return R.hp > 0; }
 function dropPot(kind) { if (Math.random() < (kind === 'elite' ? .6 : .4) && R.pots.length < 3) R.pots.push(pickOne(POTS)); }
-function rollCards(n, bonus = 0) { const out = []; while (out.length < n) { const x = Math.random(), rar = x < .04 + bonus ? 'r' : x < .36 + bonus ? 'u' : 'c'; const pool = Object.values(CARDS).filter(d => d.rar === rar && mine(d) && !out.includes(d.id)); if (pool.length) out.push(pickOne(pool).id); } return out; }
+function rollCards(n, bonus = 0) { const out = []; while (out.length < n) { const x = Math.random(), rar = x < .04 + bonus ? 'r' : x < .36 + bonus ? 'u' : 'c'; const pool = Object.values(CARDS).filter(d => d.rar === rar && mine(d) && !out.includes(d.id)); if (pool.length) out.push(pickOne(pool).id); } return mixTypes(out, d => mine(d) && d.rar !== 'start' && d.rar !== 'gen'); }
+/* 三选一保底：三张全是攻击或全是非攻击时，把稀有度最低的一张换成另一类（优先同稀有度） */
+function mixTypes(out, okFn) {
+  if (out.length < 3) return out; const isA = id => CARDS[id].type === 'atk', RK = { c: 0, u: 1, r: 2 };
+  const nA = out.filter(isA).length; if (nA > 0 && nA < out.length) return out;
+  const wantA = nA === 0; let i = 0; out.forEach((id, k) => { if ((RK[CARDS[id].rar] ?? 0) < (RK[CARDS[out[i]].rar] ?? 0)) i = k; });
+  const rar = CARDS[out[i]].rar, base = Object.values(CARDS).filter(d => okFn(d) && !out.includes(d.id) && (d.type === 'atk') === wantA);
+  const pool = base.filter(d => d.rar === rar).length ? base.filter(d => d.rar === rar) : base;
+  if (pool.length) out[i] = pool[Math.floor(Math.random() * pool.length)].id;
+  for (let k = out.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [out[k], out[j]] = [out[j], out[k]]; }
+  return out;
+}
+
 const TIER = { r: 3, u: 2, c: 1 };
 /* 每个角色的 2~3 套打法：熟练机器人看牌组里哪套最多，就往哪套拿牌 */
 const ARCH = {
