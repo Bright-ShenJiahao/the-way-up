@@ -152,13 +152,13 @@ function botTurn() { usePots(); if (!alive().length) return; MECH.bot(G, incomin
       if (/用掉|打出所有光弹/.test(d.desc(0)) && !(B.p.st.ammo || 0)) s -= 10;
       if (d.id === 'eshield' && need <= 0) s -= 10;
       if (/消耗全部结界/.test(d.desc(0)) && (B.p.st.kek || 0) < 4) s -= 6;
-      if (SMART) { const tx = d.desc(o.c.up), RS = { 结界: 'kek', 内力: 'qi', 鲜血: 'vblood', 霜甲: 'frost', 飞剑: 'sword', 光弹: 'ammo' };
+      if (SMART) { const tx = d.desc(o.c.up), RS = { 结界: 'kek', 鲜血: 'vblood', 龙血: 'dblood', 飞剑: 'sword', 光弹: 'ammo' };
         for (const [w, k] of Object.entries(RS)) { const have = B.p.st[k] || 0;
           if (new RegExp('(花掉|用掉|射出)[^。；]{0,8}' + w).test(tx)) s += have >= 3 ? 3 : have ? -1 : -5;
           else if (new RegExp('(得到|获得) \\d+ (层|点|把|发)' + w + '|' + w + ' \\+').test(tx)) s += 1; }
         if (/回合结束没打出就消失/.test(tx)) s += 3;
         if (/霜龙形态下/.test(tx)) s += B.p.st.dragon ? 3 : 0;
-        if (/写入/.test(tx) && !/祈唤/.test(tx)) s += 1; if (/祈唤/.test(tx) && d.type !== 'atk') s -= .5; }
+        if (/祈唤/.test(tx)) { const et = (B.p.st.efire || 0) + (B.p.st.ewater || 0) + (B.p.st.ewind || 0); s += et >= 7 ? 5 : et >= 4 ? 1 : -5; } }
       const top = alive().reduce((m, e) => Math.max(m, e.st.res || 0), 0);
       if (d.id === 'high') s += top >= 5 ? 6 : -2;                       // 女主：层数高时先打高音
       if (R.char === 'heroine' && /共鸣/.test(d.desc(0)) && d.id !== 'high' && B.hand.some(c => c.id === 'high') && top >= 5 && top < 10) s -= 3;
@@ -242,8 +242,8 @@ const TIER = { r: 3, u: 2, c: 1 };
 /* 每个角色的 2~3 套打法：熟练机器人看牌组里哪套最多，就往哪套拿牌 */
 const ARCH = {
   hero: [/光弹/, /攻击牌/], heroine: [/共鸣|爆音/, /弃/], miko: [/结界/, /技能牌/], witch: [/炼金瓶/, /中毒/, /火焰瓶|火球/],
-  erin: [/三格|相同|纯相/, /三种|不同元素|混合|两种/, /祈唤|法术/], gu: [/飞剑/, /内力|燃血/, /剑势|疾风势|破岳势/],
-  sylvie: [/龙血|霜龙|变身/, /霜甲/], mia: [/扑击/, /护卫|团子回复|休息/], feiyue: [/吸血|血痕/, /鲜血|献血/, /蝙蝠/],
+  erin: [/祈唤|火 \+|水 \+|风 \+/, /每有 1 层|层数|总层数/], gu: [/得到 \d 把飞剑|每有 1 把|飞剑不少于|飞剑数/, /射出/],
+  sylvie: [/霜龙|变身/, /每有 \d 点龙血|龙血不少于|龙血 ×|龙血点数/], mia: [/扑击/, /护卫|团子回复/], feiyue: [/吸血/, /献血|花掉/],
   shenque: [/麻将牌/, /结算|牌型|对子|刻子|顺子/],
 };
 const dtxt = id => { try { return CARDS[id].desc(0); } catch (e) { return ''; } };

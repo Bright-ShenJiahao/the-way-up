@@ -3398,5 +3398,581 @@
  "造成 {0} 点伤害；本回合额外摸过麻将牌时（不算每回合自然摸的牌）再 {1}。": [
   "Deal {0} damage; {1} if you drew an extra tile this turn (not counting your normal draw).",
   "{0}ダメージ。このターン追加で麻雀牌を引いていれば（毎ターンの通常ツモは除く）{1}。"
+ ],
+ "元素上限 {0} 层，祈唤时每层火伤害 {1}": [
+  "Element cap {0} stacks; each Fire deals {1} damage when Invoked",
+  "元素の上限{0}層。祈唤時、火1層ごとのダメージ{1}"
+ ],
+ "元素上限从 {0} 层提到 {1} 层；祈唤时每层火的伤害 {2}。": [
+  "Raise the element cap from {0} to {1} stacks. When you Invoke, each Fire deals {2} damage.",
+  "元素の上限を{0}層から{1}層に。祈唤時、火1層ごとのダメージ{2}。"
+ ],
+ "剑意": [
+  "Sword Intent",
+  "剣意"
+ ],
+ "剑气流转": [
+  "Flowing Sword Qi",
+  "剣気流転"
+ ],
+ "变身时得到能量并抽 {0} 张牌": [
+  "Gain Energy and draw {0} card when transforming",
+  "変身時にエネルギーを得てカードを{0}枚引く"
+ ],
+ "失去 {0} 点生命，得到 {1} 把飞剑。": [
+  "Lose {0} HP. Gain {1} Flying Swords.",
+  "HPを{0}失う。飛剣{1}本を得る。"
+ ],
+ "失去 {0} 点生命，得到 {1} 点鲜血和 {2} 点能量。消耗。": [
+  "Lose {0} HP. Gain {1} Blood and {2} Energy. Exhaust.",
+  "HPを{0}失う。鮮血{1}とエネルギー{2}を得る。廃棄。"
+ ],
+ "失去 {0} 点生命，得到 {1} 点龙血。": [
+  "Lose {0} HP. Gain {1} Dragon Blood.",
+  "HPを{0}失う。竜血{1}を得る。"
+ ],
+ "对所有敌人造成 {0} 点伤害，再加龙血点数（不消耗龙血）。": [
+  "Deal {0} damage plus your Dragon Blood to ALL enemies (Dragon Blood is kept).",
+  "敵全体に{0}＋竜血の値のダメージ（竜血は減らない）。"
+ ],
+ "对所有敌人造成 {0} 点伤害，得到 {1} 点龙血。": [
+  "Deal {0} damage to ALL enemies. Gain {1} Dragon Blood.",
+  "敵全体に{0}ダメージ。竜血{1}を得る。"
+ ],
+ "对所有敌人造成 {0} 点伤害，火 {1}，水 {2}。": [
+  "Deal {0} damage to ALL enemies. Fire {1}, Water {2}.",
+  "敵全体に{0}ダメージ。火{1}、水{2}。"
+ ],
+ "对所有敌人造成 {0} 点伤害；三种元素都有时抽 {1} 张牌。": [
+  "Deal {0} damage to ALL enemies. If you have all three elements, draw {1} card.",
+  "敵全体に{0}ダメージ。3種の元素が揃っていればカードを{1}枚引く。"
+ ],
+ "对所有敌人造成 {0} 点伤害；霜龙形态下再 {1}。": [
+  "Deal {0} damage to ALL enemies; {1} more in Frost Dragon Form.",
+  "敵全体に{0}ダメージ。霜竜形態ならさらに{1}。"
+ ],
+ "对所有敌人造成 {0} 点伤害；风不少于 {1} 层时抽 {2} 张牌。": [
+  "Deal {0} damage to ALL enemies. If you have {1}+ Wind, draw {2} cards.",
+  "敵全体に{0}ダメージ。風が{1}層以上ならカードを{2}枚引く。"
+ ],
+ "射出 {0} 把飞剑，抽 {1} 张牌。": [
+  "Launch {0} Flying Sword. Draw {1} card.",
+  "飛剣を{0}本放つ。カードを{1}枚引く。"
+ ],
+ "射出 {0} 把飞剑，抽 {1} 张牌。再得到 {2} 把飞剑。": [
+  "Launch {0} Flying Sword. Draw {1} card. Gain {2} Flying Sword.",
+  "飛剣を{0}本放つ。カードを{1}枚引く。飛剣{2}本を得る。"
+ ],
+ "射出全部飞剑（每把 {0} 点伤害），然后得到同样数量的飞剑。消耗。": [
+  "Launch all Flying Swords ({0} damage each), then gain the same number back. Exhaust.",
+  "飛剣をすべて放ち（1本{0}ダメージ）、同じ本数の飛剣を得る。廃棄。"
+ ],
+ "射出全部飞剑，每把伤害再 {0}。": [
+  "Launch all Flying Swords, each dealing {0} extra damage.",
+  "飛剣をすべて放つ。1本ごとのダメージ{0}。"
+ ],
+ "射出全部飞剑，每把对所有敌人造成 {0} 点伤害。": [
+  "Launch all Flying Swords; each deals {0} damage to ALL enemies.",
+  "飛剣をすべて放つ。1本ごとに敵全体に{0}ダメージ。"
+ ],
+ "射出全部飞剑，每把造成 {0} 点伤害。": [
+  "Launch all Flying Swords, each dealing {0} damage.",
+  "飛剣をすべて放つ。1本ごとに{0}ダメージ。"
+ ],
+ "射出最多 {0} 把飞剑，每射出 {1} 把获得 {2} 点格挡。": [
+  "Launch up to {0} Flying Swords. Gain {2} Block per {1} sword launched.",
+  "飛剣を最大{0}本放つ。{1}本ごとにブロック{2}を得る。"
+ ],
+ "层数最多的那种元素 {0}，抽 {1} 张牌。": [
+  "Your highest element {0}. Draw {1} card.",
+  "最も層の多い元素{0}。カードを{1}枚引く。"
+ ],
+ "得到 {0} 把飞剑。": [
+  "Gain {0} Flying Swords.",
+  "飛剣{0}本を得る。"
+ ],
+ "得到 {0} 把飞剑，抽 {1} 张牌。": [
+  "Gain {0} Flying Swords. Draw {1} card.",
+  "飛剣{0}本を得る。カードを{1}枚引く。"
+ ],
+ "得到 {0} 把飞剑；超出上限的每把改为获得 {1} 点格挡。": [
+  "Gain {0} Flying Swords; each one over the cap gives {1} Block instead.",
+  "飛剣{0}本を得る。上限を超えた分は1本につきブロック{1}を得る。"
+ ],
+ "得到 {0} 点鲜血，获得 {1} 点格挡。": [
+  "Gain {0} Blood. Gain {1} Block.",
+  "鮮血{0}を得る。ブロック{1}を得る。"
+ ],
+ "战斗开始时火、水、风各 {0}。战斗结束时回复 {1} 点生命。": [
+  "At the start of combat, Fire, Water and Wind {0} each. Heal {1} HP at the end of combat.",
+  "戦闘開始時、火・水・風をそれぞれ{0}。戦闘終了時にHPを{1}回復。"
+ ],
+ "把全部水变成火。": [
+  "Turn all Water into Fire.",
+  "水をすべて火に変える。"
+ ],
+ "把全部水变成火。抽 {0} 张牌。": [
+  "Turn all Water into Fire. Draw {0} card.",
+  "水をすべて火に変える。カードを{0}枚引く。"
+ ],
+ "把全部风变成火。": [
+  "Turn all Wind into Fire.",
+  "風をすべて火に変える。"
+ ],
+ "把全部风变成火，再火 {0}。": [
+  "Turn all Wind into Fire, then Fire {0}.",
+  "風をすべて火に変え、さらに火{0}。"
+ ],
+ "护体剑气": [
+  "Sword Qi Guard",
+  "護体剣気"
+ ],
+ "抽 {0} 张牌，得到 {1} 把飞剑。": [
+  "Draw {0} cards. Gain {1} Flying Sword.",
+  "カードを{0}枚引く。飛剣{1}本を得る。"
+ ],
+ "每回合开始得到 {0} 点鲜血": [
+  "Gain {0} Blood at the start of each turn",
+  "毎ターン開始時に鮮血{0}を得る"
+ ],
+ "每回合开始得到 {0} 点龙血": [
+  "Gain {0} Dragon Blood at the start of each turn",
+  "毎ターン開始時に竜血{0}を得る"
+ ],
+ "每回合开始时层数最少的元素 {0}": [
+  "Your lowest element {0} at the start of each turn",
+  "毎ターン開始時、最も層の少ない元素{0}"
+ ],
+ "每回合开始时火、水、风各 {0}": [
+  "Fire, Water and Wind {0} each at the start of each turn",
+  "毎ターン開始時、火・水・風をそれぞれ{0}"
+ ],
+ "每回合开始时，层数最少的那种元素 {0}。": [
+  "At the start of each turn, your lowest element {0}.",
+  "毎ターン開始時、最も層の少ない元素{0}。"
+ ],
+ "每回合开始时，得到 {0} 点鲜血。": [
+  "At the start of each turn, gain {0} Blood.",
+  "毎ターン開始時、鮮血{0}を得る。"
+ ],
+ "每回合开始时，得到 {0} 点鲜血，获得 {1} 点格挡。": [
+  "At the start of each turn, gain {0} Blood and {1} Block.",
+  "毎ターン開始時、鮮血{0}とブロック{1}を得る。"
+ ],
+ "每回合开始时，得到 {0} 点龙血。": [
+  "At the start of each turn, gain {0} Dragon Blood.",
+  "毎ターン開始時、竜血{0}を得る。"
+ ],
+ "每回合开始时，得到 {0} 点龙血，获得 {1} 点格挡。": [
+  "At the start of each turn, gain {0} Dragon Blood and {1} Block.",
+  "毎ターン開始時、竜血{0}とブロック{1}を得る。"
+ ],
+ "每回合开始时，火、水、风各 {0}。": [
+  "At the start of each turn, Fire, Water and Wind {0} each.",
+  "毎ターン開始時、火・水・風をそれぞれ{0}。"
+ ],
+ "每回合开始时，飞剑不少于 {0} 把就获得 {1} 点格挡。": [
+  "At the start of each turn, if you have {0}+ Flying Swords, gain {1} Block.",
+  "毎ターン開始時、飛剣が{0}本以上ならブロック{1}を得る。"
+ ],
+ "每回合开始飞剑不少于 {0} 把时获得格挡": [
+  "Gain Block at the start of each turn if you have {0}+ Flying Swords",
+  "毎ターン開始時、飛剣が{0}本以上ならブロックを得る"
+ ],
+ "每回合第一次射出飞剑后得到能量": [
+  "Gain Energy the first time you launch Flying Swords each turn",
+  "毎ターン最初に飛剣を放った後エネルギーを得る"
+ ],
+ "每回合第一次射出飞剑后，得到 {0} 点能量。": [
+  "The first time you launch Flying Swords each turn, gain {0} Energy.",
+  "毎ターン最初に飛剣を放った後、エネルギー{0}を得る。"
+ ],
+ "每回合第一次射出飞剑后，得到 {0} 点能量，获得 {1} 点格挡。": [
+  "The first time you launch Flying Swords each turn, gain {0} Energy and {1} Block.",
+  "毎ターン最初に飛剣を放った後、エネルギー{0}とブロック{1}を得る。"
+ ],
+ "每回合第一次祈唤后得到能量并抽牌": [
+  "Gain Energy and draw after your first Invoke each turn",
+  "毎ターン最初の祈唤後にエネルギーを得てカードを引く"
+ ],
+ "每回合第一次祈唤后，得到 {0} 点能量，抽 {1} 张牌。": [
+  "After your first Invoke each turn, gain {0} Energy and draw {1} card.",
+  "毎ターン最初の祈唤後、エネルギー{0}を得てカードを{1}枚引く。"
+ ],
+ "每回合结束时按水的层数获得格挡": [
+  "Gain Block equal to your Water at the end of each turn",
+  "毎ターン終了時、水の層数に応じてブロックを得る"
+ ],
+ "每回合结束时按飞剑数获得格挡": [
+  "Gain Block based on your Flying Swords at the end of each turn",
+  "毎ターン終了時、飛剣の本数に応じてブロックを得る"
+ ],
+ "每回合结束时按龙血点数获得格挡": [
+  "Gain Block equal to your Dragon Blood at the end of each turn",
+  "毎ターン終了時、竜血の値に応じてブロックを得る"
+ ],
+ "每回合结束时，每有 {0} 层水获得 {1} 点格挡（不消耗水）。": [
+  "At the end of each turn, gain {1} Block per {0} Water (Water is kept).",
+  "毎ターン終了時、水{0}層ごとにブロック{1}を得る（水は減らない）。"
+ ],
+ "每回合结束时，每有 {0} 把飞剑获得 {1} 点格挡。": [
+  "At the end of each turn, gain {1} Block per {0} Flying Sword.",
+  "毎ターン終了時、飛剣{0}本ごとにブロック{1}を得る。"
+ ],
+ "每回合结束时，每有 {0} 点龙血获得 {1} 点格挡。": [
+  "At the end of each turn, gain {1} Block per {0} Dragon Blood.",
+  "毎ターン終了時、竜血{0}ごとにブロック{1}を得る。"
+ ],
+ "每场战斗第一次一口气花掉至少 {0} 点鲜血后，抽 {1} 张牌。": [
+  "The first time each combat you spend {0}+ Blood at once, draw {1} cards.",
+  "各戦闘で初めて鮮血を一度に{0}以上使った後、カードを{1}枚引く。"
+ ],
+ "每场战斗第一次在火、水、风都有时祈唤，抽 {0} 张牌，得到 {1} 点能量。": [
+  "The first time each combat you Invoke with Fire, Water and Wind all present, draw {0} cards and gain {1} Energy.",
+  "各戦闘で初めて火・水・風が揃った状態で祈唤した時、カードを{0}枚引き、エネルギー{1}を得る。"
+ ],
+ "每场战斗第一次射出飞剑后，再得到 {0} 把飞剑。": [
+  "The first time each combat you launch Flying Swords, gain {0} Flying Swords.",
+  "各戦闘で初めて飛剣を放った後、飛剣{0}本を得る。"
+ ],
+ "每场战斗第一次护卫和扑击都执行过后，下回合抽 {0} 张牌，得到 {1} 点能量。": [
+  "The first time each combat Dango has both Guarded and Pounced, next turn draw {0} card and gain {1} Energy.",
+  "各戦闘で初めて護衛と飛びかかりの両方を実行した後、次のターンにカードを{0}枚引き、エネルギー{1}を得る。"
+ ],
+ "每场战斗第一次某种元素达到 {0} 层时，获得 {1} 点格挡。": [
+  "The first time each combat an element reaches {0} stacks, gain {1} Block.",
+  "各戦闘で初めていずれかの元素が{0}層に達した時、ブロック{1}を得る。"
+ ],
+ "每射出 {0} 把飞剑抽 {1} 张牌（每回合最多 {2} 张）": [
+  "Draw {1} card per {0} Flying Sword launched (max {2} per turn)",
+  "飛剣を{0}本放つごとにカードを{1}枚引く（毎ターン最大{2}枚）"
+ ],
+ "每射出 {0} 把飞剑，抽 {1} 张牌（每回合最多 {2} 张）。": [
+  "Whenever you launch {0} Flying Sword, draw {1} card (max {2} per turn).",
+  "飛剣を{0}本放つごとに、カードを{1}枚引く（毎ターン最大{2}枚）。"
+ ],
+ "每把飞剑的第一击加成变成 {0}": [
+  "Each Flying Sword gives {0} to first hits",
+  "飛剣1本ごとの最初の一撃ボーナスが{0}になる"
+ ],
+ "每把飞剑给攻击牌第一击的加成从 {0} 变成 {1}。": [
+  "Each Flying Sword's bonus to an Attack's first hit becomes {1} instead of {0}.",
+  "飛剣1本ごとのアタックの最初の一撃ボーナスを{0}から{1}にする。"
+ ],
+ "每次变身时，得到 {0} 点能量，抽 {1} 张牌。": [
+  "Whenever you transform, gain {0} Energy and draw {1} card.",
+  "変身するたびに、エネルギー{0}を得てカードを{1}枚引く。"
+ ],
+ "水 {0}，获得 {1} 点格挡。": [
+  "Water {0}. Gain {1} Block.",
+  "水{0}。ブロック{1}を得る。"
+ ],
+ "水之心": [
+  "Heart of Water",
+  "水の心"
+ ],
+ "火 {0}。": [
+  "Fire {0}.",
+  "火{0}。"
+ ],
+ "火、水、风各 {0}，抽 {1} 张牌。": [
+  "Fire, Water and Wind {0} each. Draw {1} card.",
+  "火・水・風をそれぞれ{0}。カードを{1}枚引く。"
+ ],
+ "火的层数翻倍（不超过上限）。": [
+  "Double your Fire (up to the cap).",
+  "火の層数を2倍にする（上限まで）。"
+ ],
+ "献血 {0}，对所有敌人造成 {1} 点伤害。": [
+  "Donate {0}. Deal {1} damage to ALL enemies.",
+  "献血{0}。敵全体に{1}ダメージ。"
+ ],
+ "献血 {0}，抽 {1} 张牌。": [
+  "Donate {0}. Draw {1} card.",
+  "献血{0}。カードを{1}枚引く。"
+ ],
+ "献血 {0}，抽 {1} 张牌。消耗。": [
+  "Donate {0}. Draw {1} card. Exhaust.",
+  "献血{0}。カードを{1}枚引く。廃棄。"
+ ],
+ "献血 {0}，抽 {1} 张牌。获得 {2} 点格挡。": [
+  "Donate {0}. Draw {1} cards. Gain {2} Block.",
+  "献血{0}。カードを{1}枚引く。ブロック{2}を得る。"
+ ],
+ "献血 {0}，抽 {1} 张牌。获得 {2} 点格挡。消耗。": [
+  "Donate {0}. Draw {1} card. Gain {2} Block. Exhaust.",
+  "献血{0}。カードを{1}枚引く。ブロック{2}を得る。廃棄。"
+ ],
+ "献血 {0}，获得 {1} 点格挡。": [
+  "Donate {0}. Gain {1} Block.",
+  "献血{0}。ブロック{1}を得る。"
+ ],
+ "献血或吸血得到，由牌花掉（最多 {0}）": [
+  "Gained by Donating or Lifesteal; spent by cards (max {0})",
+  "献血か吸血で得て、カードで使う（最大{0}）"
+ ],
+ "祈唤。": [
+  "Invoke.",
+  "祈唤。"
+ ],
+ "祈唤时每 {0} 层抽 {1} 张牌（最多 {2} 层）": [
+  "When Invoked, draw {1} card per {0} stacks (max {2})",
+  "祈唤時、{0}層ごとにカードを{1}枚引く（最大{2}層）"
+ ],
+ "祈唤时每层对目标造成 {0} 点伤害（最多 {1} 层）": [
+  "When Invoked, each stack deals {0} damage to the target (max {1})",
+  "祈唤時、1層ごとに対象に{0}ダメージ（最大{1}層）"
+ ],
+ "祈唤时每层获得 {0} 点格挡（最多 {1} 层）": [
+  "When Invoked, each stack gives {0} Block (max {1})",
+  "祈唤時、1層ごとにブロック{0}を得る（最大{1}層）"
+ ],
+ "祈唤（先让火 {0}）。": [
+  "Invoke (Fire {0} first).",
+  "祈唤（先に火{0}）。"
+ ],
+ "祈唤，但只用掉火，水和风保留。": [
+  "Invoke, but only spend Fire; keep Water and Wind.",
+  "祈唤する。ただし火だけを使い、水と風は残す。"
+ ],
+ "祈唤，然后恢复祈唤前的全部元素。消耗。": [
+  "Invoke, then restore all elements you had before. Exhaust.",
+  "祈唤した後、祈唤前の元素をすべて元に戻す。廃棄。"
+ ],
+ "祈唤，这次火的伤害翻倍。": [
+  "Invoke. Fire deals double damage this time.",
+  "祈唤する。今回は火のダメージが2倍。"
+ ],
+ "祈唤，这次火的伤害翻倍。先让火 {0}。": [
+  "Invoke. Fire deals double damage this time. Fire {0} first.",
+  "祈唤する。今回は火のダメージが2倍。先に火{0}。"
+ ],
+ "结算顺子时额外全体伤害": [
+  "Runs deal extra damage to ALL enemies",
+  "順子の精算時に敵全体へ追加ダメージ"
+ ],
+ "结算顺子时，额外对所有敌人造成 {0} 点伤害。": [
+  "When you score a run, deal {0} extra damage to ALL enemies.",
+  "順子を精算した時、敵全体に追加で{0}ダメージ。"
+ ],
+ "给予 {0} 层易伤，得到 {1} 点鲜血。": [
+  "Apply {0} Vulnerable. Gain {1} Blood.",
+  "脆弱{0}を与える。鮮血{1}を得る。"
+ ],
+ "花掉 {0} 层风，得到 {1} 点能量，抽 {2} 张牌。": [
+  "Spend {0} Wind: gain {1} Energy and draw {2} card.",
+  "風を{0}層使い、エネルギー{1}を得てカードを{2}枚引く。"
+ ],
+ "花掉 {0} 点鲜血，抽 {1} 张牌。": [
+  "Spend {0} Blood: draw {1} cards.",
+  "鮮血を{0}使い、カードを{1}枚引く。"
+ ],
+ "花掉全部鲜血，每点对所有敌人造成 {0} 点伤害。消耗。": [
+  "Spend all Blood. Deal {0} damage to ALL enemies per Blood spent. Exhaust.",
+  "鮮血をすべて使い、1につき敵全体に{0}ダメージ。廃棄。"
+ ],
+ "花掉全部鲜血，每点获得 {0} 点格挡。": [
+  "Spend all Blood. Gain {0} Block per Blood spent.",
+  "鮮血をすべて使い、1につきブロック{0}を得る。"
+ ],
+ "获得 {0} 点格挡，得到 {1} 把飞剑。": [
+  "Gain {0} Block. Gain {1} Flying Sword.",
+  "ブロック{0}を得る。飛剣{1}本を得る。"
+ ],
+ "获得 {0} 点格挡，得到 {1} 点鲜血。": [
+  "Gain {0} Block. Gain {1} Blood.",
+  "ブロック{0}を得る。鮮血{1}を得る。"
+ ],
+ "获得 {0} 点格挡，抽 {1} 张牌。": [
+  "Gain {0} Block. Draw {1} card.",
+  "ブロック{0}を得る。カードを{1}枚引く。"
+ ],
+ "获得 {0} 点格挡，水 {1}。": [
+  "Gain {0} Block. Water {1}.",
+  "ブロック{0}を得る。水{1}。"
+ ],
+ "获得 {0} 点格挡，然后祈唤。": [
+  "Gain {0} Block, then Invoke.",
+  "ブロック{0}を得て、祈唤する。"
+ ],
+ "获得 {0} 点格挡，献血 {1}。": [
+  "Gain {0} Block. Donate {1}.",
+  "ブロック{0}を得る。献血{1}。"
+ ],
+ "获得 {0} 点格挡，给予 {1} 层虚弱。": [
+  "Gain {0} Block. Apply {1} Weak.",
+  "ブロック{0}を得る。弱体{1}を与える。"
+ ],
+ "获得 {0} 点格挡；元素总层数不少于 {1} 时再 {2}。": [
+  "Gain {0} Block; {2} more if you have {1}+ total element stacks.",
+  "ブロック{0}を得る。元素の合計が{1}層以上ならさらに{2}。"
+ ],
+ "获得 {0} 点格挡；每有 {1} 把飞剑再 {2}。": [
+  "Gain {0} Block, {2} more per {1} Flying Sword.",
+  "ブロック{0}を得る。飛剣{1}本ごとにさらに{2}。"
+ ],
+ "获得 {0} 点格挡；每有 {1} 点龙血再 {2}（不消耗龙血）。": [
+  "Gain {0} Block, {2} more per {1} Dragon Blood (Dragon Blood is kept).",
+  "ブロック{0}を得る。竜血{1}ごとにさらに{2}（竜血は減らない）。"
+ ],
+ "获得 {0} 点格挡；身上每有 {1} 种元素再 {2}（不消耗元素）。": [
+  "Gain {0} Block, {2} more per {1} element type you have (elements are kept).",
+  "ブロック{0}を得る。持っている元素の種類{1}つごとにさらに{2}（元素は減らない）。"
+ ],
+ "获得 {0} 点格挡；霜龙形态下抽 {1} 张牌。": [
+  "Gain {0} Block. In Frost Dragon Form, draw {1} card.",
+  "ブロック{0}を得る。霜竜形態ならカードを{1}枚引く。"
+ ],
+ "获得 {0} 点格挡；飞剑不少于 {1} 把时再得到 {2} 把。": [
+  "Gain {0} Block. If you have {1}+ Flying Swords, gain {2} more.",
+  "ブロック{0}を得る。飛剣が{1}本以上ならさらに飛剣{2}本を得る。"
+ ],
+ "获得 {0} 点格挡；飞剑满 {1} 把时再 {2}。": [
+  "Gain {0} Block; {2} more if you have {1} Flying Swords.",
+  "ブロック{0}を得る。飛剣が{1}本揃っていればさらに{2}。"
+ ],
+ "获得 {0} 点格挡；鲜血不少于 {1} 时，花掉 {2} 点再获得 {3} 点格挡。": [
+  "Gain {0} Block. If you have {1}+ Blood, spend {2} to gain {3} more Block.",
+  "ブロック{0}を得る。鮮血が{1}以上なら{2}使ってさらにブロック{3}を得る。"
+ ],
+ "获得 {0} 点格挡；龙血不少于 {1} 点时再 {2}。": [
+  "Gain {0} Block; {2} more if you have {1}+ Dragon Blood.",
+  "ブロック{0}を得る。竜血が{1}以上ならさらに{2}。"
+ ],
+ "获得 {0} 点格挡；龙血不少于 {1} 点时抽 {2} 张牌。": [
+  "Gain {0} Block. If you have {1}+ Dragon Blood, draw {2} cards.",
+  "ブロック{0}を得る。竜血が{1}以上ならカードを{2}枚引く。"
+ ],
+ "获得等同龙血 ×{0} 的格挡（不消耗龙血）。": [
+  "Gain Block equal to your Dragon Blood ×{0} (Dragon Blood is kept).",
+  "竜血×{0}のブロックを得る（竜血は減らない）。"
+ ],
+ "退出霜龙形态时得到龙血并抽牌": [
+  "Gain Dragon Blood and draw when leaving Frost Dragon Form",
+  "霜竜形態が解けた時に竜血を得てカードを引く"
+ ],
+ "退出霜龙形态时，得到 {0} 点龙血，抽 {1} 张牌。": [
+  "When Frost Dragon Form ends, gain {0} Dragon Blood and draw {1} cards.",
+  "霜竜形態が解けた時、竜血{0}を得てカードを{1}枚引く。"
+ ],
+ "退出霜龙形态时，得到 {0} 点龙血，抽 {1} 张牌，得到 {2} 点能量。": [
+  "When Frost Dragon Form ends, gain {0} Dragon Blood, draw {1} cards and gain {2} Energy.",
+  "霜竜形態が解けた時、竜血{0}を得て、カードを{1}枚引き、エネルギー{2}を得る。"
+ ],
+ "造成 {0} 点伤害 {1} 次，吸血 {2}。": [
+  "Deal {0} damage {1} times. Lifesteal {2}.",
+  "{0}ダメージを{1}回。吸血{2}。"
+ ],
+ "造成 {0} 点伤害 {1} 次，得到 {2} 把飞剑。": [
+  "Deal {0} damage {1} times. Gain {2} Flying Sword.",
+  "{0}ダメージを{1}回。飛剣{2}本を得る。"
+ ],
+ "造成 {0} 点伤害 {1} 次；每段再加风的层数（不消耗风）。": [
+  "Deal {0} damage {1} times; each hit adds your Wind (Wind is kept).",
+  "{0}ダメージを{1}回。1回ごとに風の層数を加算（風は減らない）。"
+ ],
+ "造成 {0} 点伤害 {1} 次；霜龙形态下打 {2} 次。": [
+  "Deal {0} damage {1} times; {2} times in Frost Dragon Form.",
+  "{0}ダメージを{1}回。霜竜形態なら{2}回。"
+ ],
+ "造成 {0} 点伤害，再射出 {1} 把飞剑。": [
+  "Deal {0} damage, then launch {1} Flying Sword.",
+  "{0}ダメージ。さらに飛剣を{1}本放つ。"
+ ],
+ "造成 {0} 点伤害，得到 {1} 把飞剑。": [
+  "Deal {0} damage. Gain {1} Flying Sword.",
+  "{0}ダメージ。飛剣{1}本を得る。"
+ ],
+ "造成 {0} 点伤害，得到 {1} 点龙血。": [
+  "Deal {0} damage. Gain {1} Dragon Blood.",
+  "{0}ダメージ。竜血{1}を得る。"
+ ],
+ "造成 {0} 点伤害，次数等于飞剑数（至少 {1} 次，不消耗飞剑）。": [
+  "Deal {0} damage once per Flying Sword (at least {1}; swords are kept).",
+  "飛剣の本数だけ{0}ダメージ（最低{1}回、飛剣は減らない）。"
+ ],
+ "造成 {0} 点伤害，火 {1}。": [
+  "Deal {0} damage. Fire {1}.",
+  "{0}ダメージ。火{1}。"
+ ],
+ "造成 {0} 点伤害，火、水、风各 {1}。": [
+  "Deal {0} damage. Fire, Water and Wind {1} each.",
+  "{0}ダメージ。火・水・風をそれぞれ{1}。"
+ ],
+ "造成 {0} 点伤害，给予 {1} 层虚弱。": [
+  "Deal {0} damage. Apply {1} Weak.",
+  "{0}ダメージ。弱体{1}を与える。"
+ ],
+ "造成 {0} 点伤害，风 {1}。": [
+  "Deal {0} damage. Wind {1}.",
+  "{0}ダメージ。風{1}。"
+ ],
+ "造成 {0} 点伤害；元素总层数每有 {1} 层再 {2}（不消耗元素）。": [
+  "Deal {0} damage, {2} more per {1} total element stack (elements are kept).",
+  "{0}ダメージ。元素の合計{1}層ごとにさらに{2}（元素は減らない）。"
+ ],
+ "造成 {0} 点伤害；打穿了目标的格挡时，获得 {1} 点格挡并得到 {2} 点鲜血。": [
+  "Deal {0} damage. If it broke the target's Block, gain {1} Block and {2} Blood.",
+  "{0}ダメージ。対象のブロックを破ったらブロック{1}と鮮血{2}を得る。"
+ ],
+ "造成 {0} 点伤害；本回合献过血时，吸血 {1}。": [
+  "Deal {0} damage. If you Donated this turn, Lifesteal {1}.",
+  "{0}ダメージ。このターン献血していれば吸血{1}。"
+ ],
+ "造成 {0} 点伤害；每有 {1} 层火再 {2}（不消耗火）。": [
+  "Deal {0} damage, {2} more per {1} Fire (Fire is kept).",
+  "{0}ダメージ。火{1}層ごとにさらに{2}（火は減らない）。"
+ ],
+ "造成 {0} 点伤害；每有 {1} 点龙血再 {2}（不消耗龙血）。": [
+  "Deal {0} damage, {2} more per {1} Dragon Blood (Dragon Blood is kept).",
+  "{0}ダメージ。竜血{1}ごとにさらに{2}（竜血は減らない）。"
+ ],
+ "造成 {0} 点伤害；目标有易伤时吸血 {1}。": [
+  "Deal {0} damage. If the target is Vulnerable, Lifesteal {1}.",
+  "{0}ダメージ。対象が脆弱なら吸血{1}。"
+ ],
+ "造成 {0} 点伤害；霜龙形态下给予 {1} 层易伤。": [
+  "Deal {0} damage. In Frost Dragon Form, apply {1} Vulnerable.",
+  "{0}ダメージ。霜竜形態なら脆弱{1}を与える。"
+ ],
+ "造成 {0} 点伤害；飞剑不少于 {1} 把时给予 {2} 层易伤。": [
+  "Deal {0} damage. If you have {1}+ Flying Swords, apply {2} Vulnerable.",
+  "{0}ダメージ。飛剣が{1}本以上なら脆弱{2}を与える。"
+ ],
+ "造成 {0} 点伤害；鲜血不少于 {1} 时，花掉 {2} 点再打 {3} 次。": [
+  "Deal {0} damage. If you have {1}+ Blood, spend {2} to hit {3} more time.",
+  "{0}ダメージ。鮮血が{1}以上なら{2}使ってもう{3}回。"
+ ],
+ "造成 {0} 点伤害；鲜血不少于 {1} 时，花掉 {2} 点再造成 {3} 点伤害。": [
+  "Deal {0} damage. If you have {1}+ Blood, spend {2} to deal {3} more damage.",
+  "{0}ダメージ。鮮血が{1}以上なら{2}使ってさらに{3}ダメージ。"
+ ],
+ "造成 {0} 点伤害；龙血不少于 {1} 点时再 {2}。": [
+  "Deal {0} damage; {2} more if you have {1}+ Dragon Blood.",
+  "{0}ダメージ。竜血が{1}以上ならさらに{2}。"
+ ],
+ "风 {0}，抽 {1} 张牌。": [
+  "Wind {0}. Draw {1} cards.",
+  "風{0}。カードを{1}枚引く。"
+ ],
+ "风 {0}，抽 {1} 张牌。获得 {2} 点格挡。": [
+  "Wind {0}. Draw {1} cards. Gain {2} Block.",
+  "風{0}。カードを{1}枚引く。ブロック{2}を得る。"
+ ],
+ "龙血不少于 {0} 点时，攻击牌第一击 {1}。": [
+  "While you have {0}+ Dragon Blood, Attacks' first hit {1}.",
+  "竜血が{0}以上の間、アタックの最初の一撃{1}。"
+ ],
+ "龙血涌动": [
+  "Dragon Surge",
+  "竜血湧動"
+ ],
+ "龙血满 {0} 点时攻击牌第一击额外加成": [
+  "Attacks' first hit gets a bonus while Dragon Blood is at {0}",
+  "竜血が{0}の時、アタックの最初の一撃にボーナス"
+ ],
+ "龙血翻倍（最多 {0} 点）。消耗。": [
+  "Double your Dragon Blood (max {0}). Exhaust.",
+  "竜血を2倍にする（最大{0}）。廃棄。"
  ]
 }
