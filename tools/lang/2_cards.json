@@ -903,10 +903,6 @@
   "Ammo deals {0} damage this turn. Exhaust.",
   "このターン、光弾1発のダメージ{0}。廃棄。"
  ],
- "结界每回合提供的格挡翻倍（最多 {0} 点，多张不叠加）。": [
-  "Ward Block each turn is doubled (max {0}, doesn't stack).",
-  "結界の毎ターンのブロックが2倍（最大{0}、重複しない）。"
- ],
  "每回合开始时，随机获得 {0} 个炼金瓶（多张不叠加）。": [
   "At turn start, gain {0} random Flask (doesn't stack).",
   "ターン開始時、ランダムな薬瓶を{0}個得る（重複しない）。"
@@ -1106,5 +1102,149 @@
  "立刻额外射出一轮光弹。光弹不会减少，回合结束时照常再射一次。": [
   "Fire an extra volley now. Ammo is kept and still fires at end of turn.",
   "今すぐ光弾を追加で1回発射。光弾は減らず、ターン終了時にも通常どおり発射する。"
+ ],
+ "结界给的格挡翻倍（最多 {0}）。": [
+  "Ward Block is doubled (max {0}).",
+  "結界のブロックが2倍（最大{0}）。"
+ ],
+ "连锁反应": [
+  "Chain Reaction",
+  "連鎖反応"
+ ],
+ "每打倒 {0} 个敌人，得到 {1} 发光弹，抽 {2} 张牌。": [
+  "Whenever you defeat {0} enemy, gain {1} Light Bullets and draw {2} card.",
+  "敵を{0}体倒すたびに、光弾{1}発を得てカードを{2}枚引く。"
+ ],
+ "蓄能炮": [
+  "Charged Cannon",
+  "チャージ砲"
+ ],
+ "用掉所有光弹，每发对目标造成 {0} 点伤害。": [
+  "Spend all Light Bullets; each deals {0} damage to the target.",
+  "光弾をすべて使い、1発ごとに対象へ{0}ダメージ。"
+ ],
+ "切歌连拍": [
+  "Track Skip",
+  "曲飛ばし"
+ ],
+ "随机弃掉 {0} 张手牌，抽 {1} 张牌。": [
+  "Discard {0} random cards, draw {1} cards.",
+  "手札をランダムに{0}枚捨て、{1}枚引く。"
+ ],
+ "回旋曲": [
+  "Rondo",
+  "ロンド"
+ ],
+ "给予所有敌人 {0} 层共鸣，抽 {1} 张牌。狡诈。": [
+  "Apply {0} Resonance to all enemies, draw {1} card. Sly.",
+  "敵全体に共鳴{0}層、カードを{1}枚引く。狡猾。"
+ ],
+ "搓碟": [
+  "Scratch",
+  "スクラッチ"
+ ],
+ "造成 {0} 点伤害，给予 {1} 层共鸣。狡诈。": [
+  "Deal {0} damage, apply {1} Resonance. Sly.",
+  "{0}ダメージ、共鳴{1}層。狡猾。"
+ ],
+ "终曲": [
+  "Finale",
+  "終曲"
+ ],
+ "如果目标的生命不高于它共鸣层数的 {0} 倍，直接打倒它；否则给予 {1} 层共鸣。": [
+  "If the target's HP is at most {0}× its Resonance, defeat it outright; otherwise apply {1} Resonance.",
+  "対象のHPが共鳴層数の{0}倍以下なら即座に倒す。そうでなければ共鳴{1}層。"
+ ],
+ "结界崩": [
+  "Ward Collapse",
+  "結界崩し"
+ ],
+ "花掉 {0} 层结界，获得 {1} 点能量，抽 {2} 张牌。": [
+  "Spend {0} Ward: gain {1} Energy and draw {2} cards.",
+  "結界を{0}層消費し、エネルギー{1}を得てカードを{2}枚引く。"
+ ],
+ "护法": [
+  "Guardian Rite",
+  "護法"
+ ],
+ "花掉 {0} 层结界，给予所有敌人 {1} 层虚弱，获得 {2} 点格挡。": [
+  "Spend {0} Ward: apply {1} Weak to all enemies. Gain {2} Block.",
+  "結界を{0}層消費し敵全体に弱体{1}。ブロック{2}を得る。"
+ ],
+ "毒瓶调和": [
+  "Toxic Blend",
+  "毒瓶調合"
+ ],
+ "手里每有 {0} 个炼金瓶，给予 {1} 层中毒（至少 {2} 层）。": [
+  "Apply {1} Poison for each {0} flask in hand (at least {2}).",
+  "手札の錬金瓶{0}個につき毒{1}層（最低{2}層）。"
+ ],
+ "毒液坩埚": [
+  "Venom Cauldron",
+  "毒液の大釜"
+ ],
+ "毒药瓶给予的中毒翻倍。": [
+  "Poison Flasks apply double Poison.",
+  "毒薬瓶の毒が2倍になる。"
+ ],
+ "三连发": [
+  "Triple Shot",
+  "三連射"
+ ],
+ "残响": [
+  "Reverb",
+  "残響"
+ ],
+ "切分音": [
+  "Syncopation",
+  "シンコペーション"
+ ],
+ "混音": [
+  "Remix",
+  "リミックス"
+ ],
+ "结界箭": [
+  "Ward Arrow",
+  "結界矢"
+ ],
+ "落拍": [
+  "Drop Beat",
+  "ドロップビート"
+ ],
+ "连珠箭": [
+  "Rapid Arrow",
+  "連珠矢"
+ ],
+ "弃掉所有手牌，再抽同样数量的牌。": [
+  "Discard your hand, then draw that many cards.",
+  "手札をすべて捨て、同じ枚数を引く。"
+ ],
+ "消耗手里 {0} 个炼金瓶（没有就先随机获得 {1} 个），获得 {2} 点能量。": [
+  "Consume {0} flask in hand (if none, first gain {1} random one). Gain {2} Energy.",
+  "手札の錬金瓶を{0}個消費（なければ先にランダムで{1}個得る）、エネルギー{2}を得る。"
+ ],
+ "消耗手里 {0} 个炼金瓶（没有就先随机获得 {1} 个），获得 {2} 点能量。抽 {3} 张牌。": [
+  "Consume {0} flask in hand (if none, first gain {1} random one). Gain {2} Energy. Draw {3} card.",
+  "手札の錬金瓶を{0}個消費（なければ先にランダムで{1}個得る）、エネルギー{2}を得て{3}枚引く。"
+ ],
+ "获得 {0} 点格挡，给予所有敌人 {1} 层共鸣。狡诈。": [
+  "Gain {0} Block, apply {1} Resonance to all enemies. Sly.",
+  "ブロック{0}を得て敵全体に共鳴{1}層。狡猾。"
+ ],
+ "造成 {0} 点伤害。结界 {1}。": [
+  "Deal {0} damage. Ward {1}.",
+  "{0}ダメージ。結界{1}。"
+ ],
+ "爆音后多保留 {0} 层共鸣，爆音伤害 {1}": [
+  "After Blast, keep {0} more Resonance; Blast damage {1}",
+  "爆音後に共鳴を{0}層多く残し、爆音ダメージ{1}"
+ ],
+ "你每打出一张技能牌，他力量 {0}（每回合最多 {1}）。血量掉到一半时会暴怒，叫来两个手下。": [
+  "Gains Strength {0} whenever you play a Skill (max {1} per turn). At half HP he flies into a rage and calls two minions.",
+  "スキルを使うたびに筋力{0}（1ターン最大{1}）。HPが半分になると激怒し、手下を2体呼ぶ。"
+ ],
+ "临时攻击": [
+  "Temp Strike",
+  "仮の攻撃"
  ]
 }

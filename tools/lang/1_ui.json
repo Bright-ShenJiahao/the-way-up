@@ -511,9 +511,9 @@
   "Clover: {0} Gold",
   "四つ葉：{0}ゴールド"
  ],
- "遗物：": [
-  "Relic:",
-  "レリック："
+ "秘宝：": [
+  "Treasure:",
+  "秘宝："
  ],
  "药水：": [
   "Potion:",
@@ -695,9 +695,9 @@
   "Cards",
   "カード"
  ],
- "遗物": [
-  "Relics",
-  "レリック"
+ "秘宝": [
+  "Treasures",
+  "秘宝"
  ],
  "药水": [
   "Potions",
@@ -811,9 +811,9 @@
   "Cards cost Energy. You get {0} each turn. The number at a card's top left is its cost.",
   "カードを使うにはエナジーが必要。毎ターン{0}に回復。左上の数字がコスト。"
  ],
- "降到 {0} 就输了。大部分遗物和营火可以回血。": [
-  "Reach {0} and you lose. Many relics and campfires heal.",
-  "{0}になると負け。レリックや焚き火で回復できる。"
+ "降到 {0} 就输了。大部分秘宝和营火可以回血。": [
+  "Reach {0} and you lose. Many treasures and campfires heal.",
+  "{0}になると負け。秘宝や焚き火で回復できる。"
  ],
  "抽牌": [
   "Draw",
@@ -879,9 +879,9 @@
   "A goblin squad. Win for Gold and a card.",
   "ゴブリンの小隊。勝つとゴールドとカード。"
  ],
- "强敌，赢了额外给一个遗物。": [
-  "A tough foe. Win for an extra relic.",
-  "強敵。勝つとレリックも手に入る。"
+ "强敌，赢了额外给一个秘宝。": [
+  "A tough foe. Win for an extra treasure.",
+  "強敵。勝つと秘宝も手に入る。"
  ],
  "随机事件，可能是好事也可能有代价。": [
   "A random event. Could be good, could cost you.",
@@ -891,13 +891,13 @@
   "Rest to heal, or upgrade a card.",
   "休んで回復、またはカードを強化。"
  ],
- "花金币买卡、买遗物、删卡。": [
-  "Spend Gold on cards, relics or removals.",
-  "ゴールドでカード、レリック、削除を買う。"
+ "花金币买卡、买秘宝、删卡。": [
+  "Spend Gold on cards, treasures or removals.",
+  "ゴールドでカード、秘宝、削除を買う。"
  ],
- "直接拿遗物和金币。": [
-  "Free relic and Gold.",
-  "レリックとゴールドを入手。"
+ "直接拿秘宝和金币。": [
+  "Free treasure and Gold.",
+  "秘宝とゴールドを入手。"
  ],
  "每章最后的大头目，打赢就通关。": [
   "The big boss at the end. Win to clear.",
@@ -1006,5 +1006,357 @@
  "“回家的路……还在更高的地方。”": [
   "\"The way home... lies even higher.\"",
   "「帰り道は……まだもっと上にある。」"
+ ],
+ "人物": [
+  "Characters",
+  "人物"
+ ],
+ "即将加入": [
+  "Coming soon",
+  "近日参戦"
+ ],
+ "？？？": [
+  "???",
+  "？？？"
+ ],
+ "那道光里，好像还有别人的影子……": [
+  "In that light, there seemed to be someone else's shadow too...",
+  "あの光の中に、ほかの誰かの影もあった気がする……"
+ ],
+ "“神社的铃，也能替异世界的人挡一挡灾。”": [
+  "\"A shrine bell can ward off misfortune in another world, too.\"",
+  "「神社の鈴は、異世界の人の災いだって祓えるはず」"
+ ],
+ "“这关我熟！……喂，等等，咱们一起走啊。”": [
+  "\"I know this level! ...Hey, wait, let's all go together.\"",
+  "「このステージ、知ってる！……おい待てって、みんなで行こうぜ」"
+ ],
+ "“村子里还有人在等我。跟紧，左边那条路能上山。”": [
+  "\"People in my village are waiting. Stay close—the left path goes up the mountain.\"",
+  "「村でみんなが待ってるの。ついてきて、左の道から山に登れるよ」"
+ ],
+ "“……耳机先摘一只。你们说，我在听。”": [
+  "\"...One earcup off. Go on, I'm listening.\"",
+  "「……片耳だけ外すね。話して、聞いてるから」"
+ ],
+ "千早从小在日本的神社帮忙。祭典散场后，她常留下来收灯笼，也总记得把最靠近台阶的那盏留到最后。到了异世界，她手里的神乐铃能撑起护住同伴的结界，破魔箭能净化不死的怪物。平时她说话轻声细气，可只要还有人没撤到安全的地方，谁也劝不动她先走。一路上，最难开口的反倒是那句“我撑不住了”。她慢慢学着在手开始发抖时，就喊同伴的名字。": [
+  "Chihaya grew up helping at a shrine in Japan. After festivals she would stay behind to collect the lanterns, always saving the one nearest the steps for last. In this world, her kagura bell raises wards that shield her friends, and her demon-breaking arrows purify the undead. She speaks softly, yet as long as anyone is still in danger, no one can talk her into leaving first. The hardest words for her on this journey are \"I can't hold on.\" Slowly, she is learning to call her friends' names the moment her hands begin to shake.",
+  "千早は日本の小さな神社で育った巫女。お祭りのあとは残って提灯を片づけ、石段にいちばん近い一つを最後まで灯しておくのが習慣だった。異世界では、神楽鈴で仲間を守る結界を張り、破魔矢で不死の魔物を浄化する。ふだんは小さな声で話すのに、まだ安全な場所まで逃げきれていない人がいるかぎり、誰が言っても先には退かない。この旅でいちばん口にしにくいのは「もう無理」の一言。手が震えはじめたら仲間の名前を呼ぶことを、少しずつ覚えていく。"
+ ],
+ "林拓是个爱打游戏的普通初中生。那台旧掌机的电池盖用胶带粘着，他还是天天把它塞进书包。穿越以后，掌机能射出光弹，充一次电就是装填一次弹药。他嘴上喊着“这关我熟”，等光弹打光了，才想起自己根本没问撤退路线。比起打不过的敌人，他更怕有人说“接下来各走各的”。后来有一次，他终于肯蹲在路边给掌机充电，抬头问了一句：“能等我一下吗？”": [
+  "Lin Tuo is an ordinary middle schooler who loves games. The battery cover on his old handheld is held on with tape, but he still packs it in his bag every day. In this world it fires light bullets, and charging it means reloading. He shouts \"I know this level,\" then realizes, once he's out of ammo, that he never asked where the exit was. More than any enemy, he fears someone saying \"let's split up from here.\" One day he finally crouched by the road to charge his handheld, looked up, and asked: \"Can you wait for me?\"",
+  "林拓はゲーム好きのごく普通の中学生。古い携帯ゲーム機の電池ぶたはテープで留めてあるけれど、毎日カバンに入れて持ち歩いている。異世界ではそのゲーム機が光弾を撃ち、充電はそのまま弾の装填になる。「このステージ知ってる」と言い張っては、弾を撃ちつくしてから逃げ道を聞いていなかったことに気づく。勝てない敵よりも、誰かに「ここからは別々に行こう」と言われるのが怖い。ある日、ようやく道ばたにしゃがんで充電しながら、顔を上げてたずねた。「ちょっと待っててくれる？」"
+ ],
+ "莉泽是山脚村庄的小魔女，也是个还没出师的炼金学徒。药水调得不错，毒药调得更好，就是瓶塞上的记号画得太像，有时得迎着光看半天，才敢递给同伴。村民被抓走后，她把能用的瓶瓶罐罐全塞进挎包，独自上山找帮手。她认得山上每一种草，知道哪段坡下过雨就不能走。可一到自己也没去过的岔路口，她还是习惯咬着牙挑一条。直到有一次，她把地图摊在大家中间，承认自己也拿不准。": [
+  "Lise is a little witch from the village at the foot of the mountain, and an alchemy apprentice who hasn't finished her training. Her potions are decent and her poisons even better—but the marks on her corks look so alike that she sometimes has to hold a bottle up to the light before handing it over. After the villagers were taken, she stuffed every usable bottle into her satchel and climbed the mountain alone to find help. She knows every herb on the slopes and which paths turn treacherous after rain. Yet at forks she has never taken, she still grits her teeth and just picks one—until the day she spread the map out in front of everyone and admitted she wasn't sure.",
+  "リーゼは山のふもとの村に住む小さな魔女で、まだ修行中の錬金術見習い。薬はそこそこ、毒薬はもっと得意だけど、コルクの印が似すぎていて、仲間に渡す前に光にかざしてしばらく確かめることもある。村人がさらわれたあと、使える瓶をありったけカバンに詰めこみ、ひとりで山へ助けを探しに出た。山の草はぜんぶ知っているし、雨のあとに通れなくなる坂もわかる。それでも行ったことのない分かれ道では、歯を食いしばって一本を選んでしまう。ある日、地図をみんなの真ん中に広げて「わたしにもわからない」と打ち明けるまでは。"
+ ],
+ "苏音总戴着一副粉色耳机，喜欢把同一段旋律反复听上好几遍。身边太吵的时候，只要把音量调高一点，她就能安静下来。到了异世界，耳机里的音乐能在敌人身上叠起共鸣，等震动积到足够强，她就踩着节拍将它引爆。队伍里数她最安静，可每次开打，大家都会下意识地等她那一拍落下来。有一回，她只顾数拍子，错过了同伴喊她的声音。从那以后，她开始把一边耳罩拨开。": [
+  "Su Yin always wears a pair of pink headphones and loves playing the same melody over and over. When the world gets too loud, she turns the volume up a little and finds her calm. In this world, the music in her headphones builds resonance on enemies, and once the vibration is strong enough, she detonates it right on the beat. She is the quietest of the group, yet every fight, everyone waits for her beat to drop. Once, busy counting beats, she missed a friend calling her name. Since then, she has started keeping one earcup pushed aside.",
+  "蘇音はいつもピンクのヘッドホンをつけていて、同じメロディーを何度もくり返し聴くのが好き。まわりがうるさいときは、音量を少し上げれば落ち着ける。異世界では、ヘッドホンの音楽が敵に共鳴を重ね、振動が十分にたまったところで、拍に合わせて爆発させる。パーティでいちばん静かなのに、戦いが始まると、みんな無意識に彼女の一拍を待っている。ある時、拍を数えるのに夢中で、仲間に呼ばれた声を聞きのがした。それからは、片方のイヤーカップを外しておくようになった。"
+ ],
+ "天亮了。大家并肩站在晨光里，笑得满脸是灰。": [
+  "Dawn breaks. Everyone stands side by side in the morning light, grinning through the soot.",
+  "夜が明けた。みんな朝の光の中に並んで、煤だらけの顔で笑っている。"
+ ],
+ "“走吧，往上。”": [
+  "\"Let's go. Up.\"",
+  "「行こう、もっと上へ」"
+ ],
+ "初始秘宝": [
+  "Starting treasure",
+  "初期秘宝"
+ ],
+ "造成 {0} 点伤害 × {1} 次": [
+  "Deals {0} damage × {1}",
+  "{0}ダメージ×{1}回"
+ ],
+ "造成 {0} 点伤害": [
+  "Deals {0} damage",
+  "{0}ダメージを与える"
+ ],
+ "塞给你 {0} 张「{1}」": [
+  "Adds {0} 「{1}」 to your deck",
+  "あなたの山札に「{1}」を{0}枚加える"
+ ],
+ "召唤「{0}」": [
+  "Summons 「{0}」",
+  "「{0}」を召喚"
+ ],
+ "自己也会死掉": [
+  "Dies itself",
+  "自分も倒れる"
+ ],
+ "第一次被打倒时，带着 {0}% 生命复活": [
+  "The first time it falls, revives with {0}% HP",
+  "初めて倒れた時、HP{0}%で復活"
+ ],
+ "同伴会逃跑": [
+  "Its allies flee",
+  "仲間が逃げ出す"
+ ],
+ "，": [
+  ", ",
+  "、"
+ ],
+ "已遇到 {0} / {1} 种怪物": [
+  "Encountered {0} / {1} monsters",
+  "遭遇した魔物 {0} / {1}"
+ ],
+ "尚未遇到": [
+  "Not yet encountered",
+  "未遭遇"
+ ],
+ "无": [
+  "None",
+  "なし"
+ ],
+ "死亡时": [
+  "On death",
+  "死亡時"
+ ],
+ "获得 {0} 点格挡": [
+  "Gains {0} Block",
+  "ブロック{0}を得る"
+ ],
+ "给你 {0} 层虚弱": [
+  "Gives you {0} Weak",
+  "あなたに弱体{0}"
+ ],
+ "给你 {0} 层易伤": [
+  "Gives you {0} Vulnerable",
+  "あなたに脆弱{0}"
+ ],
+ "自身力量 +{0}": [
+  "Gains {0} Strength",
+  "自身の筋力+{0}"
+ ],
+ "给一个同伴 {0} 点格挡": [
+  "Gives an ally {0} Block",
+  "仲間1体にブロック{0}"
+ ],
+ "所有怪物回复 {0} 点生命": [
+  "All monsters heal {0} HP",
+  "魔物全員のHPを{0}回復"
+ ],
+ "所有怪物力量 +{0}": [
+  "All monsters gain {0} Strength",
+  "魔物全員の筋力+{0}"
+ ],
+ "一个同伴力量 +{0}": [
+  "An ally gains {0} Strength",
+  "仲間1体の筋力+{0}"
+ ],
+ "自身获得虚化": [
+  "Becomes Intangible",
+  "自身が霊体化"
+ ],
+ "自身回复 {0} 点生命": [
+  "Heals {0} HP",
+  "自身のHPを{0}回復"
+ ],
+ "给所有怪物 {0} 点格挡": [
+  "Gives all monsters {0} Block",
+  "魔物全員にブロック{0}"
+ ],
+ "自身获得圣盾": [
+  "Gains Aegis",
+  "自身が聖盾を得る"
+ ],
+ "推荐流派": [
+  "Recommended builds",
+  "おすすめ構築"
+ ],
+ "核心牌": [
+  "Key cards",
+  "キーカード"
+ ],
+ "结界防守流": [
+  "Ward Defense",
+  "結界防御型"
+ ],
+ "每回合自动叠结界，白拿格挡，稳稳磨死敌人。": [
+  "Stack wards every turn for free Block and grind enemies down safely.",
+  "毎ターン結界を重ねてブロックを稼ぎ、じっくり敵を削る。"
+ ],
+ "结界爆发流": [
+  "Ward Burst",
+  "結界爆発型"
+ ],
+ "先把结界叠高，再一口气换成伤害。": [
+  "Build up a tall stack of wards, then cash it all in as damage.",
+  "結界を高く積み上げ、一気にダメージに変える。"
+ ],
+ "弹幕流": [
+  "Bullet Hell",
+  "弾幕型"
+ ],
+ "光弹越多越好，回合结束自动扫射。": [
+  "The more light bullets, the better—they all fire at end of turn.",
+  "光弾は多いほど強い。ターン終了時に自動で掃射。"
+ ],
+ "重弹流": [
+  "Heavy Rounds",
+  "重弾型"
+ ],
+ "光弹不用多，提高每一发的伤害。": [
+  "Fewer bullets, but each one hits much harder.",
+  "光弾の数より、一発ごとの威力を上げる。"
+ ],
+ "剧毒流": [
+  "Poison",
+  "猛毒型"
+ ],
+ "叠毒慢慢磨，再翻倍或一次引爆。": [
+  "Stack poison to wear enemies down, then double it or detonate it.",
+  "毒を重ねて削り、倍増させるか一気に起爆する。"
+ ],
+ "炼金瓶流": [
+  "Flask Barrage",
+  "錬金瓶型"
+ ],
+ "攒很多炼金瓶，配合加成连续扔。": [
+  "Stockpile flasks and throw them in a boosted barrage.",
+  "錬金瓶をため込み、強化して連続で投げる。"
+ ],
+ "爆音流": [
+  "Blast",
+  "爆音型"
+ ],
+ "把共鸣叠到 {0} 层，反复触发爆音。": [
+  "Stack Resonance to {0} to trigger Blast again and again.",
+  "共鳴を{0}層まで重ね、爆音を何度も起こす。"
+ ],
+ "清算流": [
+  "Cash-Out",
+  "清算型"
+ ],
+ "不等爆音，直接把共鸣换成伤害。": [
+  "Don't wait for Blast—turn Resonance straight into damage.",
+  "爆音を待たず、共鳴をそのままダメージに変える。"
+ ],
+ "即将推出": [
+  "Coming soon",
+  "近日公開"
+ ],
+ "元素使 · 艾琳": [
+  "Elementalist · Erin",
+  "エレメンタリスト・エリン"
+ ],
+ "法杖 · 元素": [
+  "Staff · Elements",
+  "杖・元素"
+ ],
+ "剑客 · 顾清寒": [
+  "Swordswoman · Gu Qinghan",
+  "剣客・顧清寒"
+ ],
+ "长剑 · 飞剑": [
+  "Sword · Flying Swords",
+  "長剣・飛剣"
+ ],
+ "霜龙裔 · 希尔薇": [
+  "Frost Dragonborn · Sylvie",
+  "霜竜の末裔・シルヴィ"
+ ],
+ "冰枪 · 变身": [
+  "Ice Spear · Transform",
+  "氷槍・変身"
+ ],
+ "猫耳族 · 米娅": [
+  "Catfolk · Mia",
+  "猫耳族・ミア"
+ ],
+ "魔杖 · 云猫": [
+  "Wand · Cloud Cat",
+  "魔杖・雲猫"
+ ],
+ "半吸血鬼 · 绯月": [
+  "Half-Vampire · Hizuki",
+  "半吸血鬼・緋月"
+ ],
+ "血爪 · 蝙蝠": [
+  "Blood Claw · Bats",
+  "血爪・コウモリ"
+ ],
+ "麻将社 · 沈雀": [
+  "Mahjong Club · Shen Que",
+  "麻雀部・沈雀"
+ ],
+ "麻将 · 牌型": [
+  "Mahjong · Hands",
+  "麻雀・役"
+ ],
+ "头顶三个元素位，组合火、水、风，「祈唤」出 10 种法术。": [
+  "Three element slots above her head—combine fire, water and wind, then Invoke one of 10 spells.",
+  "頭上の3つの元素枠で火・水・風を組み合わせ、10種の魔法を「祈喚」する。"
+ ],
+ "飞剑加伤害、内力越打越强、剑招连段一口气收招。": [
+  "Flying swords boost damage, inner energy grows over time, and sword combos end in a finisher.",
+  "飛剣で威力アップ、内力は戦うほど強まり、剣技の連撃で一気に決める。"
+ ],
+ "攒满龙血变身霜龙，三回合内龙息横扫。": [
+  "Fill her dragon blood to become a frost dragon and sweep foes with breath for 3 turns.",
+  "竜血を溜めて霜竜に変身し、3ターン竜の息吹でなぎ払う。"
+ ],
+ "云猫团子替你挨打、自己攻击，还会一路长大。": [
+  "Dango the cloud cat takes hits for you, attacks on its own, and keeps growing.",
+  "雲猫のダンゴが攻撃を受け止め、自分で戦い、どんどん成長する。"
+ ],
+ "用自己的血换力量，攻击吸血续命，还能放蝙蝠群。": [
+  "Trade her own blood for power, drain life with attacks, and unleash bat swarms.",
+  "自らの血を力に変え、攻撃で吸血し、コウモリの群れを放つ。"
+ ],
+ "凑对子、刻子、顺子、清一色，胡牌一击定胜负。": [
+  "Build pairs, triplets, runs and flushes—then win the hand in one decisive blow.",
+  "対子・刻子・順子・清一色をそろえ、和了の一撃で決める。"
+ ],
+ "“火、水、风……这次搓哪一个呢。”": [
+  "\"Fire, water, wind... which one shall I weave this time?\"",
+  "「火、水、風……今回はどれにしようかな」"
+ ],
+ "“剑在，人就在。”": [
+  "\"Where my sword stands, so do I.\"",
+  "「剣ある限り、私もここにいる」"
+ ],
+ "“……别让我变回那个样子。”": [
+  "\"...Don't make me turn into that again.\"",
+  "「……あの姿には、戻りたくない」"
+ ],
+ "“团子，拜托你了喵。”": [
+  "\"Dango, I'm counting on you, nya.\"",
+  "「ダンゴ、お願いにゃ」"
+ ],
+ "“……血的味道，我才不喜欢。”": [
+  "\"...I don't even like the taste of blood.\"",
+  "「……血の味なんて、好きじゃない」"
+ ],
+ "“这一局，我要胡了。”": [
+  "\"This hand is mine.\"",
+  "「この局、和了らせてもらうわ」"
+ ],
+ "艾琳是精灵族的年轻魔法师，天生能同时感受到火、水、风三种元素。族里的长老说她太急躁，总想把三种元素搅在一起用。她偏偏觉得，把元素组合起来才是最有趣的魔法。听说雪山顶上有连通所有世界的门，她想去看看门那边的元素长什么样。": [
+  "Erin is a young elven mage who can feel fire, water and wind all at once. The elders say she is too impatient, always mixing the elements together—but she thinks combining them is the most fun magic there is. Hearing of a gate atop the snowy peak that links every world, she wants to see what elements lie beyond it.",
+  "エリンはエルフ族の若い魔法使いで、火・水・風の三つの元素を同時に感じ取れる。長老たちには「せっかちで、元素をすぐ混ぜたがる」と言われるが、彼女は組み合わせこそ一番面白い魔法だと思っている。雪山の頂にすべての世界をつなぐ門があると聞き、その向こうの元素を見てみたくなった。"
+ ],
+ "顾清寒是雪山剑派的弟子。剑派因为「练气」还是「练剑」吵成了两派，她两边都偷偷学了，结果被两边都当成异类。魔王占了山顶后，剑派被赶下了山，她背着剑一个人走下来，想找能一起打回去的人。": [
+  "Gu Qinghan is a disciple of the Snow Peak Sword Sect. The sect split over whether to train inner energy or the blade; she secretly learned both and was shunned by each side. When the Demon Lord seized the summit and drove the sect down the mountain, she walked down alone with her sword, looking for allies to fight back.",
+  "顧清寒は雪山剣派の弟子。剣派は「気を練るか、剣を練るか」で二派に割れ、両方をこっそり学んだ彼女はどちらからも異端扱いされた。魔王が山頂を占拠して剣派が山を追われたあと、彼女はひとり剣を背負って山を下り、共に戦う仲間を探している。"
+ ],
+ "希尔薇是远古白龙最后的后裔，住在雪山的冰窟里，外表是冷淡安静的少女。情绪激动时，她会变回霜龙的样子，这让她很害怕自己。山顶的魔王占据了祖先的龙巢，她不得不下山，也不得不学着控制体内的龙血。": [
+  "Sylvie is the last descendant of an ancient white dragon, living in an ice cave on the snowy peak—a cold, quiet girl on the outside. When her emotions run high she turns back into a frost dragon, and that frightens her. With the Demon Lord occupying her ancestors' nest, she has to come down the mountain and learn to master the dragon blood within.",
+  "シルヴィは古の白竜の最後の末裔。雪山の氷窟に住み、見た目は冷たく静かな少女だ。感情が高ぶると霜竜の姿に戻ってしまい、それが自分でも怖い。魔王に祖先の竜の巣を奪われ、山を下りて体内の竜血を制御することを学ばなければならない。"
+ ],
+ "米娅是人类和猫耳族的混血女孩，两边的族人都不太接纳她，从小只和云猫幼崽团子相依为命。团子的母亲是山里的守护神，被哥布林抓走了。米娅抱着团子上山，嘴上说着「拜托你了喵」，其实最舍不得团子受伤。": [
+  "Mia is half human, half catfolk, never fully accepted by either side, and has grown up with only Dango, a cloud cat cub, for company. Dango's mother is the mountain's guardian spirit, taken by goblins. Mia climbs the mountain with Dango in her arms; she says \"I'm counting on you, nya,\" but she hates seeing Dango get hurt.",
+  "ミアは人間と猫耳族の混血で、どちらの一族にも受け入れられず、雲猫の子ダンゴとだけ寄り添って育った。ダンゴの母は山の守り神で、ゴブリンにさらわれてしまった。ミアはダンゴを抱いて山を登る。「お願いにゃ」と言いながら、本当はダンゴが傷つくのが何より嫌だ。"
+ ],
+ "绯月是日本的高中生，被光卷进异世界的人之一。她一直不知道，母亲那边流着吸血鬼的血。古堡的血月唤醒了她的血脉，伯爵认出了她，想把她留下。她拒绝了。她害怕自己越来越不像人类，却又不得不依靠这股力量保护同伴。": [
+  "Hizuki is a Japanese high schooler, one of those swept into this world by the light. She never knew vampire blood ran in her mother's family. The castle's blood moon awakened it, and the Count recognized her and wanted her to stay. She refused. She fears becoming less human, yet must rely on that power to protect her friends.",
+  "緋月は日本の女子高生で、光に巻き込まれて異世界へ来た一人。母方に吸血鬼の血が流れていることを、彼女は知らなかった。古城の血月がその血を目覚めさせ、伯爵は彼女に気づいて引き留めようとしたが、彼女は拒んだ。人間らしさを失うのが怖いのに、仲間を守るためにはその力に頼るしかない。"
+ ],
+ "沈雀是高中麻将社的王牌，平时安安静静，一坐上牌桌就像变了个人。那天她背着装麻将的书包回家，也被那道光卷进了异世界。到了这边，书包里的麻将牌开始发光，凑出牌型就能放出魔法。她的口头禅是：「这一局，我要胡了。」": [
+  "Shen Que is the ace of her high school mahjong club—quiet most of the time, but a different person at the table. Walking home with her mahjong set in her bag, she too was swept into this world by the light. Here her tiles began to glow, and completing a hand unleashes magic. Her catchphrase: \"This hand is mine.\"",
+  "沈雀は高校麻雀部のエース。ふだんは物静かなのに、卓につくと別人になる。麻雀牌を入れたカバンを背負って帰る途中、彼女もあの光に巻き込まれた。こちらの世界では牌が光り出し、役をそろえると魔法が放てる。口ぐせは「この局、和了らせてもらうわ」。"
  ]
 }

@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=rapid11110405';
-import { createAudio } from './audio.js?v=rapid11110405';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=rapid11110405';
+import { RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11111200';
+import { createAudio } from './audio.js?v=live2_11111200';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11111200';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -39,16 +39,16 @@ stage.addEventListener('scroll', () => { stage.scrollTop = 0; stage.scrollLeft =
 
 // ---------- 局 ----------
 let TIPS = true; try { TIPS = localStorage.getItem('tipsOff') !== '1'; } catch (e) {}
-const KW = { '格挡': '抵挡受到的伤害。你的回合开始时清零。', '易伤': '受到的攻击伤害 +50%，每回合减 1 层。', '虚弱': '造成的攻击伤害 -25%，每回合减 1 层。',
+const KW = { '狡诈': '这张牌被弃掉时，会自动免费打出。', '格挡': '抵挡受到的伤害。你的回合开始时清零。', '易伤': '受到的攻击伤害 +50%，每回合减 1 层。', '虚弱': '造成的攻击伤害 -25%，每回合减 1 层。',
   '力量': '每次攻击伤害增加等同于力量的数值。', '敏捷': '每次获得格挡时额外增加等同于敏捷的数值。', '消耗': '打出后移出本场战斗，不进弃牌堆。',
   '荆棘': '被攻击时，对攻击者造成等同于层数的伤害。', '能量': '出牌要花能量，每回合开始恢复为 3 点。',
-  '光弹': '林拓的掌机子弹。回合结束时自动射出，每发对随机敌人造成 3 点伤害，然后清零。最多 10 发。', '共鸣': '叠在敌人身上，到 10 层自动爆音。', '中毒': '敌人行动前受到等同层数的伤害（无视格挡），然后减 1 层。', '炼金瓶': '魔女的 0 费一次性牌，由其他牌生成，用完消耗。', '药水': '所有角色通用的一次性道具，最多带 3 瓶，战斗中点左上角的药水就能用，不花能量。', '结界': '叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。', '爆音': '共鸣满 10 层时，对该敌人造成 20 点伤害，之后保留 3 层（多出的层数也保留）。' };
+  '光弹': '林拓的掌机子弹。回合结束时自动射出，每发对随机敌人造成 4 点伤害，然后清零。最多 10 发。', '共鸣': '叠在敌人身上，到 10 层自动爆音。', '中毒': '敌人行动前受到等同层数的伤害（无视格挡），然后减 1 层。', '炼金瓶': '魔女的 0 费一次性牌，由其他牌生成，用完消耗。', '药水': '所有角色通用的一次性道具，最多带 3 瓶，战斗中点左上角的药水就能用，不花能量。', '结界': '叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。', '爆音': '共鸣满 10 层时，对该敌人造成 20 点伤害，之后保留 3 层（多出的层数也保留）。' };
 const kwify = s => { if (!TIPS) return s; const names = Object.keys(KW).map(k => [tr(k), tr(KW[k])]).sort((a, b) => b[0].length - a[0].length); const re = new RegExp(names.map(n => n[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'g'); const m2 = Object.fromEntries(names); return s.replace(re, m => `<span class="kw" title="${m2[m]}">${m}</span>`); };
 let R = null; // 当前一局
 let uidN = 1;
 const mkCard = (id, up = 0) => ({ id, up, uid: uidN++ });
 function newRun(char = 'hero', asc = 0) {
-  R = { char, hp: 80, maxHp: 80, gold: 120, potions: [], asc, deck: STARTERS[char].map(id => mkCard(id)), relics: [{ heroine: 'phones', miko: 'suzu', witch: 'cauldron' }[char] || 'gameboy'], map: genMap(), pos: null,
+  R = { char, hp: 80, maxHp: 80, gold: 120, potions: [], asc, deck: STARTERS[char].map(id => mkCard(id)), relics: [{ heroine: 'phones', miko: 'suzu', witch: 'cauldron' }[char] || (CHARS[char].temp ? null : 'gameboy')].filter(Boolean), map: genMap(), pos: null,
     floor: 0, fights: 0, removeCost: 75, boss: pickOne(ENCOUNTERS.boss)[0], feather: 0 };
   if (asc >= 4) { R.maxHp -= 8; R.hp = R.maxHp; }
 }
@@ -112,7 +112,7 @@ const foreHTML = () => `<div id="fore"><img src="assets/fg/bush.png" style="left
 
 // ---------- 卡牌显示 ----------
 const TYPE = { atk: '攻击', skill: '技能', power: '能力' };
-function cardCost(c) { const d = CARDS[c.id]; if (c.free) return 0; const k = d.cost[c.up ? 1 : 0]; return c.disc && k !== 'X' ? Math.max(0, k - 1) : k; }
+function cardCost(c) { const d = CARDS[c.id]; if (c.free) return 0; if (c.rc != null) return c.rc; const k = d.cost[c.up ? 1 : 0]; return c.disc && k !== 'X' ? Math.max(0, k - 1) : k; }
 function cardHTML(c, extra = '', energy = 99) {
   const d = CARDS[c.id], cost = cardCost(c), no = cost !== 'X' && cost > energy;
   const rr = d.rar === 'start' || d.rar === 'gen' ? 'c' : d.rar;
@@ -141,7 +141,7 @@ function pickDeck(mode, done) {
       return; }
     if (mode === 'remove') R.deck.splice(i, 1);
     if (mode === 'dup') R.deck.push(mkCard(c.id, c.up));
-    if (mode === 'upgrade') c.up = 1;
+    if (mode === 'upgrade') { c.up = 1; sting('upgrade', 900); }
     if (mode === 'transform') { const pool = Object.values(CARDS).filter(d => d.rar !== 'start' && d.rar !== 'gen' && mine(d) && d.id !== c.id); R.deck[i] = mkCard(pickOne(pool).id); }
     audio.level(); o.remove(); done && done(true);
   });
@@ -188,14 +188,22 @@ const A_ = n => (R && R.asc || 0) >= n;
 const ONLINE = !/githack|localhost|127\.0\.0\.1|^file/.test(location.href); /* 试玩链接上没有后台 */
 const API = /netlify\.app$/.test(location.hostname) ? '/api/scores' : 'https://the-way-up.netlify.app/api/scores'; /* itch.io 等外部站点连 Netlify 后台 */
 const CHARINFO = {
-  miko: { diff: 1, tip: '结界越叠越厚，每回合自动加格挡。防守稳，最适合新手。' },
-  hero: { diff: 2, tip: '打牌攒光弹，回合结束自动扫射。光弹越多打得越猛，规则最简单。' },
-  witch: { diff: 2, tip: '随机炼金瓶 + 剧毒，慢慢把敌人磨死。每局手感都不一样。' },
-  heroine: { diff: 3, tip: '给敌人叠共鸣，满 10 层爆音。要算层数，玩好了伤害最高。' },
+  erin: { diff: 3, tip: '头顶三个元素位，组合火、水、风，「祈唤」出 10 种法术。', line: '“火、水、风……这次搓哪一个呢。”', bio: '艾琳是精灵族的年轻魔法师，天生能同时感受到火、水、风三种元素。族里的长老说她太急躁，总想把三种元素搅在一起用。她偏偏觉得，把元素组合起来才是最有趣的魔法。听说雪山顶上有连通所有世界的门，她想去看看门那边的元素长什么样。', builds: [] },
+  gu: { diff: 2, tip: '飞剑加伤害、内力越打越强、剑招连段一口气收招。', line: '“剑在，人就在。”', bio: '顾清寒是雪山剑派的弟子。剑派因为「练气」还是「练剑」吵成了两派，她两边都偷偷学了，结果被两边都当成异类。魔王占了山顶后，剑派被赶下了山，她背着剑一个人走下来，想找能一起打回去的人。', builds: [] },
+  sylvie: { diff: 2, tip: '攒满龙血变身霜龙，三回合内龙息横扫。', line: '“……别让我变回那个样子。”', bio: '希尔薇是远古白龙最后的后裔，住在雪山的冰窟里，外表是冷淡安静的少女。情绪激动时，她会变回霜龙的样子，这让她很害怕自己。山顶的魔王占据了祖先的龙巢，她不得不下山，也不得不学着控制体内的龙血。', builds: [] },
+  mia: { diff: 1, tip: '云猫团子替你挨打、自己攻击，还会一路长大。', line: '“团子，拜托你了喵。”', bio: '米娅是人类和猫耳族的混血女孩，两边的族人都不太接纳她，从小只和云猫幼崽团子相依为命。团子的母亲是山里的守护神，被哥布林抓走了。米娅抱着团子上山，嘴上说着「拜托你了喵」，其实最舍不得团子受伤。', builds: [] },
+  feiyue: { diff: 3, tip: '用自己的血换力量，攻击吸血续命，还能放蝙蝠群。', line: '“……血的味道，我才不喜欢。”', bio: '绯月是日本的高中生，被光卷进异世界的人之一。她一直不知道，母亲那边流着吸血鬼的血。古堡的血月唤醒了她的血脉，伯爵认出了她，想把她留下。她拒绝了。她害怕自己越来越不像人类，却又不得不依靠这股力量保护同伴。', builds: [] },
+  shenque: { diff: 2, tip: '凑对子、刻子、顺子、清一色，胡牌一击定胜负。', line: '“这一局，我要胡了。”', bio: '沈雀是高中麻将社的王牌，平时安安静静，一坐上牌桌就像变了个人。那天她背着装麻将的书包回家，也被那道光卷进了异世界。到了这边，书包里的麻将牌开始发光，凑出牌型就能放出魔法。她的口头禅是：「这一局，我要胡了。」', builds: [] },
+  miko: { diff: 1, tip: '结界越叠越厚，每回合自动加格挡。防守稳，最适合新手。', line: '“神社的铃，也能替异世界的人挡一挡灾。”', bio: '千早从小在日本的神社帮忙。祭典散场后，她常留下来收灯笼，也总记得把最靠近台阶的那盏留到最后。到了异世界，她手里的神乐铃能撑起护住同伴的结界，破魔箭能净化不死的怪物。平时她说话轻声细气，可只要还有人没撤到安全的地方，谁也劝不动她先走。一路上，最难开口的反倒是那句“我撑不住了”。她慢慢学着在手开始发抖时，就喊同伴的名字。', builds: [['结界防守流', '每回合自动叠结界，白拿格挡，稳稳磨死敌人。', ['神乐舞', '注连绳', '御神木', '护身符']], ['结界爆发流', '先把结界叠高，再一口气换成伤害。', ['破邪结界', '破魔·满月', '镇魂歌', '破魔箭']]] },
+  hero: { diff: 2, tip: '打牌攒光弹，回合结束自动扫射。光弹越多打得越猛，规则最简单。', line: '“这关我熟！……喂，等等，咱们一起走啊。”', bio: '林拓是个爱打游戏的普通初中生。那台旧掌机的电池盖用胶带粘着，他还是天天把它塞进书包。穿越以后，掌机能射出光弹，充一次电就是装填一次弹药。他嘴上喊着“这关我熟”，等光弹打光了，才想起自己根本没问撤退路线。比起打不过的敌人，他更怕有人说“接下来各走各的”。后来有一次，他终于肯蹲在路边给掌机充电，抬头问了一句：“能等我一下吗？”', builds: [['弹幕流', '光弹越多越好，回合结束自动扫射。', ['充电', '电池扩容', '满弹连射', '全屏扫射']], ['重弹流', '光弹不用多，提高每一发的伤害。', ['双持', '超频', '速射', '连射']]] },
+  witch: { diff: 2, tip: '随机炼金瓶 + 剧毒，慢慢把敌人磨死。每局手感都不一样。', line: '“村子里还有人在等我。跟紧，左边那条路能上山。”', bio: '莉泽是山脚村庄的小魔女，也是个还没出师的炼金学徒。药水调得不错，毒药调得更好，就是瓶塞上的记号画得太像，有时得迎着光看半天，才敢递给同伴。村民被抓走后，她把能用的瓶瓶罐罐全塞进挎包，独自上山找帮手。她认得山上每一种草，知道哪段坡下过雨就不能走。可一到自己也没去过的岔路口，她还是习惯咬着牙挑一条。直到有一次，她把地图摊在大家中间，承认自己也拿不准。', builds: [['剧毒流', '叠毒慢慢磨，再翻倍或一次引爆。', ['疫病', '毒雾', '催化剂', '毒爆']], ['炼金瓶流', '攒很多炼金瓶，配合加成连续扔。', ['药剂腰包', '调药', '贤者之石', '炼金爆发']]] },
+  heroine: { diff: 3, tip: '给敌人叠共鸣，满 10 层爆音。要算层数，玩好了伤害最高。', line: '“……耳机先摘一只。你们说，我在听。”', bio: '苏音总戴着一副粉色耳机，喜欢把同一段旋律反复听上好几遍。身边太吵的时候，只要把音量调高一点，她就能安静下来。到了异世界，耳机里的音乐能在敌人身上叠起共鸣，等震动积到足够强，她就踩着节拍将它引爆。队伍里数她最安静，可每次开打，大家都会下意识地等她那一拍落下来。有一回，她只顾数拍子，错过了同伴喊她的声音。从那以后，她开始把一边耳罩拨开。', builds: [['爆音流', '把共鸣叠到 10 层，反复触发爆音。', ['低频', '演唱会', '回声', '失真']], ['清算流', '不等爆音，直接把共鸣换成伤害。', ['重低音', '高音', '破音', '共鸣冲击']]] },
 };
-const ORDER = ['miko', 'hero', 'witch', 'heroine'];
+const ORDER = ['miko', 'hero', 'witch', 'heroine', 'erin', 'gu', 'sylvie', 'mia', 'feiyue', 'shenque'];
+const STARTRELIC = { hero: 'gameboy', heroine: 'phones', miko: 'suzu', witch: 'cauldron' };
+const SOON = `<div class="reward cc soon"><div class="qm">?</div><b>？？？</b><span class="cd">即将加入</span><span class="ct">那道光里，好像还有别人的影子……</span></div>`; /* 留白：以后加角色 */
 function title() {
-  setMusic('menu'); R = null; B = null;
+  R = null; B = null; setMusic('menu');
   view.innerHTML = `<div class="bg" style="background:url(assets/bg/title.jpg) center/cover,url(assets/bg/battle_castle.jpg) center/cover"></div><div class="tshade"></div>
    <div class="tlogo"><h1>通往顶端</h1><p class="en">THE WAY UP</p><p class="en2">OTHERWORLD DECK</p></div>
    <div class="tbox"><input id="nm" class="inp" maxlength="8" placeholder="输入你的名字（可不填）" value="${esc(LS('tw_name'))}">
@@ -206,7 +214,7 @@ function title() {
   $('#enter').onclick = go; $('#nm').onkeydown = $('#pin').onkeydown = e => { if (e.key === 'Enter') go(); };
 }
 function mainMenu() {
-  setMusic('menu'); R = null; B = null;
+  R = null; B = null; setMusic('menu');
   const sv = load(), nm = LS('tw_name');
   view.innerHTML = `<div class="bg" style="background:url(assets/bg/title.jpg) center/cover,url(assets/bg/battle_castle.jpg) center/cover"></div><div class="tshade"></div>
    <div class="tlogo sm"><h1>通往顶端</h1><p class="en">THE WAY UP</p></div>
@@ -219,7 +227,7 @@ function mainMenu() {
   $('#start').onclick = () => askName(() => { if (!sv) return pickChar();
     const y = overlay(`<h2>开始新的冒险？</h2><p>当前存档（${CHARS[sv.char || 'hero'].name} · 第 ${sv.floor} 层）会被放弃。</p><div class="row"><button class="btn red" id="y1">放弃旧档，重新开始</button><button class="btn" id="y0">取消</button></div>`);
     y.querySelector('#y0').onclick = () => y.remove(); y.querySelector('#y1').onclick = () => { y.remove(); clearSave(); pickChar(); }; });
-  $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending && R.snap) { try { const o = JSON.parse(R.snap); R = Object.assign(o, { snap: R.snap }); } catch (e) {} } if (R.pending) enterNode(R.pending); else mapScreen(); });
+  $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending && R.snap) { try { const o = JSON.parse(R.snap); R = Object.assign(o, { snap: R.snap }); } catch (e) {} } if (R.act2wait) act2Choice(); else if (R.pending) enterNode(R.pending); else mapScreen(); });
   $('#book').onclick = () => book();
   $('#rank').onclick = rankBoard; $('#set').onclick = () => settings(false); $('#back').onclick = title;
 }
@@ -273,13 +281,13 @@ function rankBoard() {
 function submitScore(win) {
   const name = LS('tw_name'); if (DEBUG || !ONLINE || !name) return Promise.resolve(null);
   return fetch(API, { method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ name, pin: LS('tw_pin'), char: R.char, asc: R.asc || 0, floor: R.floor, kills: R.kills || 0, elites: R.elites || 0, win, hp: Math.max(0, R.hp) }) })
+    body: JSON.stringify({ name, pin: LS('tw_pin'), char: R.char, asc: R.asc || 0, floor: (R.floor0 || 0) + R.floor, kills: R.kills || 0, elites: R.elites || 0, win, hp: Math.max(0, R.hp) }) })
     .then(r => r.json()).catch(() => null);
 }
 
 function pickChar() {
   view.innerHTML = `${bgHTML()}<div class="panel csel"><h2>选择角色</h2><div class="row">${ORDER.map(k => { const c = CHARS[k], i = CHARINFO[k];
-    return `<div class="reward cc" data-c="${k}"><img src="assets/${c.dir}/portrait.png"><b>${tr(c.name)}</b><span class="cd">${tr(c.desc)}</span>
+    return `<div class="reward cc${c.temp ? ' locked' : ''}" ${c.temp ? '' : `data-c="${k}"`}>${c.temp ? `<i class="lockb">${t('即将推出')}</i>` : ''}<img src="assets/${c.dir}/portrait.png"><b>${tr(c.name)}</b><span class="cl">${i.line}</span><span class="cd">${tr(c.desc)}</span>
      <span class="diff">上手难度 <i>${'★'.repeat(i.diff)}${'☆'.repeat(3 - i.diff)}</i> ${['', '简单', '普通', '困难'][i.diff]}</span><span class="ct">${i.tip}</span></div>`; }).join('')}</div>
    <div class="ascbar">进阶难度 <button class="btn" id="am">−</button><b id="av"></b><button class="btn" id="ap">＋</button><span id="ad"></span></div>
    <button class="btn" id="back">返回</button></div>`;
@@ -339,10 +347,11 @@ function enterNode(t) {
 // ---------- 战斗 ----------
 let B = null, eid = 1;
 function mkEnemy(key) {
+  try { const M = metaGet(); M.seen = M.seen || {}; if (!M.seen[key]) { M.seen[key] = 1; metaSet(M); } } catch (e) {}
   const d = ENEMIES[key], hp = rnd(d.hp[0], d.hp[1]);
   const hm = 1 + (A_(1) && d.elite ? .15 : 0) + (A_(2) && !d.elite && !d.boss ? .1 : 0) + (A_(6) && d.boss ? .15 : 0);
-  const hp1 = Math.round(hp * hm);
-  const e = { key, d, name: d.name, hp: hp1, max: hp1, dmul: 1.1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++, move: null };
+  const hp1 = Math.round(hp * hm * (ACT() === 2 ? RULES.act2Mul : 1));
+  const e = { key, d, name: d.name, hp: hp1, max: hp1, dmul: (1.1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0)) * (ACT() === 2 ? RULES.act2Mul : 1), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++, move: null };
   d.init && d.init(e); return e;
 }
 const alive = () => B.en.filter(e => !e.dead);
@@ -353,14 +362,14 @@ function battle(keys, kind) {
   setMusic(kind === 'boss' ? 'boss' : kind === 'elite' ? 'elite' : 'battle'); setTimeout(() => B && B.en[0] && gv(B.en[0], 'laugh'), 500); if (kind === 'boss') audio.boss();
   if (has('charm')) B.p.st.str = 1; if (has('lantern')) B.p.st.dex = (B.p.st.dex || 0) + 1;
   
-  if (has('suzu')) B.p.st.kek = 2 + (has('omamori') ? 2 : 0); else if (has('omamori')) B.p.st.kek = 2;
+  if (has('suzu')) B.p.st.kek = 3 + (has('omamori') ? 2 : 0); else if (has('omamori')) B.p.st.kek = 2;
   if (has('phones')) B.en.forEach(e => e.st.res = 2);
   if (has('spikes')) B.p.st.thorns = 3;
   if (has('wardrum')) B.en.forEach(e => e.st.vuln = 1);
   B.en.filter(e => e.key === 'gob_bomb').forEach((e, i) => e.st.fuse = 3 + i); // 多个炸弹兵错开倒计时
   B.en.forEach(e => e.move = e.d.ai(e, BE));
-  if (has('batcloak')) B.p.block = 8;
   startTurn(true);
+  if (has('batcloak')) B.p.block += 8;
   if (has('pocketwatch')) drawCards(2);
   setTimeout(tutorial, 1300);
   banner(kind === 'boss' ? `Boss · ${ENEMIES[keys[0]].name}` : kind === 'elite' ? '精英战斗' : '战斗开始');
@@ -385,19 +394,20 @@ function banner(t) { const b = document.createElement('div'); b.id = 'banner'; b
 
 // 伤害计算
 function atkVal(src, tgt, base, strMul = 1) {
-  let d = (base + (src.st.str || 0) * strMul) * (src.dmul || 1); if (src === (B && B.p) && tgt && tgt.d && tgt.d.undead && has('silvercross')) d *= 1.25; if (src.st.weak) d *= .75; if (tgt && tgt.st.vuln) d *= 1.5; return Math.max(0, Math.floor(d));
+  let d = (base + (src.st.str || 0) * strMul) * (src.dmul || 1); if (src.st.weak) d *= .75; if (tgt && tgt.st.vuln) d *= 1.5; return Math.max(0, Math.floor(d));
 }
 function fx(who, text, cls) { B.fx.push({ who, text, cls }); }
 // 对目标造成伤害（已计算好的数值），返回未被格挡的伤害
 function hurt(tgt, amt, attacker) {
   const isP = tgt === B.p;
-  if (!isP && tgt.st.aegis) { fx(tgt.id, '免疫', 'blk'); return 0; } if (!isP && tgt.st.intang) amt = Math.ceil(amt / 2); let blk = tgt.block, left = amt;
+  if (!isP && tgt.st.aegis) { fx(tgt.id, '免疫', 'blk'); return 0; } if (!isP && tgt.d && tgt.d.undead && has('silvercross')) amt = Math.floor(amt * 1.25); if (!isP && tgt.st.intang) amt = Math.ceil(amt / 2); if (!isP && tgt.st.fly) { amt = Math.ceil(amt / 2); addSt(tgt, 'fly', -1); if (!tgt.st.fly) { tgt.grounded = 1; fx(tgt.id, '坠落！', 'st'); } } if (!isP) tgt.hitT = 1; let blk = tgt.block, left = amt;
   const used = Math.min(blk, left); tgt.block -= used; left -= used;
   if (isP) { R.hp -= left; } else { tgt.hp -= left; }
   fx(isP ? 'hero' : tgt.id, left > 0 ? `-${left}` : '格挡', left > 0 ? 'dmg' : 'blk'); B.hitSet.add(isP ? 'hero' : tgt.id);
   if (attacker && tgt.st.thorns && attacker !== tgt) { const th = tgt.st.thorns; hurt(attacker, th); }
   if (!isP && left > 0) { eAct(tgt, 'hurt'); if (tgt.hp > 0) gv(tgt, 'hurt'); }
   if (!isP && tgt.hp <= 0 && !tgt.dead) killE(tgt);
+  if (!isP && !tgt.dead && left > 0 && tgt.d.onHurt) tgt.d.onHurt(tgt, BE);
   if (!isP && !tgt.dead && tgt.key === 'gob_wolf' && tgt.hp <= tgt.max / 2) dismount(tgt);
   if (isP) pDeath();
   if (false && isP && R.hp <= 0 && (R.potions || []).includes('fairy')) { R.potions.splice(R.potions.indexOf('fairy'), 1); R.hp = Math.floor(R.maxHp * .3); fx('hero', '复活药水！', 'heal'); }
@@ -417,9 +427,9 @@ function dismount(e) { // 骑狼兵半血落马：变成野狼 + 一只小兵
 }
 const VSZ = { gob_kid: 1.45, gob_bomb: 1.25, gob_giant: .6, gob_king: .55, gob_hero: .85, gob_paladin: .85, gob_shaman: 1.15 };
 function gv(e, k) { if (e.key === 'wolf') { if (k === 'atk' || k === 'die') audio.gob(k === 'die' ? 'howl' : 'growl'); return; } audio.gob(k, VSZ[e.key] || 1); }
-function killE(e) { const od = ENEMIES[e.key].onDie; gv(e, 'die'); if (R) R.kills = (R.kills || 0) + 1; eAct(e, 'down'); e.dead = true; e.hp = 0; audio.kill(); if (has('fang')) { healP(3); } if (has('wolffang') && B) addSt(B.p, 'str', 1); if (od && !e.fled) od(e, BE); }
+function killE(e) { const od = ENEMIES[e.key].onDie; gv(e, 'die'); if (R) R.kills = (R.kills || 0) + 1; eAct(e, 'down'); e.dead = true; e.hp = 0; audio.kill(); if (!e.rewarded && !e.fled) { e.rewarded = 1; if (has('fang')) { healP(3); } if (has('wolffang') && B) addSt(B.p, 'str', 1); if (B && B.p.st.chain) { G.ammo(3 * B.p.st.chain); drawCards(B.p.st.chain); } } if (e.stolen && !e.fled) { R.gold += e.stolen; fx('hero', `+${e.stolen} 金币`, 'heal'); e.stolen = 0; } if (od && !e.fled) od(e, BE); }
 function boom(t) { // 爆音：伤害后保留 3 层（失真再 +3），多出的层数也保留
-  const d = 20 + (B.p.st.dist ? 5 : 0) + (has('mic') ? 6 : 0);
+  const d = 20 + (B.p.st.dist ? 8 : 0) + (has('mic') ? 6 : 0);
   t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0);
   fx(t.id, '爆音！', 'st'); hurt(t, d); if (has('metro') && !B.p.metroUsed) { B.p.metroUsed = 1; B.p.energy++; } }
 function healP(n) { if (n <= 0) return; R.hp = Math.min(R.maxHp, R.hp + n); fx('hero', `+${n}`, 'heal'); }
@@ -427,6 +437,11 @@ function addSt(t, k, n) { t.st[k] = (t.st[k] || 0) + n; if (t.st[k] === 0) delet
 
 // 卡牌用的接口
 const G = {
+  has: id => has(id), handSize() { return B.hand.length; }, potsInHand() { return B.hand.filter(c => CARDS[c.id].potion).length; },
+  kekSpend(n) { if ((B.p.st.kek || 0) < n) return false; addSt(B.p, 'kek', -n); return true; },
+  execute(t) { if (t && !t.dead) { t.hp = 0; killE(t); } },
+  discard(n) { const pool = [...B.hand]; for (let k = 0; k < n && pool.length; k++) { const c = pool.splice(Math.floor(Math.random() * pool.length), 1)[0], d = CARDS[c.id]; const hi = B.hand.indexOf(c); if (hi < 0) { k--; continue; } B.hand.splice(hi, 1);
+    if (d.sly) { const a = alive(); try { d.play(G, c.up, d.tgt === 'one' ? a[Math.floor(Math.random() * a.length)] : null, c); } catch (e) {} postPlay(d); (d.exhaust ? B.exh : B.disc).push(c); } else B.disc.push(c); } },
   get p() { return B.p; }, x: 0,
   attack(t, base, times = 1, strMul = 1) { let s = 0; for (let i = 0; i < times; i++) { if (!t || t.dead) break; s += hurt(t, atkVal(B.p, t, base, strMul), B.p); } audio.slash(); return s; },
   attackAll(base, times = 1) { let s = 0; for (let i = 0; i < times; i++) for (const e of alive()) s += hurt(e, atkVal(B.p, e, base), B.p); audio.slash(); return s; },
@@ -442,7 +457,7 @@ const G = {
   potion(n, id) { const ps = ['p_fire', 'p_frost', 'p_heal', 'p_poison', 'p_boom']; for (let i = 0; i < n; i++) { const c = mkCard(id || pickOne(ps)); (B.hand.length < 10 ? B.hand : B.disc).push(c); } fx('hero', `药瓶+${n}`, 'st'); },
   poison(t, n) { if (!t || t.dead || n <= 0) return; n += has('toad') ? 1 : 0; addSt(t, 'poison', n); fx(t.id, `中毒+${n}`, 'st'); },
   volley(clear = true) { // 光弹齐射：每发 3 点（+双持 +超频），打随机敌人或全体
-    const n = B.p.st.ammo || 0; if (!n) return; const dmg = 3 + (B.p.st.dual || 0) + (B.p.oc || 0);
+    const n = B.p.st.ammo || 0; if (!n) return; const dmg = 4 + (B.p.st.dual || 0) + (B.p.oc || 0);
     for (let i = 0; i < n; i++) { const a = alive(); if (!a.length) break; (B.p.aoe ? a : []).forEach(e => B.fx.push({ who: e.id, cls: 'bul', n: i })); if (B.p.aoe) a.forEach(e => hurt(e, atkVal(B.p, e, dmg), B.p)); else { const e = pickOne(a); B.fx.push({ who: e.id, cls: 'bul', n: i }); hurt(e, atkVal(B.p, e, dmg), B.p); } }
     if (B.p.st.rapid) G.block(B.p.st.rapid * n, true);
     if (clear) { B.shots = (B.shots || 0) + n; if (has('pad')) { B.p.padDraw = Math.floor(B.shots / 4); B.shots %= 4; } delete B.p.st.ammo; }
@@ -470,10 +485,13 @@ const BE = {
   eBlock(e, n) { e.block += n; fx(e.id, `+${n}`, 'blk'); },
   allies: e => alive().filter(a => a !== e), alive: () => alive(),
   healE(e, n) { e.hp = Math.min(e.max, e.hp + n); fx(e.id, `+${n}`, 'heal'); },
-  revive(e, f) { e.revived = 1; e.dead = false; e.hp = Math.max(1, Math.floor(e.max * f)); e.anim = null; if (R) R.kills--; fx(e.id, '复活', 'heal'); say('（骨头咔嚓咔嚓地重新拼了起来）'); },
+  revive(e, f) { e.revived = 1; e.dead = false; e.hp = Math.max(1, Math.floor(e.max * f)); e.anim = null; if (R) R.kills--; fx(e.id, '复活', 'heal'); if (e.key === 'skeleton') say('（骨头咔嚓咔嚓地重新拼了起来）'); },
   flee(e) { if (e.dead) return; e.fled = 1; e.dead = true; e.hp = 0; fx(e.id, '逃跑', 'st'); }, say: t => say(t),
   addCard(id, n = 1) { for (let k = 0; k < n; k++) B.disc.push(mkCard(id)); fx('hero', `+${CARDS[id].name}${n > 1 ? '×' + n : ''}`, 'st'); },
   kill(e) { killE(e); B.hitSet.add(e.id); },
+  steal(e, n) { const k = Math.min(n, R.gold); R.gold -= k; e.stolen = (e.stolen || 0) + k; e.stoleT = e.turn; fx('hero', `-${k} 金币`, 'dmg'); },
+  split(e, key, n) { const i = B.en.indexOf(e), hp = Math.max(1, Math.floor(e.hp / n)), bits = []; for (let k = 0; k < n; k++) { const b = mkEnemy(key); b.hp = b.max = hp; b.move = b.d.ai(b, BE); bits.push(b); } e.dead = true; e.fled = 1; e.hp = 0; B.en.splice(i, 1, ...bits); say('（缝合怪裂成了两块！）'); },
+  endPlayerTurn() { B.forceEnd = 1; },
   summon(key, hp) { if (alive().length >= 5) return; const e = mkEnemy(key); if (hp) e.hp = e.max = hp; e.move = e.d.ai(e, BE); B.en.unshift(e); },
 };
 
@@ -485,7 +503,8 @@ function drawCards(n) {
   }
 }
 function startTurn(first) {
-  B.turn++; B.hitSet = new Set();
+  setTimeout(() => { if (B && !B.over && !alive().length) checkEnd(); }, 0); /* 回合开始的共鸣/中毒/秘宝伤害若打死最后一个敌人，也要结算胜利 */
+  B.turn++; B.hitSet = new Set(); B.forceEnd = 0; [...B.draw, ...B.disc, ...B.hand].forEach(c => delete c.rc);
   if (!B.p.st.keep) B.p.block = 0;
   B.p.energy = 3 + (has('crown') ? 1 : 0) + (first && has('hourglass') ? 1 : 0);
   B.p.noDraw = 0;
@@ -495,16 +514,25 @@ function startTurn(first) {
   if (B.p.st.satchel) G.potion(B.p.st.satchel);
   if (B.p.st.plague) alive().forEach(e => G.poison(e, B.p.st.plague));
   if (B.p.st.kagura) G.kek(B.p.st.kagura);
-  if (B.p.st.kek) G.block(B.p.st.shinboku ? Math.max(B.p.st.kek, Math.min(15, B.p.st.kek * 2)) : B.p.st.kek, true);
+  if (B.p.st.kek) G.block(B.p.st.shinboku ? B.p.st.kek + Math.min(B.p.st.kek, 8) : B.p.st.kek, true);
   if (has('hamaya') && (B.p.st.kek || 0) >= 4) drawCards(1);
   B.p.oc = 0; B.p.aoe = 0; B.p.metroUsed = 0; B.p.cplays = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (has('gameboy') && B.turn % 2 === 1) G.ammo(1); if (!first && has('phones')) G.resAll(1);
   if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
   drawCards(5 + (first && has('scroll') ? 2 : 0));
+  if (B.p.st.confuse) { B.hand.forEach(c => { if (typeof cardCost(c) === 'number') c.rc = rnd(0, 3); }); addSt(B.p, 'confuse', -1); }
   if (first && has('dice')) { const cs = B.hand.filter(c => typeof cardCost(c) === 'number' && cardCost(c) >= 1); if (cs.length) pickOne(cs).disc = 1; }
   B.sel = -1; B.busy = false; render();
 }
+function postPlay(d) { /* 打出一张牌后的通用结算（狡诈自动打出也走这里） */
+  alive().forEach(e => e.d.onCard && e.d.onCard(e, d.type, BE));
+  if (d.type === 'atk') { B.atkCnt++; if (has('quiver') && B.atkCnt % 3 === 0) for (const e of alive()) hurt(e, 5); heroAct('shoot'); }
+    if (d.potion) { B.p.pot = (B.p.pot || 0) + 1; if (has('hat')) G.block(2, true); }
+    if (B.p.st.concert && (B.p.cplays = (B.p.cplays || 0) + 1) <= 4) G.resAll(B.p.st.concert);
+    if (d.type === 'skill') alive().forEach(e => { if (e.st.enrage && (e.enT = (e.enT || 0) + 1) <= 2) BE.addSt(e, 'str', e.st.enrage); });
+}
 async function playCard(i, tgt) {
+  if (B && B.forceEnd) return;
   if (!B || B.busy || B.over || B.anim) return; const b0 = B;
   const c = B.hand[i], d = CARDS[c.id]; let cost = cardCost(c);
   if (d.unplay) { tip('这张牌不能打出'); return; }
@@ -516,13 +544,13 @@ async function playCard(i, tgt) {
   if (el) flyCard(el, d.type); render(); await sleep(260);
   if (B !== b0) return; B.anim = false; B.hitSet = new Set();
   try { d.play(G, c.up, tgt, c); } catch (err) { console.error(err); tip(tr('这张牌出错了，已跳过')); }
-  if (d.type === 'atk') { B.atkCnt++; if (has('quiver') && B.atkCnt % 3 === 0) for (const e of alive()) hurt(e, 5); heroAct('shoot'); }
-  if (d.potion) { B.p.pot = (B.p.pot || 0) + 1; if (has('hat')) G.block(2, true); }
-  if (B.p.st.concert && (B.p.cplays = (B.p.cplays || 0) + 1) <= 4) G.resAll(B.p.st.concert);
-  if (d.type === 'skill') alive().forEach(e => { if (e.st.enrage) BE.addSt(e, 'str', e.st.enrage); });
+  delete c.rc;
+
+  postPlay(d);
   if (d.type === 'power') {} else if (d.exhaust) B.exh.push(c); else B.disc.push(c);
   pDeath();
   render(); await checkEnd();
+  if (B === b0 && B.forceEnd && !B.over) { B.forceEnd = 0; banner(tr('时间停止：回合被强制结束')); await sleep(500); endTurn(); }
 }
 function flyCard(el, type) {
   const sc = stage._s || 1, sr = stage.getBoundingClientRect(), r = el.getBoundingClientRect();
@@ -543,7 +571,7 @@ function eFrame(e) {
   if (a && a.n === 'hurt' && dt < 320) return `assets/enemies2/${k}/hurt0.png`;
   return `assets/enemies2/${k}/idle${Math.floor(now / 480) % 2}.png`;
 }
-const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 林拓', h: 241, desc: '掌机 · 光弹' }, witch: { dir: 'witch2', name: '魔女 · 莉泽', h: 235, desc: '炼金瓶 · 剧毒' }, miko: { dir: 'miko2', name: '巫女 · 千早', h: 257, desc: '和弓 · 结界' }, heroine: { dir: 'heroine2', name: '穿越者 · 苏音', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 } };
+const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 林拓', h: 241, desc: '掌机 · 光弹' }, witch: { dir: 'witch2', name: '魔女 · 莉泽', h: 235, desc: '炼金瓶 · 剧毒' }, miko: { dir: 'miko2', name: '巫女 · 千早', h: 257, desc: '和弓 · 结界' }, heroine: { dir: 'heroine2', name: '穿越者 · 苏音', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 }, erin: { dir: 'erin', name: '元素使 · 艾琳', h: 268, desc: '法杖 · 元素', temp: 1 }, gu: { dir: 'gu', name: '剑客 · 顾清寒', h: 290, desc: '长剑 · 飞剑', temp: 1 }, sylvie: { dir: 'sylvie', name: '霜龙裔 · 希尔薇', h: 262, desc: '冰枪 · 变身', temp: 1 }, mia: { dir: 'mia', name: '猫耳族 · 米娅', h: 256, desc: '魔杖 · 云猫', temp: 1 }, feiyue: { dir: 'feiyue', name: '半吸血鬼 · 绯月', h: 250, desc: '血爪 · 蝙蝠', temp: 1 }, shenque: { dir: 'shenque', name: '麻将社 · 沈雀', h: 262, desc: '麻将 · 牌型', temp: 1 } };
 const cdir = () => CHARS[(R && R.char) || 'hero'].dir;
 const HA = { idle: [4, 200, 1], shoot: [4, 75, 0], hurt: [2, 130, 0], block: [1, 380, 0], down: [3, 220, 2] }; // 帧数, 每帧毫秒, 1=循环 2=停在最后
 let hst = { n: 'idle', t: 0 };
@@ -566,7 +594,7 @@ async function endTurn() {
   if (!B || B.busy || B.over || B.anim) return; const b0 = B; B.busy = true; B.sel = -1; B.hitSet = new Set();
   if (B.p.st.ammo) { G.volley(true); render(); await sleep(350); if (B !== b0 || await checkEnd()) return; }
   for (const c of B.hand) if (CARDS[c.id].burn) G.loseHp(CARDS[c.id].burn); /* 烧伤 */
-  if (R.hp <= 0) return;
+  pDeath(); if (R.hp <= 0) { B.busy = false; return checkEnd(); }
   for (const c of B.hand) (CARDS[c.id].ethereal ? B.exh : B.disc).push(c); B.hand = [];
   if (B.p.st.metal) G.block(B.p.st.metal, true);
   if (B.p.st.regen && (B.p.regenN = (B.p.regenN || 0) + 1) <= 3) healP(B.p.st.regen);
@@ -574,6 +602,7 @@ async function endTurn() {
   /* 敌人回合：本回合敌人新加给你的虚弱/易伤，不在这回合末扣层（让它们覆盖你的下一个回合） */
   const pre = { vuln: B.p.st.vuln || 0, weak: B.p.st.weak || 0 };
   for (const e of alive()) e.block = 0;
+  for (const e of [...B.en]) if (e.d.prePhase) e.d.prePhase(e, BE);
   render();
   for (const e of [...B.en]) {
     if (B !== b0) return;
@@ -582,9 +611,11 @@ async function endTurn() {
     if (e.st.aegis) addSt(e, 'aegis', -1); /* 圣盾挡住玩家的一个回合，轮到它行动时才消失 */
     if (e.st.intang) e.st.intang = 0; /* 虚化同理 */
     if (e.st.poison && !e.st.aegis) { const pz = e.st.poison; e.hp -= pz; fx(e.id, `-${pz}`, 'dmg'); B.hitSet.add(e.id); addSt(e, 'poison', -1); if (e.hp <= 0) { killE(e); render(); await sleep(300); if (await checkEnd()) return; continue; } }
+    const otr = e.d.onTurn && e.d.onTurn(e, BE); if (otr) { if (otr === 'skip' && !e.dead && !e.fled) fx(e.id, '坠地·无法行动', 'st'); e.hist.push(e.move); render(); await sleep(300); if (await checkEnd()) return; continue; }
+    e.hitT = 0; e.enT = 0;
     const mv = e.d.moves[e.move]; B.lunge = mv.d != null && mv.i.startsWith('atk') && mv.d > 0 ? e.id : null;
     if (mv.d) { eAct(e, 'atk'); gv(e, 'atk'); } else if (/buff|summon/.test(mv.i)) gv(e, 'buff');
-    if (mv.d) for (let k = 0; k < (mv.x || 1); k++) { hurt(B.p, atkVal(e, B.p, mv.d), e); if (e.dead) break; }
+    if (mv.d) for (let k = 0; k < hitsOf(e, mv); k++) { hurt(B.p, atkVal(e, B.p, mv.d), e); if (e.dead) break; }
     if (mv.f && !e.dead) mv.f(e, BE);
     e.hist.push(e.move); e.d.after && e.d.after(e);
     render(); await sleep(mv.d ? 520 : 380); if (B !== b0) return;
@@ -592,10 +623,11 @@ async function endTurn() {
     if (await checkEnd()) return;
   }
   B.lunge = null; B.hitSet = new Set();
+  if (ACT() === 2 && B.turn === RULES.bloodTurn && !B.bloodMoon) { B.bloodMoon = 1; banner(tr('血月当空：不死系敌人力量 +1')); alive().filter(e => e.d.undead).forEach(e => BE.addSt(e, 'str', RULES.bloodStr)); }
   for (const k of ['vuln', 'weak']) if (pre[k] && B.p.st[k]) addSt(B.p, k, -1);
   for (const e of alive()) {
     if (e.st.ritual) addSt(e, 'str', e.st.ritual);
-    if (e.turn >= 6) { addSt(e, 'str', 1); if (!B.rageShown) { B.rageShown = 1; banner('战意：敌人每回合力量 +1'); } } /* 拖得越久敌人越强 */
+    if (isFury(e.turn)) { addSt(e, 'str', 1); if (!B.rageShown) { B.rageShown = 1; banner('战意：敌人每两回合力量 +1'); } } /* 拖得越久敌人越强 */
     if (e.st.heal) BE.healE(e, e.st.heal);
     for (const k of ['vuln', 'weak']) if (e.st[k]) addSt(e, k, -1);
     e.turn++; e.move = e.d.ai(e, BE);
@@ -604,12 +636,13 @@ async function endTurn() {
 }
 async function checkEnd() {
   if (!B || B.over) return true; const b0 = B;
-  if (R.hp <= 0) { B.over = true; heroAct('down'); render(); await sleep(1400); clearSave(); return endScreen(false); }
+  if (R.hp <= 0) { B.over = true; heroAct('down'); render(); sting('lose', 2600); await sleep(1400); clearSave(); return endScreen(false); }
   if (!alive().length) {
-    B.over = true; render(); await sleep(600); if (B !== b0) return true;
+    B.over = true; render(); sting(B.kind === 'boss' ? 'bossWin' : 'win', B.kind === 'boss' ? 2600 : 1400); await sleep(600); if (B !== b0) return true;
     if ((has('gameboy') || has('phones') || has('suzu') || has('cauldron')) && !has('crown')) R.hp = Math.min(R.maxHp, R.hp + 4); if (has('grail')) R.hp = Math.min(R.maxHp, R.hp + 5);
+    if (B.en.some(e => (e.st.hostage || 0) > 0)) { R.gold += 40; say(tr('（被救下的村民塞给你 40 金币：“谢谢你们！”）')); }
     if (B.kind === 'elite') R.elites = (R.elites || 0) + 1;
-    if (B.kind === 'boss') { R.bosses = (R.bosses || 0) + 1; if (ACT() === 1) return act2Choice(); clearSave(); B = null; return story('story_end2', ['伯爵化为了灰烬，天终于亮了。被关押的村民们，终于重获自由。', '可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。', '“回家的路……还在更高的地方。”'], () => endScreen(true)); }
+    if (B.kind === 'boss') { R.bosses = (R.bosses || 0) + 1; if (ACT() === 1) return act2Choice(); clearSave(); B = null; return story('story_end2', [R.boss === 'vamp_count' ? '伯爵化为了灰烬，天终于亮了。被关押的村民们，终于重获自由。' : t('{0}倒下了。古堡的血月熄灭，天终于亮了。被关押的村民们重获自由。', tr((ENEMIES[R.boss] || {}).name || '')), '可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。', '“回家的路……还在更高的地方。”'], () => story('story_party', ['天亮了。大家并肩站在晨光里，笑得满脸是灰。', '“走吧，往上。”'], () => endScreen(true))); }
     delete R.pending; delete R.pendEnc; delete R.snap; save(); /* 打赢后不能刷新重打 */
     rewardScreen(); return true;
   }
@@ -622,14 +655,15 @@ const II = n => `<img src="assets/ui2/int_${n}.png">`;
 const ICON = { atk: II('atk'), def: II('def'), buff: II('buff'), debuff: II('debuff'), atkdef: II('atk') + II('def'), atkdebuff: II('atk') + II('debuff'), atkbuff: II('atk') + II('buff'), summon: II('summon'), unknown: II('unknown') };
 function intentHTML(e) {
   const mv = e.d.moves[e.move]; let num = '';
-  if (mv.d != null && mv.i.startsWith('atk') && mv.d > 0) { const v = atkVal(e, B.p, mv.d); num = mv.x ? `${v}×${mv.x}` : `${v}`; }
+  if (mv.d != null && mv.i.startsWith('atk') && mv.d > 0) { const v = atkVal(e, B.p, mv.d); num = mv.x ? `${v}×${hitsOf(e, mv)}` : `${v}`; }
   const IT = { atk: '攻击你', def: '给自己或队友加格挡', buff: '强化自己', debuff: '给你施加负面状态', atkdef: '攻击你并加格挡', atkdebuff: '攻击你并施加负面状态', atkbuff: '攻击你并强化队友', summon: '召唤援兵', unknown: '意图不明' };
   const tip = `${mv.n}：下回合将${IT[mv.i]}${num ? `，伤害 ${num}` : ''}`;
   return `<div class="intent" title="${esc(tip)}">${ICON[mv.i]}${num}<small>${mv.n}</small></div>`;
 }
-const stsLabel = (k, n, st) => k === 'res' ? `共鸣${n}/10${n >= 9 ? '⚠' : ''}` : k === 'kek' ? `结界${n}（下回合+${st.shinboku ? Math.max(n, Math.min(15, n * 2)) : n}挡）` : k === 'poison' ? `中毒${n}（下回合-${n}）` : k === 'ammo' ? `光弹${n}（回合末${n}发）` : STATUS[k][0] + n;
+const stsLabel = (k, n, st) => k === 'res' ? `共鸣${n}/10${n >= 9 ? '⚠' : ''}` : k === 'kek' ? `结界${n}（下回合+${st.shinboku ? n + Math.min(n, 8) : n}挡）` : k === 'poison' ? `中毒${n}（下回合-${n}）` : k === 'ammo' ? `光弹${n}（回合末${n}发）` : STATUS[k][0] + n;
 const stsHTML = st => `<div class="sts">${Object.entries(st).filter(([k, n]) => n && STATUS[k]).map(([k, n]) => `<b style="border-color:${STATUS[k][2]};color:${STATUS[k][2]}" title="${esc(STATUS[k][0] + '：' + STATUS[k][1])}">${stsLabel(k, n, st)}</b>`).join('')}</div>`;
-function incoming() { let t = 0; for (const e of alive()) { const mv = e.d.moves[e.move]; if (mv.d && mv.i.startsWith('atk')) t += atkVal(e, B.p, mv.d) * (mv.x || 1); } return t; }
+function incoming() { let t = 0; for (const e of alive()) { const mv = e.d.moves[e.move]; if (mv.d && mv.i.startsWith('atk')) t += atkVal(e, B.p, mv.d) * hitsOf(e, mv); } return t; }
+function hitsOf(e, mv) { return mv.x ? mv.x + (e.xb || 0) : 1; }
 function barHTML(hp, max, blk, me) {
   let cls = '', tip = '';
   if (me && TIPS && B && !B.busy) { const inc = incoming(); if (inc > 0) { cls = blk >= inc ? 'ok' : 'low'; tip = `敌人下回合共 ${inc} 点伤害，你有 ${blk} 格挡${blk >= inc ? '，足够' : `，还差 ${inc - blk}`}`; } }
@@ -711,7 +745,7 @@ function flushFx() {
   if (shake && SET.shake) { view.classList.remove('shake'); void view.offsetWidth; view.classList.add('shake'); }
   B.fx = [];
 }
-setInterval(() => { frame++; if (!B || B.over) return; view.querySelectorAll('.enemy:not(.dead):not(.hd) .spr').forEach(img => img.src = `assets/enemies/${img.dataset.k}/${frame % 2 ? 'b' : 'a'}.png`); }, 520);
+setInterval(() => { frame++; if (!B || B.over) return; if (!B.busy && !alive().length) { checkEnd(); return; } /* 兜底：任何途径打死最后一个敌人都能结算 */ view.querySelectorAll('.enemy:not(.dead):not(.hd) .spr').forEach(img => img.src = `assets/enemies/${img.dataset.k}/${frame % 2 ? 'b' : 'a'}.png`); }, 520);
 addEventListener('keydown', e => { if (e.target && e.target.tagName === 'INPUT') return;
   if (!B || B.over || document.querySelector('.overlay') || !view.querySelector('#hand')) return;
   if (e.key === 'e' || e.key === 'E') endTurn();
@@ -759,7 +793,7 @@ function rewardScreen() {
   const gold = Math.round((kind === 'elite' ? rnd(25, 35) : rnd(10, 20)) * (A_(7) ? .7 : 1));
   items.push({ html: `<img src="assets/icons/goldbag.png">${gold} 金币`, go: () => { R.gold += gold; } });
   if (has('clover')) items.push({ html: `<img src="${RELICS.clover.img}">四叶草：15 金币`, go: () => { R.gold += 15; } });
-  if (kind === 'elite') { const rl = rollRelic(); if (rl) items.push({ html: `<img src="${RELICS[rl].img}"><span>遗物：</span>${RELICS[rl].name}`, go: () => gainRelic(rl) }); }
+  if (kind === 'elite') { const rl = rollRelic(); if (rl) items.push({ html: `<img src="${RELICS[rl].img}"><span>秘宝：</span>${RELICS[rl].name}`, go: () => gainRelic(rl) }); }
   if (Math.random() < (kind === 'elite' ? .6 : .4)) { const pid = rollPotion(); items.push({ html: `<img src="${POTIONS[pid].img}"><span>药水：</span>${POTIONS[pid].name}`, go: () => gainPotion(pid) }); }
   const cards = rollCards(3, kind === 'elite' ? .07 : 0);
   items.push({ html: `<img src="assets/icons/p_arc.png">选择一张牌加入牌组`, card: true, go: done => chooseCard(cards, ok => done(ok)) });
@@ -779,7 +813,7 @@ function rewardScreen() {
 // ---------- 营火 ----------
 function restScreen() {
   const heal = Math.floor(R.maxHp * (A_(5) ? .2 : .3));
-  view.innerHTML = `${bgHTML()}${topBar()}<div class="panel"><h2>营火</h2><p>篝火噼啪作响，难得的安宁。</p><div class="row">
+  view.innerHTML = `${bgHTML(false, 'c' + ACT() + '_rest')}${topBar()}<div class="panel"><h2>营火</h2><p>篝火噼啪作响，难得的安宁。</p><div class="row">
    <button class="btn" id="rest">休息：回复 ${heal} 生命</button><button class="btn" id="smith" ${R.deck.some(c => !c.up) ? '' : 'disabled'}>锻造：升级一张牌</button></div></div>`;
   bindTop();
   $('#rest').onclick = () => { R.hp = Math.min(R.maxHp, R.hp + heal); audio.holy(); mapScreen(); };
@@ -790,7 +824,7 @@ function restScreen() {
 function treasureScreen() {
   view.innerHTML = `${bgHTML()}${topBar()}<div class="panel"><h2>宝箱</h2><img src="assets/icons/box.png" style="width:120px;cursor:pointer" id="chest"><p>点击打开</p></div>`;
   bindTop();
-  $('#chest').onclick = () => {
+  $('#chest').onclick = () => { sting('chest', 900);
     const rl = rollRelic(); const g = rnd(20, 40); gainRelic(rl); R.gold += g;
     view.innerHTML = `${bgHTML()}${topBar()}<div class="panel"><h2>宝箱</h2>${rl ? `<img src="${RELICS[rl].img}" style="width:90px"><p><b>${RELICS[rl].name}</b><br>${RELICS[rl].desc}</p>` : ''}<p>以及 ${g} 金币。</p><button class="btn" id="go">继续前进</button></div>`;
     bindTop(); $('#go').onclick = mapScreen;
@@ -805,7 +839,7 @@ function shopScreen() {
   const pots = [rollPotion(), rollPotion()].map(id => ({ id, p: id === 'fairy' ? 120 : rnd(45, 60) }));
   let removed = false;
   const draw = () => {
-    view.innerHTML = `${bgHTML()}${topBar()}<div class="panel" style="top:53%;width:1000px;padding:14px 26px"><h2 style="margin-bottom:8px">哥布林商人</h2>
+    view.innerHTML = `${bgHTML(false, 'c' + ACT() + '_shop')}${topBar()}<div class="panel" style="top:53%;width:1000px;padding:14px 26px"><h2 style="margin-bottom:8px">哥布林商人</h2>
      <div class="row" style="flex-wrap:nowrap">${cards.map((x, i) => `<div class="shopitem" data-c="${i}">${x.c ? cardHTML(x.c) : '<div style="width:129px;height:181px"></div>'}<span class="price ${x.p > R.gold ? 'no' : ''}">${x.c ? '● ' + x.p : '已售出'}</span></div>`).join('')}</div>
      <div class="row" style="margin-top:14px">${rels.map((x, i) => `<div class="relicbig" data-r="${i}" title="${x.id ? esc(RELICS[x.id].desc) : ''}">${x.id ? `<img src="${RELICS[x.id].img}">${RELICS[x.id].name}<span class="price ${x.p > R.gold ? 'no' : ''}">● ${x.p}</span>` : '已售出'}</div>`).join('')}
 ${pots.map((x, i) => `<div class="relicbig" data-pt="${i}" title="${x.id ? esc(POTIONS[x.id].desc) : ''}">${x.id ? `<img src="${POTIONS[x.id].img}">${POTIONS[x.id].name}<span class="price ${x.p > R.gold ? 'no' : ''}">● ${x.p}</span>` : '已售出'}</div>`).join('')}
@@ -850,33 +884,35 @@ function story(img, lines, done, once) {
   let i = 0; const show = () => { view.querySelector('.storybox p').textContent = t(lines[i]); };
   show(); $('#stskip').onclick = done; $('#stnext').onclick = () => { if (++i >= lines.length) done(); else show(); };
 }
-/* 第二章用外部曲子（Pixabay，可商用）：普通/精英战 = Baroque music，Boss 战 = Vampire Boogie */
-const BGM = {}; let bgmNow = null;
+/* 外部曲子（Pixabay 许可，可商用）：标题 / 每章的地图、战斗、Boss 各一首 */
+const BGM = {}; let bgmNow = null, duckT = 0;
+function sting(k, ms) { try { audio[k] && audio[k](); } catch (e) {} duckT = performance.now() + ms; }
 function setMusic(m) {
-  const want = ACT() === 2 && m !== 'menu' ? (m === 'boss' ? 'c2_boss' : 'c2_battle') : null;
+  const a = ACT() === 2 ? 'c2' : 'c1', want = !R && m === 'menu' ? 'title' : m === 'menu' ? a + '_map' : m === 'boss' ? a + '_boss' : m === 'elite' ? a + '_elite' : a + '_battle';
   if (bgmNow && bgmNow !== want) { BGM[bgmNow].pause(); bgmNow = null; }
   if (!want) { audio.setMode(m); return; }
   audio.setMode('silent');
   const el = BGM[want] || (BGM[want] = Object.assign(new Audio(`assets/music/${want}.mp3`), { loop: true }));
-  const V = audio.vol || { m: 1, mu: 1 }; el.volume = audio.muted && audio.muted() ? 0 : Math.min(1, .55 * (V.m ?? 1) * (V.mu ?? 1));
+  const V = audio.vol || { m: 1, mu: 1 }; el.volume = audio.muted ? 0 : Math.min(1, .55 * (V.m ?? 1) * (V.mu ?? 1));
   if (bgmNow !== want) { el.currentTime = 0; el.play().catch(() => {}); bgmNow = want; }
 }
-setInterval(() => { if (bgmNow) { const V = audio.vol || {}; BGM[bgmNow].volume = audio.muted && audio.muted() ? 0 : Math.min(1, .55 * (V.m ?? 1) * (V.mu ?? 1)); } }, 500);
-function act2Choice() {
-  B = null; save(); setMusic('menu');
-  view.innerHTML = `${bgHTML(false, 'story_road')}<div class="panel" style="width:760px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('哥布林大王倒下了')}</h2>
+addEventListener('pointerdown', () => { if (bgmNow && BGM[bgmNow].paused) BGM[bgmNow].play().catch(() => {}); }); /* 浏览器要求先点一下才能播放 */
+setInterval(() => { if (bgmNow) { const V = audio.vol || {}; BGM[bgmNow].volume = audio.muted ? 0 : Math.min(1, .55 * (V.m ?? 1) * (V.mu ?? 1)) * (performance.now() < duckT ? .25 : 1); } }, 150);
+function act2Choice() { sting('act2', 2600);
+  B = null; delete R.pending; delete R.pendEnc; delete R.snap; R.act2wait = 1; save(); setMusic('menu'); const bn = tr((ENEMIES[R.boss] || {}).name || '哥布林大王');
+  view.innerHTML = `${bgHTML(false, 'story_road')}<div class="panel" style="width:760px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('{0}倒下了', bn)}</h2>
    <p>${t('远处山顶的古堡亮起了血红的光。被抓走的村民，就关在那里。')}</p><p style="color:#ffb0b0">${t('进入第二章：血月古堡（回复 50% 生命）')}</p>
    <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="go2">${t('前往古堡')}</button><button class="btn" id="end1">${t('到此为止')}</button></div></div>`;
-  $('#go2').onclick = () => { R.act = 2; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .5)); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = pickOne(ENCOUNTERS2.boss)[0];
+  $('#go2').onclick = () => { delete R.act2wait; R.floor0 = R.floor; R.floor = 0; R.act = 2; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .5)); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = pickOne(ENCOUNTERS2.boss)[0];
     delete R.pending; delete R.pendEnc; delete R.snap; save(); mapScreen(); };
-  $('#end1').onclick = () => { clearSave(); endScreen(true); };
+  $('#end1').onclick = () => { delete R.act2wait; clearSave(); endScreen(true); };
   /* 第二章通关结局：先看结局插图 */
 }
 function endScreen(win) {
   stage.querySelectorAll('.say').forEach(x => x.remove());
   B = null; setMusic('menu');
   const k = R.kills || 0, el = R.elites || 0, hp = Math.max(0, R.hp);
-  const rows = [[`攀登的层数 (${R.floor})`, R.floor * 20], [`击杀的敌人 (${k})`, k * 3], [`击败的精英 (${el})`, el * 25], [`打败 Boss (${R.bosses || 0})`, (R.bosses || 0) * 300], [`通关时剩余生命 (${win ? hp : 0})`, win ? hp * 2 : 0]];
+  const tf = (R.floor0 || 0) + R.floor; const rows = [[`攀登的层数 (${tf})`, tf * 20], [`击杀的敌人 (${k})`, k * 3], [`击败的精英 (${el})`, el * 25], [`打败 Boss (${R.bosses || 0})`, (R.bosses || 0) * 300], [`通关时剩余生命 (${win ? hp : 0})`, win ? hp * 2 : 0]];
   if (R.asc) rows.push([`进阶难度 ${R.asc}（×${(1 + R.asc * .1).toFixed(1)}）`, Math.round(rows.reduce((a, r) => a + r[1], 0) * R.asc * .1)]);
   const total = rows.reduce((a, r) => a + r[1], 0);
   const M = metaGet(), before = M.xp; let news = [];
@@ -897,7 +933,7 @@ function endScreen(win) {
 
 
 // ---------- 卡牌关键词说明框（悬停 / 手机长按；设置里「显示规则提示」可关闭） ----------
-const KWS = { '结界': '叠在自己身上，每回合开始按层数自动获得格挡，整场战斗不消失。', '光弹': '回合结束时自动射出，每发打随机敌人 3 点伤害，然后清零。',
+const KWS = { '结界': '叠在自己身上，每回合开始按层数自动获得格挡，整场战斗不消失。', '光弹': '回合结束时自动射出，每发打随机敌人 4 点伤害，然后清零。',
   '共鸣': '叠在敌人身上，满 10 层自动爆音。', '爆音': '共鸣满 10 层时爆炸，造成 20 点伤害，之后保留 3 层。',
   '中毒': '敌人行动前掉等于层数的血（无视格挡），然后层数 -1。', '炼金瓶': '由其他牌生成的 0 费牌，用一次就没了。' };
 function kwList(c) { const d = CARDS[c.id], s = d.desc(c.up) + (d.potion ? tr('炼金瓶') : '') + (d.type === 'power' ? tr('能力') : ''); const all = Object.assign({}, KW, KWS, { '能力': '打出后整场战斗持续生效。' }); return Object.keys(all).filter(k => s.includes(tr(k))).map(k => [tr(k), tr(all[k])]); }
@@ -937,17 +973,35 @@ async function usePotion(i, t) {
 // ---------- 图鉴 ----------
 const INTENT = { atk: '攻击', def: '防御', buff: '强化', debuff: '削弱', atkdef: '攻击+防御', atkdebuff: '攻击+削弱', atkbuff: '攻击+强化', summon: '召唤', unknown: '未知' };
 const CONCEPTS = [
-  ['基础', [['能量', '出牌要花能量，每回合开始恢复为 3 点。卡牌左上角的数字就是耗能。'], ['生命', '降到 0 就输了。大部分遗物和营火可以回血。'], ['格挡', KW['格挡']], ['抽牌', '每回合开始抽 5 张牌。抽牌堆空了，会把弃牌堆洗回来。'], ['回合', '你出完牌按「结束回合」，敌人按头上的意图行动。']]],
+  ['基础', [['能量', '出牌要花能量，每回合开始恢复为 3 点。卡牌左上角的数字就是耗能。'], ['生命', '降到 0 就输了。大部分秘宝和营火可以回血。'], ['格挡', KW['格挡']], ['抽牌', '每回合开始抽 5 张牌。抽牌堆空了，会把弃牌堆洗回来。'], ['回合', '你出完牌按「结束回合」，敌人按头上的意图行动。']]],
   ['卡牌种类', [['攻击牌', '红色卡框，主要用来造成伤害。'], ['技能牌', '绿色卡框，格挡、抽牌、加状态等。'], ['能力牌', '蓝色卡框，打出后整场战斗持续生效，不进弃牌堆。'], ['消耗', KW['消耗']], ['升级', '在营火可以升级卡牌，数值变强或耗能降低，名字后面多一个 +。'], ['稀有度', '普通 / 罕见 / 稀有，越稀有越强，奖励里越难出现。']]],
   ['状态', ['str', 'dex', 'vuln', 'weak', 'thorns', 'metal', 'regen', 'poison'].map(k => [STATUS[k][0], KW[STATUS[k][0]] || STATUS[k][1]])],
   ['角色机制', [['光弹', KW['光弹']], ['共鸣', KW['共鸣']], ['爆音', KW['爆音']], ['结界', KW['结界']], ['炼金瓶', KW['炼金瓶']], ['药水', KW['药水']], ['中毒', KW['中毒']]]],
-  ['地图', [['战斗', '普通的哥布林小队，赢了给金币和卡牌。'], ['精英', '强敌，赢了额外给一个遗物。'], ['未知', '随机事件，可能是好事也可能有代价。'], ['营火', '休息回血，或者升级一张卡。'], ['商店', '花金币买卡、买遗物、删卡。'], ['宝箱', '直接拿遗物和金币。'], ['Boss', '每章最后的大头目，打赢就通关。']]],
+  ['地图', [['战斗', '普通的哥布林小队，赢了给金币和卡牌。'], ['精英', '强敌，赢了额外给一个秘宝。'], ['未知', '随机事件，可能是好事也可能有代价。'], ['营火', '休息回血，或者升级一张卡。'], ['商店', '花金币买卡、买秘宝、删卡。'], ['宝箱', '直接拿秘宝和金币。'], ['Boss', '每章最后的大头目，打赢就通关。']]],
   ['分数', [['排行榜积分', '层数×20 + 击杀×3 + 精英×25；通关再加 300，以及剩余生命×2。同一个名字只记最高的一局，调试模式不记录。']]],
 ];
+
+/* 图鉴：把怪物招式的效果自动翻成一句话（用假的战场记录它会做什么） */
+function moveText(m, key) {
+  const SELF = { me: 1 }, ALLY = { al: 1 }, ALL = { all: 1 }, out = [];
+  const who = x => x === SELF ? '自身' : x === ALLY ? '一个同伴' : '所有怪物';
+  const SN = k => STATUS[k] ? STATUS[k][0] : k;
+  if (m.d) out.push(m.x > 1 ? t('造成 {0} 点伤害 × {1} 次', m.d, m.x) : t('造成 {0} 点伤害', m.d));
+  const add = x => { if (!out.includes(x)) out.push(x); };
+  const MB = { applyP: (k, n) => add(t(`给你 {0} 层${SN(k)}`, n)), addSt: (x, k, n) => add(k === 'str' ? t(`${who(x)}力量 +{0}`, n) : t(`${who(x)}获得${SN(k)}`)),
+    eBlock: (x, n) => add(x === SELF ? t('获得 {0} 点格挡', n) : t(`给${who(x)} {0} 点格挡`, n)), healE: (x, n) => add(t(`${who(x)}回复 {0} 点生命`, n)),
+    addCard: (id, n) => add(t('塞给你 {0} 张「{1}」', n || 1, tr(CARDS[id] ? CARDS[id].name : id))), summon: k => add(t('召唤「{0}」', tr(ENEMIES[k] ? ENEMIES[k].name : k))),
+    kill: () => add(t('自己也会死掉')), revive: (e, f) => add(t('第一次被打倒时，带着 {0}% 生命复活', Math.round(f * 100))), flee: () => add(t('同伴会逃跑')),
+    allies: () => [ALLY], alive: () => [ALL], say: () => {} };
+  if (m.f) try { m.f(Object.assign(SELF, { st: { fuse: 1 }, turn: 1, hp: 10, max: 20, key, hist: [] }), MB); } catch (e) {}
+  return out.join(t('，'));
+}
 function book(tab = 'card', sub = 'miko', up = 0) {
-  const tabs = [['card', '卡牌'], ['relic', '遗物'], ['pot', '药水'], ['mon', '怪物'], ['rule', '概念说明']];
+  const tabs = [['who', '人物'], ['card', '卡牌'], ['relic', '秘宝'], ['pot', '药水'], ['mon', '怪物'], ['rule', '概念说明']];
   let body = '';
-  if (tab === 'card') {
+  if (tab === 'who') {
+    body = `<div class="bgrid who">${ORDER.map(k => `<div class="bi"><img src="assets/${CHARS[k].dir}/portrait.png"><div><b>${CHARS[k].name}</b><p class="cl">${CHARINFO[k].line}</p><p>${CHARINFO[k].bio}</p><div class="skill"><p><b>${CHARS[k].desc}</b>　${t('上手难度')} ${'★'.repeat(CHARINFO[k].diff)}${'☆'.repeat(3 - CHARINFO[k].diff)}</p><p>${CHARINFO[k].tip}</p>${STARTRELIC[k] ? `<p>${t('初始秘宝')} · <b>${RELICS[STARTRELIC[k]].name}</b>：${RELICS[STARTRELIC[k]].desc}</p>` : ''}</div><div class="skill"><p><b>${t('推荐流派')}</b></p>${CHARINFO[k].builds.map(([n, d, cs]) => `<p><b>${n}</b>：${d}</p><p class="core">${t('核心牌')}：${cs.map(c => `<span class="chip">${tr(c)}</span>`).join('')}</p>`).join('')}</div></div></div>`).join('')}<div class="bi soon"><div class="qm">?</div><div><b>？？？</b><p>那道光里，好像还有别人的影子……</p></div></div></div>`;
+  } else if (tab === 'card') {
     const subs = [...ORDER.map(k => [k, CHARS[k].name]), ['all', '共用']];
     const list = Object.values(CARDS).filter(d => sub === 'all' ? !d.ch : d.ch === sub).sort((a, b) => ('start c u r gen'.indexOf(a.rar)) - ('start c u r gen'.indexOf(b.rar)));
     body = `<div class="bsub">${subs.map(([k, n]) => `<b class="${k === sub ? 'on' : ''}" data-sub="${k}">${n}</b>`).join('')}<label class="ck"><input type="checkbox" id="bup" ${up ? 'checked' : ''}><span>查看升级后</span></label></div>
@@ -959,8 +1013,9 @@ function book(tab = 'card', sub = 'miko', up = 0) {
     body = `<p style="margin:0 0 10px">所有角色通用。最多带 3 瓶，战斗中点左上角的药水使用，不花能量。打完战斗有机会掉落，商店也卖。</p><div class="bgrid">${Object.values(POTIONS).map(x => `<div class="bi"><img src="${x.img}"><div><b>${x.name}</b><small>${x.rar === 'r' ? '稀有' : '普通'}</small><p>${x.desc}</p></div></div>`).join('')}</div>`;
   } else if (tab === 'mon') {
     const hpOf = k => [].concat(ENEMIES[k].hp)[0], elite = new Set([...ENCOUNTERS.elite, ...ENCOUNTERS2.elite].map(g => g.reduce((x, y) => hpOf(y) > hpOf(x) ? y : x))), boss = new Set([...ENCOUNTERS.boss.flat(), ...ENCOUNTERS2.boss.flat()]);
-    body = `<div class="bgrid">${Object.entries(ENEMIES).map(([k, e]) => `<div class="bi mon"><img src="assets/enemies2/${e.art || k}/portrait.png" onerror="this.src='assets/enemies2/${e.art || k}/idle0.png'"${e.tint ? ` style="filter:${e.tint}"` : ''}><div><b>${e.name}</b><small>${boss.has(k) ? 'Boss' : elite.has(k) ? '精英' : '普通'} · 生命 ${Array.isArray(e.hp) ? e.hp.join('～') : e.hp}</small>
-      <p>${Object.values(e.moves).map(m => `<span class="mv">${m.n}</span>${INTENT[m.i] || ''}${m.d ? ' ' + m.d + (m.x > 1 ? '×' + m.x : '') : ''}`).join('　')}</p>${e.lore ? `<p class="lore">${e.lore}</p>` : ''}</div></div>`).join('')}</div>`;
+    const seen = metaGet().seen || {}, ents = Object.entries(ENEMIES), nSeen = ents.filter(([k]) => seen[k] || DEBUG).length;
+    body = `<p style="margin:0 0 10px">${t('已遇到 {0} / {1} 种怪物', nSeen, ents.length)}</p><div class="bgrid">${ents.map(([k, e]) => !(seen[k] || DEBUG) ? `<div class="bi mon unk"><div class="qm">?</div><div><b>？？？</b><small>${t('尚未遇到')}</small></div></div>` : `<div class="bi mon"><img src="assets/enemies2/${e.art || k}/portrait.png" onerror="this.src='assets/enemies2/${e.art || k}/idle0.png'"${e.tint ? ` style="filter:${e.tint}"` : ''}><div><b>${e.name}</b><small>${boss.has(k) ? 'Boss' : elite.has(k) ? '精英' : '普通'} · 生命 ${Array.isArray(e.hp) ? e.hp.join('～') : e.hp}</small>
+      ${Object.values(e.moves).map(m => `<p class="mvl"><span class="mv">${m.n}</span>：${moveText(m, k) || t('无')}</p>`).join('')}${e.onDie ? (x => x ? `<p class="mvl"><span class="mv">${t('死亡时')}</span>：${x}</p>` : '')(moveText({ f: e.onDie }, k)) : ''}${e.lore ? `<p class="lore">${e.lore}</p>` : ''}</div></div>`).join('')}</div>`;
   } else {
     body = `<div class="rules">${CONCEPTS.map(([h, rows]) => `<h3>${h}</h3><table>${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>`).join('')}</div>`;
   }
@@ -978,7 +1033,7 @@ function dbgPanel() {
   if (!DEBUG) return; let d = $('#dbg'); if (!d) { d = document.createElement('div'); d.id = 'dbg'; d.dataset.noi18n = 1; stage.appendChild(d); }
   const btns = [['秒杀敌人', () => { if (B) { B.en.forEach(e => { if (!e.dead) killE(e); }); render(); checkEnd(); } }], ['+100金', () => { R.gold += 100; B ? render() : mapScreen(); }],
     ['满血', () => { R.hp = R.maxHp; B ? render() : mapScreen(); }], ['+3能量', () => { if (B) { B.p.energy += 3; render(); } }], ['抽5张', () => { if (B) { drawCards(5); render(); } }],
-    ['全部遗物', () => { Object.keys(RELICS).forEach(id => { if (!has(id)) gainRelic(id); }); B ? render() : mapScreen(); }],
+    ['全部秘宝', () => { Object.keys(RELICS).forEach(id => { if (!has(id)) gainRelic(id); }); B ? render() : mapScreen(); }],
     ['跳到Boss', () => { R.pos = { r: ROWS - 1, c: R.map[ROWS - 1].findIndex(Boolean) }; R.floor = 15; mapScreen(); }],
     ['商店', () => shopScreen()], ['事件', () => eventScreen()], ['精英', () => battle(pickOne(ENC().elite), 'elite')], ['第二章', () => { R.act = 2; R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = 'vamp_count'; mapScreen(); }], ...[...ENCOUNTERS.boss, ...ENCOUNTERS2.boss].map(([k]) => ['B:' + k.replace('gob_', ''), () => { R.boss = k; battle([k], 'boss'); }])];
   d.innerHTML = ''; btns.forEach(([t, f]) => { const b = document.createElement('button'); b.textContent = t; b.onclick = f; d.appendChild(b); });
