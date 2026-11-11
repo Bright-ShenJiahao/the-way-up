@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112100';
-import { createAudio } from './audio.js?v=live2_11112100';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112100';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112200';
+import { createAudio } from './audio.js?v=live2_11112200';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112200';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -715,7 +715,7 @@ function render() {
   heroAnimCls = '';
   bindTop();
   $('#endturn').onclick = endTurn;
-  bindMech();
+  bindMech(); fixIntents();
   $('#drawp').onclick = () => showPile('抽牌堆（顺序已打乱）', [...B.draw].sort((a, b) => a.id < b.id ? -1 : 1));
   $('#discp').onclick = () => showPile('弃牌堆', B.disc);
   $('#exhp').onclick = () => showPile('消耗', B.exh);
@@ -730,6 +730,10 @@ function mechUI() {
   const btns = as.length ? `<div id="mechb">${as.map(a => `<button class="btn mb${a.on ? ' on' : ''}" data-a="${a.id}" ${a.dis || B.busy ? 'disabled' : ''}>${a.label}</button>`).join('')}</div>` : '';
   const rack = rk ? `<div id="rack"><span class="rl">麻将</span>${rk.tiles.map(x => `<b class="tile">${x}</b>`).join('')}${rk.eighth ? `<b class="tile t8" title="本回合最后摸到的牌，只能用来凑小胡">${rk.eighth}</b>` : ''}<span class="rp">${rk.set ? '本回合已结算' : rk.pats.length ? rk.pats.map(x => `<i>${x}</i>`).join('') : '还没有牌型'}</span><span class="rn">牌池 ${rk.pool}</span></div>` : '';
   return btns + rack;
+}
+function fixIntents() { /* 高个子敌人的意图文字被顶栏挡住时，往下挪到顶栏下面（压在头上也比看不到好） */
+  const tb = $('#top'); if (!tb) return; const lim = tb.getBoundingClientRect().bottom + 4, sc = stage.getBoundingClientRect().width / (stage.offsetWidth || 1) || 1;
+  view.querySelectorAll('.enemy .intent').forEach(el => { el.style.transform = ''; const r = el.getBoundingClientRect(); if (r.height && r.top < lim) { el.style.transform = `translateY(${(lim - r.top) / sc}px)`; el.classList.add('pushed'); } });
 }
 function bindMech() {
   view.querySelectorAll('#mechb [data-a]').forEach(el => el.onclick = async ev => { ev.stopPropagation(); if (!B || B.busy || B.anim || B.over) return; const id = el.dataset.a;
