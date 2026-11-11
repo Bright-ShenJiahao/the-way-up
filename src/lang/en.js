@@ -1101,5 +1101,13 @@ export default {
 "+烧伤": "+Burn",
 "+眩晕×{0}": "+Dazed×{0}",
 "狡诈": "Sly",
-"这张牌被弃掉时，会自动免费打出。": "When this card is discarded, it is played automatically for free."
+"这张牌被弃掉时，会自动免费打出。": "When this card is discarded, it is played automatically for free.",
+"结界给的格挡翻倍（翻倍部分最多 {0}）。": "Block from Wards is doubled (bonus up to {0}).",
+"每回合开始时，随机获得 {0} 个炼金瓶（多张不叠加）。每回合结束时获得 {1} 点格挡（可叠加）。": "At the start of each turn, gain {0} random Flask (multiple copies don't stack). At the end of each turn, gain {1} Block (stacks).",
+"结界层数翻倍（至少 {0}）。消耗。": "Double your Wards (at least {0}). Exhaust.",
+"炼金瓶的伤害翻倍、中毒 ×{0}": "Flask damage is doubled, Poison ×{0}",
+"{0}倒下了": "{0} has fallen",
+"{0}倒下了。古堡的血月熄灭，天终于亮了。被关押的村民们重获自由。": "{0} has fallen. The blood moon over the castle fades, and dawn finally breaks. The imprisoned villagers are free again.",
+"战意：敌人每两回合力量 +1": "Fury: enemies gain 1 Strength every two turns",
+"血月当空：不死系敌人力量 +1": "Blood Moon: undead enemies gain 1 Strength"
 };
