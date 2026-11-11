@@ -238,7 +238,8 @@ const dtxt = id => { try { return CARDS[id].desc(0); } catch (e) { return ''; } 
 function archOf() { const A = ARCH[R.char] || []; const n = A.map(re => R.deck.filter(c => re.test(dtxt(c.id))).length); let b = 0; n.forEach((x, i) => { if (x > n[b]) b = i; }); return { A, b, n }; }
 function smartScore(id) { const d = CARDS[id], t = dtxt(id), { A, b, n } = archOf(); let v = TIER[d.rar] + (d.ch ? .5 : 0);
   if (A[b] && n[b] >= 2 && A[b].test(t)) v += 2; else if (A.some(re => re.test(t))) v += .8;
-  const blocks = R.deck.filter(c => isBlock(CARDS[c.id])).length; if (isBlock(d) && blocks < R.deck.length * .35) v += 1;
+  const blocks = R.deck.filter(c => isBlock(CARDS[c.id])).length, atks = R.deck.filter(c => CARDS[c.id].type === 'atk').length;
+  if (isBlock(d) && blocks < R.deck.length * .3) v += 1; if (d.type === 'atk' && atks < R.deck.length * .4) v += 1.2; if (d.type !== 'atk' && !isBlock(d) && atks < R.deck.length * .35) v -= .8;
   if (d.type === 'power' && R.deck.filter(c => CARDS[c.id].type === 'power').length >= 3) v -= 1.5;
   v -= (R.picks[id] || 0) * (d.type === 'power' ? 3 : 1.2); return v; }
 function reward(kind) { const cs = rollCards(3, kind === 'elite' ? .07 : 0);

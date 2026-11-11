@@ -1894,5 +1894,6 @@ export default {
 "龙怒": "Dragon Rage",
 "龙牙": "Dragon Fang",
 "龙鳞": "Dragon Scales",
-"选 {0} 张手牌弃掉": "Choose {0} card in hand to discard"
+"选 {0} 张手牌弃掉": "Choose {0} card in hand to discard",
+"不出猎时每回合结束给标记目标 {0} 层血痕；出猎时每只造成 {1} 点伤害；攒满 {2} 只时回合结束自动出猎": "When not hunting, gives the Mark {0} Blood Mark at end of turn. When hunting, each deals {1} damage. At {2} Bats, they hunt automatically at end of turn"
 };

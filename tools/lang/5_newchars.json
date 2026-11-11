@@ -3178,5 +3178,9 @@
  "选 {0} 张手牌弃掉": [
   "Choose {0} card in hand to discard",
   "捨てる手札を{0}枚選ぶ"
+ ],
+ "不出猎时每回合结束给标记目标 {0} 层血痕；出猎时每只造成 {1} 点伤害；攒满 {2} 只时回合结束自动出猎": [
+  "When not hunting, gives the Mark {0} Blood Mark at end of turn. When hunting, each deals {1} damage. At {2} Bats, they hunt automatically at end of turn",
+  "狩りをしない間は毎ターン終了時に標的へ血痕{0}。狩りでは1匹{1}ダメージ。{2}匹たまるとターン終了時に自動で狩る"
  ]
 }
