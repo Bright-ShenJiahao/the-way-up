@@ -1,6 +1,6 @@
 // 平衡测试：机器人用每个角色跑很多局，统计胜率和死在哪里。只在 GitHub Actions 上跑。
 // 规则照抄 src/game.js 的战斗逻辑（简化了地图：固定 15 层路线 + Boss）
-import { MECH, NEWKEYW, STARTRELIC, RULES, isFury, CARDS, STARTERS, RELICS, ENEMIES, ENCOUNTERS, ENCOUNTERS2 } from '../src/data.js';
+import { MECH, NEWKEYW, OLDKEYW, STARTRELIC, RULES, isFury, CARDS, STARTERS, RELICS, ENEMIES, ENCOUNTERS, ENCOUNTERS2 } from '../src/data.js';
 const N = +process.argv[2] || 1000, LOCKLV = process.argv[3] == null ? 4 : +process.argv[3], ONLY = process.argv[4], ASC = +(process.argv[5] || 0), SEED0 = +(process.env.SEED || 1);
 /* 固定随机种子：第 i 局用种子 SEED0+i，失败的局可以单独重放（SEED=… node tools/sim.mjs 1 4 miko） */
 let seedS = 1; const rng = () => { seedS |= 0; seedS = seedS + 0x6D2B79F5 | 0; let t = Math.imul(seedS ^ seedS >>> 15, 1 | seedS); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -9,7 +9,7 @@ const A_ = n => ASC >= n;
 const SHA = (process.env.GITHUB_SHA || 'local').slice(0, 7);
 let SMART = false; /* false=新手机器人；true=熟练机器人（会用药水、按流派选牌） */
 const POTS = ['heal', 'str', 'dex', 'block', 'energy', 'fire', 'bomb', 'weak', 'draw', 'fairy'];
-const KEYW = { miko: /结界/, hero: /光弹/, witch: /中毒|炼金瓶/, heroine: /共鸣|爆音/, ...NEWKEYW };
+const KEYW = { ...OLDKEYW, ...NEWKEYW };
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const pickOne = a => a[Math.floor(Math.random() * a.length)];
 const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -42,11 +42,12 @@ const G = {
   has: id => has(id), handSize() { return B.hand.length; }, potsInHand() { return B.hand.filter(c => CARDS[c.id].potion).length; },
   kekSpend(n) { if ((B.p.st.kek || 0) < n) return false; addSt(B.p, 'kek', -n); return true; },
   execute(t) { if (t && !t.dead) { t.hp = 0; killE(t); } },
-  discardPick(uid) { const i = B.hand.findIndex(c => c.uid === uid); if (i < 0) return; const c = B.hand.splice(i, 1)[0], d = CARDS[c.id]; B.p.disc = 1;
+  discardPick(uid) { const i = B.hand.findIndex(c => c.uid === uid); if (i < 0) return; const c = B.hand.splice(i, 1)[0], d = CARDS[c.id]; G.discNote(1);
     if (d.sly) { const a = alive(); B.p.fh = d.type === 'atk' ? 1 : 0; try { d.play(G, c.up, d.tgt === 'one' ? a[Math.floor(Math.random() * a.length)] : null, c); } catch (e) {} postPlay(d); (d.exhaust ? B.exh : B.disc).push(c); } else B.disc.push(c); },
-  discard(n) { if (n > 0 && B.hand.length) B.p.disc = 1; const pool = [...B.hand]; for (let k = 0; k < n && pool.length; k++) { const c = pool.splice(Math.floor(Math.random() * pool.length), 1)[0], d = CARDS[c.id]; const hi = B.hand.indexOf(c); if (hi < 0) { k--; continue; } B.hand.splice(hi, 1);
-    if (d.sly) { const a = alive(); B.p.fh = d.type === 'atk' ? 1 : 0; try { d.play(G, c.up, d.tgt === 'one' ? a[Math.floor(Math.random() * a.length)] : null, c); } catch (e) {} postPlay(d); (d.exhaust ? B.exh : B.disc).push(c); } else B.disc.push(c); } },
-  get p() { return B.p; }, get R() { return R; }, x: 0, alive: () => alive(),
+  discNote(k) { if (k <= 0) return; B.p.disc = 1; B.p.discN = (B.p.discN || 0) + k; if (B.p.st.loop && !B.p.loopT) { B.p.loopT = 1; G.draw(B.p.st.loop); } },
+  discard(n) { const pool = [...B.hand]; let cnt = 0; for (let k = 0; k < n && pool.length; k++) { const c = pool.splice(Math.floor(Math.random() * pool.length), 1)[0], d = CARDS[c.id]; const hi = B.hand.indexOf(c); if (hi < 0) { k--; continue; } B.hand.splice(hi, 1); cnt++;
+    if (d.sly) { const a = alive(); B.p.fh = d.type === 'atk' ? 1 : 0; try { d.play(G, c.up, d.tgt === 'one' ? a[Math.floor(Math.random() * a.length)] : null, c); } catch (e) {} postPlay(d); (d.exhaust ? B.exh : B.disc).push(c); } else B.disc.push(c); } G.discNote(cnt); },
+  get p() { return B.p; }, get hand() { return B.hand; }, get R() { return R; }, x: 0, alive: () => alive(),
   addHand(id, up = 0) { if (B.hand.length >= 10) return false; B.hand.push(mk(id, up)); return true; }, note() {}, hitE(e, n) { if (e && !e.dead) hurt(e, n, null, false); },
   fhb() { if (!B.p.fh) return 0; B.p.fh = 0; return MECH.firstHit(G); },
   attack(t, base, times = 1, m = 1) { let s = 0; const fb = G.fhb(); for (let i = 0; i < times; i++) { if (!t || t.dead) break; s += hurt(t, atkVal(B.p, t, base + (i ? 0 : fb), m), B.p); } return s; },
@@ -86,7 +87,7 @@ const cost0 = c => { const d = CARDS[c.id]; if (c.free) return 0; if (c.rc != nu
 const cost = c => { const k = cost0(c); return B && typeof k === 'number' ? Math.max(0, k + MECH.costMod(G, CARDS[c.id])) : k; };
 function startTurn(first) {
   B.turn++; B.forceEnd = 0; [...B.draw, ...B.disc, ...B.hand].forEach(c => delete c.rc); B.p.block = 0;
-  B.p.energy = 3 + (has('crown') ? 1 : 0) + (first && has('hourglass') ? 1 : 0); B.p.noDraw = 0; B.p.disc = 0;
+  B.p.energy = 3 + (has('crown') ? 1 : 0) + (first && has('hourglass') ? 1 : 0); B.p.noDraw = 0; B.p.disc = 0; B.p.discN = 0; B.p.loopT = 0;
   B.p.pot = 0; if (first && has('cauldron')) G.potion(1); if (B.p.st.satchel && B.turn % 2 === 1) G.potion(B.p.st.satchel);
   if (B.p.st.plague) alive().forEach(e => G.poison(e, B.p.st.plague));
   if (B.p.st.kagura) G.kek(B.p.st.kagura); if (B.p.st.kek) G.block(B.p.st.shinboku ? B.p.st.kek + Math.min(B.p.st.kek, 8) : B.p.st.kek, true);
@@ -171,7 +172,7 @@ function botTurn() { usePots(); if (!alive().length) return; MECH.bot(G, incomin
 }
 function endTurn() {
   if (B.p.st.ammo) G.volley(true); if (!alive().length) return;
-  for (const c of B.hand) if (CARDS[c.id].burn) { R.hp -= CARDS[c.id].burn; pDeath(); } if (R.hp <= 0) return;
+  for (const c of B.hand) { if (CARDS[c.id].burn) { R.hp -= CARDS[c.id].burn; pDeath(); } if (CARDS[c.id].endWeak) addSt(B.p, 'weak', 1); } if (R.hp <= 0) return;
   MECH.turnEnd(G); if (!alive().length) return;
   for (const c of B.hand) (CARDS[c.id].ethereal ? B.exh : B.disc).push(c); B.hand = [];
   if (B.p.st.metal) G.block(B.p.st.metal, true); if (B.p.st.regen && (B.p.regenN = (B.p.regenN || 0) + 1) <= 3) heal(B.p.st.regen);
@@ -214,7 +215,7 @@ function battle(keys, kind) {
 }
 function revive() { pDeath(); return R.hp > 0; }
 function dropPot(kind) { if (Math.random() < (kind === 'elite' ? .6 : .4) && R.pots.length < 3) R.pots.push(pickOne(POTS)); }
-function rollCards(n, bonus = 0) { const out = []; while (out.length < n) { const x = Math.random(), rar = x < .06 + bonus ? 'r' : x < .4 + bonus ? 'u' : 'c'; const pool = Object.values(CARDS).filter(d => d.rar === rar && mine(d) && !out.includes(d.id)); if (pool.length) out.push(pickOne(pool).id); } return out; }
+function rollCards(n, bonus = 0) { const out = []; while (out.length < n) { const x = Math.random(), rar = x < .04 + bonus ? 'r' : x < .36 + bonus ? 'u' : 'c'; const pool = Object.values(CARDS).filter(d => d.rar === rar && mine(d) && !out.includes(d.id)); if (pool.length) out.push(pickOne(pool).id); } return out; }
 const TIER = { r: 3, u: 2, c: 1 };
 function reward(kind) { const cs = rollCards(3, kind === 'elite' ? .07 : 0);
   if (SMART) { const kw = KEYW[R.char], sc = id => { const d = CARDS[id]; let v = TIER[d.rar] + (d.ch ? .5 : 0); try { if (kw.test(d.desc(0))) v += 1.5; } catch (e) {} v -= (R.picks[id] || 0) * 1.2; return v; };
@@ -227,7 +228,7 @@ function shop() { if (!SMART) { const i = R.deck.findIndex(c => c.id === 'defend
   if (R.gold >= 70) { const cs = rollCards(3); const d = cs.map(id => CARDS[id]).sort((a, b) => TIER[b.rar] - TIER[a.rar])[0]; if (TIER[d.rar] >= 2) { R.deck.push(mk(d.id)); R.gold -= d.rar === 'r' ? 150 : 70; } }
   if (R.gold >= 55 && R.pots.length < 3) { R.pots.push(pickOne(POTS)); R.gold -= 55; }
   if (R.gold >= 150) { relic(); R.gold -= 150; } }
-function event() { const x = Math.random(); if (x < .3) heal(10); else if (x < .5) { R.gold += 60; } else if (x < .7) { R.hp = Math.max(1, R.hp - 8); relic(); } else if (x < .85) { const c = R.deck.find(c => !c.up); if (c) c.up = 1; } else { const i = R.deck.findIndex(c => CARDS[c.id].rar === 'start'); if (i >= 0) R.deck.splice(i, 1); } }
+function event() { const x = Math.random(); if (x < .3) heal(10); else if (x < .5) { R.gold += 60; } else if (x < .7) { if (Math.random() < .5) { R.hp = Math.max(1, R.hp - 8); } else R.deck.push(mk(Math.random() < .5 ? 'regret' : 'doubt')); relic(); } else if (x < .85) { const c = R.deck.find(c => !c.up); if (c) c.up = 1; } else { const i = R.deck.findIndex(c => CARDS[c.id].rar === 'start'); if (i >= 0) R.deck.splice(i, 1); } }
 function run(char) {
   TIMEOUT = 0; uid = 1; R = { char, hp: A_(4) ? 72 : 80, maxHp: A_(4) ? 72 : 80, deck: STARTERS[char].map(id => mk(id)), relics: [STARTRELIC[char]], kills: 0, picks: {}, floor: 0, pots: [], act: 1, gold: 99 };
   for (const [act, EN] of [[1, ENCOUNTERS], [2, ENCOUNTERS2]]) {

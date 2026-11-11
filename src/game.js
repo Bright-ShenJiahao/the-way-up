@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112600';
-import { createAudio } from './audio.js?v=live2_11112600';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112600';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112601';
+import { createAudio } from './audio.js?v=live2_11112601';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112601';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -156,7 +156,7 @@ function pickDeck(mode, done) {
 function rollCards(n, rareBonus = 0, onlyRare = false) {
   const out = [], L = lockedSet(), ok = d => mine(d) && !L.has(d.id) && !out.includes(d.id) && d.rar !== 'start' && d.rar !== 'gen';
   for (let tries = 0; out.length < n && tries < 60; tries++) {
-    const x = Math.random(); const rar = onlyRare ? 'r' : x < .06 + rareBonus ? 'r' : x < .4 + rareBonus ? 'u' : 'c';
+    const x = Math.random(); const rar = onlyRare ? 'r' : x < .04 + rareBonus ? 'r' : x < .36 + rareBonus ? 'u' : 'c'; /* 稀有 4%、罕见 32%、普通 64% */
     let pool = Object.values(CARDS).filter(d => d.rar === rar && ok(d));
     if (!pool.length && onlyRare) pool = Object.values(CARDS).filter(d => d.rar === 'u' && ok(d)); /* 稀有牌不够时用罕见牌补 */
     if (!pool.length) pool = Object.values(CARDS).filter(ok);
@@ -447,11 +447,12 @@ const G = {
   has: id => has(id), handSize() { return B.hand.length; }, potsInHand() { return B.hand.filter(c => CARDS[c.id].potion).length; },
   kekSpend(n) { if ((B.p.st.kek || 0) < n) return false; addSt(B.p, 'kek', -n); return true; },
   execute(t) { if (t && !t.dead) { t.hp = 0; killE(t); } },
-  discardPick(uid) { const i = B.hand.findIndex(c => c.uid === uid); if (i < 0) return; const c = B.hand.splice(i, 1)[0], d = CARDS[c.id]; B.p.disc = 1;
+  discardPick(uid) { const i = B.hand.findIndex(c => c.uid === uid); if (i < 0) return; const c = B.hand.splice(i, 1)[0], d = CARDS[c.id]; G.discNote(1);
     if (d.sly) { const a = alive(); B.p.fh = d.type === 'atk' ? 1 : 0; try { d.play(G, c.up, d.tgt === 'one' ? a[Math.floor(Math.random() * a.length)] : null, c); } catch (e) {} postPlay(d); (d.exhaust ? B.exh : B.disc).push(c); } else B.disc.push(c); },
-  discard(n) { if (n > 0 && B.hand.length) B.p.disc = 1; const pool = [...B.hand]; for (let k = 0; k < n && pool.length; k++) { const c = pool.splice(Math.floor(Math.random() * pool.length), 1)[0], d = CARDS[c.id]; const hi = B.hand.indexOf(c); if (hi < 0) { k--; continue; } B.hand.splice(hi, 1);
-    if (d.sly) { const a = alive(); B.p.fh = d.type === 'atk' ? 1 : 0; try { d.play(G, c.up, d.tgt === 'one' ? a[Math.floor(Math.random() * a.length)] : null, c); } catch (e) {} postPlay(d); (d.exhaust ? B.exh : B.disc).push(c); } else B.disc.push(c); } },
-  get p() { return B.p; }, get R() { return R; }, x: 0, alive: () => alive(),
+  discNote(k) { if (k <= 0) return; B.p.disc = 1; B.p.discN = (B.p.discN || 0) + k; if (B.p.st.loop && !B.p.loopT) { B.p.loopT = 1; G.draw(B.p.st.loop); } },
+  discard(n) { const pool = [...B.hand]; let cnt = 0; for (let k = 0; k < n && pool.length; k++) { const c = pool.splice(Math.floor(Math.random() * pool.length), 1)[0], d = CARDS[c.id]; const hi = B.hand.indexOf(c); if (hi < 0) { k--; continue; } B.hand.splice(hi, 1); cnt++;
+    if (d.sly) { const a = alive(); B.p.fh = d.type === 'atk' ? 1 : 0; try { d.play(G, c.up, d.tgt === 'one' ? a[Math.floor(Math.random() * a.length)] : null, c); } catch (e) {} postPlay(d); (d.exhaust ? B.exh : B.disc).push(c); } else B.disc.push(c); } G.discNote(cnt); },
+  get p() { return B.p; }, get hand() { return B.hand; }, get R() { return R; }, x: 0, alive: () => alive(),
   addHand(id, up = 0) { if (B.hand.length >= 10) return false; B.hand.push(mkCard(id, up)); return true; },
   note(t) { fx('hero', t, 'st'); }, hitE(e, n) { if (e && !e.dead) hurt(e, n, null, false); },
   fhb() { if (!B.p.fh) return 0; B.p.fh = 0; return MECH.firstHit(G); }, /* 攻击牌第一击的角色加成（飞剑、破岳、霜龙） */
@@ -519,7 +520,7 @@ function startTurn(first) {
   B.turn++; B.hitSet = new Set(); B.forceEnd = 0; [...B.draw, ...B.disc, ...B.hand].forEach(c => delete c.rc);
   B.p.block = 0;
   B.p.energy = 3 + (has('crown') ? 1 : 0) + (first && has('hourglass') ? 1 : 0);
-  B.p.noDraw = 0; B.p.disc = 0;
+  B.p.noDraw = 0; B.p.disc = 0; B.p.discN = 0; B.p.loopT = 0;
   B.p.pot = 0;
   if (first && has('cauldron')) G.potion(1);
   if (B.p.st.satchel && B.turn % 2 === 1) G.potion(B.p.st.satchel);
@@ -609,7 +610,7 @@ function heroAnim(c) { heroAnimCls = c; }
 async function endTurn() {
   if (!B || B.busy || B.over || B.anim) return; const b0 = B; B.busy = true; B.sel = -1; B.hitSet = new Set();
   if (B.p.st.ammo) { G.volley(true); render(); await sleep(350); if (B !== b0 || await checkEnd()) return; }
-  for (const c of B.hand) if (CARDS[c.id].burn) G.loseHp(CARDS[c.id].burn); /* 烧伤 */
+  for (const c of B.hand) { if (CARDS[c.id].burn) G.loseHp(CARDS[c.id].burn); if (CARDS[c.id].endWeak) addSt(B.p, 'weak', 1); } /* 烧伤、诅咒 */
   pDeath(); if (R.hp <= 0) { B.busy = false; return checkEnd(); }
   MECH.turnEnd(G); if (!alive().length) { render(); await sleep(300); B.busy = false; return checkEnd(); }
   for (const c of B.hand) (CARDS[c.id].ethereal ? B.exh : B.disc).push(c); B.hand = [];
@@ -1092,7 +1093,7 @@ function dbgPanel() {
     ['满血', () => { R.hp = R.maxHp; B ? render() : mapScreen(); }], ['+3能量', () => { if (B) { B.p.energy += 3; render(); } }], ['抽5张', () => { if (B) { drawCards(5); render(); } }],
     ['全部秘宝', () => { Object.keys(RELICS).forEach(id => { if (!has(id)) gainRelic(id); }); B ? render() : mapScreen(); }],
     ['跳到Boss', () => { R.pos = { r: ROWS - 1, c: R.map[ROWS - 1].findIndex(Boolean) }; R.floor = 15; mapScreen(); }],
-    ['商店', () => shopScreen()], ['事件', () => eventScreen()], ['精英', () => battle(pickOne(ENC().elite), 'elite')], ['第二章', () => { R.act = 2; R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = 'vamp_count'; mapScreen(); }], ...[...ENCOUNTERS.boss, ...ENCOUNTERS2.boss].map(([k]) => ['B:' + k.replace('gob_', ''), () => { R.boss = k; battle([k], 'boss'); }])];
+    ['全卡牌', () => { R.deck = Object.keys(CARDS).filter(k => CARDS[k].ch === R.char && CARDS[k].rar !== 'gen').map((id, i) => mkCard(id, i % 2 ? 1 : 0)); B ? render() : mapScreen(); }], ['商店', () => shopScreen()], ['事件', () => eventScreen()], ['精英', () => battle(pickOne(ENC().elite), 'elite')], ['第二章', () => { R.act = 2; R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = 'vamp_count'; mapScreen(); }], ...[...ENCOUNTERS.boss, ...ENCOUNTERS2.boss].map(([k]) => ['B:' + k.replace('gob_', ''), () => { R.boss = k; battle([k], 'boss'); }])];
   d.innerHTML = ''; btns.forEach(([t, f]) => { const b = document.createElement('button'); b.textContent = t; b.onclick = f; d.appendChild(b); });
 }
 

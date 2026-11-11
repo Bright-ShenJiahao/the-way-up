@@ -1,6 +1,6 @@
-import { tr } from './i18n.js?v=live2_11112600';
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, MECH } from './chars.js?v=live2_11112600';
-export { MECH, NEWKEYW };
+import { tr } from './i18n.js?v=live2_11112601';
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11112601';
+export { MECH, NEWKEYW, OLDKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
 const I = n => n.includes('/') ? `assets/${n}.png` : `assets/icons/${n}.png`;
@@ -112,7 +112,7 @@ export const CARDS = {
   // ======== 魔女 · 药瓶 / 毒 ========
   // 药瓶牌（rar:'gen' 不进奖励池，只由其他牌生成）
   p_fire: { ch: 'witch', potion: 1, name: '火焰瓶', type: 'atk', rar: 'gen', cost: [0, 0], icon: 'ic_flame', tgt: 'all', exhaust: 1,
-    desc: () => `对所有敌人造成 5 点伤害。消耗。`, play: g => g.attackAll(5 * g.pm()) },
+    desc: () => `对所有敌人造成 5 点伤害。消耗。`, play: g => g.attackAll((5 + (g.p.st.inferno || 0)) * g.pm()) },
   p_frost: { ch: 'witch', potion: 1, name: '冰霜瓶', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'ic_water', tgt: 'one', exhaust: 1,
     desc: () => `给予 1 层虚弱和 1 层易伤。消耗。`, play: (g, u, t) => { g.apply(t, 'weak', 1); g.apply(t, 'vuln', 1); } },
   p_heal: { ch: 'witch', potion: 1, name: '治疗瓶', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'pot', tgt: 'self', exhaust: 1,
@@ -211,6 +211,10 @@ export const CARDS = {
     desc: () => `不能打出。`, play: () => {} },
   burn: { name: '烧伤', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'ic_flame', tgt: 'self', unplay: 1, burn: 2,
     desc: () => `不能打出。回合结束时若在手中，失去 2 点生命。`, play: () => {} },
+  regret: { name: '悔意', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'b_curse', tgt: 'self', unplay: 1, burn: 1, curse: 1,
+    desc: () => `诅咒。不能打出。回合结束时若在手中，失去 1 点生命。`, play: () => {} },
+  doubt: { name: '疑心', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'm_anger', tgt: 'self', unplay: 1, endWeak: 1, curse: 1,
+    desc: () => `诅咒。不能打出。回合结束时若在手中，获得 1 层虚弱。`, play: () => {} },
   rot: { name: '腐烂', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'b_curse', tgt: 'self', unplay: 1, burn: 1,
     desc: () => `不能打出。回合结束时若在手中，失去 1 点生命。`, play: () => {} },
   /* ===== 第二章专属卡牌（只在血月古堡出现） ===== */
@@ -249,7 +253,7 @@ export const CARDS = {
   regen: { name: '生命之泉', type: 'power', rar: 'r', cost: [1, 1], icon: 'b_regen', tgt: 'self',
     desc: u => `每回合结束时，回复 ${v(u, 3, 4)} 点生命（每场最多 3 次）。`, play: (g, u) => g.self('regen', v(u, 3, 4)) },
 };
-Object.assign(CARDS, NEWCARDS);
+Object.assign(CARDS, NEWCARDS); bindCards(CARDS);
 for (const [k, c] of Object.entries(CARDS)) { c.id = k; if (c.ch && !c.noart) c.icon = 'icons2/' + k; c.img = I(c.icon); }
 export const STARTERS = {
   hero: ['shoot', 'shoot', 'shoot', 'shoot', 'defend', 'defend', 'defend', 'defend', 'load', 'charge'],
@@ -354,8 +358,8 @@ export const ENEMIES = {
       guard: { n: '劈挡', i: 'atkdef', d: 7, f: (e, B) => B.eBlock(e, 5) } },
     ai: e => e.turn === 0 ? 'slash' : pick(e, ['slash', 'hone', 'guard']) },
   gob_archer: { name: '哥布林弓手', hp: [18, 22], sc: 2.6, hd: 200,
-    moves: { shoot: { n: '射击', i: 'atk', d: 8 }, aim: { n: '瞄准', i: 'buff', f: (e, B) => B.addSt(e, 'str', 2) } },
-    ai: e => pick(e, ['shoot', 'shoot', 'aim']) },
+    moves: { shoot: { n: '射击', i: 'atk', d: 8 }, barb: { n: '倒刺箭', i: 'atkdebuff', d: 5, f: (e, B) => B.addCard('wound', 1) }, aim: { n: '瞄准', i: 'buff', f: (e, B) => B.addSt(e, 'str', 2) } },
+    ai: e => pick(e, ['shoot', 'barb', 'aim']) },
   gob_shield: { name: '哥布林盾兵', hp: [30, 34], sc: 2.4, hd: 205,
     moves: { cover: { n: '举盾', i: 'def', f: (e, B) => { const al = B.allies(e); B.eBlock(al.length ? al[Math.floor(Math.random() * al.length)] : e, 7); } },
       bash: { n: '盾撞', i: 'atk', d: 7 } },
@@ -368,7 +372,7 @@ export const ENEMIES = {
     ai: e => e.st.fuse <= 1 ? 'boom' : 'toss', after: e => { e.st.fuse--; } },
   gob_mage: { name: '哥布林法师', hp: [24, 28], sc: 2.4, hd: 285,
     lore: '血量低于一半时，会喝下随身的药水，回血并变强（只喝一次）。',
-    moves: { fire: { n: '火球', i: 'atk', d: 9 }, hex: { n: '邪火', i: 'atkdebuff', d: 4, f: (e, B) => B.applyP('vuln', 2) },
+    moves: { fire: { n: '火球', i: 'atk', d: 9 }, hex: { n: '邪火', i: 'atkdebuff', d: 4, f: (e, B) => { B.applyP('vuln', 2); B.addCard('burn', 1); } },
       drink: { n: '喝药水', i: 'buff', f: (e, B) => { e.drank = 1; B.healE(e, 12); B.addSt(e, 'str', 2); } } },
     ai: e => !e.drank && e.hp < e.max / 2 ? 'drink' : pick(e, ['fire', 'fire', 'hex']) },
   gob_thrower: { name: '哥布林投石手', hp: [24, 28], sc: 2.4, hd: 248,
@@ -403,7 +407,7 @@ export const ENEMIES = {
     ai: e => cycle(e, ['bite', 'claw', 'claw']) },
   ghost: { name: '幽灵', undead: 1, hp: [24, 28], sc: 2.4, hd: 255, lore: '徘徊在古堡里的亡魂，虚化时很难伤到它。撑过 5 回合，它就会自己飘走。',
     onTurn: (e, B) => { if (e.turn >= 5) { B.flee(e); B.say('（幽灵叹了口气，飘走了）'); return 'gone'; } },
-    moves: { phase: { n: '虚化', i: 'buff', f: (e, B) => B.addSt(e, 'intang', 1) }, wail: { n: '哀嚎', i: 'atkdebuff', d: 8, f: (e, B) => B.applyP('weak', 1) } },
+    moves: { phase: { n: '虚化', i: 'buff', f: (e, B) => B.addSt(e, 'intang', 1) }, wail: { n: '哀嚎', i: 'atkdebuff', d: 8, f: (e, B) => { B.applyP('weak', 1); B.addCard('daze', 1); } } },
     ai: e => cycle(e, ['phase', 'wail']) },
   gargoyle: { name: '石像鬼', hp: [34, 38], sc: 2.4, hd: 250, lore: '守在古堡屋檐上的石头恶魔。石化时格挡很厚，还带 3 点反伤，下一回合就会扑下来。',
     moves: { stone: { n: '石化', i: 'def', f: (e, B) => { B.eBlock(e, 14); B.addSt(e, 'thorns', 3); } }, dive: { n: '俯冲', i: 'atk', d: 16 } },
@@ -426,7 +430,7 @@ export const ENEMIES = {
     ai: e => cycle(e, ['slam', 'spit']) },
   vamp_bride: { name: '吸血鬼新娘', undead: 1, vamp: 1, hp: [70, 74], sc: 2.5, hd: 290, elite: 1, lore: '伯爵的新娘。会飞，受到的伤害减半；一回合打中她 3 次，她就会坠落一回合。',
     init: e => { e.st.fly = 3; }, onTurn: e => { if (e.grounded) { e.grounded = 0; e.st.fly = 3; return 'skip'; } e.st.fly = 3; },
-    moves: { kiss: { n: '血之吻', i: 'atk', d: 11, f: (e, B) => B.healE(e, 8) }, charm: { n: '魅惑', i: 'debuff', f: (e, B) => { B.applyP('weak', 2); B.applyP('vuln', 1); } }, mist: { n: '血雾', i: 'atk', d: 4, x: 3 } },
+    moves: { kiss: { n: '血之吻', i: 'atk', d: 11, f: (e, B) => B.healE(e, 8) }, charm: { n: '魅惑', i: 'debuff', f: (e, B) => { B.applyP('weak', 2); B.applyP('vuln', 1); B.addCard('wound', 1); } }, mist: { n: '血雾', i: 'atk', d: 4, x: 3 } },
     ai: e => cycle(e, ['charm', 'kiss', 'mist', 'kiss']) },
   necromancer: { name: '亡灵法师', undead: 1, hp: [62, 66], sc: 2.5, hd: 300, elite: 1, lore: '替伯爵唤醒亡者的老巫师。不先打断他，骷髅就杀不完。他的诅咒会让你下回合的手牌费用变得混乱。',
     moves: { raise: { n: '唤醒亡者', i: 'summon', f: (e, B) => { if (B.alive().length < 4) B.summon('skeleton', 16); } }, bolt: { n: '鬼火', i: 'atk', d: 12 }, curse: { n: '腐朽诅咒', i: 'debuff', f: (e, B) => { B.applyP('weak', 2); B.applyP('confuse', 1); B.addCard('rot', 1); } } },
@@ -543,12 +547,13 @@ export const EVENTS = [
     opts: [
       { t: '重新祭拜：最大生命 +4（千早改为最大生命 +8 并回满生命）', go: (R, A) => { if (R.char === 'miko') { A.maxHp(8); A.heal(999); return '铃声响起，熟悉的神力流遍全身。'; } A.maxHp(4); return '你学着巫女的样子拜了拜，心里踏实了一些。'; } },
       { t: '摇铃祈福：回复 15 生命', go: (R, A) => { A.heal(15); return '清脆的铃声让人安心。'; } },
-      { t: '捡走香火钱：获得 35 金币，失去 4 生命', go: (R, A) => { A.gold(35); A.hurt(4); return '一阵阴风刮过，你打了个寒战。'; } }] },
+      { t: '捡走香火钱：获得 60 金币，牌组加入一张「疑心」', go: (R, A) => { A.gold(60); A.curse('doubt'); return '一阵阴风刮过，你总觉得有谁在看着你。'; } }] },
   { title: '魔女的旧实验室', pic: 'lab', img: 'pot', text: '一间被藤蔓吞没的小屋，桌上堆满落灰的瓶瓶罐罐。',
     opts: [
       { t: '翻找笔记：选一张牌（莉泽改为稀有牌）', go: (R, A) => { if (R.char === 'witch') { A.rareCard(); return '原来是师父留下的配方！'; } A.card(); return '笔记上的字一半看不懂，但有几页还用得上。'; } },
       { t: '喝下可疑的药：50% 最大生命 +6，50% 失去 8 生命', go: (R, A) => { if (Math.random() < .5) { A.maxHp(6); return '浑身发热……你感觉更强壮了。'; } A.hurt(8); return '一阵剧痛，你吐了个昏天黑地。'; } },
-      { t: '带走两瓶药水', go: (R, A) => { const a = A.potion(), b = A.potion(); return `你收起了「${a}」和「${b}」。`; } }] },
+      { t: '带走两瓶药水', go: (R, A) => { const a = A.potion(), b = A.potion(); return `你收起了「${a}」和「${b}」。`; } },
+      { t: '撬开上锁的柜子：获得一个随机秘宝，牌组加入一张「悔意」', go: (R, A) => { const n = A.relic(); A.curse('regret'); return `你找到了「${n}」……可柜门上刻着一行诅咒。`; } }] },
   { title: '掉线的掌机', pic: 'console', img: 'gb', text: '路边草丛里躺着一台和你很像的掌机，屏幕还在闪。',
     opts: [
       { t: '插上卡带：选一张牌（林拓改为稀有牌）', go: (R, A) => { if (R.char === 'hero') { A.rareCard(); return '“新关卡已解锁。”'; } A.card(); return '屏幕上跳出了几张卡牌的图案。'; } },
@@ -556,7 +561,8 @@ export const EVENTS = [
       { t: '拆了卖零件：获得 30 金币', go: (R, A) => { A.gold(30); return '哥布林商人一定会喜欢这些零件。'; } }] },
   { title: '哥布林的晚餐', pic: 'dinner', img: 'meat', text: '营地里一锅肉汤正咕嘟作响，哥布林们都不见了。',
     opts: [
-      { t: '偷喝一碗：回复 20 生命', go: (R, A) => { A.heal(20); return '味道……出乎意料地不错。'; } },
+      { t: '偷喝一碗：回复 12 生命', go: (R, A) => { A.heal(12); return '味道……出乎意料地不错。'; } },
+      { t: '把一整锅喝光：回复 30 生命，牌组加入一张「悔意」', go: (R, A) => { A.heal(30); A.curse('regret'); return '撑得走不动路……你有点后悔了。'; } },
       { t: '在汤里下毒再走：移除一张牌', ok: R => R.deck.length > 1, go: (R, A) => { A.pick('remove'); return '你轻手轻脚地离开了。'; } },
       { t: '离开', go: () => '你不吃来路不明的东西。' }] },
   { title: '迷路的商队', pic: 'wagon', img: 'box', text: '一辆翻倒的马车，箱子散了一地，车夫早已逃走。',
