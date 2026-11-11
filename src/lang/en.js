@@ -1594,5 +1594,7 @@ export default {
 "你学着巫女的样子拜了拜，心里踏实了一些。": "You bow the way a shrine maiden would, and feel a little steadier.",
 "笔记上的字一半看不懂，但有几页还用得上。": "Half the notes are unreadable, but a few pages are still useful.",
 "倒下时自动使用": "Used automatically when you fall",
-"使用": "Use"
+"使用": "Use",
+"本回合结束时，每发光弹改为打所有敌人。得到 {0} 发光弹。": "At the end of this turn, each shot hits ALL enemies. Gain {0} Ammo.",
+"结界层数翻倍（至少 {0}）。获得 {1} 点格挡。消耗。": "Double your Ward (at least {0}). Gain {1} Block. Exhaust."
 };
