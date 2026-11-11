@@ -1947,5 +1947,7 @@ export default {
 "造成 {0} 点伤害；本回合额外摸过至少 {1} 张麻将牌时（不算每回合自然摸的牌）再 {2}。": "Deal {0} damage; {2} if you drew at least {1} extra tiles this turn (not counting your normal draw).",
 "造成 {0} 点伤害；移除目标最多 {1} 层共鸣，每层再 {2}。": "Deal {0} damage. Remove up to {1} Resonance from the target; {2} per stack removed.",
 "造成 {0} 点伤害；飞剑不少于 {1} 把时抽 {2} 张牌。": "Deal {0} damage. If you have at least {1} Flying Swords, draw {2} card.",
-"每回合第一次换配方打出法术后全体受伤并抽牌": "Damage all and draw after the first recipe change each turn"
+"每回合第一次换配方打出法术后全体受伤并抽牌": "Damage all and draw after the first recipe change each turn",
+"对所有敌人造成 {0} 点伤害；本回合额外摸过麻将牌时（不算每回合自然摸的牌），打两次。": "Deal {0} damage to ALL enemies. If you drew an extra tile this turn (not counting your normal draw), hit twice.",
+"造成 {0} 点伤害；本回合额外摸过麻将牌时（不算每回合自然摸的牌）再 {1}。": "Deal {0} damage; {1} if you drew an extra tile this turn (not counting your normal draw)."
 };

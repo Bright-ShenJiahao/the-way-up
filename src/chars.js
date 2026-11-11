@@ -132,12 +132,12 @@ const SYL = {
 };
 
 /* ======================= 米娅 · 云猫团子 =======================
-   团子 1/2/3 级：生命 18/24/30、攻击 7/9/11，每场满血入场，倒地后这场不再回来。
+   团子 1/2/3 级：生命 16/21/26、攻击 7/9/11，每场满血入场，倒地后这场不再回来。
    每回合有一个免费指令（默认护卫，每回合能改一次）：
    护卫：替米娅挡下一次敌人直接攻击的前 8 点（受团子剩余生命限制，团子自己只受一半）；扑击：回合结束攻击目标；休息：回合结束团子回 3 生命。
    团子活着且这场执行过两种不同指令，胜利后得 1 成长点；累计 3 / 7 点升到 2 / 3 级。 */
 function catDid(g, k) { const p = P(g), c = p.cat; if (c.did[k]) return; c.did[k] = 1; if (p.st.mjump) g.block(p.st.mjump, true); if (Object.keys(c.did).length >= 2 && g.has('lynx') && !p.lynxU) { p.lynxU = 1; p.lynxD = 1; } }
-const CATLV = [null, { max: 18, atk: 7 }, { max: 24, atk: 9 }, { max: 30, atk: 11 }];
+const CATLV = [null, { max: 16, atk: 7 }, { max: 21, atk: 9 }, { max: 26, atk: 11 }];
 const cat = g => P(g).cat;
 const catGuarded = g => { const c = cat(g); return !!(c && !c.down && (c.took || 0) > 0); }; /* 上一轮护卫时真的挡下过伤害 */
 const catUp = g => cat(g) && !cat(g).down;
@@ -169,12 +169,12 @@ const MIA = {
 
 /* ======================= 绯月 · 鲜血 / 吸血 / 蝙蝠 =======================
    献血 N：失去 N 生命，得到 N 鲜血（最多 12）。牌面写「生命高于一半时献血」的，生命不到一半就不献（简化：原案是玩家自己决定）。
-   吸血 N：按这一击实际打掉的生命回复，最多 N；每场战斗吸血合计最多 18。
+   吸血 N：按这一击实际打掉的生命回复，最多 N；每场战斗吸血合计最多 22。
    蝙蝠（最多 4 只）：不出猎时，每回合结束每只给「标记目标」1 层血痕（最多 4）；出猎：每只造成 7 点伤害；攒满 3 只时回合结束自动出猎，血痕每层再 +1，然后蝙蝠全部离场。 */
 const vb = g => P(g).st.vblood || 0;
 function donate(g, n, safe = true) { const R = g.R; if (safe && R.hp <= R.maxHp / 2) return false; if (R.hp <= n) return false; g.loseHp(n); const p = P(g); p.st.vblood = Math.min(12, vb(g) + n); p.donT = 1; if (p.st.vpulse && !p.vpT) { p.vpT = 1; g.block(p.st.vpulse, true); } return true; }
 function spendB(g, n) { const p = P(g); if (vb(g) < n) return false; p.st.vblood -= n; if (!p.st.vblood) delete p.st.vblood; if (n >= 4 && p.st.vdawn && !p.vdT) { p.vdT = 1; g.energy(1); g.block(p.st.vdawn, true); } return true; }
-function leech(g, dealt, n) { const p = P(g); let k = Math.min(dealt, n, 18 - (p.ls || 0)); if (k <= 0) return; const pin = g.has('redpin') && !p.pinU; if (pin) k = Math.min(k + 2, 18 - (p.ls || 0)); const got = g.heal(k) || 0; if (got <= 0) return; if (pin) p.pinU = 1; p.ls = (p.ls || 0) + got; /* 满血时回不到血，不扣额度也不触发 */ if (p.st.vhunger) g.block(p.st.vhunger, true); if (p.st.vowb && !p.vowT) { p.vowT = 1; p.st.vblood = Math.min(12, vb(g) + 1); g.draw(1); } }
+function leech(g, dealt, n) { const p = P(g); let k = Math.min(dealt, n, 22 - (p.ls || 0)); if (k <= 0) return; const pin = g.has('redpin') && !p.pinU; if (pin) k = Math.min(k + 2, 22 - (p.ls || 0)); const got = g.heal(k) || 0; if (got <= 0) return; if (pin) p.pinU = 1; p.ls = (p.ls || 0) + got; /* 满血时回不到血，不扣额度也不触发 */ if (p.st.vhunger) g.block(p.st.vhunger, true); if (p.st.vowb && !p.vowT) { p.vowT = 1; p.st.vblood = Math.min(12, vb(g) + 1); g.draw(1); } }
 const bats = g => P(g).st.bat || 0;
 function addBat(g, n) { const p = P(g); p.st.bat = Math.min(4, bats(g) + n); if (!p.st.bat) delete p.st.bat; }
 function markT(g) { const a = g.alive(), p = P(g); let t = a.find(e => e.id === p.mark); if (!t && a[0]) { t = a[0]; p.mark = t.id; } return t; }
@@ -182,7 +182,7 @@ function hunt(g, t, per = 7) { const p = P(g), k = bats(g); if (!k) return; if (
   for (let i = 0; i < k && !t.dead; i++) g.attack(t, per + (i === 0 ? sc : 0));
   if (k >= 4 && g.has('cup') && !p.cupU) { p.cupU = 1; addBat(g, 1); g.draw(1); } }
 const FEI = {
-  f_claw: { ch: 'feiyue', name: '红爪', type: 'atk', rar: 'start', cost: [1, 1], icon: 'icons2/n_f_claw', tgt: 'one', desc: u => `造成 ${v(u, 9, 12)} 点伤害，吸血 ${v(u, 3, 4)}。`, play: (g, u, t) => leech(g, g.attack(t, v(u, 9, 12)), v(u, 3, 4)) },
+  f_claw: { ch: 'feiyue', name: '红爪', type: 'atk', rar: 'start', cost: [1, 1], icon: 'icons2/n_f_claw', tgt: 'one', desc: u => `造成 ${v(u, 10, 13)} 点伤害，吸血 ${v(u, 3, 4)}。`, play: (g, u, t) => leech(g, g.attack(t, v(u, 10, 13)), v(u, 3, 4)) },
   f_sleeve: { ch: 'feiyue', name: '挽袖', type: 'skill', rar: 'start', cost: [1, 1], icon: 'icons2/n_f_sleeve', tgt: 'self', desc: u => `获得 ${v(u, 8, 11)} 点格挡。生命高于一半时献血 2。`, play: (g, u) => { g.block(v(u, 8, 11)); donate(g, 2); } },
   f_bats: { ch: 'feiyue', name: '放蝠', type: 'skill', rar: 'start', cost: [1, 1], icon: 'icons2/n_f_bats', tgt: 'self', desc: u => `得到 3 只蝙蝠，获得 ${v(u, 3, 6)} 点格挡。`, play: (g, u) => { addBat(g, 3); g.block(v(u, 3, 6)); } },
   f_line: { ch: 'feiyue', name: '血线', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_f_line', tgt: 'one', desc: u => `造成 ${v(u, 8, 10)} 点伤害。鲜血不少于 2 时，花掉 2 点再造成 ${v(u, 6, 8)} 点伤害。`, play: (g, u, t) => { g.attack(t, v(u, 8, 10)); if (spendB(g, 2)) g.attack(t, v(u, 6, 8)); } },
@@ -206,8 +206,8 @@ const FEI = {
 
 /* ======================= 沈雀 · 麻将牌 =======================
    万、条、筒三门各 1～9，每种三张，共 81 张。小胡要 8 张：牌架最多 7 张，第 8 张是本回合最后摸到、被挤出牌架的那张（临时位），只能用来凑小胡。每回合摸 4 张，牌架最多 7 张，多了自动弃掉最孤立的一张。
-   主动结算（报牌等）每回合一次：对子 5 格挡；刻子 单体 13；顺子 全体 6；清一色（同门任意 5 张）全体 10 + 6 格挡；
-   小胡（两个三张面子 + 一个对子，共 8 张，可借用本回合最后摸到的那张）全体 16 + 12 格挡。
+   主动结算（报牌等）每回合一次：对子 10 格挡 + 单体 4；刻子 单体 22；顺子 全体 11；清一色（同门任意 5 张）全体 14 + 8 格挡；
+   小胡（两个三张面子 + 一个对子，共 8 张，可借用本回合最后摸到的那张）全体 22 + 14 格挡。
    简化：出千换哪张、弃哪张由程序自动挑最有利的。 */
 const SUIT = ['万', '条', '筒'];
 export const tileName = x => `${x[1]}<i>${SUIT['msp'.indexOf(x[0])]}</i>`;
@@ -247,7 +247,7 @@ function settle(g, pat, t) { /* 结算一个牌型；每回合只能主动结算
   p.setT = 1; removeTiles(g, pat.use); p.patT = p.patT || {}; p.patT[pat.k] = 1; p.patB = p.patB || {}; p.patB[pat.k] = 1;
   const k = pat.k;
   const pb = p.patBonus || 0;
-  if (k === 'pair') g.block(10 + pb); else if (k === 'trip') g.attack(live(g, t), 20 + pb + (p.st.sanyuan && !p.syT ? (p.syT = 1, 7) : 0)); else if (k === 'run') { g.attackAll(11 + pb); if (p.st.sanyuan && !p.syR) { p.syR = 1; g.block(6); } }
+  if (k === 'pair') { g.block(10 + pb); g.attack(live(g, t), 4); } else if (k === 'trip') g.attack(live(g, t), 22 + pb + (p.st.sanyuan && !p.syT ? (p.syT = 1, 7) : 0)); else if (k === 'run') { g.attackAll(11 + pb); if (p.st.sanyuan && !p.syR) { p.syR = 1; g.block(6); } }
   else if (k === 'flush') { g.attackAll(14 + pb); g.block(8 + pb); } else if (k === 'hu') { g.attackAll(22 + pb); g.block(14 + pb); if (p.st.menzen && !p.huU) { p.huU = 1; g.energy(2); } }
   if ((k === 'flush' || k === 'hu') && p.st.menzen) g.attackAll(p.st.menzen);
   if (p.st.renzhuang && !p.rzT) { p.rzT = 1; drawTile(g, 1); if (p.st.renzhuang > 1) g.block(3); }
@@ -268,7 +268,7 @@ function canCheat(g, mode) { const p = P(g); if (!p.rack) return false; const sa
 const SQ = {
   q_fly: { ch: 'shenque', name: '飞牌', type: 'atk', rar: 'start', cost: [1, 1], icon: 'icons2/n_q_fly', tgt: 'one', desc: u => `造成 ${v(u, 8, 11)} 点伤害。摸 1 张麻将牌。`, play: (g, u, t) => { g.attack(t, v(u, 8, 11)); drawTile(g, 1); } },
   q_tidy: { ch: 'shenque', name: '拢牌', type: 'skill', rar: 'start', cost: [1, 1], icon: 'icons2/n_q_tidy', tgt: 'self', desc: u => `获得 ${v(u, 7, 10)} 点格挡。摸 1 张麻将牌，再弃掉最孤立的 1 张。`, play: (g, u) => { g.block(v(u, 7, 10)); const p = P(g); drawTile(g, 1, true); if (p.rack.length) { let bi = 0, bs = 1e9; p.rack.forEach((x, i) => { const s = isoScore(p.rack, x); if (s < bs) { bs = s; bi = i; } }); p.mdisc.push(p.rack.splice(bi, 1)[0]); } } },
-  q_call: { ch: 'shenque', name: '报牌', type: 'skill', rar: 'start', cost: [0, 0], icon: 'icons2/n_q_call', tgt: 'one', pick: patPick(), pickT: '选择要结算的牌型', bot: patBot, desc: u => `结算一个牌型（每回合一次），另获得 ${v(u, 4, 6)} 点格挡；结算的是小胡时抽 1 张牌。`, play: (g, u, t, c, k) => { const hu = k && k.k === 'hu'; settle(g, k, t); g.block(v(u, 4, 6)); if (hu) g.draw(1); } },
+  q_call: { ch: 'shenque', name: '报牌', type: 'skill', rar: 'start', cost: [0, 0], icon: 'icons2/n_q_call', tgt: 'one', pick: patPick(), pickT: '选择要结算的牌型', bot: patBot, desc: u => `结算一个牌型（每回合一次），另获得 ${v(u, 5, 7)} 点格挡；结算的是小胡时抽 1 张牌。`, play: (g, u, t, c, k) => { const hu = k && k.k === 'hu'; settle(g, k, t); g.block(v(u, 5, 7)); if (hu) g.draw(1); } },
   q_toss: { ch: 'shenque', name: '顺手一甩', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_q_toss', tgt: 'one', desc: u => `造成 ${v(u, 8, 11)} 点伤害；本回合结算过顺子时，改为对所有敌人造成 8 点。`, play: (g, u, t) => { if (P(g).patT && P(g).patT.run) g.attackAll(8); else g.attack(t, v(u, 8, 11)); } },
   q_three: { ch: 'shenque', name: '三声连响', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_q_three', tgt: 'one', desc: u => `造成 ${v(u, 7, 9)} 点伤害；本回合结算过刻子时，再造成 ${v(u, 6, 8)} 点。`, play: (g, u, t) => { g.attack(t, v(u, 7, 9)); if (P(g).patT && P(g).patT.trip) g.attack(t, v(u, 6, 8)); } },
   q_keep: { ch: 'shenque', name: '留张', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_q_keep', tgt: 'self', desc: u => `获得 ${v(u, 8, 11)} 点格挡。摸 1 张麻将牌。`, play: (g, u) => { g.block(v(u, 8, 11)); drawTile(g, 1); } },
@@ -282,7 +282,7 @@ const SQ = {
   q_dealer: { ch: 'shenque', name: '连庄', type: 'power', rar: 'u', cost: [1, 1], icon: 'icons2/n_q_dealer', tgt: 'self', desc: u => `每回合第一次结算牌型后，摸 1 张麻将牌${v(u, '', '，获得 3 点格挡')}。`, play: (g, u) => { P(g).st.renzhuang = u ? 2 : 1; } },
   q_wait: { ch: 'shenque', name: '听口', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_q_wait', tgt: 'self', noCancel: 1, pick: (g, u) => { const p = P(g); if (p.pool.length < 4) { p.pool = shuf(p.mdisc).concat(p.pool); p.mdisc = []; } return p.pool.slice(-v(u, 3, 4)).reverse().map((x, i) => ({ val: x, html: btn(`<b class="tile">${tileName(x)}</b>`) })); }, pickT: '选择收进牌架的牌', desc: u => `看牌池接下来的 ${v(u, 3, 4)} 张，选 1 张收进牌架，其余弃掉。获得 6 点格挡。`, play: (g, u, t, c, k) => { const p = P(g), n = v(u, 3, 4), top = p.pool.splice(-Math.min(n, p.pool.length)); const i = k ? top.indexOf(k) : top.length - 1; const pick = top.splice(i >= 0 ? i : top.length - 1, 1)[0]; if (pick) { p.rack.push(pick); p.lastT = pick; } p.mdisc.push(...top); mjDiscard(g); g.block(6); } },
   q_table: { ch: 'shenque', can: (g, u) => u || (!P(g).setT && findPat(tiles(g), P(g).eighth).length > 0), name: '开桌', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_q_table', tgt: 'one', pick: patPick(), pickT: '选择要结算的牌型', bot: patBot, desc: u => `结算一个牌型；用掉至少 5 张时，抽 2 张牌。${v(u, '', '获得 4 点格挡。')}`, play: (g, u, t, c, k) => { const r = settle(g, k, t); if (r && r.use.length >= 5) g.draw(2); if (u) g.block(4); } },
-  q_combo: { ch: 'shenque', name: '摸打连手', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_q_combo', tgt: 'all', desc: u => `对所有敌人造成 ${v(u, 5, 7)} 点伤害；本回合额外摸过至少 2 张麻将牌时（不算每回合自然摸的牌），打两次。`, play: (g, u) => g.attackAll(v(u, 5, 7), xdraw(g) >= 2 ? 2 : 1) },
+  q_combo: { ch: 'shenque', name: '摸打连手', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_q_combo', tgt: 'all', desc: u => `对所有敌人造成 ${v(u, 5, 7)} 点伤害；本回合额外摸过麻将牌时（不算每回合自然摸的牌），打两次。`, play: (g, u) => g.attackAll(v(u, 5, 7), xdraw(g) >= 1 ? 2 : 1) },
   q_last: { ch: 'shenque', name: '绝张', type: 'skill', rar: 'r', cost: [2, 1], icon: 'icons2/n_q_last', tgt: 'self', exhaust: 1, pick: g => { const p = P(g), have = new Set([...p.pool, ...p.mdisc]), want = new Set(); for (const x of p.rack) { want.add(x); for (const d of [-2, -1, 1, 2]) { const n = +x[1] + d; if (n >= 1 && n <= 9) want.add(x[0] + n); } } return [...want].filter(x => have.has(x)).slice(0, 12).map(x => ({ val: x, html: btn(`<b class="tile">${tileName(x)}</b>`) })); }, pickT: '指定一张牌', can: g => { const p = P(g); return !!(p.rack && p.rack.length); }, noCancel: 1, desc: () => `指定一张牌架上已有的牌或同一门前后两点内的牌，从牌池或弃牌区拿 1 张到牌架。消耗。`, play: (g, u, t, c, k) => { const p = P(g); if (!k) return; let i = p.pool.indexOf(k); if (i >= 0) p.pool.splice(i, 1); else { i = p.mdisc.indexOf(k); if (i < 0) return; p.mdisc.splice(i, 1); } p.rack.push(k); p.lastT = k; mjDiscard(g); } },
   q_sanyuan: { ch: 'shenque', name: '大三元', type: 'power', rar: 'r', cost: [2, 1], icon: 'icons2/n_q_sanyuan', tgt: 'self', desc: () => `每回合第一个刻子额外造成 7 点伤害，第一个顺子额外获得 6 点格挡。`, play: g => { P(g).st.sanyuan = 1; } },
   q_menzen: { ch: 'shenque', name: '门前清', type: 'power', rar: 'r', cost: [1, 1], icon: 'icons2/n_q_menzen', tgt: 'self', desc: u => `清一色或小胡额外对所有敌人造成 ${v(u, 5, 8)} 点伤害；每场第一次小胡后得到 2 点能量。`, play: (g, u) => { P(g).st.menzen = v(u, 5, 8); } },
@@ -423,7 +423,7 @@ const NEW2 = {
   f_nick: { ch: 'feiyue', name: '划伤', type: 'atk', rar: 'c', cost: [0, 0], icon: 'icons2/n_f_nick', tgt: 'one', desc: u => `造成 ${v(u, 4, 6)} 点伤害，吸血 ${v(u, 1, 2)}。`, play: (g, u, t) => leech(g, g.attack(t, v(u, 4, 6)), v(u, 1, 2)) },
   f_drop: { ch: 'feiyue', name: '血滴', type: 'skill', rar: 'c', cost: [0, 0], icon: 'icons2/n_f_drop', tgt: 'self', exhaust: 1, desc: u => `获得 ${v(u, 4, 6)} 点格挡。生命高于一半时献血 1；否则鲜血为 0 时得到 1 点鲜血。消耗。`, play: (g, u) => { g.block(v(u, 4, 6)); if (!donate(g, 1) && !vb(g)) P(g).st.vblood = 1; } },
   f_flock: { ch: 'feiyue', name: '蝠群', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_f_flock', tgt: 'self', desc: u => `得到 ${v(u, 2, 3)} 只蝙蝠，抽 1 张牌。`, play: (g, u) => { addBat(g, v(u, 2, 3)); g.draw(1); } },
-  f_feast: { ch: 'feiyue', name: '盛宴', type: 'atk', rar: 'u', cost: [2, 2], icon: 'icons2/n_f_feast', tgt: 'one', desc: u => `造成 ${v(u, 16, 20)} 点伤害，吸血 ${v(u, 5, 6)}；没能回到血时获得 5 点格挡。`, play: (g, u, t) => { const h0 = g.R.hp; leech(g, g.attack(t, v(u, 16, 20)), v(u, 5, 6)); if (g.R.hp <= h0) g.block(5); } },
+  f_feast: { ch: 'feiyue', name: '盛宴', type: 'atk', rar: 'u', cost: [2, 2], icon: 'icons2/n_f_feast', tgt: 'one', desc: u => `造成 ${v(u, 16, 20)} 点伤害，吸血 ${v(u, 6, 7)}；没能回到血时获得 5 点格挡。`, play: (g, u, t) => { const h0 = g.R.hp; leech(g, g.attack(t, v(u, 16, 20)), v(u, 6, 7)); if (g.R.hp <= h0) g.block(5); } },
   f_mark: { ch: 'feiyue', name: '猎印', type: 'skill', rar: 'c', cost: [0, 0], icon: 'icons2/n_f_mark', tgt: 'one', desc: u => `把目标设为标记目标，给予 ${v(u, 2, 3)} 层血痕。`, play: (g, u, t) => { if (!t) return; P(g).mark = t.id; t.st.scar = Math.min(4, (t.st.scar || 0) + v(u, 2, 3)); } },
   f_cloak: { ch: 'feiyue', name: '夜之斗篷', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_f_cloak', tgt: 'self', desc: u => `获得 ${v(u, 9, 12)} 点格挡；鲜血不少于 3 时再 +4；本回合吸过血时抽 1 张牌。`, play: (g, u) => { g.block(v(u, 9, 12) + (vb(g) >= 3 ? 4 : 0)); if (P(g).lsT) g.draw(1); } },
   f_dash: { ch: 'feiyue', name: '血之冲刺', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_f_dash', tgt: 'one', desc: u => `造成 ${v(u, 6, 8)} 点伤害；花掉最多 3 点鲜血，每点再 +${v(u, 4, 5)}。`, play: (g, u, t) => { const k = Math.min(3, vb(g)); if (k) spendB(g, k); g.attack(t, v(u, 6, 8) + k * v(u, 4, 5)); } },
@@ -450,7 +450,7 @@ const NEW2 = {
   q_flower: { ch: 'shenque', name: '花牌', type: 'skill', rar: 'u', cost: [0, 0], icon: 'icons2/n_q_flower', tgt: 'self', desc: u => `摸 2 张麻将牌，获得 ${v(u, 3, 5)} 点格挡。`, play: (g, u) => { drawTile(g, 2); g.block(v(u, 3, 5)); } },
   q_defend: { ch: 'shenque', name: '防守牌', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_q_defend', tgt: 'self', desc: u => `获得 ${v(u, 8, 11)} 点格挡；牌架上有能结算的牌型时再 +3。`, play: (g, u) => g.block(v(u, 8, 11) + (findPat(tiles(g), P(g).eighth).length ? 3 : 0)) },
   q_tsumo: { ch: 'shenque', name: '自摸', type: 'skill', rar: 'r', cost: [1, 1], icon: 'icons2/n_q_tsumo', tgt: 'one', desc: u => `摸 ${v(u, 1, 2)} 张麻将牌，然后自动结算最好的牌型（算本回合的一次结算）。`, play: (g, u, t) => { drawTile(g, v(u, 1, 2)); const RK = { hu: 5, flush: 4, run: 3, trip: 2, pair: 1 }, f = findPat(tiles(g), P(g).eighth).sort((x, y) => (RK[y.k] || 0) - (RK[x.k] || 0)); if (f.length && !P(g).setT) settle(g, f[0], t); } },
-  q_luck: { ch: 'shenque', name: '手气', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_q_luck', tgt: 'one', desc: u => `造成 ${v(u, 7, 9)} 点伤害；本回合额外摸过至少 2 张麻将牌时（不算每回合自然摸的牌）再 +${v(u, 5, 7)}。`, play: (g, u, t) => g.attack(t, v(u, 7, 9) + (xdraw(g) >= 2 ? v(u, 5, 7) : 0)) },
+  q_luck: { ch: 'shenque', name: '手气', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_q_luck', tgt: 'one', desc: u => `造成 ${v(u, 7, 9)} 点伤害；本回合额外摸过麻将牌时（不算每回合自然摸的牌）再 +${v(u, 5, 7)}。`, play: (g, u, t) => g.attack(t, v(u, 7, 9) + (xdraw(g) >= 1 ? v(u, 5, 7) : 0)) },
 };
 
 for (const k of Object.keys(ERIN)) if (k.startsWith('sp_')) ERIN[k].icon = 'icons2/n_' + k;
