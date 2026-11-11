@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112612';
-import { createAudio } from './audio.js?v=live2_11112612';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112612';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112613';
+import { createAudio } from './audio.js?v=live2_11112613';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112613';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -553,7 +553,7 @@ async function playCard(i, tgt) {
   const c = B.hand[i], d = CARDS[c.id]; let cost = cardCost(c);
   if (d.unplay) { tip('这张牌不能打出'); return; }
   if (cost === 'X') cost = B.p.energy; if (cost > B.p.energy) { tip('能量不足'); return; }
-  if (d.tgt === 'one' && !tgt) { const a = alive(); if (a.length === 1) tgt = a[0]; else { B.sel = B.sel === i ? -1 : i; B.aimI = 0; render(); return; } }
+  if (d.tgt === 'one' && !tgt) { const a = alive(); if (a.length === 1) tgt = a[0]; else { B.mechAim = null; B.sel = B.sel === i ? -1 : i; B.aimI = 0; render(); return; } }
   if (d.can && !d.can(G, c.up)) { fx('hero', '现在打不出', 'st'); flushFx(); return; }
   let pk; if (d.pick) { const opts = d.pick === 1 ? B.hand.filter(x => x !== c).map(x => ({ val: x.uid, html: cardHTML(x) })) : d.pick(G, c.up); if (opts.length) { B.anim = true; pk = await pickOpt(d.pickT || '选择一张手牌', opts, d.noCancel); B.anim = false; if (pk === undefined) return; i = B.hand.indexOf(c); if (i < 0) return; } }
   B.hitSet = new Set();
@@ -596,7 +596,7 @@ const cdir = () => isDragon() ? 'sylvie_dragon' : CHARS[(R && R.char) || 'hero']
 const heroH = () => isDragon() ? 210 : CHARS[R.char || 'hero'].h;
 /* 团子：按等级一行，待机两帧交替，扑击/挨打各一帧 */
 const CATH = [0, 112, 125, 145];
-function catFrame() { const c = B && B.p && B.p.cat; if (!c) return ''; const lv = (R.cat && R.cat.lv) || 1, f = c.fx && Date.now() - c.fx.t < 650 ? c.fx.k : c.down ? 'hit' : 'idle' + (Math.floor(performance.now() / 520) % 2); return `assets/dango/lv${lv}_${f}.png`; }
+function catFrame() { const c = B && B.p && B.p.cat; if (!c) return ''; const lv = (R.cat && R.cat.lv) || 1, f = c.fx && Date.now() - c.fx.t < 650 ? c.fx.k : c.down ? 'hit' : performance.now() % 2900 < 2400 ? 'idle0' : 'idle1'; return `assets/dango/lv${lv}_${f}.png`; }
 const catHTML = () => { const c = B && B.p && B.p.cat; if (!c) return ''; return `<div class="catw"><img class="catspr ${c.down ? 'down' : ''}" src="${catFrame()}" style="height:${CATH[(R.cat && R.cat.lv) || 1]}px"><div class="cathp"><i style="width:${Math.max(0, c.hp) / c.max * 100}%"></i><span>${Math.max(0, c.hp)}/${c.max}</span></div></div>`; };
 const HA = { idle: [4, 200, 1], shoot: [4, 75, 0], hurt: [2, 130, 0], block: [1, 380, 0], down: [3, 220, 2], xform: [1, 700, 0] }; // 帧数, 每帧毫秒, 1=循环 2=停在最后
 let hst = { n: 'idle', t: 0 };
@@ -705,7 +705,7 @@ function render() {
   const hs = B.hitSet || new Set();
   const enemies = B.en.filter(e => !(e.dead && e.deadAt && Date.now() - e.deadAt > 1500 && !(e.d.prePhase && !e.revived && !e.fled))).map(e => { /* 死透的敌人 1.5 秒后不再占位置（骷髅等会复活的除外） */
     const img = e.dead ? 'a' : (frame % 2 ? 'b' : 'a'), h = ENEMIES[e.key].sc * 1.3, hd = ENEMIES[e.key].hd;
-    const tg = B.sel >= 0 && !e.dead;
+    const tg = (B.sel >= 0 || B.mechAim) && !e.dead;
     return `<div class="unit enemy ${hd ? 'hd' : ''} ${tg ? 'tg' : ''} ${hs.has(e.id) ? 'hit' : ''} ${B.lunge === e.id ? 'lunge' : ''} ${e.dead ? 'dead' : ''}" data-id="${e.id}" data-eid="${e.id}">
       ${e.dead ? '<div class="intent"></div>' : intentHTML(e)}
       <div class="sprw" ${ENEMIES[e.key].hdw ? `style="width:${ENEMIES[e.key].hdw}px"` : ''}>${hd ? `<img class="spr" decoding="async" data-eid="${e.id}" src="${eFrame(e)}" style="height:${hd}px${ENEMIES[e.key].tint ? ';filter:' + ENEMIES[e.key].tint : ''}">` : `<img class="spr px" data-k="${e.key}" src="assets/enemies/${e.key}/${img}.png" style="zoom:${h}">`}<i class="shd"></i></div>
@@ -724,7 +724,7 @@ function render() {
    <div id="energy" class="${energy ? '' : 'empty'}">${energy}/${Math.max(energy, 3 + (has('crown') ? 1 : 0))}</div>
    <button class="btn" id="endturn" ${B.busy ? 'disabled' : ''}>${B.busy ? '敌人回合' : '结束回合 (E)'}</button>
    <div class="pile" id="drawp"><b>${B.draw.length}</b>抽牌堆</div><div class="pile" id="discp"><b>${B.disc.length}</b>弃牌堆</div><div class="pile" id="exhp"><b>${B.exh.length}</b>消耗</div>
-   ${mechUI()}<div id="hand">${hand}</div>${B.sel >= 0 ? '<div id="tip">选择目标（Esc 取消）</div>' : ''}`;
+   ${mechUI()}<div id="hand">${hand}</div>${B.sel >= 0 ? '<div id="tip">选择目标（Esc 取消）</div>' : B.mechAim ? '<div id="tip">点击敌人选择扑击目标（Esc 取消）</div>' : ''}`;
   heroAnimCls = '';
   bindTop();
   $('#endturn').onclick = endTurn;
@@ -733,7 +733,7 @@ function render() {
   $('#discp').onclick = () => showPile('弃牌堆', B.disc);
   $('#exhp').onclick = () => showPile('消耗', B.exh);
   view.querySelectorAll('#hand .card').forEach(el => el.onclick = ev => { ev.stopPropagation(); if (TOUCH || DRAGGED) return; kwHide(); playCard(+el.dataset.i); });
-  view.querySelectorAll('.enemy').forEach(el => el.onclick = () => { if (B.potSel != null) { const e = B.en.find(x => x.id === el.dataset.eid); if (e && !e.dead) usePotion(B.potSel, e); return; } if (B.sel >= 0) { const e = B.en.find(x => x.id === el.dataset.eid); if (e && !e.dead) playCard(B.sel, e); } });
+  view.querySelectorAll('.enemy').forEach(el => el.onclick = () => { if (B.mechAim) { const e = B.en.find(x => x.id === el.dataset.eid); if (e && !e.dead) { const id = B.mechAim; B.mechAim = null; MECH.act(G, id, e.id); audio.gem && audio.gem(); render(); } return; } if (B.potSel != null) { const e = B.en.find(x => x.id === el.dataset.eid); if (e && !e.dead) usePotion(B.potSel, e); return; } if (B.sel >= 0) { const e = B.en.find(x => x.id === el.dataset.eid); if (e && !e.dead) playCard(B.sel, e); } });
   flushFx(); dbgPanel(); aimMark();
 }
 /* 新角色的头顶显示、角色按钮、麻将牌架 */
@@ -753,7 +753,8 @@ function fixIntents() { fitEnemies(); /* 高个子敌人的意图文字被顶栏
 }
 function bindMech() {
   view.querySelectorAll('#mechb [data-a]').forEach(el => el.onclick = async ev => { ev.stopPropagation(); if (!B || B.busy || B.anim || B.over) return; const id = el.dataset.a;
-    if (MECH.act(G, id) === 'enemy') { const a = alive(); const v = a.length === 1 ? a[0].id : await pickOpt('选择目标', a.map(e => ({ val: e.id, html: `<button class="btn"><span>${e.d.name}</span> ${Math.max(0, e.hp)}/${e.max}</button>` }))); if (v === undefined || !B) return; MECH.act(G, id, v); }
+    if (B.mechAim === id) { B.mechAim = null; render(); return; }
+    if (MECH.act(G, id) === 'enemy') { const a = alive(); if (a.length === 1) MECH.act(G, id, a[0].id); else { B.sel = -1; B.mechAim = id; render(); return; } }
     audio.gem && audio.gem(); render(); });
 }
 function flushFx() {
@@ -799,7 +800,7 @@ setInterval(() => { frame++; if (!B || B.over) return; if (!B.busy && !alive().l
 addEventListener('keydown', e => { if (e.target && e.target.tagName === 'INPUT') return;
   if (!B || B.over || document.querySelector('.overlay') || !view.querySelector('#hand')) return;
   if (e.key === 'e' || e.key === 'E') endTurn();
-  else if (e.key === 'Escape') { B.sel = -1; render(); }
+  else if (e.key === 'Escape') { B.sel = -1; B.mechAim = null; render(); }
   else if (/^[0-9]$/.test(e.key)) { const i = (+e.key + 9) % 10; if (i < B.hand.length) playCard(i); }
   else if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && B.sel >= 0) { const a = alive(); B.aimI = ((B.aimI || 0) + (e.key === 'ArrowRight' ? 1 : -1) + a.length) % a.length; aimMark(); e.preventDefault(); }
   else if ((e.key === 'Enter' || e.key === ' ') && B.sel >= 0) { const a = alive(); e.preventDefault(); playCard(B.sel, a[(B.aimI || 0) % a.length]); }

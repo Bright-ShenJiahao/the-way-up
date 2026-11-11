@@ -3186,5 +3186,9 @@
  "变身时对所有敌人造成 {0} 点伤害；攻击牌第一击 {1}；每个敌方回合第一段打穿格挡的伤害 {2}。数字是剩余回合": [
   "On transforming, deal {0} damage to ALL enemies. Attacks' first hit {1}; the first hit through Block each enemy turn takes {2}. The number is turns left",
   "変身時に敵全体に{0}ダメージ。アタックの最初の一撃{1}。敵ターンごとにブロックを貫いた最初のダメージ{2}。数字は残りターン"
+ ],
+ "点击敌人选择扑击目标（Esc 取消）": [
+  "Click an enemy to choose the Pounce target (Esc to cancel)",
+  "敵をクリックして飛びかかりの対象を選ぶ（Escでキャンセル）"
  ]
 }
