@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112611';
-import { createAudio } from './audio.js?v=live2_11112611';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112611';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112612';
+import { createAudio } from './audio.js?v=live2_11112612';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112612';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -597,7 +597,7 @@ const heroH = () => isDragon() ? 210 : CHARS[R.char || 'hero'].h;
 /* 团子：按等级一行，待机两帧交替，扑击/挨打各一帧 */
 const CATH = [0, 112, 125, 145];
 function catFrame() { const c = B && B.p && B.p.cat; if (!c) return ''; const lv = (R.cat && R.cat.lv) || 1, f = c.fx && Date.now() - c.fx.t < 650 ? c.fx.k : c.down ? 'hit' : 'idle' + (Math.floor(performance.now() / 520) % 2); return `assets/dango/lv${lv}_${f}.png`; }
-const catHTML = () => B && B.p && B.p.cat ? `<img class="catspr ${B.p.cat.down ? 'down' : ''}" src="${catFrame()}" style="height:${CATH[(R.cat && R.cat.lv) || 1]}px">` : '';
+const catHTML = () => { const c = B && B.p && B.p.cat; if (!c) return ''; return `<div class="catw"><img class="catspr ${c.down ? 'down' : ''}" src="${catFrame()}" style="height:${CATH[(R.cat && R.cat.lv) || 1]}px"><div class="cathp"><i style="width:${Math.max(0, c.hp) / c.max * 100}%"></i><span>${Math.max(0, c.hp)}/${c.max}</span></div></div>`; };
 const HA = { idle: [4, 200, 1], shoot: [4, 75, 0], hurt: [2, 130, 0], block: [1, 380, 0], down: [3, 220, 2], xform: [1, 700, 0] }; // 帧数, 每帧毫秒, 1=循环 2=停在最后
 let hst = { n: 'idle', t: 0 };
 const heroImgs = []; const decodeAll = () => heroImgs.forEach(i => i.decode && i.decode().catch(() => {})); for (const [n, [c]] of Object.entries(HA)) for (let k = 0; k < c; k++) { if (n === 'xform') continue; for (const c of Object.values(CHARS)) { const im = new Image(); im.src = `assets/${c.dir}/${n}${k}.png`; heroImgs.push(im); } }
