@@ -459,7 +459,7 @@ export const OLDKEYW = { miko: /结界|技能牌/, hero: /光弹|攻击牌/, wit
 export const NEWKEYW = { erin: /元素|祈唤|写入/, gu: /飞剑|内力|剑势|燃血/, sylvie: /龙血|霜甲|霜龙/, mia: /团子|扑击|护卫/, feiyue: /鲜血|吸血|蝙蝠|献血/, shenque: /麻将|牌型|对子|刻子|顺子/ };
 const B5 = ['tstrike', 'tstrike', 'tstrike', 'tstrike', 'defend', 'defend', 'defend'];
 export const NEWSTARTERS = {
-  erin: [...B5, 'e_spark', 'e_ripple', 'e_invoke'], gu: [...B5, 'g_sheath', 'g_breath', 'g_shift'], sylvie: [...B5, 's_lance', 's_scale', 's_pulse'],
+  erin: ['tstrike', 'tstrike', 'tstrike', 'defend', 'defend', 'defend', 'e_spark', 'e_ripple', 'e_needle', 'e_invoke'], gu: [...B5, 'g_sheath', 'g_breath', 'g_shift'], sylvie: [...B5, 's_lance', 's_scale', 's_pulse'],
   mia: [...B5, 'm_staff', 'm_side', 'm_snack'], feiyue: [...B5, 'f_claw', 'f_sleeve', 'f_bats'], shenque: [...B5, 'q_fly', 'q_tidy', 'q_call'],
 };
 export const NEWSTARTRELIC = { erin: 'oldstaff', gu: 'swordtassel', sylvie: 'eggshard', mia: 'catbell', feiyue: 'ribbon', shenque: 'mjbox' };

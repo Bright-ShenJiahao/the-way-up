@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112615';
-import { createAudio } from './audio.js?v=live2_11112615';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112615';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112616';
+import { createAudio } from './audio.js?v=live2_11112616';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112616';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -590,7 +590,7 @@ function eFrame(e) {
   if (a && a.n === 'hurt' && dt < 320) return `assets/enemies2/${k}/hurt0.png`;
   return `assets/enemies2/${k}/idle${Math.floor(now / 480) % 2}.png`;
 }
-const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 林拓', h: 241, desc: '掌机 · 光弹' }, witch: { dir: 'witch2', name: '魔女 · 莉泽', h: 235, desc: '炼金瓶 · 剧毒' }, miko: { dir: 'miko2', name: '巫女 · 千早', h: 257, desc: '和弓 · 结界' }, heroine: { dir: 'heroine2', name: '穿越者 · 苏音', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 }, erin: { dir: 'erin', name: '元素使 · 艾琳', h: 268, desc: '法杖 · 元素', temp: 1, idle: [0, 3], idleMs: 650 }, gu: { dir: 'gu', name: '剑客 · 顾清寒', h: 290, desc: '长剑 · 飞剑', temp: 1, idle: [0, 3], idleMs: 650 }, sylvie: { dir: 'sylvie', name: '霜龙裔 · 希尔薇', h: 262, desc: '冰枪 · 变身', temp: 1, idle: [0, 3], idleMs: 650 }, mia: { dir: 'mia', name: '猫耳族 · 米娅', h: 256, desc: '魔杖 · 云猫', temp: 1, idle: [0, 3], idleMs: 650 }, feiyue: { dir: 'feiyue', name: '半吸血鬼 · 绯月', h: 250, desc: '血爪 · 蝙蝠', temp: 1, idle: [0, 3], idleMs: 650 }, shenque: { dir: 'shenque', name: '麻将社 · 沈雀', h: 262, desc: '麻将 · 牌型', temp: 1, idle: [0, 3], idleMs: 650 } };
+const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 林拓', h: 241, desc: '掌机 · 光弹' }, witch: { dir: 'witch2', name: '魔女 · 莉泽', h: 235, desc: '炼金瓶 · 剧毒' }, miko: { dir: 'miko2', name: '巫女 · 千早', h: 257, desc: '和弓 · 结界' }, heroine: { dir: 'heroine2', name: '穿越者 · 苏音', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 }, erin: { dir: 'erin', name: '元素使 · 艾琳', h: 276, desc: '法杖 · 元素', temp: 1, idle: [0, 3], idleMs: 650 }, gu: { dir: 'gu', name: '剑客 · 顾清寒', h: 297, desc: '长剑 · 飞剑', temp: 1, idle: [0, 3], idleMs: 650 }, sylvie: { dir: 'sylvie', name: '霜龙裔 · 希尔薇', h: 270, desc: '冰枪 · 变身', temp: 1, idle: [0, 3], idleMs: 650 }, mia: { dir: 'mia', name: '猫耳族 · 米娅', h: 263, desc: '魔杖 · 云猫', temp: 1, idle: [0, 3], idleMs: 650 }, feiyue: { dir: 'feiyue', name: '半吸血鬼 · 绯月', h: 257, desc: '血爪 · 蝙蝠', temp: 1, idle: [0, 3], idleMs: 650 }, shenque: { dir: 'shenque', name: '麻将社 · 沈雀', h: 263, desc: '麻将 · 牌型', temp: 1, idle: [0, 3], idleMs: 650 } };
 const isDragon = () => R && R.char === 'sylvie' && B && B.p && B.p.st.dragon && hst.n !== 'down';
 const cdir = () => isDragon() ? 'sylvie_dragon' : CHARS[(R && R.char) || 'hero'].dir;
 const heroH = () => isDragon() ? 210 : CHARS[R.char || 'hero'].h;
