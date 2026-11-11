@@ -42,12 +42,20 @@ def net(img):
     up=lambda x: x.repeat(2,1).repeat(2,2)
     f=lr(conv(up(f),'conv_up1')); f=lr(conv(up(f),'conv_up2'))
     return conv(lr(conv(f,'conv_hr')),'conv_last')
+def net_tiled(x,T=64,P=10):  # 分块推理，省内存；块间重叠 P 像素后裁掉
+    C,H,Wd=x.shape; xp=np.pad(x,((0,0),(P,P),(P,P)),mode='edge'); out=np.zeros((3,H*4,Wd*4),np.float32)
+    for y0 in range(0,H,T):
+        for x0 in range(0,Wd,T):
+            h=min(T,H-y0); w=min(T,Wd-x0)
+            t=net(xp[:,y0:y0+h+2*P,x0:x0+w+2*P])
+            out[:,y0*4:(y0+h)*4,x0*4:(x0+w)*4]=t[:,P*4:(P+h)*4,P*4:(P+w)*4]
+    return out
 def upscale(path,out,scale=2):
     im=np.asarray(Image.open(path).convert('RGBA')).astype(np.float32)/255; A=im[...,3]
     # 透明处用最近的不透明颜色填，避免边缘发黑/发白
     idx=nd.distance_transform_edt(A<0.5,return_distances=False,return_indices=True)
     rgb=im[...,:3][idx[0],idx[1]]
-    y=net(rgb.transpose(2,0,1)).clip(0,1).transpose(1,2,0)
+    y=net_tiled(rgb.transpose(2,0,1)).clip(0,1).transpose(1,2,0)
     H,Wd=A.shape; hi=Image.fromarray((y*255).astype(np.uint8)).resize((Wd*scale,H*scale),Image.LANCZOS)
     a=Image.fromarray((A*255).astype(np.uint8)).resize((Wd*4,H*4),Image.BICUBIC)
     a=np.asarray(a).astype(np.float32)/255; a=np.clip((a-0.5)*1.6+0.5,0,1)  # 边缘收紧
