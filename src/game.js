@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112300';
-import { createAudio } from './audio.js?v=live2_11112300';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112300';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112400';
+import { createAudio } from './audio.js?v=live2_11112400';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112400';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -95,13 +95,14 @@ function genMap() {
 function topBar() {
   return `<div id="top"><span class="hp">❤ ${R.hp}/${R.maxHp}</span><span class="gold">● ${R.gold}</span><span class="fl">第 ${R.floor} 层 · ${REGION()}</span>
   <div class="pots">${[0, 1, 2].map(i => { const id = (R.potions || [])[i]; return id ? `<img class="pot ${B && B.potSel === i ? 'sel' : ''}" data-pot="${i}" src="${POTIONS[id].img}" title="${esc(POTIONS[id].name + '：' + POTIONS[id].desc)}">` : '<i class="pot empty"></i>'; }).join('')}</div>
-  <div class="relics">${R.relics.map(id => `<img src="${RELICS[id].img}" title="${esc(RELICS[id].name + '：' + RELICS[id].desc)}">`).join('')}</div>
+  <div class="relics">${R.relics.map(id => `<img src="${RELICS[id].img}" data-rel="${id}" title="${esc(RELICS[id].name + '：' + RELICS[id].desc)}">`).join('')}</div>
   <span class="sp"></span><button class="tb" id="tbdeck">牌组 (${R.deck.length})</button><button class="tb" id="tbtips" title="开关规则提示">提示：${TIPS ? '开' : '关'}</button><button class="tb" id="tbfs" title="全屏">⛶</button><button class="tb" id="tbmute">${audio.muted ? '🔇' : '🔊'}</button><button class="tb" id="tbset" title="设置">⚙</button></div>`;
 }
 function bindTop() {
   $('#tbdeck')?.addEventListener('click', () => showPile('牌组', R.deck));
   $('#tbset')?.addEventListener('click', () => settings(true));
   view.querySelectorAll('[data-pot]').forEach(el => el.onclick = () => potionClick(+el.dataset.pot));
+  view.querySelectorAll('[data-rel]').forEach(el => el.onclick = ev => { ev.stopPropagation(); infoPop(el, RELICS[el.dataset.rel].name, RELICS[el.dataset.rel].desc); });
   $('#tbtips')?.addEventListener('click', () => { TIPS = !TIPS; try { localStorage.setItem('tipsOff', TIPS ? '0' : '1'); } catch (e) {} if (B && !B.over) render(); else { const b = $('#tbtips'); if (b) b.textContent = tr(TIPS ? '提示：开' : '提示：关'); } });
   $('#tbfs')?.addEventListener('click', () => { const d = document.documentElement; (document.fullscreenElement ? document.exitFullscreen() : (d.requestFullscreen || d.webkitRequestFullscreen).call(d)).then?.(() => screen.orientation?.lock?.('landscape').catch(() => {})).catch?.(() => {}); });
   $('#tbmute')?.addEventListener('click', () => { dispatchEvent(new KeyboardEvent('keydown', { key: 'm' })); setTimeout(() => { const b = $('#tbmute'); if (b) b.textContent = audio.muted ? '🔇' : '🔊'; }, 30); });
@@ -1002,13 +1003,16 @@ function potionClick(i) {
   if (B.potSel === i) { B.potSel = null; render(); return; }
   potPop(i);
 }
+function infoPop(el, name, desc, btns = '') { /* 贴着图标弹出的说明小框，点框外关闭 */
+  const sr = stage.getBoundingClientRect(), sc = sr.width / (stage.offsetWidth || 1) || 1, r = el.getBoundingClientRect(), z = TOUCH ? 1.35 : 1;
+  const w = document.createElement('div'); w.className = 'potpopw';
+  w.innerHTML = `<div class="potpop" style="left:${Math.max(8, (r.left - sr.left) / sc - 20) / z}px;top:${((r.bottom - sr.top) / sc + 8) / z}px"><b>${name}</b><p>${desc}</p>${btns ? `<div class="row">${btns}</div>` : ''}</div>`;
+  stage.appendChild(w); w.onclick = ev => { if (ev.target === w) w.remove(); }; return w;
+}
 function potPop(i) { /* 药水说明小框：贴着药水栏，点框外关闭 */
   const id = R.potions[i], P = POTIONS[id], el = view.querySelector(`[data-pot="${i}"]`); if (!P || !el) return;
-  const sr = stage.getBoundingClientRect(), sc = sr.width / (stage.offsetWidth || 1) || 1, r = el.getBoundingClientRect();
-  const w = document.createElement('div'); w.className = 'potpopw'; const auto = P.tgt === 'auto';
-  w.innerHTML = `<div class="potpop" style="left:${Math.max(8, (r.left - sr.left) / sc - 20)}px;top:${(r.bottom - sr.top) / sc + 8}px"><b>${P.name}</b><p>${P.desc}</p><div class="row">${auto ? `<span class="pa">${t('倒下时自动使用')}</span>` : `<button class="btn" id="pu">${t('使用')}</button>`}<button class="btn red" id="pdx">${t('丢掉')}</button></div></div>`;
-  stage.appendChild(w);
-  w.onclick = ev => { if (ev.target === w) w.remove(); };
+  const auto = P.tgt === 'auto';
+  const w = infoPop(el, P.name, P.desc, `${auto ? `<span class="pa">${t('倒下时自动使用')}</span>` : `<button class="btn" id="pu">${t('使用')}</button>`}<button class="btn red" id="pdx">${t('丢掉')}</button>`);
   w.querySelector('#pdx').onclick = () => { w.remove(); R.potions.splice(i, 1); render(); };
   const u = w.querySelector('#pu'); if (u) u.onclick = () => { w.remove(); if (!B || B.over || B.busy || B.anim) return;
     if (P.tgt === 'one' && alive().length > 1) { B.potSel = i; B.sel = -1; render(); tip('点一个敌人'); return; }
