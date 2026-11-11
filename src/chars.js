@@ -39,10 +39,10 @@ const ERIN = {
   sp_fog: spell('寒雾', 'skill', 'all', '获得 9 点格挡，给予所有敌人 1 层虚弱。', g => { g.block(9); g.applyAll('weak', 1); }),
   sp_wave: spell('踏浪', 'skill', 'self', '获得 8 点格挡，抽 2 张牌。', g => { g.block(8); g.draw(2); }),
   sp_gate: spell('风门', 'skill', 'self', '抽 2 张牌，得到 1 点能量（每回合只有第一张风门给能量）。', g => { g.draw(2); if (!P(g).gateT) { P(g).gateT = 1; g.energy(1); } }),
-  e_spark: { ch: 'erin', name: '火种', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_flame', tgt: 'one', desc: u => `造成 ${v(u, 7, 10)} 点伤害。写入火。`, play: (g, u, t) => { g.attack(t, v(u, 7, 10)); writeEl(g, '火'); } },
-  e_ripple: { ch: 'erin', name: '水纹', type: 'skill', rar: 'start', cost: [1, 1], icon: 'ic_water', tgt: 'self', desc: u => `获得 ${v(u, 6, 9)} 点格挡。写入水。`, play: (g, u) => { g.block(v(u, 6, 9)); writeEl(g, '水'); } },
+  e_spark: { ch: 'erin', name: '火种', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_flame', tgt: 'one', desc: u => `造成 ${v(u, 9, 12)} 点伤害。写入火。`, play: (g, u, t) => { g.attack(t, v(u, 9, 12)); writeEl(g, '火'); } },
+  e_ripple: { ch: 'erin', name: '水纹', type: 'skill', rar: 'start', cost: [1, 1], icon: 'ic_water', tgt: 'self', desc: u => `获得 ${v(u, 8, 11)} 点格挡。写入水。`, play: (g, u) => { g.block(v(u, 8, 11)); writeEl(g, '水'); } },
   e_invoke: { ch: 'erin', invoke: 1, name: '初阶祈唤', type: 'skill', rar: 'start', cost: [0, 0], icon: 'ic_rune', tgt: 'self', desc: u => `${v(u, '', '获得 3 点格挡，')}祈唤：把当前元素组合的法术放进手牌。`, play: (g, u) => { if (u) g.block(3); invoke(g); } },
-  e_needle: { ch: 'erin', name: '追风针', type: 'atk', rar: 'c', cost: [1, 1], icon: 'ic_stride', tgt: 'one', desc: u => `造成 ${v(u, 7, 10)} 点伤害。写入风。`, play: (g, u, t) => { g.attack(t, v(u, 7, 10)); writeEl(g, '风'); } },
+  e_needle: { ch: 'erin', name: '追风针', type: 'atk', rar: 'c', cost: [1, 1], icon: 'ic_stride', tgt: 'one', desc: u => `造成 ${v(u, 9, 12)} 点伤害。写入风。`, play: (g, u, t) => { g.attack(t, v(u, 9, 12)); writeEl(g, '风'); } },
   e_steamshot: { ch: 'erin', name: '蒸汽弹', type: 'atk', rar: 'c', cost: [1, 1], icon: 'sk_bmist', tgt: 'all', desc: u => `对所有敌人造成 ${v(u, 5, 7)} 点伤害；元素位里同时有火和水时改为 ${v(u, 7, 9)} 点。`, play: (g, u) => { const el = P(g).el || EL; g.attackAll(el.includes('火') && el.includes('水') ? v(u, 7, 9) : v(u, 5, 7)); } },
   e_tricolor: { ch: 'erin', name: '三色光', type: 'atk', rar: 'c', cost: [1, 1], icon: 'ic_crystal', tgt: 'one', desc: u => `造成 ${v(u, 8, 11)} 点伤害。三种元素齐全时抽 1 张牌。`, play: (g, u, t) => { g.attack(t, v(u, 8, 11)); if (kinds(g) === 3) g.draw(1); } },
   e_icewall: { ch: 'erin', name: '冰幕', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_barrier', tgt: 'self', desc: u => `获得 ${v(u, 7, 10)} 点格挡。写入水。`, play: (g, u) => { g.block(v(u, 7, 10)); writeEl(g, '水'); } },
@@ -169,7 +169,7 @@ const MIA = {
 /* ======================= 绯月 · 鲜血 / 吸血 / 蝙蝠 =======================
    献血 N：失去 N 生命，得到 N 鲜血（最多 12）。牌面写「生命高于一半时献血」的，生命不到一半就不献（简化：原案是玩家自己决定）。
    吸血 N：按这一击实际打掉的生命回复，最多 N；每场战斗吸血合计最多 14。
-   蝙蝠（最多 4 只）：不出猎时，每回合结束每只给「标记目标」1 层血痕（最多 4）；出猎：每只造成 7 点伤害；攒满 4 只时回合结束自动出猎，血痕每层再 +1，然后蝙蝠全部离场。 */
+   蝙蝠（最多 4 只）：不出猎时，每回合结束每只给「标记目标」1 层血痕（最多 4）；出猎：每只造成 7 点伤害；攒满 3 只时回合结束自动出猎，血痕每层再 +1，然后蝙蝠全部离场。 */
 const vb = g => P(g).st.vblood || 0;
 function donate(g, n, safe = true) { const R = g.R; if (safe && R.hp <= R.maxHp / 2) return false; if (R.hp <= n) return false; g.loseHp(n); const p = P(g); p.st.vblood = Math.min(12, vb(g) + n); p.donT = 1; if (p.st.vpulse && !p.vpT) { p.vpT = 1; g.block(p.st.vpulse, true); } return true; }
 function spendB(g, n) { const p = P(g); if (vb(g) < n) return false; p.st.vblood -= n; if (!p.st.vblood) delete p.st.vblood; if (n >= 4 && p.st.vdawn && !p.vdT) { p.vdT = 1; g.energy(1); g.block(p.st.vdawn, true); } return true; }
@@ -204,7 +204,7 @@ const FEI = {
 };
 
 /* ======================= 沈雀 · 麻将牌 =======================
-   万、条、筒三门各 1～9，每种两张，共 54 张。每回合摸 3 张，牌架最多 7 张，多了自动弃掉最孤立的一张。
+   万、条、筒三门各 1～9，每种两张，共 54 张。每回合摸 4 张，牌架最多 7 张，多了自动弃掉最孤立的一张。
    主动结算（报牌等）每回合一次：对子 5 格挡；刻子 单体 13；顺子 全体 6；清一色（同门任意 5 张）全体 10 + 6 格挡；
    小胡（两个三张面子 + 一个对子，共 8 张，可借用本回合最后摸到的那张）全体 16 + 12 格挡。
    简化：出千换哪张、弃哪张由程序自动挑最有利的。 */
@@ -479,7 +479,7 @@ export const NEWRELICS = {
   ribbon: { ch: 'feiyue', name: '家书缎带', icon: 'b_vamp', rar: 'start', desc: '战斗开始时得到 2 点鲜血。战斗结束时回复 4 点生命。' },
   redpin: { ch: 'feiyue', name: '红银针', icon: 'ic_stake', rar: 'u', desc: '每场战斗第一次吸血时多回复 2 生命（仍算进每场 8 点的上限）。' },
   cup: { ch: 'feiyue', name: '倒悬杯', icon: 'pot', rar: 'r', desc: '每场战斗第一次 4 只蝙蝠一起出猎后，返还 1 只蝙蝠，抽 1 张牌。' },
-  mjbox: { ch: 'shenque', name: '旧麻将盒', icon: 'box', rar: 'start', desc: '带来麻将牌架：战斗开始先摸 2 张，之后每回合摸 3 张。战斗结束时回复 4 点生命。' },
+  mjbox: { ch: 'shenque', name: '旧麻将盒', icon: 'box', rar: 'start', desc: '带来麻将牌架：战斗开始先摸 2 张，之后每回合摸 4 张。战斗结束时回复 4 点生命。' },
   chips: { ch: 'shenque', name: '三色筹码', icon: 'goldbag', rar: 'u', desc: '每场战斗第一次弃掉一张孤张后，再摸 1 张麻将牌。' },
   scorebook: { ch: 'shenque', name: '牌社记分簿', icon: 'b_dur', rar: 'r', desc: '每场战斗第一次结算过三种不同牌型时，得到 2 点能量，抽 2 张牌。' },
 };
@@ -494,7 +494,7 @@ export const NEWSTATUS = {
   wind: ['疾风势', '切入时：本回合下一张攻击牌少 1 费', '#9fffd0'], mtn: ['破岳势', '切入时：本回合下一张攻击牌第一击 +4', '#ffb070'],
   dblood: ['龙血', '攒满 8 点后可以变身霜龙', '#ff9090'], dragon: ['霜龙形态', '变身时对所有敌人造成 10 点伤害；攻击牌第一击 +6；每个敌方回合第一段打穿格挡的伤害 -4。数字是剩余回合', '#c8f0ff'],
   frost: ['霜甲', '每层抵消 1 点打穿格挡的敌人攻击伤害，你的回合开始时清空', '#a8e8ff'],
-  vblood: ['鲜血', '献血得到，由牌消耗（最多 12）', '#ff5070'], bat: ['蝙蝠', '不出猎时每回合结束给标记目标 1 层血痕；出猎时每只造成 7 点伤害；攒满 4 只时回合结束自动出猎', '#c080ff'],
+  vblood: ['鲜血', '献血得到，由牌消耗（最多 12）', '#ff5070'], bat: ['蝙蝠', '不出猎时每回合结束给标记目标 1 层血痕；出猎时每只造成 7 点伤害；攒满 3 只时回合结束自动出猎', '#c080ff'],
   scar: ['血痕', '蝙蝠出猎时每层 +1 伤害（最多 4 层）', '#ff6080'],
   enote: ['元素笔记', '每回合第一次凑齐三种元素时抽牌', '#ffd060'], ecrown: ['三相冠冕', '每回合第一张三格相同的法术后获得格挡并抽牌', '#ffd060'], eseason: ['四季轮转', '每回合第二张不同配方的法术打出后全体受伤', '#ffd060'],
   qiflow: ['气走周天', '每回合第一次花内力时获得格挡', '#ffd890'], revqi: ['逆行经脉', '每回合第一次燃血额外得到内力并抽牌', '#ffd890'], dualst: ['双势归元', '一回合切入过两种势时得到能量并抽牌', '#ffd890'],
@@ -531,7 +531,7 @@ export const MECH = {
     if (p.manualD) { g.draw(2); p.manualD = 0; }
     const c = p.cat; if (c) { c.set = 0; c.gB = 0; c.sR = 0; c.pB = 0; c.rB = 0; c.big = 0; c.twice = 0; c.took = c.tookN || 0; c.tookN = 0; if (!c.down) c.cmd = c.cmd === 'pounce' && g.alive().some(e => e.id === c.pt) ? 'pounce' : 'guard'; if (p.gateD) { g.draw(1); p.gateD = 0; } }
     if (p.lynxD) { p.lynxD = 0; g.draw(1); g.energy(1); }
-    if (p.rack && !first) drawTile(g, 3);
+    if (p.rack && !first) drawTile(g, 4);
   },
   /* 玩家回合结束、敌人行动前 */
   turnEnd(g) { const p = P(g), c = p.cat;
@@ -539,7 +539,7 @@ export const MECH = {
       if (c.cmd === 'pounce') { const a = g.alive(), t = a.find(e => e.id === c.pt) || a[0]; if (t) { p.fh = 0; for (let n = 0; n < (c.twice ? 2 : 1); n++) { const a2 = g.alive(), t2 = t.dead ? a2[0] : t; if (!t2) break; if (c.big) g.attack(t2, c.big + (c.pB || 0), 2); else g.attack(t2, c.atk + (c.pB || 0)); } } did('pounce'); }
       else if (c.cmd === 'rest') { let n = 3 + (c.rB || 0); if (g.has('catbed') && !p.bedU) { p.bedU = 1; n += 4; } healCat(g, n); did('rest'); }
       else if (c.cmd === 'guard') c.guardOn = 1; }
-    if (bats(g) >= 4) hunt(g); else if (bats(g)) { const t = markT(g); if (t) t.st.scar = Math.min(4, (t.st.scar || 0) + bats(g)); }
+    if (bats(g) >= 3) hunt(g); else if (bats(g)) { const t = markT(g); if (t) t.st.scar = Math.min(4, (t.st.scar || 0) + bats(g)); }
     if (p.st.torii && (p.st.kek || 0) >= 3) g.block(p.st.torii, true);
     if (p.st.qiarmor && p.st.qi) g.block(Math.floor(p.st.qi / 3) * p.st.qiarmor, true);
     if (p.st.undying && vb(g) >= 4) { spendB(g, 2); g.heal(3); }
