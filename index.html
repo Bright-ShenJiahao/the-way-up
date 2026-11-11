@@ -46,6 +46,7 @@ button{font-family:inherit;cursor:pointer}
 .unit{position:relative;display:flex;flex-direction:column;align-items:center}
 .unit .sprw{position:relative;display:block}
 .unit .spr{display:block;transform-origin:50% 100%;position:relative;z-index:1}
+.catspr{position:absolute;left:calc(100% - 55px);bottom:-8px;z-index:2;pointer-events:none;transition:filter .3s,opacity .3s}.catspr.down{filter:grayscale(1);opacity:.45}
 .unit .shd{position:absolute;left:50%;bottom:-12px;width:110%;height:30px;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(0,0,0,.8),rgba(0,0,0,.35) 60%,transparent);z-index:0}
 .unit.enemy .spr{transform:scaleX(-1)}
 .unit.enemy.hd .spr{transform:none;flex:none;max-width:none}
@@ -275,6 +276,6 @@ button{font-family:inherit;cursor:pointer}
 <body>
 <div id="rot"><div class="ph"></div><div>请把手机横过来玩</div><div style="font-size:15px;color:#c8b890">Please rotate your device</div></div>
 <div id="stage"><div id="view"></div><div id="fx"></div></div>
-<script type="module" src="src/game.js?v=live2_11112607"></script>
+<script type="module" src="src/game.js?v=live2_11112608"></script>
 </body>
 </html>

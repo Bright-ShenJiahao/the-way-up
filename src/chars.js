@@ -536,7 +536,7 @@ export const MECH = {
   /* 玩家回合结束、敌人行动前 */
   turnEnd(g) { const p = P(g), c = p.cat;
     if (c && !c.down) { const did = k => catDid(g, k);
-      if (c.cmd === 'pounce') { const a = g.alive(), t = a.find(e => e.id === c.pt) || a[0]; if (t) { p.fh = 0; for (let n = 0; n < (c.twice ? 2 : 1); n++) { const a2 = g.alive(), t2 = t.dead ? a2[0] : t; if (!t2) break; if (c.big) g.attack(t2, c.big + (c.pB || 0), 2); else g.attack(t2, c.atk + (c.pB || 0)); } } did('pounce'); }
+      if (c.cmd === 'pounce') { const a = g.alive(), t = a.find(e => e.id === c.pt) || a[0]; if (t) { c.fx = { k: 'atk', t: Date.now() }; p.fh = 0; for (let n = 0; n < (c.twice ? 2 : 1); n++) { const a2 = g.alive(), t2 = t.dead ? a2[0] : t; if (!t2) break; if (c.big) g.attack(t2, c.big + (c.pB || 0), 2); else g.attack(t2, c.atk + (c.pB || 0)); } } did('pounce'); }
       else if (c.cmd === 'rest') { let n = 3 + (c.rB || 0); if (g.has('catbed') && !p.bedU) { p.bedU = 1; n += 4; } healCat(g, n); did('rest'); }
       else if (c.cmd === 'guard') c.guardOn = 1; }
     if (bats(g) >= 3) hunt(g); else if (bats(g)) { const t = markT(g); if (t) t.st.scar = Math.min(4, (t.st.scar || 0) + bats(g)); }
@@ -547,7 +547,7 @@ export const MECH = {
   },
   /* 敌人攻击打到玩家：格挡之前（团子护卫） */
   preBlock(g, amt, e) { const p = P(g), c = p.cat;
-    if (c && !c.down && c.cmd === 'guard' && c.guardOn && amt > 0) { c.guardOn = 0; const capN = 8 + (c.gB || 0) + (p.st.mgate ? 3 : 0), k = Math.min(amt, capN, c.hp); if (k > 0) { const hurtC = Math.max(0, Math.ceil(k / 2) - (c.sR || 0)); c.hp -= hurtC; c.tookN = (c.tookN || 0) + k; amt -= k; catDid(g, 'guard'); if (p.st.mpact) g.block(Math.floor(k / 2), true); g.note(`团子挡下 ${k}`); if (hurtC > 0 && p.st.mgate) p.gateD = 1; if (c.hp <= 0) { c.hp = 0; c.down = 1; g.note('团子倒下了'); } } }
+    if (c && !c.down && c.cmd === 'guard' && c.guardOn && amt > 0) { c.guardOn = 0; const capN = 8 + (c.gB || 0) + (p.st.mgate ? 3 : 0), k = Math.min(amt, capN, c.hp); if (k > 0) { const hurtC = Math.max(0, Math.ceil(k / 2) - (c.sR || 0)); c.fx = { k: 'hit', t: Date.now() }; c.hp -= hurtC; c.tookN = (c.tookN || 0) + k; amt -= k; catDid(g, 'guard'); if (p.st.mpact) g.block(Math.floor(k / 2), true); g.note(`团子挡下 ${k}`); if (hurtC > 0 && p.st.mgate) p.gateD = 1; if (c.hp <= 0) { c.hp = 0; c.down = 1; g.note('团子倒下了'); } } }
     return amt; },
   /* 格挡之后（霜龙减伤、霜甲） */
   postBlock(g, left, e) { const p = P(g); if (left <= 0) return left;

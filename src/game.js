@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112607';
-import { createAudio } from './audio.js?v=live2_11112607';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112607';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11112608';
+import { createAudio } from './audio.js?v=live2_11112608';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11112608';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -18,6 +18,7 @@ const bindLang = after => view.querySelectorAll('[data-lang]').forEach(el => el.
 const applyStatic = () => { document.title = tr('通往顶端') + ' The Way Up: Otherworld Deck'; const r = document.querySelector('#rot div:nth-child(2)'); if (r) r.textContent = getLanguage() === 'zh' ? '请把手机横过来玩' : tr('请把手机横过来玩'); const r3 = document.querySelector('#rot div:nth-child(3)'); if (r3) r3.style.display = getLanguage() === 'en' ? 'none' : ''; document.documentElement.lang = getLanguage() === 'zh' ? 'zh-CN' : getLanguage(); };
 onLanguageChange(applyStatic); applyStatic();
 const DEBUG = /[?&]debug/.test(location.search) || location.hash === '#debug';
+if (DEBUG) window.__dbg = { get B() { return B; }, get R() { return R; } };
 const audio = createAudio();
 let SET = { shake: 1, fast: 0, kwtip: 1 }; try { Object.assign(SET, JSON.parse(localStorage.getItem('tw_set') || '{}')); } catch (e) {}
 const saveSet = () => { try { localStorage.setItem('tw_set', JSON.stringify(SET)); } catch (e) {} };
@@ -361,6 +362,7 @@ function mkEnemy(key) {
 }
 const alive = () => B.en.filter(e => !e.dead);
 function battle(keys, kind) {
+  preloadExtra(R.char);
   hst = { n: 'idle', t: performance.now() };
   const bg = ACT() === 2 ? (kind === 'boss' ? 'c2_hall' : pickOne(['c2_exterior', 'c2_crypt'])) : kind === 'boss' ? 'battle_castle' : pickOne(BGS);
   B = { kind, bg, en: keys.map(mkEnemy), p: { block: 0, energy: 0, st: {}, noDraw: 0 }, draw: shuffle(R.deck.map(c => ({ ...c }))), hand: [], disc: [], exh: [], turn: 0, atkCnt: 0, sel: -1, busy: false, fx: [], over: false };
@@ -589,11 +591,19 @@ function eFrame(e) {
   return `assets/enemies2/${k}/idle${Math.floor(now / 480) % 2}.png`;
 }
 const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 林拓', h: 241, desc: '掌机 · 光弹' }, witch: { dir: 'witch2', name: '魔女 · 莉泽', h: 235, desc: '炼金瓶 · 剧毒' }, miko: { dir: 'miko2', name: '巫女 · 千早', h: 257, desc: '和弓 · 结界' }, heroine: { dir: 'heroine2', name: '穿越者 · 苏音', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 }, erin: { dir: 'erin', name: '元素使 · 艾琳', h: 268, desc: '法杖 · 元素', temp: 1 }, gu: { dir: 'gu', name: '剑客 · 顾清寒', h: 290, desc: '长剑 · 飞剑', temp: 1 }, sylvie: { dir: 'sylvie', name: '霜龙裔 · 希尔薇', h: 262, desc: '冰枪 · 变身', temp: 1 }, mia: { dir: 'mia', name: '猫耳族 · 米娅', h: 256, desc: '魔杖 · 云猫', temp: 1 }, feiyue: { dir: 'feiyue', name: '半吸血鬼 · 绯月', h: 250, desc: '血爪 · 蝙蝠', temp: 1 }, shenque: { dir: 'shenque', name: '麻将社 · 沈雀', h: 262, desc: '麻将 · 牌型', temp: 1 } };
-const cdir = () => CHARS[(R && R.char) || 'hero'].dir;
-const HA = { idle: [4, 200, 1], shoot: [4, 75, 0], hurt: [2, 130, 0], block: [1, 380, 0], down: [3, 220, 2] }; // 帧数, 每帧毫秒, 1=循环 2=停在最后
+const isDragon = () => R && R.char === 'sylvie' && B && B.p && B.p.st.dragon && hst.n !== 'down';
+const cdir = () => isDragon() ? 'sylvie_dragon' : CHARS[(R && R.char) || 'hero'].dir;
+const heroH = () => isDragon() ? 210 : CHARS[R.char || 'hero'].h;
+/* 团子：按等级一行，待机两帧交替，扑击/挨打各一帧 */
+const CATH = [0, 112, 125, 145];
+function catFrame() { const c = B && B.p && B.p.cat; if (!c) return ''; const lv = (R.cat && R.cat.lv) || 1, f = c.fx && Date.now() - c.fx.t < 650 ? c.fx.k : c.down ? 'hit' : 'idle' + (Math.floor(performance.now() / 520) % 2); return `assets/dango/lv${lv}_${f}.png`; }
+const catHTML = () => B && B.p && B.p.cat ? `<img class="catspr ${B.p.cat.down ? 'down' : ''}" src="${catFrame()}" style="height:${CATH[(R.cat && R.cat.lv) || 1]}px">` : '';
+const HA = { idle: [4, 200, 1], shoot: [4, 75, 0], hurt: [2, 130, 0], block: [1, 380, 0], down: [3, 220, 2], xform: [1, 700, 0] }; // 帧数, 每帧毫秒, 1=循环 2=停在最后
 let hst = { n: 'idle', t: 0 };
-const heroImgs = []; const decodeAll = () => heroImgs.forEach(i => i.decode && i.decode().catch(() => {})); for (const [n, [c]] of Object.entries(HA)) for (let k = 0; k < c; k++) { const im = new Image(); for (const c of Object.values(CHARS)) { const im = new Image(); im.src = `assets/${c.dir}/${n}${k}.png`; heroImgs.push(im); } }
+const heroImgs = []; const decodeAll = () => heroImgs.forEach(i => i.decode && i.decode().catch(() => {})); for (const [n, [c]] of Object.entries(HA)) for (let k = 0; k < c; k++) { if (n === 'xform') continue; for (const c of Object.values(CHARS)) { const im = new Image(); im.src = `assets/${c.dir}/${n}${k}.png`; heroImgs.push(im); } }
 setTimeout(decodeAll, 500);
+const extraImgs = []; const preloadExtra = ch => { if (ch === 'sylvie') ['idle0', 'idle1', 'idle2', 'idle3', 'shoot0', 'shoot1', 'shoot2', 'shoot3', 'hurt0', 'hurt1', 'block0', 'xform0'].forEach(n => { const im = new Image(); im.src = `assets/sylvie_dragon/${n}.png`; extraImgs.push(im); }); if (ch === 'mia') for (const lv of [1, 2, 3]) for (const n of ['idle0', 'idle1', 'atk', 'hit']) { const im = new Image(); im.src = `assets/dango/lv${lv}_${n}.png`; extraImgs.push(im); } };
+let wasDragon = 0;
 function heroAct(n) { if (hst.n === 'down') return; if (n === 'block' && hst.n === 'shoot') return; hst = { n, t: performance.now() }; }
 function heroFrame() {
   const [c, ms, mode] = HA[hst.n]; let k = Math.floor((performance.now() - hst.t) / ms);
@@ -603,7 +613,8 @@ function heroFrame() {
   return `assets/${cdir()}/${hst.n}${k}.png`;
 }
 let lastT = 0;
-(function loop(t) { requestAnimationFrame(loop); if (!B || t - lastT < 80) return; lastT = t; const h = view.querySelector('#hero .spr'); if (h) { const f = heroFrame(); if (!h.src.endsWith(f)) h.src = f; }
+(function loop(t) { requestAnimationFrame(loop); if (!B || t - lastT < 80) return; lastT = t; const dr = isDragon() ? 1 : 0; if (dr !== wasDragon) { if (dr) hst = { n: 'xform', t: performance.now() }; wasDragon = dr; } const h = view.querySelector('#hero .spr'); if (h) { const f = heroFrame(); if (!h.src.endsWith(f)) { h.src = f; h.style.height = heroH() + 'px'; } }
+  const cs = view.querySelector('#hero .catspr'); if (cs) { const f = catFrame(); if (!cs.src.endsWith(f)) cs.src = f; cs.classList.toggle('down', !!B.p.cat.down); }
   view.querySelectorAll('.enemy.hd .spr').forEach(img => { const e = B.en.find(x => x.id === img.dataset.eid); if (e) { const f = eFrame(e); if (!img.src.endsWith(f)) img.src = f; } });
 })(0);
 function heroAnim(c) { heroAnimCls = c; }
@@ -708,7 +719,7 @@ function render() {
     return cardHTML(c, `${sel ? 'sel' : ''} ${off ? 'off' : ''}`, energy).replace('class="card', `data-i="${i}" style="left:${x0 + i * gap}px;transform:translateY(${sel ? -100 : dy}px) rotate(${sel ? 0 : rot}deg);z-index:${i + 1}" class="card`);
   }).join('');
   view.innerHTML = `${bgHTML(true, B.bg)}${topBar()}
-   <div id="hero" class="unit ${hs.has('hero') ? 'hit' : ''} ${heroAnimCls}" data-id="hero"><div class="intent"></div><div class="sprw"><img class="spr" decoding="async" src="${heroFrame()}" style="height:${CHARS[R.char || 'hero'].h}px"><i class="shd" style="width:150px"></i></div>${barHTML(R.hp, R.maxHp, B.p.block, 1)}${stsHTML(B.p.st)}${mechChips()}<div class="uname">${CHARS[R.char || 'hero'].name}</div></div>
+   <div id="hero" class="unit ${hs.has('hero') ? 'hit' : ''} ${heroAnimCls}" data-id="hero"><div class="intent"></div><div class="sprw"><img class="spr" decoding="async" src="${heroFrame()}" style="height:${heroH()}px"><i class="shd" style="width:150px"></i>${catHTML()}</div>${barHTML(R.hp, R.maxHp, B.p.block, 1)}${stsHTML(B.p.st)}${mechChips()}<div class="uname">${CHARS[R.char || 'hero'].name}</div></div>
    <div id="enemies">${enemies}</div>${foreHTML()}
    <div id="energy" class="${energy ? '' : 'empty'}">${energy}/${Math.max(energy, 3 + (has('crown') ? 1 : 0))}</div>
    <button class="btn" id="endturn" ${B.busy ? 'disabled' : ''}>${B.busy ? '敌人回合' : '结束回合 (E)'}</button>
