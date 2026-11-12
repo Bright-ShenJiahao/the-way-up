@@ -376,7 +376,7 @@ const NEW2 = {
   f_rite: { ch: 'feiyue', name: '血祭', type: 'atk', rar: 'r', cost: [1, 1], icon: 'icons2/n_f_rite', tgt: 'all', exhaust: 1, desc: u => `消灭全部血蝠，每只对所有敌人造成 ${v(u, 4, 5)} 点伤害。消耗。`, play: (g, u) => { const k = bats(g); P(g).bats = 0; if (k) faAll(g, v(u, 4, 5) * k); } },
   f_echo: { ch: 'feiyue', name: '回声定位', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_f_echo', tgt: 'self', desc: u => `获得 ${v(u, 6, 9)} 点格挡；有召唤物时再 +4。`, play: (g, u) => g.block(v(u, 6, 9) + (bats(g) || P(g).big ? 4 : 0)) },
   f_fangs: { ch: 'feiyue', name: '獠牙', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_f_fangs', tgt: 'one', desc: u => `造成 ${v(u, 8, 11)} 点伤害；目标有易伤时，这一击伤害的一半回成生命。`, play: (g, u, t) => { const vu = t && t.st.vuln; const d = g.attack(t, v(u, 8, 11)); if (vu) bite(g, d, .5); else lsHeal(g, d); } },
-  f_moon2: { ch: 'feiyue', name: '初拥', type: 'skill', rar: 'r', cost: [2, 2], icon: 'icons2/n_f_moon2', tgt: 'one', exhaust: 1, can: g => g.alive().some(e => !isBig(e) && e.hp <= 20), desc: u => `把一个生命不超过 ${v(u, 15, 20)} 的普通敌人变成眷属：它保留原来的生命和攻击，回合结束攻击敌人（占血骑士的位置）。消耗。`, play: (g, u, t) => embrace(g, t, v(u, 15, 20)) },
+  f_moon2: { ch: 'feiyue', name: '初拥', type: 'skill', rar: 'r', cost: [2, 2], icon: 'icons2/n_f_moon2', tgt: 'one', exhaust: 1, can: (g, u) => g.alive().some(e => !isBig(e) && e.hp <= v(u, 15, 20)), desc: u => `把一个生命不超过 ${v(u, 15, 20)} 的普通敌人变成眷属：它保留原来的生命和攻击，回合结束攻击敌人（占血骑士的位置）。消耗。`, play: (g, u, t) => embrace(g, t, v(u, 15, 20)) },
   f_undying: { ch: 'feiyue', name: '不死之身', type: 'power', rar: 'r', cost: [2, 2], icon: 'icons2/n_f_undying', tgt: 'self', desc: u => `每场一次：受到致命伤害时保留 1 点生命，并回复 ${v(u, 10, 15)} 生命。`, play: (g, u) => { P(g).st.undying = v(u, 10, 15); } },
 };
 

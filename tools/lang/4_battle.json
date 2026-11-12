@@ -630,5 +630,9 @@
  "林拓的掌机子弹。回合结束时自动射出，每发对随机敌人造成 {0} 点伤害（第 {1}、{2}、{3}… 发为 {4} 点），然后清零。最多 {5} 发。": [
   "Lin Tuo's handheld bullets. Fired automatically at end of turn; each shot deals {0} damage to a random enemy (shots {1}, {2}, {3}… deal {4}), then resets. Max {5}.",
   "リン・タクの携帯機の弾。ターン終了時に自動発射。1発ごとにランダムな敵へ{0}ダメージ（{1}・{2}・{3}…発目は{4}）、その後リセット。最大{5}発。"
+ ],
+ "每打倒 {0} 个敌人，得到 {1} 发光弹并抽 {2} 张牌（每层）": [
+  "For every {0} enemy defeated, gain {1} light rounds and draw {2} card(s) (per stack)",
+  "敵を{0}体倒すごとに光弾を{1}発得て、カードを{2}枚引く（1層ごと）"
  ]
 }

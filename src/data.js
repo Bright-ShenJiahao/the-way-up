@@ -1,7 +1,7 @@
-import { tr } from './i18n.js?v=live2_11130130';
-import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11130130';
+import { tr } from './i18n.js?v=live2_11130200';
+import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11130200';
 export { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 };
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11130130';
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11130200';
 export { MECH, NEWKEYW, OLDKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
@@ -110,7 +110,7 @@ export const CARDS = {
   kagura: { ch: 'miko', name: '神乐舞', type: 'power', rar: 'u', cost: [2, 1], icon: 'sk_fairy', tgt: 'self',
     desc: () => `每回合开始时，结界 +1。`, play: g => g.self('kagura', 1) },
   shinboku: { ch: 'miko', name: '御神木', type: 'power', rar: 'r', cost: [2, 1], icon: 'sk_treant', tgt: 'self',
-    desc: () => `结界给的格挡翻倍（翻倍部分最多 +5）。`, play: g => { g.p.st.shinboku = 1; } },
+    desc: () => `结界给的格挡翻倍（翻倍部分最多 +8）。`, play: g => { g.p.st.shinboku = 1; } },
 
   // ======== 魔女 · 药瓶 / 毒 ========
   // 药瓶牌（rar:'gen' 不进奖励池，只由其他牌生成）
@@ -326,6 +326,7 @@ for (const [k, x] of Object.entries(POTIONS)) { x.id = k; x.icon = 'icons2/pot_'
 export const STATUS = {
   str: ['力量', '攻击伤害增加', '#e05a3a'], dex: ['敏捷', '获得的格挡增加', '#5ab45a'],
   vuln: ['易伤', '受到的攻击伤害 +50%', '#c070e0'], weak: ['虚弱', '造成的攻击伤害 -25%', '#7a90c0'],
+  chain: ['连锁反应', '每打倒 1 个敌人，得到 3 发光弹并抽 1 张牌（每层）', '#ffd060'],
   metal: ['金属化', '回合结束获得格挡', '#aaaaaa'], thorns: ['荆棘', '被攻击时反伤', '#c08a40'],
   fly: ['飞行', '受到的伤害减半。每被打中 1 次 -1 层，掉光就坠落，下回合不能行动', '#c0a0ff'],
   hostage: ['人质', '监工绑着的村民。你的回合没打到监工，村民就挨 5 鞭。战斗结束时村民还活着，额外得到 40 金币', '#ffd080'],
@@ -451,8 +452,8 @@ export const ENEMIES = {
     ai: e => cycle(e, ['howl', 'maul', 'pounce']) },
   vamp_count: { name: '吸血鬼伯爵', undead: 1, vamp: 1, hp: [210, 210], sc: 2.9, hd: 340, boss: 1, lore: '古堡的主人。你一回合打出 12 张牌，他就会停止时间，强制结束你的回合。第一次被打倒后会化作蝙蝠群复活。',
     intro: '「异界来的小老鼠……你们的血，一定很美味。」',
-    onCard: (e, type, B) => { if ((e.cn = (e.cn || 0) + 1) === 12) { B.say('「时间……停止吧。」'); B.endPlayerTurn(); } }, onTurn: e => { e.cn = 0; },
-    onDie: (e, B) => { if (!e.p2) { e.p2 = 1; B.revive(e, 0.5); e.st = { fly: 3, poison: Math.floor((e.st.poison || 0) / 2), res: Math.floor((e.st.res || 0) / 2) }; e.move = 'swarm'; B.say('（伯爵化作一团蝙蝠，又在王座上聚了回来）「游戏才刚开始。」'); } else B.say('「我只是……替山顶那位看门而已……」'); },
+    onCard: (e, type, B) => { if ((e.cn = (e.cn || 0) + 1) === 12) { B.say('「时间……停止吧。」'); B.endPlayerTurn(); } }, onPTurn: e => { e.cn = 0; },
+    onDie: (e, B) => { if (!e.p2) { e.p2 = 1; const pz = e.st.poison || 0, rs = e.st.res || 0; B.revive(e, 0.5); e.st = { fly: 3 }; if (pz >= 2) e.st.poison = Math.floor(pz / 2); if (rs >= 2) e.st.res = Math.floor(rs / 2); e.move = 'swarm'; B.say('（伯爵化作一团蝙蝠，又在王座上聚了回来）「游戏才刚开始。」'); } else B.say('「我只是……替山顶那位看门而已……」'); },
     moves: { bats: { n: '蝙蝠群', i: 'atk', d: 4, x: 3 }, drain: { n: '吸血', i: 'atk', d: 12, f: (e, B) => B.healE(e, 10) },
       mist: { n: '蝙蝠化', i: 'def', f: (e, B) => { B.addSt(e, 'intang', 1); B.eBlock(e, 10); } },
       moon: { n: '血月', i: 'buff', f: (e, B) => { e.moon = 1; B.alive().forEach(a => B.addSt(a, 'str', 2)); B.summon('skeleton', 0); B.say('「血月升起吧！」'); } },

@@ -25,7 +25,7 @@ const mine = d => (!d.ch || d.ch === R.char) && (!d.act2 || R.act === 2) && (!d.
 const mk = (id, up = 0) => ({ id, up, uid: uid++ });
 const addSt = (t, k, n) => { t.st[k] = (t.st[k] || 0) + n; if (t.st[k] === 0) delete t.st[k]; };
 const alive = () => B.en.filter(e => !e.dead);
-const atkVal = (s, t, b, m = 1) => { let d = (b + (s.st.str || 0) * m) * (s.d ? (s.dmul || 1) : 1); if (s.st.weak) d *= .75; if (t && t.st.vuln) d *= 1.5; return Math.max(0, Math.floor(d)); };
+const atkVal = (s, t, b, m = 1) => { let d = (b + (s.st.str || 0) * m) * (s.dmul || 1); if (s.st.weak) d *= .75; if (t && t.st.vuln) d *= 1.5; return Math.max(0, Math.floor(d)); };
 function hurt(t, amt, att, direct = true) {
   const isP = t === B.p; if (!isP && t.st.aegis) return 0; if (!isP && t.d && t.d.undead && has('silvercross')) amt = Math.floor(amt * 1.25); if (!isP && t.st.intang) amt = Math.ceil(amt / 2); if (!isP && t.st.fly) { amt = Math.ceil(amt / 2); addSt(t, 'fly', -1); if (!t.st.fly) t.grounded = 1; } if (!isP && att === B.p && direct) t.hitT = 1;
   const eAtk = isP && att && att !== B.p; amt = CORE3.pre(B, t, amt, isP, att, has); if (eAtk) amt = MECH.preBlock(G, amt, att); const u = Math.min(!isP && B.p.pierce && att === B.p ? 0 : t.block, amt); t.block -= u; let left = amt - u; if (eAtk) left = MECH.postBlock(G, left, att);
@@ -220,13 +220,13 @@ function endTurn() {
   for (const e of [...B.en]) {
     if (e.dead || R.hp <= 0) continue;
     if (e.st.aegis) addSt(e, 'aegis', -1); if (e.st.intang) e.st.intang = 0;
-    if (e.st.poison && !e.st.aegis) { e.hp -= e.st.poison; addSt(e, 'poison', -1); if (e.hp <= 0) { killE(e); continue; } }
+    if (e.st.poison && !e.st.aegis) { e.hp -= e.st.poison; addSt(e, 'poison', -1); if (e.hp <= 0) { e.diedPoison = 1; killE(e); continue; } }
     { const cc = MECH.enemyAct ? MECH.enemyAct(G, e) : null; if (e.dead) continue; if (cc === 'skip') { e.hist.push(e.move); continue; } }
     if (e.d.onTurn && e.d.onTurn(e, BE)) { e.hist.push(e.move); continue; }
     e.hitT = 0; e.enT = 0;
     const mv = e.d.moves[e.move];
     if (!mv) { e.hist.push(e.move); continue; }
-    if (mv.d) for (let k = 0; k < (mv.x ? mv.x + (e.xb || 0) : 1); k++) { hurt(B.p, atkVal(e, B.p, mv.d), e); if (e.dead) break; }
+    if (mv.d) for (let k = 0; k < (mv.x ? mv.x + (e.xb || 0) : 1); k++) { hurt(B.p, atkVal(e, B.p, mv.d), e); if (e.dead || R.hp <= 0) break; }
     if (mv.f && !e.dead) mv.f(e, BE);
     e.hist.push(e.move); e.d.after && e.d.after(e);
   }

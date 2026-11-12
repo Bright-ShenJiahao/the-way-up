@@ -1,8 +1,8 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11130130';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11130130';
-import { createAudio } from './audio.js?v=live2_11130130';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11130130';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11130200';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11130200';
+import { createAudio } from './audio.js?v=live2_11130200';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11130200';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -60,7 +60,7 @@ const snap = () => { const { snap: _, ...o } = R; R.snap = JSON.stringify(o); };
 const mine = d => (!d.ch || d.ch === (R.char || 'hero')) && (!d.act2 || (R && R.act === 2)) && (!d.act3 || (R && R.act >= 3));
 function save() { try { localStorage.setItem('theway_run_v2', JSON.stringify(R)); } catch (e) {} }
 function clearSave() { try { localStorage.removeItem('theway_run_v2'); } catch (e) {} }
-function load() { try { const s = JSON.parse(localStorage.getItem('theway_run_v2')); if (s) { if (!CHARS[s.char] || !Array.isArray(s.deck) || !Array.isArray(s.map)) return null; s.potions = (s.potions || []).filter(p => POTIONS[p]); s.deck = s.deck.filter(c => CARDS[c.id]); s.relics = (s.relics || []).filter(r => RELICS[r]); uidN = 1 + Math.max(0, ...s.deck.map(c => c.uid)); s.act = s.act === 2 ? 2 : 1; const bl = (s.act === 2 ? ENCOUNTERS2 : ENCOUNTERS).boss.map(b => b[0]); if (!bl.includes(s.boss)) s.boss = pickOne(bl); s.floor = Math.max(0, Math.min(ROWS + 1, s.floor | 0)); } return s; } catch (e) { return null; } }
+function load() { try { const s = JSON.parse(localStorage.getItem('theway_run_v2')); if (s) { if (!CHARS[s.char] || !Array.isArray(s.deck) || !Array.isArray(s.map)) return null; s.potions = (s.potions || []).filter(p => POTIONS[p]); s.deck = s.deck.filter(c => CARDS[c.id]); s.relics = (s.relics || []).filter(r => RELICS[r]); uidN = 1 + Math.max(0, ...s.deck.map(c => c.uid)); s.act = [1, 2, 3, 4].includes(s.act) ? s.act : 1; if (!ENEMIES[s.boss] || !ENEMIES[s.boss].boss) { const bl = (s.act === 4 ? ENCX() : s.act === 3 ? (s.rift ? RIFT : ENC3) : s.act === 2 ? ENCOUNTERS2 : ENCOUNTERS).boss.map(b => b[0]); s.boss = pickOne(bl); } s.floor = Math.max(0, Math.min((s.rows || ROWS) + 1, s.floor | 0)); } return s; } catch (e) { return null; } }
 
 // ---------- 地图生成 ----------
 const ROWS = 15, COLS = 7;
@@ -249,7 +249,7 @@ function mainMenu() {
   $('#start').onclick = () => askName(() => { if (!sv) return pickChar();
     const y = overlay(`<h2>开始新的冒险？</h2><p>当前存档（${CHARS[sv.char || 'hero'].name} · 第 ${sv.floor} 层）会被放弃。</p><div class="row"><button class="btn red" id="y1">放弃旧档，重新开始</button><button class="btn" id="y0">取消</button></div>`);
     y.querySelector('#y0').onclick = () => y.remove(); y.querySelector('#y1').onclick = () => { y.remove(); clearSave(); pickChar(); }; });
-  $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending && R.snap) { try { const o = JSON.parse(R.snap); R = Object.assign(o, { snap: R.snap }); } catch (e) {} } if (R.act2wait) act2Choice(); else if (R.wait === 'act3') act3Choice(); else if (R.wait === 'rift') riftChoice(); else if (R.wait === 'final') finalPrep(); else if (R.wait === 'ending') endingChoice(); else if (R.wait === 'trial') pickTrial(); else if (R.loot) rewardScreen(); else if (R.pending) enterNode(R.pending); else mapScreen(); });
+  $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending && R.snap && ['fight', 'elite', 'boss', 'final'].includes(R.pending)) { try { const o = JSON.parse(R.snap); R = Object.assign(o, { snap: R.snap }); } catch (e) {} } if (R.act2wait) act2Choice(); else if (R.wait === 'act3') act3Choice(); else if (R.wait === 'rift') riftChoice(); else if (R.wait === 'final') finalPrep(); else if (R.wait === 'ending') endingChoice(); else if (R.wait === 'trial') pickTrial(); else if (R.wait === 'layer') layerEnd(); else if (R.wait === 'trialR') trialReward(R.trialK); else if (R.loot) rewardScreen(); else if (R.pending) enterNode(R.pending); else mapScreen(); });
   $('#book').onclick = () => book();
   $('#rank').onclick = rankBoard; $('#set').onclick = () => settings(false); $('#back').onclick = title;
 }
@@ -491,9 +491,9 @@ const G = {
   attackAll(base, times = 1) { let s = 0; const fb = G.fhb(); for (let i = 0; i < times; i++) for (const e of alive()) s += hurt(e, atkVal(B.p, e, base + (i ? 0 : fb)), B.p); audio.slash(); return s; },
   attackRandom(base, times) { const fb = G.fhb(); for (let i = 0; i < times; i++) { const a = alive(); if (!a.length) break; const e = pickOne(a); hurt(e, atkVal(B.p, e, base + (i ? 0 : fb)), B.p); } audio.slash(); },
   block(n, raw) { if (!raw && B.p.ptP) { n += B.p.ptP; B.p.ptP = 0; } const v = Math.max(0, raw ? n : n + (B.p.st.dex || 0)); B.p.block += v; if (v) { fx('hero', `+${v}`, 'blk'); audio.holy(); heroAct('block'); } },
-  apply(t, k, n) { if (t && !t.dead) { addSt(t, k, n); fx(t.id, `${STATUS[k][0]}+${n}`, 'st'); } },
+  apply(t, k, n) { if (t && !t.dead) { addSt(t, k, n); fx(t.id, stf(k, n), 'st'); } },
   applyAll(k, n) { alive().forEach(e => G.apply(e, k, n)); },
-  self(k, n) { addSt(B.p, k, n); fx('hero', `${STATUS[k][0]}+${n}`, 'st'); },
+  self(k, n) { addSt(B.p, k, n); fx('hero', stf(k, n), 'st'); },
   draw(n) { drawCards(n); }, energy(n) { B.p.energy += n; },
   loseHp(n) { R.hp -= n; fx('hero', `-${n}`, 'dmg'); B.hitSet.add('hero'); pDeath(); },
   heal(n) { return healP(n); },
@@ -523,6 +523,7 @@ const G = {
   addCard(id, up, pile) { B[pile === 'discard' ? 'disc' : 'draw'].push(mkCard(id, up)); },
 };
 // 敌人用的接口
+const stf = (k, n) => `${STATUS[k] ? STATUS[k][0] : k}${n >= 0 ? '+' : ''}${n}`;
 const BE = {
   get sylvie() { return R.char === 'sylvie'; },
   transform(e, key, f = 1) { const i = B.en.indexOf(e); if (i < 0) return null; const n = mkEnemy(key); n.hp = Math.max(1, Math.round(n.max * f)); n.st = { ...n.st, ...Object.fromEntries(Object.entries(e.st).filter(([k]) => ['poison', 'weak', 'vuln', 'res', 'fburn'].includes(k))) }; n.move = n.d.ai(n, BE); B.en[i] = n; fx(n.id, tr(n.d.name), 'st'); return n; },
@@ -534,8 +535,8 @@ const BE = {
   seal(e, perm) { const cs = B.hand.filter(c => !c.seal && !CARDS[c.id].unplay); if (!cs.length) return null; const c = pickOne(cs); c.seal = perm ? 'perm' : e.id; fx('hero', tr('封印'), 'dmg'); return CARDS[c.id].name; },
   unseal(e) { [...B.draw, ...B.disc, ...B.hand, ...B.exh].forEach(c => { if (c.seal === e.id) delete c.seal; }); },
   zc: () => B.p.zc || 0, handTypes() { return { atk: B.hand.filter(c => CARDS[c.id].type === 'atk').length, skill: B.hand.filter(c => CARDS[c.id].type !== 'atk').length }; },
-  applyP(k, n) { addSt(B.p, k, n); fx('hero', `${STATUS[k][0]}+${n}`, 'st'); },
-  addSt(e, k, n) { addSt(e, k, n); fx(e.id, `${STATUS[k][0]}+${n}`, 'st'); },
+  applyP(k, n) { addSt(B.p, k, n); fx('hero', stf(k, n), 'st'); },
+  addSt(e, k, n) { addSt(e, k, n); fx(e.id, stf(k, n), 'st'); },
   eBlock(e, n) { e.block += n; fx(e.id, `+${n}`, 'blk'); },
   allies: e => alive().filter(a => a !== e), alive: () => alive(),
   healE(e, n) { e.hp = Math.min(e.max, e.hp + n); fx(e.id, `+${n}`, 'heal'); },
@@ -692,13 +693,13 @@ async function endTurn() {
     B.hitSet = new Set();
     if (e.st.aegis) addSt(e, 'aegis', -1); /* 圣盾挡住玩家的一个回合，轮到它行动时才消失 */
     if (e.st.intang) e.st.intang = 0; /* 虚化同理 */
-    if (e.st.poison && !e.st.aegis) { const pz = e.st.poison; e.hp -= pz; fx(e.id, `-${pz}`, 'dmg'); B.hitSet.add(e.id); addSt(e, 'poison', -1); if (e.hp <= 0) { killE(e); render(); await sleep(300); if (await checkEnd()) return; continue; } }
+    if (e.st.poison && !e.st.aegis) { const pz = e.st.poison; e.hp -= pz; fx(e.id, `-${pz}`, 'dmg'); B.hitSet.add(e.id); addSt(e, 'poison', -1); if (e.hp <= 0) { e.diedPoison = 1; killE(e); render(); await sleep(300); if (await checkEnd()) return; continue; } }
     { const cc = MECH.enemyAct ? MECH.enemyAct(G, e) : null; if (e.dead) { render(); await sleep(300); if (await checkEnd()) return; continue; } if (cc === 'skip') { fx(e.id, tr('无法行动'), 'st'); e.hist.push(e.move); render(); await sleep(380); continue; } }
     const otr = e.d.onTurn && e.d.onTurn(e, BE); if (otr) { if (otr === 'skip' && !e.dead && !e.fled) fx(e.id, e.d.key === 'dev_boss' || e.key === 'dev_boss' ? tr('程序报错·无法行动') : '坠地·无法行动', 'st'); e.hist.push(e.move); render(); await sleep(300); if (await checkEnd()) return; continue; }
     e.hitT = 0; e.enT = 0;
     const mv = e.d.moves[e.move]; B.lunge = mv.d != null && mv.i.startsWith('atk') && mv.d > 0 ? e.id : null;
     if (mv.d) { eAct(e, 'atk', mv.af); gv(e, 'atk'); } else if (/buff|summon/.test(mv.i)) gv(e, 'buff');
-    if (mv.d) for (let k = 0; k < hitsOf(e, mv); k++) { hurt(B.p, atkVal(e, B.p, mv.d), e); if (e.dead) break; }
+    if (mv.d) for (let k = 0; k < hitsOf(e, mv); k++) { hurt(B.p, atkVal(e, B.p, mv.d), e); if (e.dead || R.hp <= 0) break; }
     if (mv.f && !e.dead) mv.f(e, BE);
     e.hist.push(e.move); e.d.after && e.d.after(e);
     render(); await sleep(mv.d ? 520 : 380); if (B !== b0) return;
@@ -759,7 +760,7 @@ function barHTML(hp, max, blk, me) {
   let cls = '', tip = '';
   if (me && TIPS && B && !B.busy) { const inc = incoming(); if (inc > 0) { cls = blk >= inc ? 'ok' : 'low'; tip = `敌人下回合共 ${inc} 点伤害，你有 ${blk} 格挡${blk >= inc ? '，足够' : `，还差 ${inc - blk}`}`; } }
   return `<div class="bar ${blk ? 'blk' : ''}" title="${tip}"><i style="width:${Math.max(0, hp) / max * 100}%"></i><span>${Math.max(0, hp)}/${max}</span>${blk || cls === 'low' ? `<div class="blkv ${cls}">${blk}</div>` : ''}</div>${cls ? `<div class="inc ${cls}">受到 ${inc_(blk)}</div>` : ''}`;
-  function inc_(b) { return Math.max(0, incoming() - b); }
+  function inc_(b) { let loss = 0; for (const e of alive()) { const mv = e.d.moves[e.move]; if (!(mv.d && mv.i.startsWith('atk'))) continue; for (let k = 0; k < hitsOf(e, mv); k++) { const d = atkVal(e, B.p, mv.d); const h = mv.br && b > 1 ? Math.floor(b / 2) : 0; const use = Math.min(b - h, d); b -= use; loss += d - use; } } return loss; } /* 龙息只吃一半格挡 */
 }
 let frame = 0;
 function render() {
@@ -1018,7 +1019,7 @@ setInterval(() => { if (bgmNow) { const V = audio.vol || {}; BGM[bgmNow].volume 
 function act2Choice() { sting('act2', 2600);
   B = null; delete R.pending; delete R.pendEnc; delete R.snap; R.act2wait = 1; save(); setMusic('menu'); const bn = tr((ENEMIES[R.boss] || {}).name || '哥布林大王');
   view.innerHTML = `${bgHTML(false, 'story_road')}<div class="panel" style="width:760px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('{0}倒下了', bn)}</h2>
-   <p>${t('远处山顶的古堡亮起了血红的光。被抓走的村民，就关在那里。')}</p><p style="color:#ffb0b0">${t('进入第二章：血月古堡（回复 50% 生命）')}</p>
+   <p>${t('远处山顶的古堡亮起了血红的光。被抓走的村民，就关在那里。')}</p><p style="color:#ffb0b0">${t('进入第二章：血月古堡（回复 {0}% 生命）', 50)}</p>
    <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="go2">${t('前往古堡')}</button><button class="btn" id="end1">${t('到此为止')}</button></div></div>`;
   $('#go2').onclick = () => { delete R.act2wait; R.floor0 = R.floor; R.floor = 0; R.act = 2; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .5)); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = pickOne(ENCOUNTERS2.boss)[0];
     delete R.pending; delete R.pendEnc; delete R.snap; save(); mapScreen(); };
@@ -1070,7 +1071,9 @@ function pickTrial() { B = null; R.wait = 'trial'; save(); setMusic('menu');
   view.innerHTML = `${bgHTML()}${topBar()}<div class="panel" style="width:820px"><h2>${t('天外之塔 · 第 {0} 轮', R.endless)}</h2><p>${t('天之试炼：选一条（之后一直生效，会叠加）')}</p>
    ${opts.map(k => `<div class="reward trial" data-k="${k}"><b>${tr(TRIALS[k].name)}</b><span style="color:#ff9a8a">${tr(TRIALS[k].bad)}</span><span style="color:#8fe08f">${t('奖励：')}${tr(TRIALS[k].good)}</span></div>`).join('')}</div>`;
   bindTop();
-  view.querySelectorAll('.trial').forEach(el => el.onclick = () => { const k = el.dataset.k; R.trials.push(k); delete R.wait; save(); const done = () => { save(); mapScreen(); };
+  view.querySelectorAll('.trial').forEach(el => el.onclick = () => { const k = el.dataset.k; R.trials.push(k); R.wait = 'trialR'; R.trialK = k; save(); trialReward(k); });
+}
+function trialReward(k) { /* 试炼奖励：领完才清掉等待标记，中途刷新会重新发 */ const done = () => { delete R.wait; delete R.trialK; save(); mapScreen(); };
     if (k === 'scale') return chooseCard(rollCards(3, 0, true), () => done());
     if (k === 'blood') gainRelic(rollRelic());
     if (k === 'cold') return pickDeck('remove', () => pickDeck('remove', () => done()));
@@ -1079,13 +1082,13 @@ function pickTrial() { B = null; R.wait = 'trial'; save(); setMusic('menu');
     if (k === 'hunger') { R.maxHp += 10; R.hp += 10; }
     if (k === 'swarm') { gainPotion(rollPotion()); gainPotion(rollPotion()); }
     if (k === 'tyrant') R.bonusRelic = 1;
-    done(); });
+    done();
 }
-function layerEnd() { B = null; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .3));
+function layerEnd() { B = null; if (R.layerHeal !== R.endless) { R.layerHeal = R.endless; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .3)); } R.wait = 'layer'; save();
   try { const M = metaGet(); M.endless = M.endless || {}; M.endless[R.char] = Math.max(M.endless[R.char] || 0, R.endless); if (!DEBUG) metaSet(M); } catch (e) {}
   view.innerHTML = `${bgHTML()}${topBar()}<div class="panel"><h2>${t('第 {0} 轮通过', R.endless)}</h2><p>${t('回复了 30% 生命。再选一项：')}</p><div class="row"><button class="btn" id="lu">${t('升级 1 张牌')}</button><button class="btn" id="lr">${t('删除 1 张牌')}</button></div></div>`;
   bindTop();
-  const next = () => { R.endless++; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; newLayer(); };
+  const next = () => { delete R.wait; R.endless++; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; newLayer(); };
   $('#lu').onclick = () => pickDeck('upgrade', () => next()); $('#lr').onclick = () => pickDeck('remove', () => next());
 }
 function endScreen(win) {
@@ -1143,7 +1146,7 @@ function rollPotion() { return Math.random() < .08 ? 'fairy' : pickOne(Object.ke
 function potionClick(i) {
   const id = R.potions[i], P = POTIONS[id]; if (!P) return;
   if (!B || B.over || B.busy || B.anim) { const o = overlay(`<h2>${P.name}</h2><img src="${P.img}" style="width:80px"><p>${P.desc}</p><div class="row"><button class="btn red" id="pd">丢掉</button><button class="btn" id="px">关闭</button></div>`);
-    o.querySelector('#px').onclick = () => o.remove(); o.querySelector('#pd').onclick = () => { R.potions.splice(i, 1); o.remove(); B ? render() : mapScreen(); }; return; }
+    o.querySelector('#px').onclick = () => o.remove(); o.querySelector('#pd').onclick = () => { R.potions.splice(i, 1); o.remove(); save(); if (B && !B.over) render(); else { const tp = view.querySelector('#top'); if (tp) { tp.outerHTML = topBar(); bindTop(); } } }; return; }
   if (B.potSel === i) { B.potSel = null; render(); return; }
   potPop(i);
 }

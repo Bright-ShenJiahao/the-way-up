@@ -1115,6 +1115,7 @@ export default {
 "共鸣满 {0} 层时爆炸，造成 {1} 点伤害，之后保留 {2} 层；每个敌人第一次被爆音时还会眩晕。": "At {0} Resonance it explodes for {1} damage, then keeps {2}; each enemy is also Stunned the first time.",
 "回合结束时自动射出，每发对随机敌人造成 {0} 点伤害（第 {1}、{2}、{3}… 发为 {4} 点），然后清零（最多 {5} 发）": "Fired automatically at end of turn; each shot deals {0} damage to a random enemy (shots {1}, {2}, {3}… deal {4}), then resets (max {5})",
 "林拓的掌机子弹。回合结束时自动射出，每发对随机敌人造成 {0} 点伤害（第 {1}、{2}、{3}… 发为 {4} 点），然后清零。最多 {5} 发。": "Lin Tuo's handheld bullets. Fired automatically at end of turn; each shot deals {0} damage to a random enemy (shots {1}, {2}, {3}… deal {4}), then resets. Max {5}.",
+"每打倒 {0} 个敌人，得到 {1} 发光弹并抽 {2} 张牌（每层）": "For every {0} enemy defeated, gain {1} light rounds and draw {2} card(s) (per stack)",
 "打击": "Strike",
 "火种": "Ember",
 "水纹": "Ripple",
