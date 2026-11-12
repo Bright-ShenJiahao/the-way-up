@@ -634,5 +634,9 @@
  "每打倒 {0} 个敌人，得到 {1} 发光弹并抽 {2} 张牌（每层）": [
   "For every {0} enemy defeated, gain {1} light rounds and draw {2} card(s) (per stack)",
   "敵を{0}体倒すごとに光弾を{1}発得て、カードを{2}枚引く（1層ごと）"
+ ],
+ "回合结束时自动射出，每发打随机敌人 {0}~{1} 点伤害，然后清零。": [
+  "Fires at end of turn, {0}–{1} damage each to random enemies, then resets.",
+  "ターン終了時に自動発射、1発{0}〜{1}ダメージ（ランダムな敵）、その後0に。"
  ]
 }

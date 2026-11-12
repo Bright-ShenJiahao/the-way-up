@@ -5,9 +5,6 @@ on:
       n: { description: '每个角色每档局数（至少 200）', default: '1000' }
       lock: { description: '解锁档 0-4', default: '4' }
       asc: { description: '进阶难度 0-8', default: '0' }
-  push:
-    branches: [preview]
-    paths: ['src/data.js', 'tools/sim.mjs']
 concurrency: { group: balance-report, cancel-in-progress: false }
 permissions:
   contents: write
@@ -23,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
-      - run: node tools/sim.mjs ${{ inputs.n || '1000' }} ${{ inputs.lock || '4' }} ${{ matrix.ch }} ${{ inputs.asc || '0' }} | tee -a $GITHUB_STEP_SUMMARY
+      - run: SMARTONLY=1 node tools/sim.mjs ${{ inputs.n || '1000' }} ${{ inputs.lock || '4' }} ${{ matrix.ch }} ${{ inputs.asc || '0' }} | tee -a $GITHUB_STEP_SUMMARY
       - run: mv data/balance.md data/balance_${{ matrix.ch }}.md
       - uses: actions/upload-artifact@v4
         with: { name: 'bal-${{ matrix.ch }}', path: 'data/balance_${{ matrix.ch }}.md' }
@@ -39,7 +36,7 @@ jobs:
       - name: 合并并提交回 preview
         run: |
           cp data/balance.md /tmp/old_balance.md 2>/dev/null || true
-          node -e "const fs=require('fs');const fs2=fs.readdirSync('parts').sort();let head='',body={novice:[],smart:[]};for(const f of fs2){const t=fs.readFileSync('parts/'+f,'utf8').split('\n');head=head||t.slice(0,5).join('\n');let sec='';for(const l of t){if(l.startsWith('## '))sec=l.includes('熟练')?'smart':'novice';else if(/^\| [a-z]/.test(l)&&!l.startsWith('| 角色'))body[sec].push(l);}}const th='| 角色 | 第一章通关 | 第二章通关 | 第一章 Boss 战胜率 | 第二章通关剩余生命 | 超时 | 最常死在 |\n|---|---|---|---|---|---|---|';fs.writeFileSync('data/balance.md',head+'\n\n## 新手机器人\n\n'+th+'\n'+body.novice.join('\n')+'\n\n## 熟练机器人（≈ 真人）\n\n'+th+'\n'+body.smart.join('\n')+'\n')"
+          node -e "const fs=require('fs');const fs2=fs.readdirSync('parts').sort();let head='',body={novice:[],smart:[]};for(const f of fs2){const t=fs.readFileSync('parts/'+f,'utf8').split('\n');head=head||t.slice(0,5).join('\n');let sec='';for(const l of t){if(l.startsWith('## '))sec=l.includes('熟练')?'smart':'novice';else if(/^\| [a-z]/.test(l)&&!l.startsWith('| 角色'))body[sec].push(l);}}const th='| 角色 | 第一章通关 | 第二章通关 | 第三章通关 | 第一章 Boss 战胜率 | 通关剩余生命 | 超时 | 最常死在 |\n|---|---|---|---|---|---|---|---|';fs.writeFileSync('data/balance.md',head+'\n\n## 强化训练 AI（用 tools/weights.json 里学到的打法）\n\n'+th+'\n'+body.smart.join('\n')+'\n')"
           cat data/balance.md >> $GITHUB_STEP_SUMMARY
           git config user.name "balance-bot"; git config user.email "bot@users.noreply.github.com"
           git add data/balance.md; git commit -m "平衡测试结果 [skip ci]" || true

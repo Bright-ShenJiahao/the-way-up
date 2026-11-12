@@ -16,8 +16,10 @@ function evalW(w, n, seed) { return new Promise(res => {
   const p = spawn('node', ['tools/sim.mjs', String(n), '4', ch], { env: { ...process.env, WEIGHTS: JSON.stringify(w), SMARTONLY: '1', NOWRITE: '1', SEED: String(seed) } });
   let out = ''; p.stdout.on('data', d => out += d); p.on('close', () => { const m = out.match(new RegExp(`^\\| ${ch} \\| ([\\d.]+)% \\| ([\\d.]+)% \\| ([\\d.]+)% `, 'm')); res(m ? { a: +m[1], b: +m[2], c: +m[3], s: (+m[1] + +m[2] + 2 * +m[3]) / 4 } : { s: -1 }); }); }); }
 async function pool(tasks) { const out = new Array(tasks.length); let i = 0; await Promise.all(Array.from({ length: P }, async () => { while (i < tasks.length) { const k = i++; out[k] = await tasks[k](); } })); return out; }
-let mean = { ...W0 }; const sig = Object.fromEntries(KEYS.map(k => [k, Math.max(.25, Math.abs(W0[k]) * .25)]));
-const log = []; let gen = 0, best = { w: { ...W0 }, s: -1 };
+let TW = {}; try { TW = JSON.parse(fs.readFileSync('tools/weights.json', 'utf8')); } catch (e) {}
+const START = { ...W0, ...(TW[ch] || {}) }; /* 接着上一次训练的结果继续练 */
+let mean = { ...START }; const sig = Object.fromEntries(KEYS.map(k => [k, Math.max(.25, Math.abs(START[k]) * .2)]));
+const log = []; let gen = 0, best = { w: { ...START }, s: -1 };
 while (Date.now() < T_END - 6 * 60e3) {
   const seed = 1000 + gen * 17, cands = [];
   for (let j = 0; j < P; j++) { const z = Object.fromEntries(KEYS.map(k => [k, gauss()])); for (const sgn of [1, -1]) cands.push(Object.fromEntries(KEYS.map(k => [k, clamp(k, mean[k] + sgn * sig[k] * z[k])]))); }
@@ -31,8 +33,8 @@ while (Date.now() < T_END - 6 * 60e3) {
   log.push({ gen, meanScore: res[res.length - 1].s, top: order[0][0] }); console.log(`gen ${gen} mean=${res[res.length - 1].s.toFixed(1)} top=${order[0][0].toFixed(1)}`); gen++;
 }
 /* 最后用 1000 局、同一批种子，对比：原来的权重 / 训练后的平均权重 / 训练中最好的那组 */
-const NF = 1000, fin = await pool([W0, mean, best.w].map(w => () => evalW(w, NF, 777)));
-const pick = fin[1].s >= fin[2].s ? { w: mean, r: fin[1] } : { w: best.w, r: fin[2] };
+const NF = 1000, fin = await pool([START, mean, best.w].map(w => () => evalW(w, NF, 777)));
+let pick = fin[1].s >= fin[2].s ? { w: mean, r: fin[1] } : { w: best.w, r: fin[2] }; if (fin[0].s > pick.r.s) pick = { w: START, r: fin[0] }; /* 练坏了就保留原来的 */
 const report = { ch, gens: gen, before: fin[0], after: pick.r, weights: pick.w, log };
 fs.mkdirSync('data', { recursive: true }); fs.writeFileSync(`data/train_${ch}.json`, JSON.stringify(report, null, 1));
 console.log('WEIGHTS ' + JSON.stringify(pick.w));
