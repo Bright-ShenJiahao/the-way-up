@@ -63,14 +63,14 @@ const G = {
   potion(n, id) { const ps = ['p_fire', 'p_frost', 'p_heal', 'p_poison', 'p_boom', 'p_vine']; for (let i = 0; i < n; i++) (B.hand.length < 10 ? B.hand : B.disc).push(mk(id || pickOne(ps))); },
   poison(t, n) { if (!t || t.dead || n <= 0) return; addSt(t, 'poison', n + (has('toad') ? 1 : 0)); },
   volley(clear = true, max = 99) { // 光弹齐射
-    const n = Math.min(max, B.p.st.ammo || 0); if (!n) return; const dmg = 3 + (B.p.st.dual || 0) + (B.p.oc || 0);
+    const n = Math.min(max, B.p.st.ammo || 0); if (!n) return; const dmg = 4 + (B.p.st.dual || 0) + (B.p.oc || 0);
     for (let i = 0; i < n; i++) { const a = alive(); if (!a.length) break; if (B.p.aoe && i < B.p.aoe) a.forEach(e => hurt(e, atkVal(B.p, e, dmg), B.p)); else { const e = pickOne(a); hurt(e, atkVal(B.p, e, dmg), B.p); } }
     if (B.p.st.rapid) G.block(B.p.st.rapid * n, true);
     if (clear) { B.shots = (B.shots || 0) + n; if (has('pad')) { B.p.padDraw = Math.floor(B.shots / 4); B.shots %= 4; } addSt(B.p, 'ammo', -Math.min(n, B.p.st.ammo || 0)); }
     },
   usePotion() { const i = B.hand.findIndex(c => CARDS[c.id].potion); if (i < 0) return false; B.exh.push(B.hand.splice(i, 1)[0]); return true; },
   kek(n) { addSt(B.p, 'kek', n); },
-  ammo(n) { B.p.st.ammo = Math.min(10, (B.p.st.ammo || 0) + n); },
+  ammo(n) { B.p.st.ammo = Math.min(8, (B.p.st.ammo || 0) + n); },
   spend(n) { const k = Math.min(n, B.p.st.ammo || 0); if (!k) return 0; addSt(B.p, 'ammo', -k); if (B.p.st.rapid) G.block(B.p.st.rapid * k, true); B.shots = (B.shots || 0) + k; if (has('pad')) while (B.shots >= 4) { B.shots -= 4; drawCards(1); } return k; },
   fire(t, k, d) { if (k) G.attack(t, d + (B.p.st.dual || 0), k); }, fireAll(k, d) { if (k) G.attackAll(d + (B.p.st.dual || 0), k); }, fireRandom(k, d) { if (k) G.attackRandom(d + (B.p.st.dual || 0), k); },
   res(t, n) { if (!t || t.dead || n <= 0) return; addSt(t, 'res', n); for (let k = 0; k < 5 && !t.dead && t.st.res >= 10; k++) boom(t); },

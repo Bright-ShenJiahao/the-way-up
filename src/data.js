@@ -1,5 +1,5 @@
-import { tr } from './i18n.js?v=live2_11121520';
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11121520';
+import { tr } from './i18n.js?v=live2_11121610';
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11121610';
 export { MECH, NEWKEYW, OLDKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
@@ -228,7 +228,7 @@ export const CARDS = {
   shinju: { ch: 'miko', name: '召唤式神', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/shinju', tgt: 'self',
     desc: u => `召唤 1 个式神（最多同时 2 个），获得 ${v(u, 3, 6)} 点格挡。式神会整段挡下敌人的下一次攻击。`, play: (g, u) => { MECH.shiki(g, 1); g.block(v(u, 3, 6)); } },
   fullmag: { ch: 'hero', act2: 1, name: '满弹连射', type: 'skill', rar: 'r', cost: [2, 2], icon: 'icons2/fullmag', tgt: 'self',
-    desc: u => `光弹补到 ${v(u, 7, 10)} 发。`, play: (g, u) => g.ammo(Math.max(0, v(u, 7, 10) - (g.p.st.ammo || 0))) },
+    desc: u => `光弹补到 ${v(u, 6, 8)} 发。`, play: (g, u) => g.ammo(Math.max(0, v(u, 6, 8) - (g.p.st.ammo || 0))) },
   silverbul: { ch: 'hero', act2: 1, name: '银弹', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/silverbul', tgt: 'one',
     desc: u => `造成 ${v(u, 7, 9)} 点伤害，对亡灵翻倍。得到 2 发光弹。`, play: (g, u, t) => { g.attack(t, v(u, 7, 9) * (t && t.d.undead ? 2 : 1)); g.ammo(2); } },
   reload2: { ch: 'hero', act2: 1, name: '快速换弹', type: 'skill', rar: 'u', cost: [0, 0], icon: 'icons2/reload2', tgt: 'self',
@@ -331,7 +331,7 @@ export const STATUS = {
   regen: ['再生', '回合结束回复生命', '#50d080'], enrage: ['激怒', '你每打出一张技能牌，它获得力量', '#ff7030'],
   ritual: ['战意', '回合结束获得力量', '#ff9050'], fuse: ['引信', '归零时自爆', '#ffcc00'],
   intang: ['虚化', '受到的伤害减半，轮到它行动时消失', '#a8f0ff'],
-  ammo: ['光弹', '回合结束时自动射出，每发对随机敌人造成 3 点伤害，然后清零（最多 10 发）', '#60d0ff'], res: ['共鸣', '叠到 10 层时爆音，造成 16 点伤害（每个敌人第一次被爆音时还会眩晕），之后保留 3 层（多出的也保留）', '#ff80c0'],
+  ammo: ['光弹', '回合结束时自动射出，每发对随机敌人造成 4 点伤害，然后清零（最多 8 发）', '#60d0ff'], res: ['共鸣', '叠到 10 层时爆音，造成 16 点伤害（每个敌人第一次被爆音时还会眩晕），之后保留 3 层（多出的也保留）', '#ff80c0'],
   gen: ['扩容', '回合开始得到光弹', '#60d0ff'], rapid: ['连发', '回合结束射出光弹时获得格挡', '#60d0ff'], dual: ['双持', '每发光弹伤害增加', '#60d0ff'],
   lowf: ['低频', '回合开始给所有敌人共鸣', '#ff80c0'], dist: ['失真', '爆音后多保留 3 层共鸣，爆音伤害 +8', '#ff80c0'], concert: ['演唱会', '出牌时给所有敌人共鸣', '#ff80c0'],
   kek: ['结界', '回合开始时按层数获得格挡', '#ffd060'], kagura: ['神乐舞', '回合开始结界 +1', '#ffd060'], shinboku: ['御神木', '结界格挡翻倍', '#ffd060'],

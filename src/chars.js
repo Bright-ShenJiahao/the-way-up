@@ -148,7 +148,7 @@ const SYL = {
 
 /* ======================= 米娅 · 云猫团子 =======================
    团子第一章 1 级、第二章 2 级。分离时每回合免费下一个指令：护卫（替米娅挡下一次攻击的前 8 点）或扑击（回合结束攻击目标）。
-   界面上的「合体 / 分离」按钮每回合可以免费切换一次。合体时团子不在场、每回合回复 2 生命；【猫】牌合体时更强。米娅攻击 + 团子攻击力的一半，每回合开始 3 点格挡。
+   界面上的「合体 / 分离」按钮每回合可以免费切换一次。合体时团子不在场、每回合回复 1 生命；【猫】牌合体时更强。米娅攻击 + 团子攻击力的一半，每回合开始 3 点格挡。
    驯养牌给团子的强化本场有效；灵魂恩赐（打完精英或 Boss 三选一）整局有效。 */
 function catDid(g, k) { const p = P(g), c = p.cat; if (c.did[k]) return; c.did[k] = 1; if (p.st.mjump) g.block(p.st.mjump, true); if (Object.keys(c.did).length >= 2 && g.has('lynx') && !p.lynxU) { p.lynxU = 1; p.lynxD = 1; } }
 const CATLV = [null, { max: 16, atk: 7 }, { max: 21, atk: 9 }, { max: 26, atk: 11 }];
@@ -460,7 +460,7 @@ export const MECH = {
     if (p.st.dscale && p.st.dragon) g.block(p.st.dscale, true);
     if (p.st.mbond && p.cat) healCat(g, p.st.mbond);
     if (p.st.batgen) addBats(g, p.st.batgen);
-    if (merged(g)) { healCat(g, 2); g.block((hasBoon(g, 'heart') ? 6 : 3) + (p.st.wild > 1 ? 3 : 0), true); }
+    if (merged(g)) { healCat(g, 1); g.block((hasBoon(g, 'heart') ? 6 : 3) + (p.st.wild > 1 ? 3 : 0), true); }
     if (p.st.nshade) { const a = g.alive(); if (a.length) g.poison(a.reduce((m, e) => (e.st.poison || 0) > (m.st.poison || 0) ? e : m, a[0]), p.st.nshade); }
     if (p.st.dragon && !first) { p.st.dragon--; if (!p.st.dragon) { delete p.st.dragon; if (g.has('dayscale') && !p.dsU) { p.dsU = 1; gainDB(g, 3); } else g.self('weak', 1); if (p.st.wake) { gainDB(g, 4); g.draw(2); if (p.st.wake > 1) g.energy(1); } } }
     if (p.manualD) { g.draw(2); p.manualD = 0; }

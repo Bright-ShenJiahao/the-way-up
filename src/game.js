@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11121520';
-import { createAudio } from './audio.js?v=live2_11121520';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11121520';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11121610';
+import { createAudio } from './audio.js?v=live2_11121610';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11121610';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -43,7 +43,7 @@ let TIPS = true; try { TIPS = localStorage.getItem('tipsOff') !== '1'; } catch (
 const KW = { '狡诈': '这张牌被弃掉时，会自动免费打出。', '格挡': '抵挡受到的伤害。你的回合开始时清零。', '易伤': '受到的攻击伤害 +50%，每回合减 1 层。', '虚弱': '造成的攻击伤害 -25%，每回合减 1 层。',
   '力量': '每次攻击伤害增加等同于力量的数值。', '敏捷': '每次获得格挡时额外增加等同于敏捷的数值。', '消耗': '打出后移出本场战斗，不进弃牌堆。',
   '荆棘': '被攻击时，对攻击者造成等同于层数的伤害。', '能量': '出牌要花能量，每回合开始恢复为 3 点。',
-  '光弹': '林拓的掌机子弹。回合结束时自动射出，每发对随机敌人造成 3 点伤害，然后清零。最多 10 发。', '共鸣': '叠在敌人身上，到 10 层自动爆音。', '中毒': '敌人行动前受到等同层数的伤害（无视格挡），然后减 1 层。', '炼金瓶': '魔女的 0 费一次性牌，由其他牌生成，用完消耗。', '药水': '所有角色通用的一次性道具，最多带 3 瓶，战斗中点左上角的药水就能用，不花能量。', '结界': '叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。', '爆音': '共鸣满 10 层时，对该敌人造成 16 点伤害，之后保留 3 层（多出的层数也保留）。每个敌人第一次被爆音时还会眩晕（跳过下一次行动）。' };
+  '光弹': '林拓的掌机子弹。回合结束时自动射出，每发对随机敌人造成 4 点伤害，然后清零。最多 8 发。', '共鸣': '叠在敌人身上，到 10 层自动爆音。', '中毒': '敌人行动前受到等同层数的伤害（无视格挡），然后减 1 层。', '炼金瓶': '魔女的 0 费一次性牌，由其他牌生成，用完消耗。', '药水': '所有角色通用的一次性道具，最多带 3 瓶，战斗中点左上角的药水就能用，不花能量。', '结界': '叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。', '爆音': '共鸣满 10 层时，对该敌人造成 16 点伤害，之后保留 3 层（多出的层数也保留）。每个敌人第一次被爆音时还会眩晕（跳过下一次行动）。' };
 const kwify = s => { if (!TIPS) return s; const names = Object.keys(KW).map(k => [tr(k), tr(KW[k])]).sort((a, b) => b[0].length - a[0].length); const re = new RegExp(names.map(n => n[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'g'); const m2 = Object.fromEntries(names); return s.replace(re, m => `<span class="kw" title="${m2[m]}">${m}</span>`); };
 let R = null; // 当前一局
 let uidN = 1;
@@ -483,7 +483,7 @@ const G = {
   potion(n, id) { const ps = ['p_fire', 'p_frost', 'p_heal', 'p_poison', 'p_boom', 'p_vine']; for (let i = 0; i < n; i++) { const c = mkCard(id || pickOne(ps)); (B.hand.length < 10 ? B.hand : B.disc).push(c); } fx('hero', `药瓶+${n}`, 'st'); },
   poison(t, n) { if (!t || t.dead || n <= 0) return; n += has('toad') ? 1 : 0; addSt(t, 'poison', n); fx(t.id, `中毒+${n}`, 'st'); },
   volley(clear = true, max = 99) { // 光弹齐射：每发 4 点（+双持 +超频），打随机敌人或全体
-    const n = Math.min(max, B.p.st.ammo || 0); if (!n) return; const dmg = 3 + (B.p.st.dual || 0) + (B.p.oc || 0);
+    const n = Math.min(max, B.p.st.ammo || 0); if (!n) return; const dmg = 4 + (B.p.st.dual || 0) + (B.p.oc || 0);
     for (let i = 0; i < n; i++) { const a = alive(); if (!a.length) break; const ao = B.p.aoe && i < B.p.aoe; (ao ? a : []).forEach(e => B.fx.push({ who: e.id, cls: 'bul', n: i })); if (ao) a.forEach(e => hurt(e, atkVal(B.p, e, dmg), B.p)); else { const e = pickOne(a); B.fx.push({ who: e.id, cls: 'bul', n: i }); hurt(e, atkVal(B.p, e, dmg), B.p); } }
     if (B.p.st.rapid) G.block(B.p.st.rapid * n, true);
     if (clear) { B.shots = (B.shots || 0) + n; if (has('pad')) { B.p.padDraw = Math.floor(B.shots / 4); B.shots %= 4; } addSt(B.p, 'ammo', -Math.min(n, B.p.st.ammo || 0)); } /* 齐射途中“连锁反应”新得到的光弹留到下回合 */
@@ -491,7 +491,7 @@ const G = {
   usePotion() { const i = B.hand.findIndex(c => CARDS[c.id].potion); if (i < 0) return false; B.exh.push(B.hand.splice(i, 1)[0]); return true; },
   hit(t, n) { if (t && !t.dead) hurt(t, n, B.p, false); }, /* 药水伤害：不算“打到”监工 */
   kek(n) { addSt(B.p, 'kek', n); fx('hero', `结界+${n}`, 'st'); },
-  ammo(n) { const a = Math.min(10, (B.p.st.ammo || 0) + n); if (a !== B.p.st.ammo) { B.p.st.ammo = a; fx('hero', `光弹+${n}`, 'st'); } },
+  ammo(n) { const a = Math.min(8, (B.p.st.ammo || 0) + n); if (a !== B.p.st.ammo) { B.p.st.ammo = a; fx('hero', `光弹+${n}`, 'st'); } },
   spend(n) { const k = Math.min(n, B.p.st.ammo || 0); if (!k) return 0; addSt(B.p, 'ammo', -k); if (B.p.st.rapid) G.block(B.p.st.rapid * k, true);
     B.shots = (B.shots || 0) + k; if (has('pad')) { while (B.shots >= 4) { B.shots -= 4; drawCards(1); } } return k; },
   fire(t, k, dmg) { if (k) G.attack(t, dmg + (B.p.st.dual || 0), k); },
