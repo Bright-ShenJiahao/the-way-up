@@ -1,8 +1,8 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul } from './data.js?v=live2_11122230';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11122230';
-import { createAudio } from './audio.js?v=live2_11122230';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11122230';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11122320';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11122320';
+import { createAudio } from './audio.js?v=live2_11122320';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11122320';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -19,7 +19,7 @@ const bindLang = after => view.querySelectorAll('[data-lang]').forEach(el => el.
 const applyStatic = () => { document.title = tr('通往顶端') + ' The Way Up: Otherworld Deck'; const r = document.querySelector('#rot div:nth-child(2)'); if (r) r.textContent = getLanguage() === 'zh' ? '请把手机横过来玩' : tr('请把手机横过来玩'); const r3 = document.querySelector('#rot div:nth-child(3)'); if (r3) r3.style.display = getLanguage() === 'en' ? 'none' : ''; document.documentElement.lang = getLanguage() === 'zh' ? 'zh-CN' : getLanguage(); };
 onLanguageChange(applyStatic); applyStatic();
 const DEBUG = /[?&]debug/.test(location.search) || location.hash === '#debug';
-if (DEBUG) window.__dbg = { get B() { return B; }, get R() { return R; }, act3Choice: () => act3Choice(), finalPrep: () => finalPrep(), endingChoice: () => endingChoice(), startEndless: () => startEndless(), layerEnd: () => layerEnd(), enterNode: k => enterNode(k), mapScreen: () => mapScreen(), newRun: (...a) => newRun(...a), battle: (...a) => battle(...a), playCard: (...a) => playCard(...a), endTurn: () => endTurn(), mkCard: (...a) => mkCard(...a) };
+if (DEBUG) window.__dbg = { get B() { return B; }, get R() { return R; }, act3Choice: () => act3Choice(), riftChoice: () => riftChoice(), finalPrep: () => finalPrep(), endingChoice: () => endingChoice(), startEndless: () => startEndless(), layerEnd: () => layerEnd(), enterNode: k => enterNode(k), mapScreen: () => mapScreen(), newRun: (...a) => newRun(...a), battle: (...a) => battle(...a), playCard: (...a) => playCard(...a), endTurn: () => endTurn(), mkCard: (...a) => mkCard(...a) };
 const audio = createAudio();
 let SET = { shake: 1, fast: 0, kwtip: 1 }; try { Object.assign(SET, JSON.parse(localStorage.getItem('tw_set') || '{}')); } catch (e) {}
 const saveSet = () => { try { localStorage.setItem('tw_set', JSON.stringify(SET)); } catch (e) {} };
@@ -63,9 +63,9 @@ function load() { try { const s = JSON.parse(localStorage.getItem('theway_run_v2
 
 // ---------- 地图生成 ----------
 const ROWS = 15, COLS = 7;
-const ACT = () => (R && R.act) || 1, ENC = () => ACT() === 4 ? ENCX() : ACT() === 3 ? ENC3 : ACT() === 2 ? ENCOUNTERS2 : ENCOUNTERS, REGION = () => ACT() === 4 ? t('天外之塔 · 第 {0} 轮', R.endless || 1) : ACT() === 3 ? '永冬之巅' : ACT() === 2 ? '血月古堡' : '翠绿之地';
+const ACT = () => (R && R.act) || 1, ENC = () => ACT() === 4 ? ENCX() : ACT() === 3 ? (R.rift ? RIFT : ENC3) : ACT() === 2 ? ENCOUNTERS2 : ENCOUNTERS, REGION = () => ACT() === 4 ? t('天外之塔 · 第 {0} 轮', R.endless || 1) : ACT() === 3 ? (R.rift ? t('魔界裂隙') : '永冬之巅') : ACT() === 2 ? '血月古堡' : '翠绿之地';
 /* 无尽模式：三章的怪混着出 */
-const ENCX = () => ({ easy: [...ENCOUNTERS.hard, ...ENCOUNTERS2.hard], hard: [...ENCOUNTERS2.hard, ...ENC3.hard, ...ENC3.easy], elite: [...ENCOUNTERS.elite, ...ENCOUNTERS2.elite, ...ENC3.elite], boss: [...ENCOUNTERS.boss, ...ENCOUNTERS2.boss, ...ENC3.boss] });
+const ENCX = () => ({ easy: [...ENCOUNTERS.hard, ...ENCOUNTERS2.hard], hard: [...ENCOUNTERS2.hard, ...ENC3.hard, ...ENC3.easy, ...ENC3X.hard, ...RIFT.hard], elite: [...ENCOUNTERS.elite, ...ENCOUNTERS2.elite, ...ENC3.elite, ...ENC3X.elite, ...RIFT.elite], boss: [...ENCOUNTERS.boss, ...ENCOUNTERS2.boss, ...ENC3.boss] });
 const RW = () => (R && R.rows) || ROWS;
 function genMap() { const ROWS = RW();
   const g = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
@@ -125,7 +125,7 @@ function cardHTML(c, extra = '', energy = 99) {
   const rr = d.rar === 'start' || d.rar === 'gen' ? 'c' : d.rar;
   return `<div class="card t-${d.type} r-${d.rar} ${c.up ? 'up' : ''} ${extra}" data-uid="${c.uid}" data-cid="${c.id}" data-up="${c.up ? 1 : 0}">
    <div class="art"><img src="${d.img}"></div><div class="cdesc" data-noi18n><span>${kwify(d.desc(c.up))}</span></div><img class="frame" src="assets/ui2/frame_${d.type}_${rr}.png">
-   <div class="cost ${no ? 'no' : ''}"${d.unplay ? ' style="visibility:hidden"' : ''}>${cost}</div><div class="cname">${d.name}${c.up ? '+' : ''}</div>${c.pt ? `<i class="ver ${c.pt < 0 ? 'neg' : ''}">v1.${c.pv || 1} ${c.pt > 0 ? '+' : ''}${c.pt}</i>` : ''}${c.flip ? `<i class="flipb">${tr('反转')}</i>` : ''}</div>`;
+   <div class="cost ${no ? 'no' : ''}"${d.unplay ? ' style="visibility:hidden"' : ''}>${cost}</div><div class="cname">${d.name}${c.up ? '+' : ''}</div>${c.pt ? `<i class="ver ${c.pt < 0 ? 'neg' : ''}">v1.${c.pv || 1} ${c.pt > 0 ? '+' : ''}${c.pt}</i>` : ''}${c.flip ? `<i class="flipb">${tr('反转')}</i>` : ''}${c.seal ? `<i class="sealb"><span>🔒</span>${tr(c.seal === 'perm' ? '封印到战斗结束' : '封印')}</i>` : ''}</div>`;
 }
 function overlay(html) { const o = document.createElement('div'); o.className = 'overlay'; o.innerHTML = html; stage.appendChild(o); return o; }
 function pickOpt(title, opts, noCancel) { /* 出牌时的选择：返回所选 val，点取消返回 undefined */
@@ -248,7 +248,7 @@ function mainMenu() {
   $('#start').onclick = () => askName(() => { if (!sv) return pickChar();
     const y = overlay(`<h2>开始新的冒险？</h2><p>当前存档（${CHARS[sv.char || 'hero'].name} · 第 ${sv.floor} 层）会被放弃。</p><div class="row"><button class="btn red" id="y1">放弃旧档，重新开始</button><button class="btn" id="y0">取消</button></div>`);
     y.querySelector('#y0').onclick = () => y.remove(); y.querySelector('#y1').onclick = () => { y.remove(); clearSave(); pickChar(); }; });
-  $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending && R.snap) { try { const o = JSON.parse(R.snap); R = Object.assign(o, { snap: R.snap }); } catch (e) {} } if (R.act2wait) act2Choice(); else if (R.wait === 'act3') act3Choice(); else if (R.wait === 'final') finalPrep(); else if (R.wait === 'ending') endingChoice(); else if (R.wait === 'trial') pickTrial(); else if (R.loot) rewardScreen(); else if (R.pending) enterNode(R.pending); else mapScreen(); });
+  $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending && R.snap) { try { const o = JSON.parse(R.snap); R = Object.assign(o, { snap: R.snap }); } catch (e) {} } if (R.act2wait) act2Choice(); else if (R.wait === 'act3') act3Choice(); else if (R.wait === 'rift') riftChoice(); else if (R.wait === 'final') finalPrep(); else if (R.wait === 'ending') endingChoice(); else if (R.wait === 'trial') pickTrial(); else if (R.loot) rewardScreen(); else if (R.pending) enterNode(R.pending); else mapScreen(); });
   $('#book').onclick = () => book();
   $('#rank').onclick = rankBoard; $('#set').onclick = () => settings(false); $('#back').onclick = title;
 }
@@ -327,23 +327,24 @@ function available() {
   if (R.pos.r === RW() - 1) return ['boss'];
   const cur = R.map[R.pos.r][R.pos.c]; return cur.next.map(c => R.map[R.pos.r + 1][c]);
 }
+const NSET = () => ACT() === 2 ? 'node2' : ACT() === 3 ? 'node3' : '';
 function mapScreen() { SCREEN = 'map';
   setMusic('menu'); delete R.pending; delete R.pendEnc; delete R.snap; save();
-  const ROWS = RW(), av = available(), H = ROWS * 92 + 320;
+  const ROWS = RW(), av = available(), H = ROWS * 92 + 320, LC = ACT() === 3 ? '#3c4f78' : '#5a3a1a';
   let lines = '';
-  for (const row of R.map) for (const nd of row) if (nd) for (const c of nd.next) { const t = R.map[nd.r + 1][c]; lines += `<line x1="${nd.x}" y1="${nd.y}" x2="${t.x}" y2="${t.y}" stroke="#5a3a1a" stroke-width="3" stroke-dasharray="4 8" stroke-linecap="round" opacity=".75"/>`; }
-  for (const nd of R.map[ROWS - 1]) if (nd) lines += `<line x1="${nd.x}" y1="${nd.y}" x2="500" y2="110" stroke="#5a3a1a" stroke-width="3" stroke-dasharray="4 8" stroke-linecap="round" opacity=".75"/>`;
+  for (const row of R.map) for (const nd of row) if (nd) for (const c of nd.next) { const t = R.map[nd.r + 1][c]; lines += `<line x1="${nd.x}" y1="${nd.y}" x2="${t.x}" y2="${t.y}" stroke="${LC}" stroke-width="3" stroke-dasharray="4 8" stroke-linecap="round" opacity=".75"/>`; }
+  for (const nd of R.map[ROWS - 1]) if (nd) lines += `<line x1="${nd.x}" y1="${nd.y}" x2="500" y2="110" stroke="${LC}" stroke-width="3" stroke-dasharray="4 8" stroke-linecap="round" opacity=".75"/>`;
   const visited = R.path || [];
   let nodes = '';
   for (const row of R.map) for (const nd of row) if (nd) {
     const isAv = av.includes(nd), done = visited.some(p => p.r === nd.r && p.c === nd.c), cur = R.pos && R.pos.r === nd.r && R.pos.c === nd.c;
-    nodes += `<div class="node ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nd.x}px;top:${nd.y}px" data-r="${nd.r}" data-c="${nd.c}" title="${NODENAME[nd.type]}">${ACT() === 2 && ['fight', 'elite'].includes(nd.type) ? `<img src="assets/ui2/node2_${nd.type}.png">` : NODEICON[nd.type]}</div>`;
+    nodes += `<div class="node ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nd.x}px;top:${nd.y}px" data-r="${nd.r}" data-c="${nd.c}" title="${NODENAME[nd.type]}">${NSET() && ['fight', 'elite'].includes(nd.type) ? `<img src="assets/ui2/${NSET()}_${nd.type}.png">` : NODEICON[nd.type]}</div>`;
   }
   const bk = R.boss;
-  nodes += `<div class="node boss ${av[0] === 'boss' ? 'av' : ''}" style="left:500px;top:110px" title="Boss：${ENEMIES[bk].name}"><img src="assets/ui2/${ACT() === 2 ? 'node2_boss' : 'node_boss'}.png"></div>`;
-  view.innerHTML = `${topBar()}<div id="map"><div id="mapin" style="height:${H}px"><svg width="1000" height="${H}">${lines}</svg>${nodes}
+  nodes += `<div class="node boss ${av[0] === 'boss' ? 'av' : ''}" style="left:500px;top:110px" title="Boss：${ENEMIES[bk].name}"><img src="assets/ui2/${NSET() ? NSET() + '_boss' : 'node_boss'}.png"></div>`;
+  view.innerHTML = `${topBar()}<div id="map"><div id="mapin" style="height:${H}px${ACT() === 3 ? ';background-image:url(assets/bg/map3_parchment.jpg)' : ''}"><svg width="1000" height="${H}">${lines}</svg>${nodes}
    <div style="position:absolute;left:500px;top:186px;transform:translateX(-50%);font-size:18px;font-weight:bold;color:#6a1a10;text-shadow:0 0 4px #f6e6c0">${ENEMIES[bk].name}</div></div></div>
-   <div id="legend">${Object.keys(NODENAME).map(k => `<div>${ACT() === 2 && ['fight', 'elite'].includes(k) ? `<img src="assets/ui2/node2_${k}.png">` : NODEICON[k]}${NODENAME[k]}</div>`).join('')}</div>`;
+   <div id="legend">${Object.keys(NODENAME).map(k => `<div>${NSET() && ['fight', 'elite'].includes(k) ? `<img src="assets/ui2/${NSET()}_${k}.png">` : NODEICON[k]}${NODENAME[k]}</div>`).join('')}</div>`;
   bindTop();
   const m = $('#map'); const y = R.pos ? R.map[R.pos.r][R.pos.c].y : H; m.scrollTop = Math.max(0, y - 480);
   view.querySelectorAll('.node.av').forEach(el => el.onclick = () => {
@@ -382,7 +383,7 @@ function battle(keys, kind) {
   preloadExtra(R.char);
   hst = { n: 'idle', t: performance.now() };
   if (kind === 'fight' && R.trials && R.trials.includes('swarm') && keys.length < 4) keys = [...keys, 'd_egg'];
-  const bg = ACT() >= 3 ? (kind === 'boss' ? 'c3_hall' : 'c3_battle') : ACT() === 2 ? (kind === 'boss' ? 'c2_hall' : pickOne(['c2_exterior', 'c2_crypt'])) : kind === 'boss' ? 'battle_castle' : pickOne(BGS);
+  const bg = ACT() === 3 && R.rift ? RIFTBG : ACT() >= 3 ? (kind === 'boss' ? 'c3_hall' : 'c3_battle') : ACT() === 2 ? (kind === 'boss' ? 'c2_hall' : pickOne(['c2_exterior', 'c2_crypt'])) : kind === 'boss' ? 'battle_castle' : pickOne(BGS);
   B = { kind, bg, en: keys.map(mkEnemy), p: { block: 0, energy: 0, st: {}, noDraw: 0 }, draw: shuffle(R.deck.map(c => ({ ...c }))), hand: [], disc: [], exh: [], turn: 0, atkCnt: 0, sel: -1, busy: false, fx: [], over: false };
   setMusic(kind === 'boss' ? 'boss' : kind === 'elite' ? 'elite' : 'battle'); setTimeout(() => B && B.en[0] && gv(B.en[0], 'laugh'), 500); if (kind === 'boss') audio.boss();
   if (has('charm')) B.p.st.str = 1; if (has('lantern')) B.p.st.dex = (B.p.st.dex || 0) + 1;
@@ -529,6 +530,8 @@ const BE = {
   swapHigh() { const cs = B.hand.filter(c => typeof cardCost(c) === 'number' && !CARDS[c.id].unplay).sort((a, b) => cardCost(b) - cardCost(a)); if (!cs.length) return null; const c = cs[0]; B.hand.splice(B.hand.indexOf(c), 1); B.hand.push(mkCard('draft')); return CARDS[c.id].name; },
   flipRand() { const cs = B.hand.filter(c => !CARDS[c.id].unplay); if (cs.length) pickOne(cs).flip = 1; },
   nerfTop(n) { const pc = B.pc || {}, id = Object.keys(pc).sort((a, b) => pc[b] - pc[a])[0]; if (!id || CARDS[id].unplay) return null; [...B.draw, ...B.disc, ...B.hand, ...B.exh].filter(c => c.id === id).forEach(c => { c.pt = (c.pt || 0) - n; }); return CARDS[id].name; },
+  seal(e, perm) { const cs = B.hand.filter(c => !c.seal && !CARDS[c.id].unplay); if (!cs.length) return null; const c = pickOne(cs); c.seal = perm ? 'perm' : e.id; fx('hero', tr('封印'), 'dmg'); return CARDS[c.id].name; },
+  unseal(e) { [...B.draw, ...B.disc, ...B.hand, ...B.exh].forEach(c => { if (c.seal === e.id) delete c.seal; }); },
   zc: () => B.p.zc || 0, handTypes() { return { atk: B.hand.filter(c => CARDS[c.id].type === 'atk').length, skill: B.hand.filter(c => CARDS[c.id].type !== 'atk').length }; },
   applyP(k, n) { addSt(B.p, k, n); fx('hero', `${STATUS[k][0]}+${n}`, 'st'); },
   addSt(e, k, n) { addSt(e, k, n); fx(e.id, `${STATUS[k][0]}+${n}`, 'st'); },
@@ -569,7 +572,8 @@ function startTurn(first) {
   B.p.oc = 0; B.p.aoe = 0; B.p.metroUsed = 0; B.p.cplays = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (has('gameboy') && B.turn % 2 === 1) G.ammo(1); if (!first && has('phones')) G.resAll(1);
   if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
-  drawCards(5 + (first && has('scroll') ? 2 : 0) - (first && R.trials && R.trials.includes('wind') ? 1 : 0));
+  drawCards(5 + (first && has('scroll') ? 2 : 0) - (first && R.trials && R.trials.includes('wind') ? 1 : 0) - Math.min(4, B.p.st.drowsy || 0));
+  if (B.p.slept) { B.p.slept = 0; setTimeout(() => banner(tr('你睡着了：这回合没有能量')), 300); }
   if (B.p.st.confuse) { B.hand.forEach(c => { if (typeof cardCost(c) === 'number') c.rc = rnd(0, 3); }); addSt(B.p, 'confuse', -1); }
   MECH.turnStart(G, first);
   for (const e of alive()) if (e.d.onPTurn) e.d.onPTurn(e, BE);
@@ -589,6 +593,7 @@ async function playCard(i, tgt) {
   if (!B || B.busy || B.over || B.anim) return; const b0 = B;
   const c = B.hand[i], d = CARDS[c.id]; let cost = cardCost(c);
   if (d.unplay) { tip('这张牌不能打出'); return; }
+  if (c.seal) { tip(tr('这张牌被封印了')); return; }
   if (cost === 'X') cost = B.p.energy; if (cost > B.p.energy) { tip('能量不足'); return; }
   if (d.tgt === 'one' && !tgt) { const a = alive(); if (a.length === 1) tgt = a[0]; else { B.mechAim = null; B.sel = B.sel === i ? -1 : i; B.aimI = 0; render(); return; } }
   if (d.can && !d.can(G, c.up)) { fx('hero', '现在打不出', 'st'); flushFx(); return; }
@@ -629,7 +634,7 @@ function eFrame(e) {
   if (e.dead) return `assets/enemies2/${ENEMIES[e.key].deadArt && !e.art ? ENEMIES[e.key].deadArt : k}/${(a && a.n === 'down' && dt < 260) ? 'down0' : 'down1'}.png`;
   if (a && a.n === 'atk' && dt < 420) return `assets/enemies2/${k}/${a.f ? a.f[Math.min(a.f.length - 1, Math.floor(dt / 210))] : dt < 160 ? 'atk0' : 'atk1'}.png`;
   if (a && a.n === 'hurt' && dt < 320) return `assets/enemies2/${k}/hurt0.png`;
-  if (e.pose && ENEMIES[e.key].hd) return `assets/enemies2/${k}/${e.pose}.png`;
+  if (e.pose && ENEMIES[e.key].hd && (!ENEMIES[e.key].poses || ENEMIES[e.key].poses.includes(e.pose))) return `assets/enemies2/${k}/${e.pose}.png`;
   return `assets/enemies2/${k}/${ONEIDLE.has(k) ? 'idle0' : 'idle' + (Math.floor(now / 480) % 2)}.png`;
 }
 const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 林拓', h: 241, desc: '掌机 · 光弹' }, witch: { dir: 'witch2', name: '魔女 · 莉泽', h: 235, desc: '炼金瓶 · 剧毒' }, miko: { dir: 'miko2', name: '巫女 · 千早', h: 257, desc: '和弓 · 结界' }, heroine: { dir: 'heroine2', name: '穿越者 · 苏音', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 }, erin: { dir: 'erin', name: '元素使 · 艾琳', h: 276, desc: '法杖 · 元素', temp: 1, idle: [0, 3], idleMs: 650 }, gu: { dir: 'gu', name: '剑客 · 顾清寒', h: 297, desc: '长剑 · 飞剑', temp: 1, idle: [0, 3], idleMs: 650 }, sylvie: { dir: 'sylvie', name: '霜龙裔 · 希尔薇', h: 270, desc: '冰枪 · 变身', temp: 1, idle: [0, 3], idleMs: 650 }, mia: { dir: 'mia', name: '猫耳族 · 米娅', h: 263, desc: '魔杖 · 云猫', temp: 1, idle: [0, 3], idleMs: 650 }, feiyue: { dir: 'feiyue', name: '半吸血鬼 · 绯月', h: 257, desc: '血爪 · 蝙蝠', temp: 1, idle: [0, 3], idleMs: 650 } };
@@ -722,7 +727,8 @@ async function checkEnd() {
     if (B.kind === 'boss') { R.bosses = (R.bosses || 0) + 1; if (ACT() === 1) { delete R.pending; delete R.pendEnc; delete R.snap; R.after = 'act2'; save(); rewardScreen(); return true; }
       if (ACT() >= 2) { delete R.pending; delete R.pendEnc; delete R.snap;
         if (ACT() === 2) R.after = 'act3';
-        else if (ACT() === 3 && !B.final) { R.after = 'final'; R.deck.push(mkCard('devperm')); }
+        else if (ACT() === 3 && !B.final && !R.rift) { R.after = 'rift'; R.deck.push(mkCard('devperm')); }
+        else if (ACT() === 3 && !B.final) R.after = 'final';
         else if (ACT() === 3) { B = null; R.wait = 'ending'; save(); return endingChoice(); }
         else R.after = 'layer';
         save(); rewardScreen(); return true; }
@@ -915,7 +921,7 @@ function rewardScreen() { /* 战利品先存进存档（R.loot），刷新页面
       if (it.t === 'gold') R.gold += it.n; else if (it.t === 'clover') R.gold += 15; else if (it.t === 'relic') gainRelic(it.id); else if (it.t === 'potion') { if (gainPotion(it.id) === false) return; }
       audio.gem(); take(i);
     });
-    $('#go').onclick = () => { delete R.loot; const af = R.after; delete R.after; if (af === 'act2') { save(); return act2Choice(); } if (af === 'act3') { R.wait = 'act3'; save(); return act3Choice(); } if (af === 'final') { R.wait = 'final'; save(); return finalPrep(); } if (af === 'layer') { save(); return layerEnd(); } save(); mapScreen(); };
+    $('#go').onclick = () => { delete R.loot; const af = R.after; delete R.after; if (af === 'act2') { save(); return act2Choice(); } if (af === 'act3') { R.wait = 'act3'; save(); return act3Choice(); } if (af === 'rift') { R.wait = 'rift'; save(); return riftChoice(); } if (af === 'final') { R.wait = 'final'; save(); return finalPrep(); } if (af === 'layer') { save(); return layerEnd(); } save(); mapScreen(); };
   };
   draw();
 }
@@ -1026,27 +1032,36 @@ function act3Choice() { sting('act2', 2600);
   view.innerHTML = `${bgHTML(false, 'story_end2')}<div class="panel" style="width:780px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('{0}倒下了', tr((ENEMIES[R.boss] || {}).name || ''))}</h2>
    <p>${t('古堡的血月熄灭了，被关押的村民们重获自由。')}</p><p>${t('可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。')}</p><p style="color:#a8dcff">${t('进入第三章：永冬之巅（回复 50% 生命）')}</p>
    <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="go3">${t('前往雪山')}</button><button class="btn" id="end2">${t('到此为止')}</button></div></div>`;
-  $('#go3').onclick = () => { delete R.wait; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; R.act = 3; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .5)); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = ENC3.boss[0][0];
+  $('#go3').onclick = () => { delete R.wait; delete R.rift; delete R.rows; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; R.act = 3; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .5)); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = ENC3.boss[0][0];
     save(); story('story_snow', ['古堡后面的山路，一直通向终年不化的雪峰。', '风里传来龙的长啸，一声接着一声。', '“那双紫色的眼睛……就在山顶。”'], mapScreen); };
   $('#end2').onclick = () => { delete R.wait; clearSave(); story('story_end2', END2(), () => story('story_party', ['天亮了。大家并肩站在晨光里，笑得满脸是灰。', '“走吧，往上。”'], () => endScreen(true))); };
 }
+const RIFTBG = 'c3_battle'; /* 魔界裂隙背景图到了换成 c3_rift */
+function riftChoice() { sting('act2', 2600);
+  B = null; delete R.pending; delete R.pendEnc; delete R.snap; R.wait = 'rift'; save(); setMusic('menu');
+  view.innerHTML = `${bgHTML(false, 'story_gate')}<div class="panel" style="width:780px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('门后的裂隙')}</h2>
+   <p>${t('开发者让开了路。山顶的门半开着，门缝里涌出紫红色的光和硫磺味。')}</p><p>${t('紫瞳霜龙就守在门的另一头——可门和它之间，空间已经裂开了。')}</p><p style="color:#ffb0c8">${t('进入第三章·下半：魔界裂隙（回复 20% 生命）')}</p>
+   <div class="row" style="justify-content:center;margin-top:14px"><button class="btn gold" id="gor">${t('踏进裂隙')}</button></div></div>`;
+  $('#gor').onclick = () => { delete R.wait; R.rift = 1; R.rows = 8; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .2)); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = GATE3;
+    save(); story('story_gate', ['裂隙里没有风雪，只有烧焦的岩石和低语声。', '小小的、抱着锁链的影子，在岩缝里咯咯地笑。', '“门那边漏出来的东西……原来是这些。”'], mapScreen); };
+}
 function finalPrep() {
   B = null; R.wait = 'final'; save(); setMusic('menu');
-  view.innerHTML = `${bgHTML(false, 'story_gate')}<div class="panel" style="width:760px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('山顶')}</h2>
-   <p>${t('开发者让开了路，嘴里还在嘀咕着数值。')}</p><p>${t('风雪的尽头，一条银白的巨龙伏在发光的门前。')}</p><p style="color:#a8dcff">${t('回复 30% 生命')}</p>
-   <div class="row" style="justify-content:center;margin-top:14px"><button class="btn gold" id="gof">${t('登顶')}</button></div></div>`;
+  view.innerHTML = `${bgHTML(false, 'story_gate')}<div class="panel" style="width:760px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('门开了')}</h2>
+   <p>${t('霜龙倒在门前，门的那一边，黑色的铠甲缓缓走了出来。')}</p><p>${t('「龙守着门，就是为了关住我。」')}</p><p style="color:#a8dcff">${t('回复 30% 生命')}</p>
+   <div class="row" style="justify-content:center;margin-top:14px"><button class="btn gold" id="gof">${t('迎战魔王')}</button></div></div>`;
   $('#gof').onclick = () => { delete R.wait; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .3)); R.floor++; R.pending = 'final'; snap(); save(); enterNode('final'); };
 }
 const CH3END = { hero: '存档……保存好了。下次再来，我还带掌机。', heroine: '回去以后，我想把这一路的声音写成歌。', miko: '神社的铃铛响了……我到家了。', witch: '你们走吧。村子……我会替你们守着的。', erin: '火、水、风……都归于平静了。', gu: '剑收入鞘。这一程，走完了。', sylvie: '我不是龙，也不只是人。我是你们的同伴。', mia: '团子，我们也回家吧喵。', feiyue: '天亮了。……原来我也能站在太阳底下。', dev: '这一关，总算是通了。下个版本见。' };
 function endingChoice() {
   B = null; R.wait = 'ending'; save(); setMusic('menu'); sting('act2', 2600);
   view.innerHTML = `${bgHTML(false, 'story_gate')}<div class="panel" style="width:780px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('门亮了起来')}</h2>
-   <p>${t('紫瞳霜龙倒下了。门的对面，是放学路上的那条街。')}</p><p>${t('门的上方，还有一节台阶。')}</p>
+   <p>${t('深渊之主化成了黑烟。门的对面，是放学路上的那条街。')}</p><p>${t('门的上方，还有一节台阶。')}</p>
    <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="home">${t('回家')}</button><button class="btn" id="up">${t('继续往上（无尽模式）')}</button></div></div>`;
   $('#home').onclick = () => { delete R.wait; R.home = 1; clearSave(); story('story_home', ['门对面，是放学路上的那条街。', '大家互相看了一眼，谁也没先迈步。', '“……走吧，回家。”'], () => endScreen(true)); };
   $('#up').onclick = () => { delete R.wait; startEndless(); };
 }
-function startEndless() { R.act = 4; R.endless = 1; R.rows = 8; R.trials = []; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; newLayer(); }
+function startEndless() { delete R.rift; R.act = 4; R.endless = 1; R.rows = 8; R.trials = []; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; newLayer(); }
 function newLayer() { R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = R.endless % 5 === 0 ? FINAL3 : pickOne(ENCX().boss)[0]; R.wait = 'trial'; save(); pickTrial(); }
 function pickTrial() { B = null; R.wait = 'trial'; save(); setMusic('menu');
   const left = Object.keys(TRIALS).filter(k => !R.trials.includes(k)); if (!left.length) { delete R.wait; save(); return mapScreen(); }
@@ -1086,7 +1101,7 @@ function endScreen(win) {
   UNLOCKS.forEach(u => { if (before < u.xp && M.xp >= u.xp) news.push('解锁：' + [...u.cards.map(c => CARDS[c].name), ...u.relics.map(x => RELICS[x].name)].join('、')); });
   const nx = UNLOCKS.find(u => M.xp < u.xp), left = UNLOCKS.filter(u => M.xp < u.xp).length;
   view.innerHTML = `${win && ACT() === 3 ? bgHTML(true, 'story_home') : win && ACT() === 2 ? bgHTML(true, 'story_end2') : bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
-   <p class="endsub" data-noi18n>${ACT() === 4 ? `${t('在天外之塔爬到了第 {0} 轮。', R.endless || 1)}<br><b style="color:#ffe08a">${t('感谢游玩！')}</b>` : win && ACT() === 3 ? `${t('紫瞳霜龙倒下了，回家的门打开了。')}<br><b style="color:#ffe08a">${t('全部通关 · 感谢游玩！')}</b>` : win && ACT() === 2 ? `${t('{0}化为了灰烬，古堡的血月熄灭了。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第二章完 · 感谢游玩！')}</b>${t('山顶上，还有更深的黑暗在等待……')}` : win ? `${t('{0}倒下了，翠绿之地恢复了平静。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第一章完 · 感谢游玩！')}</b>${t('远处山顶的古堡，亮起了血红的光……')}<br><b style="color:#ff8a8a">${t('第二章：血月古堡（制作中）')}</b>` : t(ACT() === 3 ? '{0}倒在了永冬之巅第 {1} 层。' : ACT() === 2 ? '{0}倒在了血月古堡第 {1} 层。' : '{0}倒在了翠绿之地第 {1} 层。', tr(CHARS[R.char || 'hero'].name), R.floor)}</p>
+   <p class="endsub" data-noi18n>${ACT() === 4 ? `${t('在天外之塔爬到了第 {0} 轮。', R.endless || 1)}<br><b style="color:#ffe08a">${t('感谢游玩！')}</b>` : win && ACT() === 3 ? `${t('深渊之主倒下了，回家的门打开了。')}<br><b style="color:#ffe08a">${t('全部通关 · 感谢游玩！')}</b>` : win && ACT() === 2 ? `${t('{0}化为了灰烬，古堡的血月熄灭了。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第二章完 · 感谢游玩！')}</b>${t('山顶上，还有更深的黑暗在等待……')}` : win ? `${t('{0}倒下了，翠绿之地恢复了平静。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第一章完 · 感谢游玩！')}</b>${t('远处山顶的古堡，亮起了血红的光……')}<br><b style="color:#ff8a8a">${t('第二章：血月古堡（制作中）')}</b>` : t(ACT() === 3 ? '{0}倒在了永冬之巅第 {1} 层。' : ACT() === 2 ? '{0}倒在了血月古堡第 {1} 层。' : '{0}倒在了翠绿之地第 {1} 层。', tr(CHARS[R.char || 'hero'].name), R.floor)}</p>
    ${win && ACT() === 3 && CH3END[R.char] ? `<p class="endsub endq"><b>${CHARS[R.char].name}</b>：“<span>${tr(CH3END[R.char])}</span>”</p>` : ''}${win && ACT() === 2 && CHARINFO[R.char] && CHARINFO[R.char].end ? `<p class="endsub endq"><b>${CHARS[R.char].name}</b>：“<span>${CHARINFO[R.char].end}</span>”</p>` : ''}
    <table class="score">${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}<tr class="tot"><td>分数</td><td>${total}</td></tr></table>
    <div class="xpw"><div class="xpb"><i style="width:${nx ? Math.min(100, M.xp / nx.xp * 100) : 100}%"></i></div><span>${nx ? `[${M.xp}/${nx.xp}]` : `[${M.xp}] 全部解锁`}</span><span>剩余解锁：${left}</span></div>

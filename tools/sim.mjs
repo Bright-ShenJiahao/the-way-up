@@ -1,6 +1,6 @@
 // 平衡测试：机器人用每个角色跑很多局，统计胜率和死在哪里。只在 GitHub Actions 上跑。
 // 规则照抄 src/game.js 的战斗逻辑（简化了地图：固定 15 层路线 + Boss）
-import { MECH, NEWKEYW, OLDKEYW, STARTRELIC, RULES, isFury, CARDS, STARTERS, RELICS, ENEMIES, ENCOUNTERS, ENCOUNTERS2, ENC3, FINAL3, CORE3 } from '../src/data.js';
+import { MECH, NEWKEYW, OLDKEYW, STARTRELIC, RULES, isFury, CARDS, STARTERS, RELICS, ENEMIES, ENCOUNTERS, ENCOUNTERS2, ENC3, FINAL3, CORE3, RIFT, GATE3 } from '../src/data.js';
 const N = +process.argv[2] || 1000, LOCKLV = process.argv[3] == null ? 4 : +process.argv[3], ONLY = process.argv[4], ASC = +(process.argv[5] || 0), SEED0 = +(process.env.SEED || 1);
 /* 固定随机种子：第 i 局用种子 SEED0+i，失败的局可以单独重放（SEED=… node tools/sim.mjs 1 4 miko） */
 let seedS = 1; const rng = () => { seedS |= 0; seedS = seedS + 0x6D2B79F5 | 0; let t = Math.imul(seedS ^ seedS >>> 15, 1 | seedS); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -17,6 +17,7 @@ const KEYW = { ...OLDKEYW, ...NEWKEYW };
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const pickOne = a => a[Math.floor(Math.random() * a.length)];
 const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const ROUTE_R = ['fight', 'fight', 'event', 'fight', 'elite', 'rest', 'fight', 'shop', 'rest', 'boss'];
 const ROUTE = ['fight', 'fight', 'fight', 'event', 'fight', 'fight', 'elite', 'rest', 'treasure', 'fight', 'shop', 'elite', 'fight', 'fight', 'rest', 'boss'];
 let R, B, uid = 1;
 const has = id => R.relics.includes(id);
@@ -96,6 +97,8 @@ const BE = {
   swapHigh() { const cs = B.hand.filter(c => typeof cost(c) === 'number' && !CARDS[c.id].unplay).sort((a, b) => cost(b) - cost(a)); if (!cs.length) return null; B.hand.splice(B.hand.indexOf(cs[0]), 1); B.hand.push(mk('draft')); return 'x'; },
   flipRand() { const cs = B.hand.filter(c => !CARDS[c.id].unplay); if (cs.length) pickOne(cs).flip = 1; },
   nerfTop(n) { const pc = B.pc || {}, id = Object.keys(pc).sort((a, b) => pc[b] - pc[a])[0]; if (!id || CARDS[id].unplay) return null; [...B.draw, ...B.disc, ...B.hand, ...B.exh].filter(c => c.id === id).forEach(c => { c.pt = (c.pt || 0) - n; }); return 'x'; },
+  seal(e, perm) { const cs = B.hand.filter(c => !c.seal && !CARDS[c.id].unplay); if (!cs.length) return null; pickOne(cs).seal = perm ? 'perm' : e.id; return 'x'; },
+  unseal(e) { [...B.draw, ...B.disc, ...B.hand, ...B.exh].forEach(c => { if (c.seal === e.id) delete c.seal; }); },
   zc: () => B.p.zc || 0, handTypes() { return { atk: B.hand.filter(c => CARDS[c.id].type === 'atk').length, skill: B.hand.filter(c => CARDS[c.id].type !== 'atk').length }; },
   applyP(k, n) { addSt(B.p, k, n); }, addSt(e, k, n) { addSt(e, k, n); }, eBlock(e, n) { e.block += n; },
   allies: e => alive().filter(a => a !== e), alive: () => alive(), healE(e, n) { e.hp = Math.min(e.max, e.hp + n); }, addCard(id, n = 1) { for (let k = 0; k < n; k++) B.disc.push(mk(id)); }, revive(e, f) { e.revived = 1; e.dead = false; for (const k of ['poison', 'weak', 'vuln', 'res']) delete e.st[k]; e.hp = Math.max(1, Math.floor(e.max * f)); R.kills--; }, flee(e) { if (!e.dead) { e.fled = 1; e.dead = true; e.hp = 0; } }, say() {},
@@ -116,7 +119,7 @@ function startTurn(first) {
   if (has('hamaya') && (B.p.st.kek || 0) >= 4) drawCards(1);
   B.p.oc = 0; B.p.aoe = 0; B.p.metroUsed = 0; B.p.cplays = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (has('gameboy') && B.turn % 2 === 1) G.ammo(1); if (!first && has('phones')) G.resAll(1); if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
-  drawCards(5 + (first && has('scroll') ? 2 : 0));
+  drawCards(5 + (first && has('scroll') ? 2 : 0) - Math.min(4, B.p.st.drowsy || 0)); B.p.slept = 0;
   if (B.p.st.confuse) { B.hand.forEach(c => { if (typeof cost(c) === 'number') c.rc = rnd(0, 3); }); addSt(B.p, 'confuse', -1); }
   B.onPT = 1;
   MECH.turnStart(G, first);
@@ -131,7 +134,7 @@ function postPlay(d) { /* 打出一张牌后的通用结算（狡诈自动打出
     if (B.p.st.concert && (B.p.cplays = (B.p.cplays || 0) + 1) <= 4) G.resAll(B.p.st.concert);
 }
 function play(i, t) {
-  const c = B.hand[i], d = CARDS[c.id]; if (d.unplay || c.flip || (d.can && !d.can(G, c.up))) return false; let k = cost(c); if (k === 'X') k = B.p.energy; if (k > B.p.energy) return false;
+  const c = B.hand[i], d = CARDS[c.id]; if (d.unplay || c.flip || c.seal || (d.can && !d.can(G, c.up))) return false; let k = cost(c); if (k === 'X') k = B.p.energy; if (k > B.p.energy) return false;
   if (d.tgt === 'one' && !t) t = alive().sort((a, b) => a.hp - b.hp)[0];
   B.p.energy -= k; G.x = k; B.hand.splice(i, 1);
   let pk; if (d.pick) { const opts = d.pick === 1 ? B.hand.map(x => ({ val: x.uid, c: x })) : d.pick(G, c.up); if (opts.length) pk = (d.bot ? d.bot(G, opts) : botPick(opts)).val; }
@@ -163,7 +166,7 @@ function usePots() {
 function botTurn() { usePots(); if (!alive().length) return; MECH.bot(G, incoming() - B.p.block);
   for (let guard = 0; guard < 30 && alive().length; guard++) {
     const need = incoming() - B.p.block;
-    const opts = B.hand.map((c, i) => ({ c, i, d: CARDS[c.id], k: cost(c) === 'X' ? B.p.energy : cost(c) })).filter(o => !o.d.unplay && !o.c.flip && (!o.d.can || o.d.can(G, o.c.up)) && o.k <= B.p.energy && !(o.k === 'X' && B.p.energy === 0));
+    const opts = B.hand.map((c, i) => ({ c, i, d: CARDS[c.id], k: cost(c) === 'X' ? B.p.energy : cost(c) })).filter(o => !o.d.unplay && !o.c.flip && !o.c.seal && (!o.d.can || o.d.can(G, o.c.up)) && o.k <= B.p.energy && !(o.k === 'X' && B.p.energy === 0));
     if (!opts.length) break;
     const hpLeft = alive().reduce((m, e) => m + e.hp + e.block, 0), dmgHand = opts.filter(o => o.d.type === 'atk').reduce((m, o) => m + estDmg(o), 0), lethal = dmgHand >= hpLeft;
     const sc = o => { const d = o.d; let s = 0;
@@ -294,6 +297,14 @@ function shop() { if (!SMART) { const i = R.deck.findIndex(c => c.id === 'defend
   if (R.gold >= 55 && R.pots.length < 3) { R.pots.push(pickOne(POTS)); R.gold -= 55; }
   if (R.gold >= 150) { relic(); R.gold -= 150; } }
 function event() { const x = Math.random(); if (x < .3) heal(10); else if (x < .5) { R.gold += 60; } else if (x < .7) { if (Math.random() < .5) { R.hp = Math.max(1, R.hp - 8); } else R.deck.push(mk(Math.random() < .5 ? 'regret' : 'doubt')); relic(); } else if (x < .85) { const c = R.deck.find(c => !c.up); if (c) c.up = 1; } else { const i = R.deck.findIndex(c => CARDS[c.id].rar === 'start'); if (i >= 0) R.deck.splice(i, 1); } }
+function riftRun() { let fights = 0; /* 第三章下半：魔界裂隙 */
+  for (const node of ROUTE_R) { R.floor++;
+    if (node === 'fight') { const enc = pickOne(fights < 2 ? RIFT.easy : RIFT.hard); fights++; if (!battle(enc, 'fight')) return { win: false, to: TIMEOUT, act: 3, floor: R.floor, at: '裂隙·' + enc.join('+') }; reward(); dropPot('fight'); R.gold += 15; }
+    else if (node === 'elite') { const enc = pickOne(RIFT.elite); if (!battle(enc, 'elite')) return { win: false, to: TIMEOUT, act: 3, floor: R.floor, at: '裂隙精英:' + enc.join('+') }; reward('elite'); relic(); dropPot('elite'); R.gold += 30; }
+    else if (node === 'boss') { if (!battle([GATE3], 'boss')) return { win: false, to: TIMEOUT, act: 3, floor: R.floor, at: 'Boss:' + GATE3 }; }
+    else if (node === 'rest') { if (R.hp < R.maxHp * W.rest) heal(Math.floor(R.maxHp * (A_(5) ? .2 : .3))); else { const c = R.deck.find(c => !c.up && CARDS[c.id].rar !== 'start') || R.deck.find(c => !c.up); if (c) c.up = 1; } }
+    else if (node === 'event') event(); else if (node === 'shop') shop(); }
+  return null; }
 function run(char) {
   TIMEOUT = 0; uid = 1; R = { char, hp: A_(4) ? 72 : 80, maxHp: A_(4) ? 72 : 80, deck: STARTERS[char].map(id => mk(id)), relics: [STARTRELIC[char]], kills: 0, picks: {}, floor: 0, pots: [], act: 1, gold: 99 };
   for (const [act, EN] of [[1, ENCOUNTERS], [2, ENCOUNTERS2], [3, ENC3]]) {
@@ -303,7 +314,8 @@ function run(char) {
       if (node === 'fight') { const enc = pickOne(fights < 3 ? EN.easy : EN.hard); fights++; if (!battle(enc, 'fight')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: enc.join('+') }; reward(); dropPot('fight'); R.gold += Math.round((10 + Math.floor(Math.random() * 11)) * (A_(7) ? .7 : 1)); }
       else if (node === 'elite') { const enc = pickOne(EN.elite); if (!battle(enc, 'elite')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: '精英:' + enc.join('+') }; reward('elite'); relic(); dropPot('elite'); R.gold += Math.round((25 + Math.floor(Math.random() * 11)) * (A_(7) ? .7 : 1)); }
       else if (node === 'boss') { if (DG) DG.bosses++; const bk = pickOne(EN.boss)[0]; if (!battle([bk], 'boss')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: 'Boss:' + bk };
-        if (act === 3) { relic(); R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .3)); if (!battle([FINAL3], 'boss')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: 'Boss:' + FINAL3 }; } }
+        if (act === 3) { relic(); R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .2)); const r = riftRun(); if (r) return r;
+          R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .3)); if (!battle([FINAL3], 'boss')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: 'Boss:' + FINAL3 }; } }
       else if (node === 'rest') { if (R.hp < R.maxHp * W.rest) heal(Math.floor(R.maxHp * (A_(5) ? .2 : .3))); else { const c = R.deck.find(c => !c.up && CARDS[c.id].rar !== 'start') || R.deck.find(c => !c.up); if (c) c.up = 1; } }
       else if (node === 'event') event();
       else if (node === 'treasure') relic();

@@ -1318,5 +1318,489 @@
  "飞剑留在身上，每把让攻击牌第一击 {0}（每 {1} 把再额外 {2}）、回合结束给 {3} 点格挡；攒够了也能一口气射出去。": [
   "Keep Flying Swords around: each gives your first Attack hit {0} ({2} extra per {1} swords) and Block at end of turn ({3}); once you have enough, fire them all at once.",
   "飛剣を身につけておくと、1本ごとにアタックの初撃{0}（{1}本ごとにさらに{2}）、ターン終了時にブロック{3}。溜まったら一気に発射できる。"
+ ],
+ "冰甲": [
+  "Ice Armor",
+  "氷の鎧"
+ ],
+ "水龙": [
+  "Water Dragon",
+  "水竜"
+ ],
+ "水尾": [
+  "Tide Tail",
+  "水の尾"
+ ],
+ "涨潮": [
+  "High Tide",
+  "満ち潮"
+ ],
+ "巨浪": [
+  "Tidal Wave",
+  "大津波"
+ ],
+ "浪花": [
+  "Spray",
+  "しぶき"
+ ],
+ "黑龙": [
+  "Black Dragon",
+  "黒竜"
+ ],
+ "暗爪": [
+  "Dark Claw",
+  "闇の爪"
+ ],
+ "暗影龙息": [
+  "Shadow Breath",
+  "影のブレス"
+ ],
+ "暗影潜行": [
+  "Shadow Stalk",
+  "影潜り"
+ ],
+ "骨龙": [
+  "Bone Dragon",
+  "骨竜"
+ ],
+ "唤骨": [
+  "Raise Bones",
+  "骨喚び"
+ ],
+ "骨咬": [
+  "Bone Bite",
+  "骨噛み"
+ ],
+ "灵魂龙息": [
+  "Soul Breath",
+  "魂のブレス"
+ ],
+ "圣龙": [
+  "Holy Dragon",
+  "聖竜"
+ ],
+ "圣爪": [
+  "Holy Claw",
+  "聖なる爪"
+ ],
+ "审判": [
+  "Judgment",
+  "審判"
+ ],
+ "圣愈": [
+  "Holy Mend",
+  "聖なる癒し"
+ ],
+ "大法师龙": [
+  "Archmage Dragon",
+  "大魔導竜"
+ ],
+ "法杖": [
+  "Staff Strike",
+  "杖打ち"
+ ],
+ "魔法阵": [
+  "Magic Circle",
+  "魔法陣"
+ ],
+ "陨石": [
+  "Meteor",
+  "隕石"
+ ],
+ "镜像": [
+  "Mirror Image",
+  "鏡像"
+ ],
+ "奥术飞弹": [
+  "Arcane Missiles",
+  "アーケインミサイル"
+ ],
+ "小恶魔": [
+  "Imp",
+  "インプ"
+ ],
+ "抓挠": [
+  "Scratch",
+  "ひっかき"
+ ],
+ "梦魔": [
+  "Nightmare",
+  "夢魔"
+ ],
+ "催眠": [
+  "Lull",
+  "催眠"
+ ],
+ "梦爪": [
+  "Dream Claw",
+  "夢の爪"
+ ],
+ "吸取": [
+  "Drain",
+  "吸収"
+ ],
+ "地狱三头犬": [
+  "Cerberus",
+  "ケルベロス"
+ ],
+ "三头撕咬": [
+  "Triple Bite",
+  "三首噛み"
+ ],
+ "地狱火息": [
+  "Hellfire Breath",
+  "獄炎の息"
+ ],
+ "契约恶魔": [
+  "Contract Demon",
+  "契約の悪魔"
+ ],
+ "契约": [
+  "Contract",
+  "契約"
+ ],
+ "血剑": [
+  "Blood Blade",
+  "血の剣"
+ ],
+ "血墨": [
+  "Blood Ink",
+  "血の墨"
+ ],
+ "深渊领主": [
+  "Abyss Lord",
+  "深淵卿"
+ ],
+ "深渊封印": [
+  "Abyssal Seal",
+  "深淵の封印"
+ ],
+ "召唤小恶魔": [
+  "Summon Imp",
+  "インプ召喚"
+ ],
+ "地狱火": [
+  "Hellfire",
+  "獄炎"
+ ],
+ "战锤": [
+  "War Hammer",
+  "戦鎚"
+ ],
+ "深渊之主": [
+  "Lord of the Abyss",
+  "深淵の主"
+ ],
+ "召唤军团": [
+  "Summon Legion",
+  "軍団召喚"
+ ],
+ "深渊横扫": [
+  "Abyssal Sweep",
+  "深淵薙ぎ"
+ ],
+ "灵魂献祭": [
+  "Soul Sacrifice",
+  "魂の生贄"
+ ],
+ "终焉蓄力": [
+  "Doom Charge",
+  "終焉の溜め"
+ ],
+ "终焉审判": [
+  "Final Judgment",
+  "終焉の審判"
+ ],
+ "残响": [
+  "Echo",
+  "残響"
+ ],
+ "双刃连斩": [
+  "Twin Blade Flurry",
+  "双刃連斬"
+ ],
+ "永夜降临": [
+  "Eternal Night",
+  "永夜降臨"
+ ],
+ "处刑": [
+  "Execution",
+  "処刑"
+ ],
+ "龙威": [
+  "Dragon Fear",
+  "竜威"
+ ],
+ "睡意": [
+  "Drowsy",
+  "眠気"
+ ],
+ "静电": [
+  "Static",
+  "静電気"
+ ],
+ "暗影": [
+  "Shadow",
+  "影"
+ ],
+ "圣盾": [
+  "Holy Shield",
+  "聖盾"
+ ],
+ "法力": [
+  "Mana",
+  "魔力"
+ ],
+ "腐蚀": [
+  "Corrode",
+  "腐食"
+ ],
+ "每层让下一次雷爪多抓一下": [
+  "Each stack adds one more hit to its next Thunder Claw",
+  "1層ごとに次の雷爪の攻撃回数+1"
+ ],
+ "完全挡下下一次伤害": [
+  "Completely blocks the next hit",
+  "次のダメージを完全に防ぐ"
+ ],
+ "你造成的伤害 {0}。每回合开始减 {1} 层": [
+  "You deal {0} damage. Loses {1} stack at the start of each turn",
+  "与ダメージ{0}。ターン開始時に{1}層減る"
+ ],
+ "回合结束时，你的格挡减半，然后减 {0} 层": [
+  "At the end of your turn, your Block is halved, then loses {0} stack",
+  "ターン終了時、ブロックが半分になり、{0}層減る"
+ ],
+ "每层让你回合开始少抽 {0} 张牌；攒到 {1} 层你会睡着一回合（没有能量）。一下打出 {2} 点以上的伤害能驱散 {3} 层": [
+  "Each stack makes you draw {0} fewer card at the start of your turn; at {1} stacks you fall asleep for a turn (no energy). Dealing {2}+ damage in one hit removes {3} stack",
+  "{0}層ごとにターン開始時のドローが{3}枚減る。{1}層たまると1ターン眠る（エネルギーなし）。一撃で{2}以上のダメージを与えると1層消える"
+ ],
+ "潜行中：每次受到的伤害最多 {0} 点": [
+  "Stalking: takes at most {0} damage per hit",
+  "潜伏中：{0}回に受けるダメージは最大1"
+ ],
+ "攒满 {0} 点会立刻改念大魔法": [
+  "At {0} it immediately switches to a grand spell",
+  "{0}たまると即座に大魔法に切り替える"
+ ],
+ "人形时连砍两刀，化龙后一爪很重、化龙那一下还会加 {0} 点格挡。意图里会提前写「{1}」。": [
+  "In human form it slashes twice; in dragon form its claw hits hard, and it gains {0} Block when it transforms. Its intent shows 「{1}」 in advance.",
+  "人型では二連斬り、竜化すると爪が重く、竜化の時にブロック{0}を得る。意図に前もって「{1}」と表示される。"
+ ],
+ "雷龙。你每打出一张非攻击牌，它就积 {0} 层静电（最多 {1} 层），每层让下一次雷爪多抓一下。龙息会让你麻痹（下回合少 {2} 点能量）。": [
+  "Thunder dragon. Each non-Attack card you play gives it {0} Static (max {1}); each stack adds a hit to its next Thunder Claw. Its breath Paralyzes you ({2} less energy next turn).",
+  "雷竜。攻撃以外のカードを使うたびに静電気が{0}層たまり（最大{1}層）、{2}層ごとに次の雷爪の攻撃回数+1。ブレスで麻痺（次ターンのエネルギー-1）。"
+ ],
+ "守着世界之门的远古霜龙。是它把你们叫到这个世界来的。生命掉到一半会飞上天。": [
+  "The ancient frost dragon guarding the gate of the world. It was the one who summoned you here. At half HP it takes to the sky.",
+  "世界の門を守る古の霜竜。お前たちをこの世界に呼んだのはこの竜だ。HPが半分になると空へ舞い上がる。"
+ ],
+ "这个游戏的作者。他能看你的手牌、改你的牌，每轮 {0} 个动作做完还会「{1}」力量 {2}。弱点：一回合打出 {3} 张 {4} 费牌，他就会「{5}」晕一回合。": [
+  "The author of this game. He can peek at and edit your cards, and after each cycle of {0} moves he works 「{1}」 for {2} Strength. Weakness: play {3} cards costing {4} in one turn and he hits a 「{5}」, stunned for a turn.",
+  "このゲームの作者。手札を覗き、カードを書き換え、{0}行動ごとに「{1}」して筋力{2}。弱点：1ターンに{4}コストのカードを{3}枚使うと「{5}」で1ターン気絶。"
+ ],
+ "水龙。涨潮那回合打它 {0} 点以上能打断巨浪；巨浪打中后，你下回合会被冲走 {1} 张手牌。": [
+  "Water dragon. Deal {0}+ damage on its High Tide turn to stop the Tidal Wave; if the wave hits, {1} card is washed out of your hand next turn.",
+  "水竜。満ち潮のターンに{0}以上与えると大津波を止められる。大津波を受けると次のターン手札が{1}枚流される。"
+ ],
+ "黑龙。每三回合潜入暗影一次：潜行期间你每一下最多只能打 {0} 点（中毒照常）。暗影龙息会腐蚀你：下回合结束时格挡减半。": [
+  "Black dragon. Every third turn it slips into shadow: while stalking, each of your hits deals at most {0} (Poison still works). Its Shadow Breath corrodes you: your Block is halved at the end of next turn.",
+  "黒竜。3ターンに{0}回影に潜る：潜伏中は1回の攻撃で最大1ダメージ（毒は通常通り）。影のブレスで腐食：次のターン終了時にブロック半減。"
+ ],
+ "不死的骨龙。第一次被打死会带 {0} 生命重新拼起来——除非它死的时候身上有灼烧或中毒。会唤起骷髅护卫，龙息让你虚弱又易伤。": [
+  "An undead bone dragon. The first time it dies it reassembles with {0} HP — unless it has Burn or Poison when it dies. It raises skeleton guards, and its breath leaves you Weak and Vulnerable.",
+  "不死の骨竜。初めて倒されるとHP{0}で組み直す——死んだ時に燃焼か毒があれば復活しない。骸骨の護衛を呼び、ブレスで脱力と弱体を与える。"
+ ],
+ "神圣的白金巨龙。圣盾能完全挡下你的第一下攻击。审判：你上回合每打出一张牌，它就多打你一下（每下 {0} 点）。还会治疗、加护队友。": [
+  "A holy platinum dragon. Its Holy Shield fully blocks your first hit. Judgment: one extra hit ({0} dmg each) for every card you played last turn. It also heals and shields its allies.",
+  "神聖な白金の巨竜。聖盾は最初の一撃を完全に防ぐ。審判：前のターンに使ったカード1枚ごとに1回攻撃（1回{0}）。味方の回復と守護もする。"
+ ],
+ "披着法袍的老龙。你每打出一张技能牌，它就积 {0} 点法力；攒满 {1} 点会立刻改念大魔法：陨石、镜像或奥术飞弹（意图会变）。": [
+  "An old dragon in a mage's robe. Each non-Attack card you play gives it {0} Mana; at {1} it instantly switches to a grand spell: Meteor, Mirror Image or Arcane Missiles (its intent changes).",
+  "法衣をまとった老竜。攻撃以外のカードを使うたびに魔力が{0}たまり、{1}たまると即座に大魔法（隕石・鏡像・アーケインミサイル）に切り替える（意図が変わる）。"
+ ],
+ "大法师龙的幻影，会放奥术飞弹。": [
+  "An illusion of the Archmage Dragon. Fires Arcane Missiles.",
+  "大魔導竜の幻影。アーケインミサイルを放つ。"
+ ],
+ "抱着一张被锁链缠住的牌。它出现后会封印你手里一张牌，直到它死掉。": [
+  "Clutching a chained card. After it appears it seals one card in your hand until it dies.",
+  "鎖に巻かれたカードを抱えている。現れると手札1枚を封印し、倒されるまで解けない。"
+ ],
+ "提着摇铃灯笼的梦魔。每两回合让你多 {0} 层睡意：每层下回合少抽 {1} 张牌，攒到 {2} 层你会睡着一回合（没有能量）。你一下打出 {3} 点以上能驱散 {4} 层。": [
+  "A nightmare with a bell lantern. Every two turns it gives you {0} Drowsy: each stack draws {1} fewer card, and at {2} stacks you sleep for a turn (no energy). Dealing {3}+ in one hit removes {4} stack.",
+  "鈴のランタンを提げた夢魔。2ターンごとに眠気を{0}層与える：{1}層ごとにドロー-1、{2}層で{4}ターン眠る（エネルギーなし）。一撃で{3}以上与えると1層消える。"
+ ],
+ "三个头的血是分开的：一下打得再狠，也只能打掉当前这个头剩下的血。每个活着的头都会咬你一口；只剩一个头时会狂暴。": [
+  "Each head has its own HP: no matter how hard you hit, one hit can only take off the current head. Every living head bites; with one head left it goes berserk.",
+  "三つの首はHPが別々：どんなに強く殴っても、一撃で削れるのは今の首の残りHPだけ。生きている首がそれぞれ噛みつき、最後の一つになると暴走する。"
+ ],
+ "彬彬有礼的恶魔商人。每两回合用契约偷走你 {0} 点力量（打死它会还给你），血剑打中你时会吸血。": [
+  "A polite demon merchant. Every two turns its contract steals {0} Strength from you (returned when it dies), and its Blood Blade drains life.",
+  "礼儀正しい悪魔の商人。2ターンごとに契約で筋力を{0}奪い（倒すと返る）、血の剣で吸血する。"
+ ],
+ "深渊的领主。会把你的一张牌封印到战斗结束，每两回合召唤一只小恶魔，地狱火会让你灼烧 {0} 层。": [
+  "Lord of the abyss. It seals one of your cards until the battle ends, summons an Imp every two turns, and its Hellfire inflicts {0} Burn.",
+  "深淵の領主。カード1枚を戦闘終了まで封印し、2ターンごとにインプを召喚し、獄炎で燃焼{0}を与える。"
+ ],
+ "门那一边的魔王。召来的小恶魔会被它献祭成护盾；终焉审判蓄力时打它 {0} 点以上能打断。生命掉到一半会吞掉全部手下、卸甲进入二阶段。": [
+  "The demon lord from beyond the gate. It sacrifices its Imps for shields; deal {0}+ while it charges Final Judgment to interrupt it. At half HP it devours its minions, sheds its armor and enters phase two.",
+  "門の向こうの魔王。呼んだインプを生贄にして盾にする。終焉の審判の溜め中に{0}以上与えると中断できる。HPが半分になると手下を全て喰らい、鎧を脱いで第二形態になる。"
+ ],
+ "「异界的孩子们……是我把你们叫来的。门的那一边，有东西要出来了。」": [
+  "\"Children of another world... I am the one who called you here. Something on the other side of the gate is coming through.\"",
+  "「異界の子らよ……お前たちを呼んだのは我だ。門の向こうから、何かが出てこようとしている。」"
+ ],
+ "「幼崽……替我，守住这扇门。」": [
+  "\"Little one... guard this gate, for me.\"",
+  "「幼子よ……我に代わり、この門を守れ。」"
+ ],
+ "「……拦住它。只有你们，能从这扇门走回去。」": [
+  "\"...Stop it. Only you can walk back through this gate.\"",
+  "「……奴を止めよ。この門をくぐって帰れるのは、お前たちだけだ。」"
+ ],
+ "「今晚又要加班了……」": [
+  "\"Overtime again tonight...\"",
+  "「今夜もまた残業か……」"
+ ],
+ "「行，你们比我会玩。……不过门那边漏出来的东西，我也没写过。小心。」": [
+  "\"Fine, you play better than I do. ...But the stuff leaking out of that gate — I never wrote it. Be careful.\"",
+  "「わかった、君たちの方が上手い。……でも門の向こうから漏れてるアレは、僕も書いてない。気をつけて。」"
+ ],
+ "（逆鳞被触动了！龙威压得你出手发软。）": [
+  "(You touched its reverse scale! Dragon Fear weakens your blows.)",
+  "（逆鱗に触れた！竜威で攻撃に力が入らない。）"
+ ],
+ "（一张牌被浪卷走了！）": [
+  "(A card was swept away by the wave!)",
+  "（カードが1枚波にさらわれた！）"
+ ],
+ "（散落的骨头被绿火拉了起来！）": [
+  "(Green fire pulls the scattered bones back together!)",
+  "（散らばった骨が緑の炎で引き起こされた！）"
+ ],
+ "（法力满了，它改念了大魔法！）": [
+  "(Its mana is full — it switches to a grand spell!)",
+  "（魔力が満ちた、大魔法に切り替えた！）"
+ ],
+ "（小恶魔把「{0}」锁住了！）": [
+  "(The Imp locked 「{0}」!)",
+  "（インプが「{0}」を封じた！）"
+ ],
+ "（只剩一个头了，它狂暴起来！）": [
+  "(Only one head left — it goes berserk!)",
+  "（首が一つだけになり、暴れ出した！）"
+ ],
+ "（一个头被打掉了！）": [
+  "(A head is knocked off!)",
+  "（首が一つ落ちた！）"
+ ],
+ "（契约烧成了灰，被偷走的力量回来了。）": [
+  "(The contract burns to ash; your stolen Strength returns.)",
+  "（契約は灰になり、奪われた筋力が戻った。）"
+ ],
+ "（「{0}」被封印到战斗结束！）": [
+  "(「{0}」 is sealed until the battle ends!)",
+  "（「{0}」は戦闘終了まで封印された！）"
+ ],
+ "（「{0}」被封印了！）": [
+  "(「{0}」 has been sealed!)",
+  "（「{0}」が封印された！）"
+ ],
+ "「龙守着门，就是为了关住我。……谢谢你们，替我把门打开了。」": [
+  "\"The dragon guarded that gate to keep me in. ...Thank you for opening it for me.\"",
+  "「竜が門を守っていたのは、我を閉じ込めるため。……門を開けてくれて、礼を言う。」"
+ ],
+ "「霜龙的孩子？……那条老龙，连自己的孩子都送来了啊。」": [
+  "\"The frost dragon's child? ...So the old wyrm sent even its own young.\"",
+  "「霜竜の子か？……あの老竜め、自分の子まで寄越したか。」"
+ ],
+ "「好久没有人让我脱下这身铠甲了。」": [
+  "\"It has been a long time since anyone made me take off this armor.\"",
+  "「この鎧を脱がされるのは久しぶりだ。」"
+ ],
+ "「永夜降临。」": [
+  "\"Eternal night falls.\"",
+  "「永夜、降臨。」"
+ ],
+ "「门……还会再开的。下一次，我会……」": [
+  "\"The gate... will open again. Next time, I will...\"",
+  "「門は……また開く。次こそ、我は……」"
+ ],
+ "魔界裂隙": [
+  "Demon Rift",
+  "魔界の裂け目"
+ ],
+ "你睡着了：这回合没有能量": [
+  "You fell asleep: no energy this turn",
+  "眠ってしまった：このターンはエネルギーなし"
+ ],
+ "封印": [
+  "Sealed",
+  "封印"
+ ],
+ "这张牌被封印了": [
+  "This card is sealed",
+  "このカードは封印されている"
+ ],
+ "封印到战斗结束": [
+  "Sealed until battle ends",
+  "戦闘終了まで封印"
+ ],
+ "门后的裂隙": [
+  "The Rift Beyond the Gate",
+  "門の向こうの裂け目"
+ ],
+ "开发者让开了路。山顶的门半开着，门缝里涌出紫红色的光和硫磺味。": [
+  "The Developer steps aside. The gate at the summit stands half open, crimson-violet light and the smell of sulfur pouring through the crack.",
+  "開発者が道を譲った。山頂の門は半開きで、隙間から紫紅の光と硫黄の匂いが溢れ出している。"
+ ],
+ "紫瞳霜龙就守在门的另一头——可门和它之间，空间已经裂开了。": [
+  "The violet-eyed frost dragon waits on the other side — but between you and it, space itself has torn open.",
+  "紫眼の霜竜は門の向こうで待っている——だがその間で、空間そのものが裂けていた。"
+ ],
+ "进入第三章·下半：魔界裂隙（回复 20% 生命）": [
+  "Enter Chapter 3, Part 2: Demon Rift (heal 20% HP)",
+  "第三章・後半：魔界の裂け目へ（HPを20%回復）"
+ ],
+ "踏进裂隙": [
+  "Step into the Rift",
+  "裂け目に踏み込む"
+ ],
+ "裂隙里没有风雪，只有烧焦的岩石和低语声。": [
+  "There is no snow in the rift — only scorched rock and whispers.",
+  "裂け目に雪はなく、焦げた岩とささやき声だけがあった。"
+ ],
+ "小小的、抱着锁链的影子，在岩缝里咯咯地笑。": [
+  "Small shadows clutching chains giggle in the cracks of the rock.",
+  "鎖を抱えた小さな影が、岩の隙間でけらけらと笑っている。"
+ ],
+ "“门那边漏出来的东西……原来是这些。”": [
+  "\"So this is what's been leaking out of the gate...\"",
+  "「門の向こうから漏れてたのは……これだったのか。」"
+ ],
+ "门开了": [
+  "The Gate Opens",
+  "門が開いた"
+ ],
+ "霜龙倒在门前，门的那一边，黑色的铠甲缓缓走了出来。": [
+  "The frost dragon falls before the gate. From the other side, a figure in black armor slowly steps out.",
+  "霜竜が門の前に倒れた。門の向こうから、黒い鎧がゆっくりと歩み出てくる。"
+ ],
+ "「龙守着门，就是为了关住我。」": [
+  "\"The dragon guarded the gate to keep me in.\"",
+  "「竜が門を守っていたのは、我を閉じ込めるためだ。」"
+ ],
+ "迎战魔王": [
+  "Face the Demon Lord",
+  "魔王に挑む"
+ ],
+ "深渊之主化成了黑烟。门的对面，是放学路上的那条街。": [
+  "The Lord of the Abyss dissolves into black smoke. On the other side of the gate is the street on the way home from school.",
+  "深淵の主は黒い煙となって消えた。門の向こうは、学校帰りのあの道だった。"
+ ],
+ "深渊之主倒下了，回家的门打开了。": [
+  "The Lord of the Abyss has fallen, and the gate home is open.",
+  "深淵の主が倒れ、帰りの門が開いた。"
  ]
 }
