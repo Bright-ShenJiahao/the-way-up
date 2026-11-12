@@ -70,7 +70,7 @@ const ERIN = {
 };
 
 /* ======================= 顾清寒 · 飞剑 =======================
-   飞剑最多 6 把。留在身上：每把让攻击牌第一击 +1，回合结束每把给 1 点格挡。射出去：每把单独造成伤害（一般 4 点），射完就离开身上。
+   飞剑最多 6 把。留在身上：每把让攻击牌第一击 +1，回合结束每 2 把给 1 点格挡。射出去：每把单独造成伤害（一般 4 点），射完就离开身上。
    两种打法：养剑——飞剑留着吃加成和格挡；射剑——攒够了一口气射出去，再用回剑牌补回来。 */
 const sw = g => P(g).st.sword || 0;
 function addSword(g, n) { const p = P(g), a = sw(g), b = Math.min(6, a + n); if (b > a) p.st.sword = b; return a + n - b; }
@@ -107,7 +107,7 @@ const GU = {
   g_horse: { ch: 'gu', name: '回旋剑', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_horse', tgt: 'one', desc: u => `射出 2 把飞剑（每把 ${v(u, 4, 6)} 点伤害），回合结束时这 2 把飞回身上。`, play: (g, u, t) => { const k = fire(g, t, 2, v(u, 4, 6)); P(g).boomer = (P(g).boomer || 0) + k; } },
   g_snow: { ch: 'gu', name: '雪径连斩', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_snow', tgt: 'one', desc: u => `造成 ${v(u, 3, 4)} 点伤害，次数等于飞剑数（至少 1 次，不消耗飞剑）。`, play: (g, u, t) => g.attack(t, v(u, 3, 4), Math.max(1, sw(g))) },
   g_quake: { ch: 'gu', name: '横扫千军', type: 'atk', rar: 'u', cost: [2, 2], icon: 'icons2/n_g_quake', tgt: 'one', desc: u => `造成 ${v(u, 5, 7)} 点伤害 3 次，每一下都吃飞剑加成；下回合少 1 点能量。`, play: (g, u, t) => { const p = P(g); for (let i = 0; i < 3; i++) { p.fh = 1; g.attack(live(g, t), v(u, 5, 7)); } p.fh = 0; p.restE = 1; } },
-  g_flow: { ch: 'gu', name: '剑气护体', type: 'power', rar: 'u', cost: [1, 0], icon: 'icons2/n_g_flow', tgt: 'self', desc: u => `回合结束时每把飞剑的格挡从 1 点变成 2 点。`, play: g => { P(g).st.gflow = 1; } },
+  g_flow: { ch: 'gu', name: '剑气护体', type: 'power', rar: 'u', cost: [1, 0], icon: 'icons2/n_g_flow', tgt: 'self', desc: u => `回合结束时每把飞剑都给 1 点格挡（原来是每 2 把 1 点）。`, play: g => { P(g).st.gflow = 1; } },
   g_myriad: { ch: 'gu', name: '万剑归一', type: 'atk', rar: 'r', cost: [2, 2], icon: 'icons2/n_g_myriad', tgt: 'one', desc: u => `射出全部飞剑，每把造成 ${v(u, 9, 12)} 点伤害。`, play: (g, u, t) => fire(g, t, 'all', v(u, 9, 12)) },
   g_rev: { ch: 'gu', name: '剑意循环', type: 'power', rar: 'r', cost: [2, 1], icon: 'icons2/n_g_rev', tgt: 'self', desc: u => `每射出 1 把飞剑抽 1 张牌（每回合最多 3 张）；飞剑归零时再得到 2 把。`, play: g => { P(g).st.grev = 1; } },
   g_dual: { ch: 'gu', name: '剑意', type: 'power', rar: 'u', cost: [2, 1], icon: 'icons2/n_g_dual', tgt: 'self', desc: u => `每回合第一次射出飞剑后，得到 1 点能量。`, play: g => { P(g).st.dualst = 1; } },
@@ -147,7 +147,7 @@ const SYL = {
 };
 
 /* ======================= 米娅 · 云猫团子 =======================
-   团子第一章 2 级、第二章 3 级。分离时每回合免费下一个指令：护卫（替米娅挡下一次攻击的前 8 点）或扑击（回合结束攻击目标）。
+   团子第一章 1 级、第二章 2 级。分离时每回合免费下一个指令：护卫（替米娅挡下一次攻击的前 8 点）或扑击（回合结束攻击目标）。
    打出【猫】牌自动合体，打出【人】牌自动分离。合体时团子不在场、每回合回复 3 生命；米娅攻击 + 团子攻击力的一半，每回合开始 5 点格挡。
    驯养牌给团子的强化本场有效；灵魂恩赐（打完精英或 Boss 三选一）整局有效。 */
 function catDid(g, k) { const p = P(g), c = p.cat; if (c.did[k]) return; c.did[k] = 1; if (p.st.mjump) g.block(p.st.mjump, true); if (Object.keys(c.did).length >= 2 && g.has('lynx') && !p.lynxU) { p.lynxU = 1; p.lynxD = 1; } }
@@ -412,8 +412,8 @@ export const NEWSTATUS = {
   efocus: ['专注', '每回合开始再写入一次最新的元素', '#ffd060'], emaster: ['元素宗师', '每打出 1 张法术获得格挡', '#ffd060'], enote: ['元素笔记', '每回合第一次凑齐三种元素时抽牌', '#ffd060'], ecrown: ['三相冠冕', '每回合第一张三格相同的法术后获得格挡并抽牌', '#ffd060'], eseason: ['四季轮转', '每回合第一次换配方打出法术后全体受伤并抽牌', '#ffd060'],
   
   
-  sword: ['飞剑', '每把让攻击牌的第一击 +1 伤害，回合结束每把给 1 点格挡；可以射出（最多 6 把）', '#9fd8ff'], swordgen: ['剑阵', '每回合开始得到 1 把飞剑', '#9fd8ff'], zen: ['剑心通明', '每把飞剑的第一击加成变成 +2', '#9fd8ff'], 
-  gflow: ['剑气护体', '回合结束时每把飞剑给 2 点格挡', '#9fd8ff'], grev: ['剑意循环', '每射出 1 把飞剑抽 1 张牌（每回合最多 3 张）；飞剑归零时再得到 2 把', '#9fd8ff'], dualst: ['剑意', '每回合第一次射出飞剑后得到 1 点能量', '#9fd8ff'],
+  sword: ['飞剑', '每把让攻击牌的第一击 +1 伤害，回合结束每 2 把给 1 点格挡；可以射出（最多 6 把）', '#9fd8ff'], swordgen: ['剑阵', '每回合开始得到 1 把飞剑', '#9fd8ff'], zen: ['剑心通明', '每把飞剑的第一击加成变成 +2', '#9fd8ff'], 
+  gflow: ['剑气护体', '回合结束时每把飞剑给 1 点格挡', '#9fd8ff'], grev: ['剑意循环', '每射出 1 把飞剑抽 1 张牌（每回合最多 3 张）；飞剑归零时再得到 2 把', '#9fd8ff'], dualst: ['剑意', '每回合第一次射出飞剑后得到 1 点能量', '#9fd8ff'],
   dblood: ['龙血', '攒满 8 点后可以变身霜龙', '#ff9090'], dragon: ['霜龙形态', '变身时对所有敌人造成 10 点伤害；攻击牌第一击 +6；每个敌方回合第一段打穿格挡的伤害 -4。数字是剩余回合', '#c8f0ff'],
   dbgen: ['冰晶脊', '每回合开始得到 1 点龙血', '#ff9090'], dscale: ['龙鳞', '霜龙形态下每回合开始获得格挡', '#c8f0ff'], dheart: ['龙心', '变身时得到 2 点能量并抽 1 张牌', '#c8f0ff'], perma: ['永冻', '龙血满 8 点时攻击牌第一击额外加成', '#a8e8ff'],
   aval: ['雪崩之心', '每花掉 1 点龙血获得 1 点格挡；变身时获得 8 点格挡', '#a8e8ff'], wake: ['冬眠苏醒', '退出霜龙形态时得到龙血并抽牌', '#a8e8ff'],
@@ -444,7 +444,7 @@ export const MECH = {
     if (c === 'erin') p.el = [...EL];
     if (c === 'gu' && g.has('swordtassel')) addSword(g, 1);
     if (c === 'sylvie' && g.has('eggshard')) gainDB(g, 2);
-    if (c === 'mia' && g.has('catbell')) { R.cat = { lv: Math.min(3, (R.act || 1) + 1) }; const L = CATLV[R.cat.lv], hb = k => hasBoon(g, k); const mx = L.max + (hb('fur') ? 6 : 0); p.cat = { hp: mx, max: mx, atk: L.atk + (hb('claw') ? 2 : 0), gP: hb('guard') ? 4 : 0, cmd: 'guard', set: 0, did: {}, took: 0 }; }
+    if (c === 'mia' && g.has('catbell')) { R.cat = { lv: Math.min(3, R.act || 1) }; const L = CATLV[R.cat.lv], hb = k => hasBoon(g, k); const mx = L.max + (hb('fur') ? 6 : 0); p.cat = { hp: mx, max: mx, atk: L.atk + (hb('claw') ? 2 : 0), gP: hb('guard') ? 4 : 0, cmd: 'guard', set: 0, did: {}, took: 0 }; }
     if (c === 'feiyue') { p.bats = 0; p.big = null; }
   },
   turnStart(g, first) { const p = P(g);
@@ -474,7 +474,7 @@ export const MECH = {
       if (c.cmd === 'guard') c.guardOn = 1; }
     if (p.st.torii && (p.st.kek || 0) >= 3) g.block(p.st.torii, true);
     if (p.boomer) { addSword(g, p.boomer); p.boomer = 0; }
-    if (sw(g)) g.block((p.st.gflow ? 2 : 1) * sw(g), true);
+    if (sw(g)) g.block(p.st.gflow ? sw(g) : Math.floor(sw(g) / 2), true);
     if (bats(g) || p.big) summonsAttack(g);
     p.ePhase = 1;
   },

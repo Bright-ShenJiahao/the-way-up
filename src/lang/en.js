@@ -2308,5 +2308,7 @@ export default {
 "沸雾": "Boiling Mist",
 "对所有敌人造成 {0} 点伤害，给予 {1} 层虚弱。回合结束没打出就消失。消耗。": "Deal {0} damage to ALL enemies and apply {1} Weak. Vanishes at end of turn if not played. Exhaust.",
 "给予 {0} 层虚弱和 {1} 层易伤，抽 {2} 张牌。回合结束没打出就消失。消耗。": "Apply {0} Weak and {1} Vulnerable. Draw {2} card. Vanishes at end of turn if not played. Exhaust.",
-"造成 {0} 点伤害，给予 {1} 层易伤，抽 {2} 张牌。回合结束没打出就消失。消耗。": "Deal {0} damage, apply {1} Vulnerable, and draw {2} card. Vanishes at end of turn if not played. Exhaust."
+"造成 {0} 点伤害，给予 {1} 层易伤，抽 {2} 张牌。回合结束没打出就消失。消耗。": "Deal {0} damage, apply {1} Vulnerable, and draw {2} card. Vanishes at end of turn if not played. Exhaust.",
+"回合结束时每把飞剑都给 {0} 点格挡（原来是每 {1} 把 {2} 点）。": "At end of turn, each Flying Sword gives {0} Block (instead of {2} per {1}).",
+"每把让攻击牌的第一击 {0} 伤害，回合结束每 {1} 把给 {2} 点格挡；可以射出（最多 {3} 把）": "Each gives {0} damage to an Attack's first hit; every {1} give {2} Block at end of turn; can be launched (max {3})"
 };
