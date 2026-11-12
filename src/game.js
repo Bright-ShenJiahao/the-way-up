@@ -1,8 +1,8 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11130100';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11130100';
-import { createAudio } from './audio.js?v=live2_11130100';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11130100';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11130110';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11130110';
+import { createAudio } from './audio.js?v=live2_11130110';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11130110';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -98,7 +98,7 @@ function genMap() { const ROWS = RW();
 
 // ---------- 顶栏 ----------
 function topBar() {
-  return `<div id="top"><span class="hp">❤ ${R.hp}/${R.maxHp}</span><span class="gold">● ${R.gold}</span><span class="fl">第 ${R.floor} 层 · ${REGION()}</span>
+  return `<div id="top"><span class="hp">❤ ${R.hp}/${R.maxHp}</span><span class="gold">● ${R.gold}</span><span class="fl">第 ${Math.max(1, (R.floor0 || 0) + R.floor)} 层 · ${REGION()}</span>
   <div class="pots">${[0, 1, 2].map(i => { const id = (R.potions || [])[i]; return id ? `<img class="pot ${B && B.potSel === i ? 'sel' : ''}" data-pot="${i}" src="${POTIONS[id].img}" title="${esc(POTIONS[id].name + '：' + POTIONS[id].desc)}">` : '<i class="pot empty"></i>'; }).join('')}</div>
   <div class="relics">${R.relics.map(id => `<img src="${RELICS[id].img}" data-rel="${id}" title="${esc(RELICS[id].name + '：' + RELICS[id].desc)}">`).join('')}</div>
   <span class="sp"></span><button class="tb" id="tbdeck">牌组 (${R.deck.length})</button><button class="tb" id="tbtips" title="开关规则提示">提示：${TIPS ? '开' : '关'}</button><button class="tb" id="tbfs" title="全屏">⛶</button><button class="tb" id="tbmute">${audio.muted ? '🔇' : '🔊'}</button><button class="tb" id="tbset" title="设置">⚙</button></div>`;
@@ -1231,7 +1231,7 @@ function dbgPanel() {
     ['满血', () => { R.hp = R.maxHp; B ? render() : mapScreen(); }], ['+3能量', () => { if (B) { B.p.energy += 3; render(); } }], ['抽5张', () => { if (B) { drawCards(5); render(); } }],
     ['全部秘宝', () => { Object.keys(RELICS).forEach(id => { if (!has(id)) gainRelic(id); }); B ? render() : mapScreen(); }],
     ['跳到Boss', () => { R.pos = { r: RW() - 1, c: R.map[RW() - 1].findIndex(Boolean) }; R.floor = 15; mapScreen(); }],
-    ['全卡牌', () => { R.deck = Object.keys(CARDS).filter(k => CARDS[k].ch === R.char && CARDS[k].rar !== 'gen').map((id, i) => mkCard(id, i % 2 ? 1 : 0)); B ? render() : mapScreen(); }], ['商店', () => shopScreen()], ['事件', () => eventScreen()], ['精英', () => battle(pickOne(ENC().elite), 'elite')], ['第二章', () => { R.act = 2; R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = 'vamp_count'; mapScreen(); }], ['第三章', () => { R.act = 3; R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = 'dev_boss'; mapScreen(); }], ['终战', () => { R.act = 3; enterNode('final'); }], ['无尽', () => { startEndless(); }], ['结局', () => endingChoice()], ...[...ENCOUNTERS.boss, ...ENCOUNTERS2.boss, ...ENC3.boss, [FINAL3]].map(([k]) => ['B:' + k.replace('gob_', ''), () => { R.boss = k; battle([k], 'boss'); }])];
+    ['全卡牌', () => { R.deck = Object.keys(CARDS).filter(k => CARDS[k].ch === R.char && CARDS[k].rar !== 'gen').map((id, i) => mkCard(id, i % 2 ? 1 : 0)); B ? render() : mapScreen(); }], ['商店', () => shopScreen()], ['事件', () => eventScreen()], ['精英', () => battle(pickOne(ENC().elite), 'elite')], ['第二章', () => { R.act = 2; R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = 'vamp_count'; mapScreen(); }], ['第三章', () => { R.act = 3; delete R.rift; delete R.rows; R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = 'dev_boss'; mapScreen(); }], ['裂隙', () => { R.act = 3; riftChoice(); }], ['终战', () => { R.act = 3; R.rift = 1; enterNode('final'); }], ['无尽', () => { startEndless(); }], ['结局', () => endingChoice()], ...[...ENCOUNTERS.boss, ...ENCOUNTERS2.boss, ...ENC3.boss, [GATE3], [FINAL3]].map(([k]) => ['B:' + k.replace('gob_', ''), () => { R.boss = k; battle([k], 'boss'); }])];
   d.innerHTML = ''; btns.forEach(([t, f]) => { const b = document.createElement('button'); b.textContent = t; b.onclick = f; d.appendChild(b); });
 }
 
