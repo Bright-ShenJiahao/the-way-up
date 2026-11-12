@@ -157,7 +157,7 @@ export const CORE3 = {
     if (amt <= 0) return amt;
     if (!isP && attacker === B.p && tgt.chg && has('slayer')) amt = Math.floor(amt * 1.3);
     if (!isP && tgt.st.wing) { amt = Math.ceil(amt / 2); tgt.st.wing = 0; }
-    const sc = tgt.st.scale || 0; if (sc && !(isP ? false : B.p.pierceS && attacker === B.p)) { const raw = amt; amt = Math.max(Math.ceil(amt / 2), amt - sc); if (raw >= 10) { tgt.st.scale = sc - 1; if (!tgt.st.scale) delete tgt.st.scale; } }
+    const sc0 = tgt.st.scale || 0, sc = !isP && attacker === B.p && B.p.halfScale ? Math.ceil(sc0 / 2) : sc0; if (sc && !(isP ? false : B.p.pierceS && attacker === B.p)) { const raw = amt; amt = Math.max(Math.ceil(amt / 2), amt - sc); if (raw >= 10) { tgt.st.scale = sc0 - 1; if (!tgt.st.scale) delete tgt.st.scale; } }
     return amt;
   },
   after(tgt, left, isP, attacker, B) { if (isP) return; tgt.dmgT = (tgt.dmgT || 0) + left; tgt.lastHit = left; tgt.hitByP = attacker === B.p; },
@@ -171,7 +171,7 @@ export const CORE3 = {
     if (s.frost) { if (!api.has('stove')) { const k = Math.min(s.frost, B.hand.length); if (k) api.loseHp(k); } s.frost--; if (!s.frost) delete s.frost; }
     if (s.pburn) { api.loseHp(s.pburn); s.pburn--; if (!s.pburn) delete s.pburn; }
   },
-  battleStart(B, has, R) { if (has('dscale')) B.p.st.scale = 3; if (R.trials) { if (R.trials.includes('scale')) B.en.forEach(e => e.block = 5); if (R.trials.includes('cold')) B.p.st.frost = 1; } },
+  battleStart(B, has, R) { B.p.halfScale = R.char === 'hero' ? 1 : 0; if (has('dscale')) B.p.st.scale = 3; if (R.trials) { if (R.trials.includes('scale')) B.en.forEach(e => e.block = 5); if (R.trials.includes('cold')) B.p.st.frost = 1; } },
 };
 
 /* 无尽模式：每层开始三选一的「天之试炼」 */

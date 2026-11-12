@@ -2664,5 +2664,11 @@ export default {
 "回合开始时少 {0} 点能量，然后减 {1} 层。": "Start of turn: {0} less energy, then reduce by {1}.",
 "龙下回合要放龙息。蓄力的那个回合里打它足够多的伤害，就能打断。": "The dragon will breathe next turn. Deal enough damage to it during the charge turn to interrupt.",
 "补丁": "Patch",
-"这张牌本场伤害或格挡增加，牌面显示版本号。": "This card's damage or Block is increased for this combat; the card shows a version number."
+"这张牌本场伤害或格挡增加，牌面显示版本号。": "This card's damage or Block is increased for this combat; the card shows a version number.",
+"合体时攻击加成变成团子攻击力的三分之二": "While fused, the attack bonus becomes two-thirds of Dango's attack",
+"合体时，攻击的加成从团子攻击力的三分之一变成三分之二。": "While fused, the attack bonus goes from one-third to two-thirds of Dango's attack.",
+"合体时，攻击的加成从团子攻击力的三分之一变成三分之二；合体时每回合多 {0} 点格挡。": "While fused, the attack bonus goes from one-third to two-thirds of Dango's attack; gain {0} more Block each turn while fused.",
+"每把让攻击牌的第一击 {0} 伤害，每 {1} 把再额外 {2}；回合结束每 {3} 把给 {4} 点格挡；可以射出（最多 {5} 把）": "Each sword gives your first Attack hit {0} damage, plus {2} extra per {1} swords; at end of turn every {3} swords give {4} Block; can be fired (max {5})",
+"每把飞剑给攻击牌第一击的加成从 {0} 变成 {1}（每 {2} 把仍再额外 {3}）。": "Each Flying Sword's first-hit bonus goes from {0} to {1} (still {3} extra per {2} swords).",
+"飞剑留在身上，每把让攻击牌第一击 {0}（每 {1} 把再额外 {2}）、回合结束给 {3} 点格挡；攒够了也能一口气射出去。": "Keep Flying Swords around: each gives your first Attack hit {0} ({2} extra per {1} swords) and Block at end of turn ({3}); once you have enough, fire them all at once."
 };

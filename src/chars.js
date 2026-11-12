@@ -147,8 +147,8 @@ const SYL = {
 };
 
 /* ======================= 米娅 · 云猫团子 =======================
-   团子第一章 1 级、第二章 2 级。分离时每回合免费下一个指令：护卫（替米娅挡下一次攻击的前 6 点）或扑击（回合结束攻击目标）。
-   界面上的「合体 / 分离」按钮每回合可以免费切换一次。合体时团子不在场、每回合回复 1 生命；【猫】牌合体时更强。米娅攻击 + 团子攻击力的一半，每回合开始 3 点格挡。
+   团子第一章 1 级、第二章 2 级。分离时每回合免费下一个指令：护卫（替米娅挡下一次攻击的前 5 点）或扑击（回合结束攻击目标）。
+   界面上的「合体 / 分离」按钮每回合可以免费切换一次。合体时团子不在场、每回合回复 1 生命；【猫】牌合体时更强。米娅攻击 + 团子攻击力的三分之一，每回合开始 3 点格挡。
    驯养牌给团子的强化本场有效；灵魂恩赐（打完精英或 Boss 三选一）整局有效。 */
 function catDid(g, k) { const p = P(g), c = p.cat; if (c.did[k]) return; c.did[k] = 1; if (p.st.mjump) g.block(p.st.mjump, true); if (Object.keys(c.did).length >= 2 && g.has('lynx') && !p.lynxU) { p.lynxU = 1; p.lynxD = 1; } }
 const CATLV = [null, { max: 16, atk: 7 }, { max: 21, atk: 9 }, { max: 26, atk: 11 }];
@@ -179,7 +179,7 @@ const MIA = {
   m_revenge: { ch: 'mia', name: '护主反扑', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_revenge', tgt: 'one', form: 'hum', desc: u => `造成 ${v(u, 8, 10)} 点伤害，再加上一轮团子替你挡下的伤害（最多 +8）。`, play: (g, u, t, c, k) => { ((g, u, t) => { const c = cat(g); g.attack(t, v(u, 8, 10) + Math.min(8, (c && c.took) || 0)); })(g, u, t, c, k); } },
   m_swap: { ch: 'mia', name: '九命', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_swap', tgt: 'self', exhaust: 1, form: 'cat', desc: u => `【猫】获得 ${v(u, 10, 13)} 点格挡；本场合体时受到致命伤害，改为分离：团子替你倒下，米娅保留 1 生命。消耗。`, play: (g, u, t, c, k) => { ((g, u) => { g.block(v(u, 10, 13)); P(g).nineL = 1; })(g, u, t, c, k); } },
   m_mint: { ch: 'mia', name: '猫薄荷', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_mint', tgt: 'self', desc: u => `驯养：团子本场攻击 +1，回复 ${v(u, 4, 6)} 生命。`, play: (g, u) => { const c = cat(g); if (c) { c.atk += 1; healCat(g, v(u, 4, 6)); } } },
-  m_jump: { ch: 'mia', name: '野性', type: 'power', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_jump', tgt: 'self', desc: u => `合体时，攻击的加成从团子攻击力的一半变成全部${v(u, '', '；合体时每回合多 3 点格挡')}。`, play: (g, u) => { P(g).st.wild = u ? 2 : 1; } },
+  m_jump: { ch: 'mia', name: '野性', type: 'power', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_jump', tgt: 'self', desc: u => `合体时，攻击的加成从团子攻击力的三分之一变成三分之二${v(u, '', '；合体时每回合多 3 点格挡')}。`, play: (g, u) => { P(g).st.wild = u ? 2 : 1; } },
   m_cloud: { ch: 'mia', name: '云步', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_cloud', tgt: 'self', form: 'cat', desc: u => `【猫】获得 ${v(u, 10, 13)} 点格挡；合体时再 +5。`, play: (g, u, t, c, k) => { ((g, u) => g.block(v(u, 10, 13) + (merged(g) ? 5 : 0)))(g, u, t, c, k); } },
   m_bigpounce: { ch: 'mia', name: '大猫扑杀', type: 'skill', rar: 'r', cost: [2, 2], icon: 'icons2/n_m_bigpounce', tgt: 'self', exhaust: 1, desc: u => `本回合团子的扑击改为造成 ${v(u, 14, 18)} 点伤害 2 次。消耗。`, play: (g, u) => { const c = cat(g); if (c) c.big = v(u, 14, 18); } },
   m_hold: { ch: 'mia', name: '绝不松手', type: 'skill', rar: 'r', cost: [1, 1], icon: 'icons2/n_m_hold', tgt: 'self', exhaust: 1, desc: u => `获得 ${v(u, 10, 13)} 点格挡；团子倒地时，带 6 生命回到场上。消耗。`, play: (g, u) => { g.block(v(u, 10, 13)); const c = cat(g); if (c && c.down) { c.down = 0; c.hp = 6; c.merged = 0; } else if (c) c.hold = 1; } },
@@ -191,7 +191,7 @@ const MIA = {
    没有额外资源，直接花生命。绯月和召唤物造成的伤害 1/5 自动回成生命（每场合计最多 30）。
    召唤物：血蝠最多 8 只，每只回合结束打随机敌人 3 点，敌人每次行动会打掉 1 只；大召唤位同时只能 1 个——血骑士（每回合替你挡下第一次攻击）或初拥转化的眷属。 */
 const bats = g => P(g).bats || 0;
-function healLS(g, k) { const p = P(g); k = Math.min(k, 30 - (p.ls || 0)); if (k <= 0) return 0; if (g.has('redpin') && !p.pinU) { p.pinU = 1; k = Math.min(k + 2, 30 - (p.ls || 0)); } const got = g.heal(k) || 0; if (got > 0) { p.ls = (p.ls || 0) + got; p.lsT = 1; if (p.st.vhunger) g.block(p.st.vhunger, true); } return got; }
+function healLS(g, k) { const p = P(g); k = Math.min(k, 20 - (p.ls || 0)); if (k <= 0) return 0; if (g.has('redpin') && !p.pinU) { p.pinU = 1; k = Math.min(k + 2, 20 - (p.ls || 0)); } const got = g.heal(k) || 0; if (got > 0) { p.ls = (p.ls || 0) + got; p.lsT = 1; if (p.st.vhunger) g.block(p.st.vhunger, true); } return got; }
 function lsHeal(g, dealt) { const p = P(g); if (!(dealt > 0)) return; p.lsC = (p.lsC || 0) + dealt; const k = Math.floor(p.lsC / 5); p.lsC %= 5; if (k) healLS(g, k); }
 const fa = (g, t, n, x = 1) => { const d = g.attack(t, n, x); lsHeal(g, d); return d; };
 const faAll = (g, n, x = 1) => { const d = g.attackAll(n, x); lsHeal(g, d); return d; };
@@ -329,7 +329,7 @@ const NEW2 = {
   g_crush: { ch: 'gu', name: '收剑归鞘', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_crush', tgt: 'one', desc: u => `射出全部飞剑（每把 ${v(u, 4, 6)} 点伤害），然后得到 3 把。`, play: (g, u, t) => { fire(g, t, 'all', v(u, 4, 6)); addSword(g, 3); } },
   g_recall: { ch: 'gu', name: '回剑', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_recall', tgt: 'one', desc: u => `射出 1 把飞剑，再得到 2 把，获得 ${v(u, 3, 5)} 点格挡。`, play: (g, u, t) => { fire(g, t, 1, 4); addSword(g, 2); g.block(v(u, 3, 5)); } },
   g_immortal: { ch: 'gu', name: '天外飞仙', type: 'atk', rar: 'r', cost: [3, 2], icon: 'icons2/n_g_immortal', tgt: 'one', exhaust: 1, desc: u => `射出全部飞剑（每把 7 点伤害），然后得回同样数量。消耗。`, play: (g, u, t) => { const k = fire(g, t, 'all', 7); addSword(g, k); } },
-  g_zen: { ch: 'gu', name: '剑心通明', type: 'power', rar: 'r', cost: [1, 0], icon: 'icons2/n_g_zen', tgt: 'self', desc: u => `每把飞剑给攻击牌第一击的加成从 +1 变成 +2。`, play: g => { P(g).st.zen = 1; } },
+  g_zen: { ch: 'gu', name: '剑心通明', type: 'power', rar: 'r', cost: [1, 0], icon: 'icons2/n_g_zen', tgt: 'self', desc: u => `每把飞剑给攻击牌第一击的加成从 +1 变成 +2（每 2 把仍再额外 +1）。`, play: g => { P(g).st.zen = 1; } },
   g_qiarmor: { ch: 'gu', name: '后发制人', type: 'skill', rar: 'r', cost: [1, 0], icon: 'icons2/n_g_qiarmor', tgt: 'self', desc: u => `本回合射出的飞剑先悬在空中，每把给 3 点格挡；下回合开始时落下，伤害 ×2.5。`, play: g => { P(g).hangT = 1; } },
   // ---- 希尔薇：抢变身 / 霜甲反击 ----
   s_icicle: { ch: 'sylvie', name: '冰锥', type: 'atk', rar: 'c', cost: [0, 0], icon: 'icons2/n_s_icicle', tgt: 'one', desc: u => `造成 ${v(u, 4, 6)} 点伤害，得到 1 点龙血。【龙】造成 ${v(u, 4, 6)}，全体 2。`, play: (g, u, t) => { g.attack(t, v(u, 4, 6)); gainDB(g, 1); } },
@@ -423,14 +423,14 @@ export const NEWRELICS = {
   catbed: { ch: 'mia', name: '旅行猫窝', icon: 'box', rar: 'u', desc: '每回合开始时，团子回复 2 生命。' },
   lynx: { ch: 'mia', name: '山猫纹章', icon: 'sk_wolf', rar: 'r', desc: '每场战斗第一次护卫和扑击都执行过后，下回合抽 1 张牌，得到 1 点能量。' },
   ribbon: { ch: 'feiyue', name: '家书缎带', icon: 'b_vamp', rar: 'start', desc: '每场战斗第一次因为自己的牌失去生命时，召唤 2 只血蝠。战斗结束时回复 4 点生命。' },
-  redpin: { ch: 'feiyue', name: '红银针', icon: 'ic_stake', rar: 'u', desc: '每场战斗第一次吸血时多回复 2 生命（仍算进每场 30 点的上限）。' },
+  redpin: { ch: 'feiyue', name: '红银针', icon: 'ic_stake', rar: 'u', desc: '每场战斗第一次吸血时多回复 2 生命（仍算进每场 20 点的上限）。' },
   cup: { ch: 'feiyue', name: '倒悬杯', icon: 'pot', rar: 'r', desc: '每场战斗第一次血蝠达到 8 只时，抽 2 张牌。' },
 };
 export const NEWSTATUS = {
   efocus: ['专注', '每回合开始再写入一次最新的元素', '#ffd060'], emaster: ['元素宗师', '每打出 1 张法术获得格挡', '#ffd060'], enote: ['元素笔记', '每回合第一次凑齐三种元素时抽牌', '#ffd060'], ecrown: ['三相冠冕', '每回合第一张三格相同的法术后获得格挡并抽牌', '#ffd060'], eseason: ['四季轮转', '每回合第一次换配方打出法术后全体受伤并抽牌', '#ffd060'],
   
   
-  sword: ['飞剑', '每把让攻击牌的第一击 +1 伤害，回合结束每 2 把给 1 点格挡；可以射出（最多 6 把）', '#9fd8ff'], swordgen: ['剑阵', '每回合开始得到 1 把飞剑', '#9fd8ff'], zen: ['剑心通明', '每把飞剑的第一击加成变成 +2', '#9fd8ff'], 
+  sword: ['飞剑', '每把让攻击牌的第一击 +1 伤害，每 2 把再额外 +1；回合结束每 2 把给 1 点格挡；可以射出（最多 6 把）', '#9fd8ff'], swordgen: ['剑阵', '每回合开始得到 1 把飞剑', '#9fd8ff'], zen: ['剑心通明', '每把飞剑的第一击加成变成 +2', '#9fd8ff'], 
   gflow: ['剑气护体', '回合结束时每把飞剑给 1 点格挡', '#9fd8ff'], grev: ['剑意循环', '每射出 1 把飞剑抽 1 张牌（每回合最多 3 张）；飞剑归零时再得到 2 把', '#9fd8ff'], dualst: ['剑意', '每回合第一次射出飞剑后得到 1 点能量', '#9fd8ff'],
   dblood: ['龙血', '攒满 8 点后可以变身霜龙', '#ff9090'], dragon: ['霜龙形态', '变身时对所有敌人造成 14 点伤害；攻击牌第一击 +8；每个敌方回合第一段打穿格挡的伤害 -4。数字是剩余回合', '#c8f0ff'],
   dbgen: ['冰晶脊', '每回合开始得到 1 点龙血', '#ff9090'], dscale: ['龙鳞', '霜龙形态下每回合开始获得格挡', '#c8f0ff'], dheart: ['龙心', '变身时得到 2 点能量并抽 1 张牌', '#c8f0ff'], perma: ['永冻', '龙血满 8 点时攻击牌第一击额外加成', '#a8e8ff'],
@@ -451,7 +451,7 @@ export const NEWSTATUS = {
   awe: ['威吓', '下一次攻击每段 -5', '#e0e0ff', 'icons2/st_awe'],
   bloodlust: ['嗜血', '本场每失去 10 点生命，攻击牌第一击 +1', '#ff5070'],
   bpact: ['血契', '召唤物伤害的一半回成生命', '#ff5070'],
-  wild: ['野性', '合体时攻击加成变成团子的全部攻击力', '#ffc0e0'],
+  wild: ['野性', '合体时攻击加成变成团子攻击力的三分之二', '#ffc0e0'],
   mtwin: ['默契', '团子每回合同时护卫和扑击', '#ffc0e0'],
   shiki: ['式神', '整段挡下敌人的下一次攻击（最多同时 2 个）', '#f0f0ff', 'icons2/st_shiki'], shikiR: ['式神返魂', '式神每挡下一次攻击，结界 +2', '#f0f0ff'], aleye: ['炼金师之眼', '每用炼金瓶打倒一个敌人，获得 5 金币并抽 1 张牌', '#ffd060'],
 };
@@ -505,7 +505,7 @@ export const MECH = {
     if (e) { if (e.cutH) amt = Math.floor(amt / 2); if (e.cutS) amt = Math.max(0, amt - e.cutS); if (p.st.permaf && e.st && e.st.fburn) amt = Math.max(0, amt - p.st.permaf); }
     if (p.flhsD) amt = Math.floor(amt * .8);
     if (e) { if (bats(g) && !e.batHit && amt > 0) { e.batHit = 1; p.bats--; } if (p.big && p.big.kind === 'knight' && !p.bigG && amt > 0) { p.bigG = 1; p.big.hp -= amt; g.note(`血骑士挡下 ${amt}`); amt = 0; if (p.big.hp <= 0) { p.big = null; g.note('血骑士倒下了'); } } }
-    if (c && !c.down && !c.merged && (c.cmd === 'guard' || p.st.mtwin) && c.guardOn && amt > 0) { c.guardOn = 0; const capN = 6 + (c.gB || 0) + (c.gP || 0) + (p.st.mgate ? 3 : 0) + (p.mount ? p.mountB || 8 : 0), k = Math.min(amt, capN, c.hp); if (k > 0) { const hurtC = Math.max(0, Math.ceil(k / (p.mount ? 4 : 2)) - (c.sR || 0) - (c.sRp || 0)); if (p.mount) g.block(3, true); c.fx = { k: 'hit', t: Date.now() }; c.hp -= hurtC; c.tookN = (c.tookN || 0) + k; amt -= k; catDid(g, 'guard'); if (p.st.mpact) g.block(Math.floor(k / 2), true); g.note(`团子挡下 ${k}`); if (hurtC > 0 && p.st.mgate) p.gateD = 1; if (c.hp <= 0) catFall(g); } }
+    if (c && !c.down && !c.merged && (c.cmd === 'guard' || p.st.mtwin) && c.guardOn && amt > 0) { c.guardOn = 0; const capN = 5 + (c.gB || 0) + (c.gP || 0) + (p.st.mgate ? 3 : 0) + (p.mount ? p.mountB || 8 : 0), k = Math.min(amt, capN, c.hp); if (k > 0) { const hurtC = Math.max(0, Math.ceil(k / (p.mount ? 4 : 2)) - (c.sR || 0) - (c.sRp || 0)); if (p.mount) g.block(3, true); c.fx = { k: 'hit', t: Date.now() }; c.hp -= hurtC; c.tookN = (c.tookN || 0) + k; amt -= k; catDid(g, 'guard'); if (p.st.mpact) g.block(Math.floor(k / 2), true); g.note(`团子挡下 ${k}`); if (hurtC > 0 && p.st.mgate) p.gateD = 1; if (c.hp <= 0) catFall(g); } }
     return amt; },
   /* 格挡之后（霜龙减伤） */
   postBlock(g, left, e) { const p = P(g); if (left <= 0) return left;
@@ -525,7 +525,7 @@ export const MECH = {
     if (e.st.para) { delete e.st.para; e.cutH = 1; }
     if (e.st.awe) { delete e.st.awe; e.cutS = 5; } },
   /* 攻击牌第一击的加成 */
-  firstHit(g) { const p = P(g); let b = (p.st.sword || 0) * (p.st.zen ? 2 : 1) + (p.st.dragon ? 8 : 0) + (p.fhx || 0) + (merged(g) ? (p.st.wild ? p.cat.atk : Math.floor(p.cat.atk / 2)) : 0) + (p.st.bloodlust ? Math.floor((p.lostF || 0) / 10) : 0); p.fhx = 0; return b; },
+  firstHit(g) { const p = P(g); let b = Math.floor((p.st.sword || 0) * (p.st.zen ? 2.5 : 1.5)) + (p.st.dragon ? 8 : 0) + (p.fhx || 0) + (merged(g) ? (p.st.wild ? Math.floor(p.cat.atk * 2 / 3) : Math.floor(p.cat.atk / 3)) : 0) + (p.st.bloodlust ? Math.floor((p.lostF || 0) / 10) : 0); p.fhx = 0; return b; },
   costMod(g, d) { const p = P(g); return d.invoke && g.has('oldstaff') && !p.staffU ? -1 : 0; },
   postPlay(g, d) { const p = P(g);
     if (d.invoke && g.has('oldstaff')) p.staffU = 1;

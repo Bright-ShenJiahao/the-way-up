@@ -35,4 +35,5 @@ const NF = 1000, fin = await pool([W0, mean, best.w].map(w => () => evalW(w, NF,
 const pick = fin[1].s >= fin[2].s ? { w: mean, r: fin[1] } : { w: best.w, r: fin[2] };
 const report = { ch, gens: gen, before: fin[0], after: pick.r, weights: pick.w, log };
 fs.mkdirSync('data', { recursive: true }); fs.writeFileSync(`data/train_${ch}.json`, JSON.stringify(report, null, 1));
+console.log('WEIGHTS ' + JSON.stringify(pick.w));
 console.log(`| ${ch} | ${fin[0].a}% / ${fin[0].b}% / ${fin[0].c}% | ${pick.r.a}% / ${pick.r.b}% / ${pick.r.c}% | ${gen} 代 |`);
