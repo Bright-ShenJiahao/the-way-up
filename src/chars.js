@@ -54,7 +54,7 @@ const ERIN = {
 };
 
 /* ======================= 顾清寒 · 飞剑 =======================
-   飞剑最多 6 把。留在身上：每把让攻击牌第一击 +2，回合结束每把给 1 点格挡。射出去：每把单独造成伤害（一般 4 点），射完就离开身上。
+   飞剑最多 6 把。留在身上：每把让攻击牌第一击 +1，回合结束每把给 1 点格挡。射出去：每把单独造成伤害（一般 4 点），射完就离开身上。
    两种打法：养剑——飞剑留着吃加成和格挡；射剑——攒够了一口气射出去，再用回剑牌补回来。 */
 const sw = g => P(g).st.sword || 0;
 function addSword(g, n) { const p = P(g), a = sw(g), b = Math.min(6, a + n); if (b > a) p.st.sword = b; return a + n - b; }
@@ -312,7 +312,7 @@ const NEW2 = {
   g_crush: { ch: 'gu', name: '收剑归鞘', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_crush', tgt: 'one', desc: u => `射出全部飞剑（每把 ${v(u, 4, 6)} 点伤害），然后得到 3 把。`, play: (g, u, t) => { fire(g, t, 'all', v(u, 4, 6)); addSword(g, 3); } },
   g_recall: { ch: 'gu', name: '回剑', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_recall', tgt: 'one', desc: u => `射出 1 把飞剑，再得到 2 把，获得 ${v(u, 3, 5)} 点格挡。`, play: (g, u, t) => { fire(g, t, 1, 4); addSword(g, 2); g.block(v(u, 3, 5)); } },
   g_immortal: { ch: 'gu', name: '天外飞仙', type: 'atk', rar: 'r', cost: [3, 2], icon: 'icons2/n_g_immortal', tgt: 'one', exhaust: 1, desc: u => `射出全部飞剑（每把 7 点伤害），然后得回同样数量。消耗。`, play: (g, u, t) => { const k = fire(g, t, 'all', 7); addSword(g, k); } },
-  g_zen: { ch: 'gu', name: '剑心通明', type: 'power', rar: 'r', cost: [1, 0], icon: 'icons2/n_g_zen', tgt: 'self', desc: u => `每把飞剑给攻击牌第一击的加成从 +2 变成 +3。`, play: g => { P(g).st.zen = 1; } },
+  g_zen: { ch: 'gu', name: '剑心通明', type: 'power', rar: 'r', cost: [1, 0], icon: 'icons2/n_g_zen', tgt: 'self', desc: u => `每把飞剑给攻击牌第一击的加成从 +1 变成 +2。`, play: g => { P(g).st.zen = 1; } },
   g_qiarmor: { ch: 'gu', name: '后发制人', type: 'skill', rar: 'r', cost: [1, 0], icon: 'icons2/n_g_qiarmor', tgt: 'self', desc: u => `本回合射出的飞剑先悬在空中，每把给 3 点格挡；下回合开始时落下，伤害 ×2.5。`, play: g => { P(g).hangT = 1; } },
   // ---- 希尔薇：抢变身 / 霜甲反击 ----
   s_icicle: { ch: 'sylvie', name: '冰锥', type: 'atk', rar: 'c', cost: [0, 0], icon: 'icons2/n_s_icicle', tgt: 'one', desc: u => `造成 ${v(u, 4, 6)} 点伤害，得到 1 点龙血。【龙】造成 ${v(u, 4, 6)}，全体 2。`, play: (g, u, t) => { g.attack(t, v(u, 4, 6)); gainDB(g, 1); } },
@@ -395,7 +395,7 @@ export const NEWRELICS = {
 export const NEWSTATUS = {
   efire: ['火', '祈唤时每层对目标造成 5 点伤害（最多 6 层）', '#ff9050'], ewater: ['水', '祈唤时每层获得 4 点格挡（最多 6 层）', '#70c0ff'], ewind: ['风', '祈唤时每 2 层抽 1 张牌（最多 6 层）', '#9fffd0'],
   enotes: ['元素笔记', '每回合开始时层数最少的元素 +1', '#ffd060'], efocus: ['水之心', '每回合结束时按水的层数获得格挡', '#70c0ff'], ecrown: ['三相冠冕', '每回合开始时火、水、风各 +1', '#ffd060'], eseason: ['四季轮转', '每回合第一次祈唤后得到能量并抽牌', '#ffd060'], emaster: ['元素宗师', '元素上限 10 层，祈唤时每层火伤害 +1', '#ffd060'],
-  sword: ['飞剑', '每把让攻击牌的第一击 +2 伤害，回合结束每把给 1 点格挡；可以射出（最多 6 把）', '#9fd8ff'], swordgen: ['剑阵', '每回合开始得到 1 把飞剑', '#9fd8ff'], zen: ['剑心通明', '每把飞剑的第一击加成变成 +3', '#9fd8ff'], 
+  sword: ['飞剑', '每把让攻击牌的第一击 +1 伤害，回合结束每把给 1 点格挡；可以射出（最多 6 把）', '#9fd8ff'], swordgen: ['剑阵', '每回合开始得到 1 把飞剑', '#9fd8ff'], zen: ['剑心通明', '每把飞剑的第一击加成变成 +2', '#9fd8ff'], 
   gflow: ['剑气护体', '回合结束时每把飞剑给 2 点格挡', '#9fd8ff'], grev: ['剑意循环', '每射出 1 把飞剑抽 1 张牌（每回合最多 3 张）；飞剑归零时再得到 2 把', '#9fd8ff'], dualst: ['剑意', '每回合第一次射出飞剑后得到 1 点能量', '#9fd8ff'],
   dblood: ['龙血', '攒满 8 点后可以变身霜龙', '#ff9090'], dragon: ['霜龙形态', '变身时对所有敌人造成 10 点伤害；攻击牌第一击 +6；每个敌方回合第一段打穿格挡的伤害 -4。数字是剩余回合', '#c8f0ff'],
   dbgen: ['冰晶脊', '每回合开始得到 1 点龙血', '#ff9090'], dscale: ['龙鳞', '霜龙形态下每回合开始获得格挡', '#c8f0ff'], dheart: ['龙心', '变身时得到 2 点能量并抽 1 张牌', '#c8f0ff'], perma: ['永冻', '龙血满 8 点时攻击牌第一击额外加成', '#a8e8ff'],
@@ -483,13 +483,13 @@ export const MECH = {
     if (e.st.para) { delete e.st.para; e.cutH = 1; }
     if (e.st.awe) { delete e.st.awe; e.cutS = 5; } },
   /* 攻击牌第一击的加成 */
-  firstHit(g) { const p = P(g); let b = (p.st.sword || 0) * (p.st.zen ? 3 : 2) + (p.st.dragon ? 6 : 0) + (p.fhx || 0) + (merged(g) ? (p.st.wild ? p.cat.atk : Math.floor(p.cat.atk / 2)) : 0) + (p.st.bloodlust ? Math.floor((p.lostF || 0) / 10) : 0); p.fhx = 0; return b; },
+  firstHit(g) { const p = P(g); let b = (p.st.sword || 0) * (p.st.zen ? 2 : 1) + (p.st.dragon ? 6 : 0) + (p.fhx || 0) + (merged(g) ? (p.st.wild ? p.cat.atk : Math.floor(p.cat.atk / 2)) : 0) + (p.st.bloodlust ? Math.floor((p.lostF || 0) / 10) : 0); p.fhx = 0; return b; },
   costMod(g, d) { const p = P(g); return 0; },
   postPlay(g, d) { const p = P(g);
     if (d.type === 'skill' && !d.potion) { p.skillN = (p.skillN || 0) + 1; if (p.skillN === 3 && p.st.mheart) { g.energy(1); if (p.st.mheart > 1) g.draw(1); } }
     if (d.id === 'p_fire') p.fireN = (p.fireN || 0) + 1;
     if (d.potion && p.st.wnotes && !p.wnT) { p.wnT = 1; g.draw(p.st.wnotes); }
-    if (d.type === 'atk' && p.st.kaura && sw(g)) { const a = g.alive(); if (a.length) g.hitE(a[Math.floor(Math.random() * a.length)], sw(g) * (p.st.zen ? 3 : 2)); }
+    if (d.type === 'atk' && p.st.kaura && sw(g)) { const a = g.alive(); if (a.length) g.hitE(a[Math.floor(Math.random() * a.length)], sw(g) * (p.st.zen ? 2 : 1)); }
     if (d.type === 'atk') { p.combo = (p.combo || 0) + 1; if (p.combo === 3 && p.st.quick) { g.energy(1); if (p.st.quick > 1) g.draw(1); } if (p.combo >= 3 && g.has('manual') && !p.manU) { p.manU = 1; p.manualD = 1; } }
   },
   /* 胜利后 */
