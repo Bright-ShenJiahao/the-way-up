@@ -1,8 +1,8 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11130315';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11130315';
-import { createAudio } from './audio.js?v=live2_11130315';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11130315';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11130320';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11130320';
+import { createAudio } from './audio.js?v=live2_11130320';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11130320';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -1003,7 +1003,7 @@ function story(img, lines, done, once) {
   show(); $('#stskip').onclick = done; $('#stnext').onclick = () => { if (++i >= lines.length) done(); else show(); };
 }
 /* 外部曲子（Pixabay 许可，可商用）：标题 / 每章的地图、战斗、Boss 各一首 */
-const BGM = {}; let bgmNow = null, duckT = 0; const M3 = new Set(['c3_map']);
+const BGM = {}; let bgmNow = null, duckT = 0; const M3 = new Set(['c3_map', 'c3_battle', 'c3_elite', 'c3_boss', 'c3_rift', 'c3_final']);
 function sting(k, ms) { try { audio[k] && audio[k](); } catch (e) {} duckT = performance.now() + ms; }
 function setMusic(m) {
   const a = ACT() >= 2 ? 'c2' : 'c1'; let want = !R && m === 'menu' ? 'title' : m === 'menu' ? a + '_map' : m === 'boss' || m === 'final' ? a + '_boss' : m === 'elite' ? a + '_elite' : a + '_battle';
