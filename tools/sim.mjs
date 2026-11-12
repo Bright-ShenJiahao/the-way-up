@@ -221,7 +221,7 @@ function battle(keys, kind) {
     startTurn(false);
   }
   if (alive().length) { TIMEOUT = 1; return false; }
-  if (R.relics.some(x => RELICS[x] && RELICS[x].rar === 'start') && !has('crown')) heal(4); if (has('grail')) heal(5); MECH.victory(G);
+  if (R.relics.some(x => RELICS[x] && RELICS[x].rar === 'start') && !has('crown')) heal(4); if (has('grail')) heal(5); MECH.victory(G, kind); { const bo = MECH.boonOpts && MECH.boonOpts(G, kind); if (bo) MECH.boonPick(G, bo[0].val); }
   return true;
 }
 function revive() { pDeath(); return R.hp > 0; }
@@ -244,7 +244,7 @@ const TIER = { r: 3, u: 2, c: 1 };
 const ARCH = {
   hero: [/光弹/, /攻击牌/], heroine: [/共鸣|爆音/, /弃/], miko: [/结界/, /技能牌/], witch: [/炼金瓶/, /中毒/, /火焰瓶|火球/],
   erin: [/祈唤|火 \+|水 \+|风 \+/, /每有 1 层|层数|总层数/], gu: [/得到 \d 把飞剑|飞剑不少于|每有 1 把|剑阵|剑心/, /射出/],
-  sylvie: [/【龙】造成|变身|龙心|龙鳞/, /花掉|霜灼|收鳞|冰盾/], mia: [/扑击/, /护卫|团子回复/], feiyue: [/吸血/, /献血|花掉/],
+  sylvie: [/【龙】造成|变身|龙心|龙鳞/, /花掉|霜灼|收鳞|冰盾/], mia: [/【猫】|驯养|默契/, /【人】|扑击|护卫/], feiyue: [/失去 \d 点生命|吸血|回成生命/, /召唤|血蝠|召唤物/],
 };
 const dtxt = id => { try { return CARDS[id].desc(0); } catch (e) { return ''; } };
 function archOf() { const A = ARCH[R.char] || []; const n = A.map(re => R.deck.filter(c => re.test(dtxt(c.id))).length); let b = 0; n.forEach((x, i) => { if (x > n[b]) b = i; }); return { A, b, n }; }
