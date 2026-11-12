@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11121500';
-import { createAudio } from './audio.js?v=live2_11121500';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11121500';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11121600';
+import { createAudio } from './audio.js?v=live2_11121600';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11121600';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -43,7 +43,7 @@ let TIPS = true; try { TIPS = localStorage.getItem('tipsOff') !== '1'; } catch (
 const KW = { '狡诈': '这张牌被弃掉时，会自动免费打出。', '格挡': '抵挡受到的伤害。你的回合开始时清零。', '易伤': '受到的攻击伤害 +50%，每回合减 1 层。', '虚弱': '造成的攻击伤害 -25%，每回合减 1 层。',
   '力量': '每次攻击伤害增加等同于力量的数值。', '敏捷': '每次获得格挡时额外增加等同于敏捷的数值。', '消耗': '打出后移出本场战斗，不进弃牌堆。',
   '荆棘': '被攻击时，对攻击者造成等同于层数的伤害。', '能量': '出牌要花能量，每回合开始恢复为 3 点。',
-  '光弹': '林拓的掌机子弹。回合结束时自动射出，每发对随机敌人造成 4 点伤害，然后清零。最多 10 发。', '共鸣': '叠在敌人身上，到 10 层自动爆音。', '中毒': '敌人行动前受到等同层数的伤害（无视格挡），然后减 1 层。', '炼金瓶': '魔女的 0 费一次性牌，由其他牌生成，用完消耗。', '药水': '所有角色通用的一次性道具，最多带 3 瓶，战斗中点左上角的药水就能用，不花能量。', '结界': '叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。', '爆音': '共鸣满 10 层时，对该敌人造成 20 点伤害，之后保留 3 层（多出的层数也保留）。' };
+  '光弹': '林拓的掌机子弹。回合结束时自动射出，每发对随机敌人造成 4 点伤害，然后清零。最多 10 发。', '共鸣': '叠在敌人身上，到 10 层自动爆音。', '中毒': '敌人行动前受到等同层数的伤害（无视格挡），然后减 1 层。', '炼金瓶': '魔女的 0 费一次性牌，由其他牌生成，用完消耗。', '药水': '所有角色通用的一次性道具，最多带 3 瓶，战斗中点左上角的药水就能用，不花能量。', '结界': '叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。', '爆音': '共鸣满 10 层时，对该敌人造成 16 点伤害，之后保留 3 层（多出的层数也保留）。每个敌人第一次被爆音时还会眩晕（跳过下一次行动）。' };
 const kwify = s => { if (!TIPS) return s; const names = Object.keys(KW).map(k => [tr(k), tr(KW[k])]).sort((a, b) => b[0].length - a[0].length); const re = new RegExp(names.map(n => n[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'g'); const m2 = Object.fromEntries(names); return s.replace(re, m => `<span class="kw" title="${m2[m]}">${m}</span>`); };
 let R = null; // 当前一局
 let uidN = 1;
@@ -207,7 +207,7 @@ const A_ = n => (R && R.asc || 0) >= n;
 const ONLINE = !/githack|localhost|127\.0\.0\.1|^file/.test(location.href); /* 试玩链接上没有后台 */
 const API = /netlify\.app$/.test(location.hostname) ? '/api/scores' : 'https://the-way-up.netlify.app/api/scores'; /* itch.io 等外部站点连 Netlify 后台 */
 const CHARINFO = {
-  erin: { diff: 3, tip: '火、水、风三种元素各自叠层；「祈唤」一次兑现：火打伤害、水给格挡、风抽牌。', line: '“火、水、风……这次搓哪一个呢。”', bio: '艾琳是精灵族的年轻魔法师，天生能同时感受到火、水、风。长老总说她太急，一个元素还没练稳就想把三个搅在一起。她偏不服：元素本来就会互相说话，只是没人肯听。听说山顶的门连着所有世界，她背着法杖就上了山，想看看门那边的元素长什么样。一路上法术时灵时不灵，她最怕的不是失手，是别人那句“我早说过”。后来她才明白，组合的诀窍从来不是快，而是等对的那一个。', end: '原来元素也要等时机……下次我会慢一点的。大概吧。', builds: [['三同专精', '把三格写成同一种元素，打出陨星、冰镜、风门这类大法术。', ['纯相爆发', '三相冠冕', '冰幕', '点火']], ['混合应变', '每回合换组合，多写入、多祈唤，吃不同配方的奖励。', ['临场变式', '四季轮转', '三色光', '调和']]] },
+  erin: { diff: 3, tip: '三个元素位，写入火、水、风；「祈唤」按组合把 10 种法术之一放进手牌。', line: '“火、水、风……这次搓哪一个呢。”', bio: '艾琳是精灵族的年轻魔法师，天生能同时感受到火、水、风。长老总说她太急，一个元素还没练稳就想把三个搅在一起。她偏不服：元素本来就会互相说话，只是没人肯听。听说山顶的门连着所有世界，她背着法杖就上了山，想看看门那边的元素长什么样。一路上法术时灵时不灵，她最怕的不是失手，是别人那句“我早说过”。后来她才明白，组合的诀窍从来不是快，而是等对的那一个。', end: '原来元素也要等时机……下次我会慢一点的。大概吧。', builds: [['三同专精', '把三格写成同一种元素，打出陨星、冰镜、风门这类大法术。', ['纯相爆发', '三相冠冕', '冰幕', '点火']], ['混合应变', '每回合换组合，多写入、多祈唤，吃不同配方的奖励。', ['临场变式', '四季轮转', '三色光', '调和']]] },
   gu: { diff: 2, tip: '飞剑留在身上，每把让攻击牌第一击 +1、回合结束给 1 点格挡；攒够了也能一口气射出去。', line: '“剑在，人就在。”', bio: '顾清寒是雪山剑派的弟子。门里为“先练气”还是“先练剑”吵成两派，她两边都偷学，结果两边都不认她。魔王占了山顶，剑派被赶下山，师兄们各奔东西，只有她背着剑往回走。她习惯一个人练、一个人扛，连受了伤都只在夜里偷偷运气。直到有一回，同伴替她挡了一刀，她才发现：一个人能同时会两套剑法，一支队伍也能把几个怪人拧成一股。', end: '剑宗也好，气宗也罢……能并肩的，就是同门。', builds: [['剑宗 · 飞剑', '攒满飞剑，第一击越来越重，关键时刻全部射出。', ['万剑归一', '长空落剑', '并指三剑', '归鞘']], ['气宗 · 内力', '燃血换内力，再用内力换双倍出手和厚格挡。', ['震山掌', '绵掌', '焚脉', '逆行经脉']], ['剑势连段', '一回合切两次剑势、连出攻击牌。', ['双势归元', '雪径连斩', '回马势', '风过松']]] },
   sylvie: { diff: 2, tip: '攒满 8 点龙血点「变身」，霜龙形态的三回合打得最狠；也可以不变身，把龙血留着吃加成。', line: '“……别让我变回那个样子。”', bio: '希尔薇是远古白龙最后的后裔，平时是个话少、怕冷的安静少女。可只要情绪一激动，鳞片就会从手背长出来，等回过神，四周已经结满了冰。她不记得变成龙时做过什么，所以一直离人很远。魔王占了祖先的龙巢，她不得不下山。第一次在大家面前变身那天，她以为同伴会逃开，结果有人只是把外套披到她肩上，说：“冷吧，变回来就好。”', end: '龙也好，人也好……你们都叫我希尔薇，那就够了。', builds: [['抢变身', '尽快攒满龙血，把霜龙三回合对准敌人最凶的时候。', ['极夜龙息', '血脉回响', '龙爪二式', '冬眠苏醒']], ['霜甲反击', '不急着变身，叠霜甲挡伤害再反打。', ['雪崩之心', '冰棺', '逆鳞刺', '冰晶脊']]] },
   mia: { diff: 1, tip: '打出【猫】牌和团子合体、打出【人】牌分离；分离时给团子下护卫或扑击指令，用驯养牌把它养强。', line: '“团子，拜托你了喵。”', bio: '米娅是人类和猫耳族的混血，两边的族人都不太接纳她，从小只有云猫团子陪着。团子的母亲是山里的守护神，被哥布林抓走了，米娅抱着团子就上了山。她嘴上总说“拜托你了喵”，其实每次团子冲出去，她的尾巴都绷得笔直。她以为自己一直在保护团子，直到团子第一次挡在她前面，冲着比自己大十倍的怪物炸毛。原来团子也想保护她。', end: '团子，我们找到妈妈了喵……以后，换我们一起保护她。', builds: [['扑击', '团子当主攻，配合扑击目标打出加成。', ['大猫扑杀', '夹击', '追踪哨', '绕背']], ['护卫', '团子替你挡刀，再把挡下的伤害还回去。', ['云猫守门', '护主反扑', '双层围巾', '交换站位']], ['照料', '保住团子让它一路长大。', ['猫薄荷团', '暖窝', '绝不松手', '拍拍背']]] },
@@ -449,7 +449,7 @@ const VSZ = { gob_kid: 1.45, gob_bomb: 1.25, gob_giant: .6, gob_king: .55, gob_h
 function gv(e, k) { if (e.key === 'wolf') { if (k === 'atk' || k === 'die') audio.gob(k === 'die' ? 'howl' : 'growl'); return; } audio.gob(k, VSZ[e.key] || 1); }
 function killE(e) { const od = ENEMIES[e.key].onDie; gv(e, 'die'); if (R) R.kills = (R.kills || 0) + 1; eAct(e, 'down'); e.dead = true; e.hp = 0; e.deadAt = Date.now(); audio.kill(); if (!e.rewarded && !e.fled) { e.rewarded = 1; if (has('fang')) { healP(3); } if (has('wolffang') && B) addSt(B.p, 'str', 1); if (B && B.p.st.chain) { G.ammo(3 * B.p.st.chain); drawCards(B.p.st.chain); } } if (e.stolen && !e.fled) { R.gold += e.stolen; fx('hero', `+${e.stolen} 金币`, 'heal'); e.stolen = 0; } if (od && !e.fled) od(e, BE); }
 function boom(t) { // 爆音：伤害后保留 3 层（失真再 +3），多出的层数也保留
-  const d = 20 + (B.p.st.dist ? 8 : 0) + (has('mic') ? 6 : 0);
+  const d = 16 + (B.p.st.dist ? 8 : 0) + (has('mic') ? 6 : 0); if (!t.boomCC) { t.boomCC = 1; MECH.cc(G, t, 'stun'); }
   t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0);
   fx(t.id, '爆音！', 'st'); hurt(t, d); if (has('metro') && !B.p.metroUsed) { B.p.metroUsed = 1; B.p.energy++; } }
 function healP(n) { if (n <= 0 || R.hp <= 0) return 0; const k = Math.min(n, R.maxHp - R.hp); R.hp += k; if (k > 0) fx('hero', `+${k}`, 'heal'); return k; } /* 生命已归零时普通回复无效 */
@@ -480,7 +480,7 @@ const G = {
   loseHp(n) { R.hp -= n; fx('hero', `-${n}`, 'dmg'); B.hitSet.add('hero'); pDeath(); },
   heal(n) { return healP(n); },
   pm() { return B.p.st.sage ? 2 : 1; }, ppm() { return B.p.st.sage ? 1.5 : 1; },
-  potion(n, id) { const ps = ['p_fire', 'p_frost', 'p_heal', 'p_poison', 'p_boom']; for (let i = 0; i < n; i++) { const c = mkCard(id || pickOne(ps)); (B.hand.length < 10 ? B.hand : B.disc).push(c); } fx('hero', `药瓶+${n}`, 'st'); },
+  potion(n, id) { const ps = ['p_fire', 'p_frost', 'p_heal', 'p_poison', 'p_boom', 'p_vine']; for (let i = 0; i < n; i++) { const c = mkCard(id || pickOne(ps)); (B.hand.length < 10 ? B.hand : B.disc).push(c); } fx('hero', `药瓶+${n}`, 'st'); },
   poison(t, n) { if (!t || t.dead || n <= 0) return; n += has('toad') ? 1 : 0; addSt(t, 'poison', n); fx(t.id, `中毒+${n}`, 'st'); },
   volley(clear = true, max = 99) { // 光弹齐射：每发 4 点（+双持 +超频），打随机敌人或全体
     const n = Math.min(max, B.p.st.ammo || 0); if (!n) return; const dmg = 4 + (B.p.st.dual || 0) + (B.p.oc || 0);
@@ -1006,7 +1006,7 @@ function endScreen(win) {
 
 // ---------- 卡牌关键词说明框（悬停 / 手机长按；设置里「显示规则提示」可关闭） ----------
 const KWS = { '结界': '叠在自己身上，每回合开始按层数自动获得格挡，整场战斗不消失。', '光弹': '回合结束时自动射出，每发打随机敌人 4 点伤害，然后清零。',
-  '共鸣': '叠在敌人身上，满 10 层自动爆音。', '爆音': '共鸣满 10 层时爆炸，造成 20 点伤害，之后保留 3 层。',
+  '共鸣': '叠在敌人身上，满 10 层自动爆音。', '爆音': '共鸣满 10 层时爆炸，造成 16 点伤害，之后保留 3 层；每个敌人第一次被爆音时还会眩晕。',
   '中毒': '敌人行动前掉等于层数的血（无视格挡），然后层数 -1。', '炼金瓶': '由其他牌生成的 0 费牌，用一次就没了。' };
 function kwList(c) { const d = CARDS[c.id], s = d.desc(c.up) + (d.potion ? tr('炼金瓶') : '') + (d.type === 'power' ? tr('能力') : ''); const all = Object.assign({}, KW, KWS, { '能力': '打出后整场战斗持续生效。' }); return Object.keys(all).filter(k => s.includes(tr(k))).map(k => [tr(k), tr(all[k])]); }
 let kwTimer = 0;

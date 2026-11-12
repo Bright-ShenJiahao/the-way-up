@@ -38,7 +38,7 @@ function hurt(t, amt, att, direct = true) {
 function killE(e) { e.dead = true; e.hp = 0; R.kills++; if (!e.rewarded && !e.fled) { e.rewarded = 1; if (has('fang')) heal(3); if (has('wolffang')) addSt(B.p, 'str', 1); if (B && B.p.st.chain) { G.ammo(3 * B.p.st.chain); drawCards(B.p.st.chain); } } const od = CARDS && e.d.onDie; if (od && !e.fled) od(e, BE); }
 function pDeath() { if (R.hp > 0) return; const i = R.pots.indexOf('fairy'); if (i >= 0) { R.pots.splice(i, 1); R.hp = Math.floor(R.maxHp * .3); return; } if (has('feather') && !R.feather) { R.feather = 1; R.hp = Math.floor(R.maxHp * .3); } }
 const heal = n => { if (n <= 0 || R.hp <= 0) return 0; const k = Math.min(n, R.maxHp - R.hp); R.hp += k; return k; };
-function boom(t) { const d = 20 + (B.p.st.dist ? 8 : 0) + (has('mic') ? 6 : 0); t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0); hurt(t, d); if (has('metro') && !B.p.metroUsed) { B.p.metroUsed = 1; B.p.energy++; } }
+function boom(t) { if (!t.boomCC) { t.boomCC = 1; MECH.cc(G, t, 'stun'); } const d = 16 + (B.p.st.dist ? 8 : 0) + (has('mic') ? 6 : 0); t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0); hurt(t, d); if (has('metro') && !B.p.metroUsed) { B.p.metroUsed = 1; B.p.energy++; } }
 function drawCards(n) { for (let i = 0; i < n; i++) { if (B.p.noDraw || B.hand.length >= 10) return; if (!B.draw.length) { if (!B.disc.length) return; B.draw = shuffle(B.disc); B.disc = []; } B.hand.push(B.draw.pop()); } }
 const G = {
   has: id => has(id), handSize() { return B.hand.length; }, potsInHand() { return B.hand.filter(c => CARDS[c.id].potion).length; },
@@ -60,7 +60,7 @@ const G = {
   self(k, n) { addSt(B.p, k, n); }, draw: n => drawCards(n), energy(n) { B.p.energy += n; },
   loseHp(n) { R.hp -= n; pDeath(); }, heal: n => heal(n), addCard(id, up, pile) { B[pile === 'discard' ? 'disc' : 'draw'].push(mk(id, up)); },
   pm() { return B.p.st.sage ? 2 : 1; }, ppm() { return B.p.st.sage ? 1.5 : 1; },
-  potion(n, id) { const ps = ['p_fire', 'p_frost', 'p_heal', 'p_poison', 'p_boom']; for (let i = 0; i < n; i++) (B.hand.length < 10 ? B.hand : B.disc).push(mk(id || pickOne(ps))); },
+  potion(n, id) { const ps = ['p_fire', 'p_frost', 'p_heal', 'p_poison', 'p_boom', 'p_vine']; for (let i = 0; i < n; i++) (B.hand.length < 10 ? B.hand : B.disc).push(mk(id || pickOne(ps))); },
   poison(t, n) { if (!t || t.dead || n <= 0) return; addSt(t, 'poison', n + (has('toad') ? 1 : 0)); },
   volley(clear = true, max = 99) { // 光弹齐射
     const n = Math.min(max, B.p.st.ammo || 0); if (!n) return; const dmg = 4 + (B.p.st.dual || 0) + (B.p.oc || 0);
@@ -158,7 +158,7 @@ function botTurn() { usePots(); if (!alive().length) return; MECH.bot(G, incomin
           else if (new RegExp('(得到|获得) \\d+ (层|点|把|发)' + w + '|' + w + ' \\+').test(tx)) s += 1; }
         if (/回合结束没打出就消失/.test(tx)) s += 3;
         if (/霜龙形态下/.test(tx)) s += B.p.st.dragon ? 3 : 0;
-        if (/祈唤/.test(tx)) { const et = (B.p.st.efire || 0) + (B.p.st.ewater || 0) + (B.p.st.ewind || 0); s += et >= 7 ? 5 : et >= 4 ? 1 : -5; } }
+        if (/写入/.test(tx) && !/祈唤/.test(tx)) s += 1; if (/祈唤/.test(tx) && d.type !== 'atk') s -= .5; }
       const top = alive().reduce((m, e) => Math.max(m, e.st.res || 0), 0);
       if (d.id === 'high') s += top >= 5 ? 6 : -2;                       // 女主：层数高时先打高音
       if (R.char === 'heroine' && /共鸣/.test(d.desc(0)) && d.id !== 'high' && B.hand.some(c => c.id === 'high') && top >= 5 && top < 10) s -= 3;
@@ -243,7 +243,7 @@ const TIER = { r: 3, u: 2, c: 1 };
 /* 每个角色的 2~3 套打法：熟练机器人看牌组里哪套最多，就往哪套拿牌 */
 const ARCH = {
   hero: [/光弹/, /攻击牌/], heroine: [/共鸣|爆音/, /弃/], miko: [/结界/, /技能牌/], witch: [/炼金瓶/, /中毒/, /火焰瓶|火球/],
-  erin: [/祈唤|火 \+|水 \+|风 \+/, /每有 1 层|层数|总层数/], gu: [/得到 \d 把飞剑|飞剑不少于|每有 1 把|剑阵|剑心/, /射出/],
+  erin: [/三格|相同|纯相/, /三种|不同元素|混合|两种/, /祈唤|法术/], gu: [/得到 \d 把飞剑|飞剑不少于|每有 1 把|剑阵|剑心/, /射出/],
   sylvie: [/【龙】造成|变身|龙心|龙鳞/, /花掉|霜灼|收鳞|冰盾/], mia: [/【猫】|驯养|默契/, /【人】|扑击|护卫/], feiyue: [/失去 \d 点生命|吸血|回成生命/, /召唤|血蝠|召唤物/],
 };
 const dtxt = id => { try { return CARDS[id].desc(0); } catch (e) { return ''; } };

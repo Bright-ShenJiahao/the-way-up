@@ -4698,5 +4698,133 @@
  "分离": [
   "Unfused",
   "分離"
+ ],
+ "冰冻目标（跳过下一次行动；精英和 Boss 改为下一次攻击减半）。消耗。": [
+  "Freeze the target (skips its next action; Elites and Bosses deal half damage on their next attack instead). Exhaust.",
+  "対象を凍結（次の行動をスキップ。エリートとボスは次の攻撃が半減）。廃棄。"
+ ],
+ "叠到 {0} 层时爆音，造成 {1} 点伤害（每个敌人第一次被爆音时还会眩晕），之后保留 {2} 层（多出的也保留）": [
+  "At {0} stacks it bursts for {1} damage (each enemy is also Stunned the first time), then keeps {2} (plus any extra)",
+  "{0}層で爆音、{1}ダメージ（各敵は初回の爆音で眩暈も受ける）。その後{2}層残る（超過分も残る）"
+ ],
+ "召唤 {0} 个式神。消耗。": [
+  "Summon {0} Shikigami. Exhaust.",
+  "式神を{0}体召喚。廃棄。"
+ ],
+ "召唤 {0} 个式神（最多同时 {1} 个），获得 {2} 点格挡。式神会整段挡下敌人的下一次攻击。": [
+  "Summon {0} Shikigami (max {1} at once) and gain {2} Block. A Shikigami fully blocks an enemy's next attack.",
+  "式神を{0}体召喚（同時に最大{1}体）、ブロック{2}を得る。式神は敵の次の攻撃を丸ごと防ぐ。"
+ ],
+ "召唤 {0} 个式神，获得 {1} 点格挡。消耗。": [
+  "Summon {0} Shikigami and gain {1} Block. Exhaust.",
+  "式神を{0}体召喚し、ブロック{1}を得る。廃棄。"
+ ],
+ "召唤式神": [
+  "Summon Shikigami",
+  "式神召喚"
+ ],
+ "嬗变": [
+  "Transmute",
+  "変成"
+ ],
+ "式神": [
+  "Shikigami",
+  "式神"
+ ],
+ "式神每挡下一次攻击，结界 {0}": [
+  "Each time a Shikigami blocks an attack, Barrier {0}",
+  "式神が攻撃を防ぐたびに結界{0}"
+ ],
+ "式神每挡下一次攻击，结界 {0}。": [
+  "Each time a Shikigami blocks an attack, Barrier {0}.",
+  "式神が攻撃を防ぐたびに結界{0}。"
+ ],
+ "式神每挡下一次攻击，结界 {0}；现在召唤 {1} 个式神。": [
+  "Each time a Shikigami blocks an attack, Barrier {0}. Summon {1} Shikigami now.",
+  "式神が攻撃を防ぐたびに結界{0}。今式神を{1}体召喚。"
+ ],
+ "式神返魂": [
+  "Shikigami Return",
+  "式神返魂"
+ ],
+ "把 {0} 张手牌变成 {1} 个随机炼金瓶。": [
+  "Turn {0} card in your hand into {1} random Bottle.",
+  "手札{0}枚をランダムな錬金瓶{1}個に変える。"
+ ],
+ "把 {0} 张手牌变成 {1} 个随机炼金瓶，抽 {2} 张牌。": [
+  "Turn {0} card in your hand into {1} random Bottle. Draw {2} card.",
+  "手札{0}枚をランダムな錬金瓶{1}個に変え、カードを{2}枚引く。"
+ ],
+ "整段挡下敌人的下一次攻击（最多同时 {0} 个）": [
+  "Fully blocks an enemy's next attack (max {0} at once)",
+  "敵の次の攻撃を丸ごと防ぐ（同時に最大{0}体）"
+ ],
+ "束缚目标（跳过下一次行动），并且接下来 {0} 次行动前各受到 {1} 点伤害。消耗。": [
+  "Bind the target (skips its next action); it takes {1} damage before each of its next {0} actions. Exhaust.",
+  "対象を束縛（次の行動をスキップ）、続く{0}回の行動前にそれぞれ{1}ダメージ。廃棄。"
+ ],
+ "每用炼金瓶打倒一个敌人，获得 {0} 金币并抽 {1} 张牌": [
+  "Each enemy killed by a Bottle gives {0} Gold and draws {1} card",
+  "錬金瓶で敵を倒すたびに{0}ゴールドを得てカードを{1}枚引く"
+ ],
+ "每用炼金瓶打倒一个敌人，获得 {0} 金币，抽 {1} 张牌。": [
+  "Whenever a Bottle kills an enemy, gain {0} Gold and draw {1} card.",
+  "錬金瓶で敵を倒すたびに{0}ゴールドを得て、カードを{1}枚引く。"
+ ],
+ "每用炼金瓶打倒一个敌人，获得 {0} 金币，抽 {1} 张牌；现在随机获得 {2} 个炼金瓶。": [
+  "Whenever a Bottle kills an enemy, gain {0} Gold and draw {1} card. Gain {2} random Bottle now.",
+  "錬金瓶で敵を倒すたびに{0}ゴールドを得て、カードを{1}枚引く。今ランダムな錬金瓶を{2}個得る。"
+ ],
+ "点金术": [
+  "Midas Touch",
+  "点金術"
+ ],
+ "炼金师之眼": [
+  "Alchemist's Eye",
+  "錬金術師の眼"
+ ],
+ "纸人替身": [
+  "Paper Double",
+  "紙人形の身代わり"
+ ],
+ "藤蔓瓶": [
+  "Vine Bottle",
+  "蔦の瓶"
+ ],
+ "造成 {0} 点伤害，并让目标麻痹（下一次攻击减半）。消耗。": [
+  "Deal {0} damage and Paralyze the target (its next attack deals half). Exhaust.",
+  "{0}ダメージを与え、対象を麻痺させる（次の攻撃が半減）。廃棄。"
+ ],
+ "造成 {0} 点伤害；这一击打倒敌人时，获得 {1} 金币。": [
+  "Deal {0} damage. If this kills the enemy, gain {1} Gold.",
+  "{0}ダメージ。この一撃で敵を倒したら{1}ゴールドを得る。"
+ ],
+ "雷电瓶": [
+  "Lightning Bottle",
+  "雷の瓶"
+ ],
+ "选 1 张手牌变成炼金瓶": [
+  "Choose a card to turn into a Bottle",
+  "錬金瓶に変える手札を1枚選ぶ"
+ ],
+ "冰缚": [
+  "Ice Bind",
+  "氷縛"
+ ],
+ "沸雾": [
+  "Boiling Mist",
+  "沸霧"
+ ],
+ "对所有敌人造成 {0} 点伤害，给予 {1} 层虚弱。回合结束没打出就消失。消耗。": [
+  "Deal {0} damage to ALL enemies and apply {1} Weak. Vanishes at end of turn if not played. Exhaust.",
+  "敵全体に{0}ダメージ、弱体{1}を与える。ターン終了時に使わなければ消える。廃棄。"
+ ],
+ "给予 {0} 层虚弱和 {1} 层易伤，抽 {2} 张牌。回合结束没打出就消失。消耗。": [
+  "Apply {0} Weak and {1} Vulnerable. Draw {2} card. Vanishes at end of turn if not played. Exhaust.",
+  "弱体{0}と脆弱{1}を与え、カードを{2}枚引く。ターン終了時に使わなければ消える。廃棄。"
+ ],
+ "造成 {0} 点伤害，给予 {1} 层易伤，抽 {2} 张牌。回合结束没打出就消失。消耗。": [
+  "Deal {0} damage, apply {1} Vulnerable, and draw {2} card. Vanishes at end of turn if not played. Exhaust.",
+  "{0}ダメージ、脆弱{1}を与え、カードを{2}枚引く。ターン終了時に使わなければ消える。廃棄。"
  ]
 }
