@@ -1,8 +1,8 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11122320';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11122320';
-import { createAudio } from './audio.js?v=live2_11122320';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11122320';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11122340';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11122340';
+import { createAudio } from './audio.js?v=live2_11122340';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11122340';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -1040,9 +1040,9 @@ const RIFTBG = 'c3_battle'; /* 魔界裂隙背景图到了换成 c3_rift */
 function riftChoice() { sting('act2', 2600);
   B = null; delete R.pending; delete R.pendEnc; delete R.snap; R.wait = 'rift'; save(); setMusic('menu');
   view.innerHTML = `${bgHTML(false, 'story_gate')}<div class="panel" style="width:780px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('门后的裂隙')}</h2>
-   <p>${t('开发者让开了路。山顶的门半开着，门缝里涌出紫红色的光和硫磺味。')}</p><p>${t('紫瞳霜龙就守在门的另一头——可门和它之间，空间已经裂开了。')}</p><p style="color:#ffb0c8">${t('进入第三章·下半：魔界裂隙（回复 20% 生命）')}</p>
+   <p>${t('开发者让开了路。山顶的门半开着，门缝里涌出紫红色的光和硫磺味。')}</p><p>${t('紫瞳霜龙就守在门的另一头——可门和它之间，空间已经裂开了。')}</p><p style="color:#ffb0c8">${t('进入第三章·下半：魔界裂隙（回复 30% 生命）')}</p>
    <div class="row" style="justify-content:center;margin-top:14px"><button class="btn gold" id="gor">${t('踏进裂隙')}</button></div></div>`;
-  $('#gor').onclick = () => { delete R.wait; R.rift = 1; R.rows = 8; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .2)); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = GATE3;
+  $('#gor').onclick = () => { delete R.wait; R.rift = 1; R.rows = 8; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .3)); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = GATE3;
     save(); story('story_gate', ['裂隙里没有风雪，只有烧焦的岩石和低语声。', '小小的、抱着锁链的影子，在岩缝里咯咯地笑。', '“门那边漏出来的东西……原来是这些。”'], mapScreen); };
 }
 function finalPrep() {

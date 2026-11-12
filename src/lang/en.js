@@ -2778,7 +2778,6 @@ export default {
 "门后的裂隙": "The Rift Beyond the Gate",
 "开发者让开了路。山顶的门半开着，门缝里涌出紫红色的光和硫磺味。": "The Developer steps aside. The gate at the summit stands half open, crimson-violet light and the smell of sulfur pouring through the crack.",
 "紫瞳霜龙就守在门的另一头——可门和它之间，空间已经裂开了。": "The violet-eyed frost dragon waits on the other side — but between you and it, space itself has torn open.",
-"进入第三章·下半：魔界裂隙（回复 20% 生命）": "Enter Chapter 3, Part 2: Demon Rift (heal 20% HP)",
 "踏进裂隙": "Step into the Rift",
 "裂隙里没有风雪，只有烧焦的岩石和低语声。": "There is no snow in the rift — only scorched rock and whispers.",
 "小小的、抱着锁链的影子，在岩缝里咯咯地笑。": "Small shadows clutching chains giggle in the cracks of the rock.",
@@ -2788,5 +2787,6 @@ export default {
 "「龙守着门，就是为了关住我。」": "\"The dragon guarded the gate to keep me in.\"",
 "迎战魔王": "Face the Demon Lord",
 "深渊之主化成了黑烟。门的对面，是放学路上的那条街。": "The Lord of the Abyss dissolves into black smoke. On the other side of the gate is the street on the way home from school.",
-"深渊之主倒下了，回家的门打开了。": "The Lord of the Abyss has fallen, and the gate home is open."
+"深渊之主倒下了，回家的门打开了。": "The Lord of the Abyss has fallen, and the gate home is open.",
+"进入第三章·下半：魔界裂隙（回复 30% 生命）": "Enter Chapter 3, Part 2: Demon Rift (heal 30% HP)"
 };

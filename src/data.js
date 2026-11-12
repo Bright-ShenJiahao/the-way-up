@@ -1,7 +1,7 @@
-import { tr } from './i18n.js?v=live2_11122320';
-import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11122320';
+import { tr } from './i18n.js?v=live2_11122340';
+import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11122340';
 export { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 };
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11122320';
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11122340';
 export { MECH, NEWKEYW, OLDKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
@@ -615,5 +615,5 @@ for (const st of Object.values(STATUS)) { tx(st, 0); tx(st, 1); }
 for (const ev of [...EVENTS, ...EVENTS2, ...EV3]) { tx(ev, 'title'); tx(ev, 'text'); for (const o of ev.opts) { tx(o, 't'); tf(o, 'go'); } }
 
 // 两个引擎共用的规则常量（游戏和平衡模拟都从这里读）
-export const RULES = { furyTurn: 9, furyEvery: 2, bloodTurn: 5, bloodStr: 1, act2Mul: 0.9, act3Hp: 1.35, act3Dmg: 1.25, maxTurns: 60 };
+export const RULES = { furyTurn: 9, furyEvery: 2, bloodTurn: 5, bloodStr: 1, act2Mul: 0.9, act3Hp: 1.25, act3Dmg: 1.15, maxTurns: 60 };
 export const isFury = turn => turn >= RULES.furyTurn && (turn - RULES.furyTurn) % RULES.furyEvery === 0;

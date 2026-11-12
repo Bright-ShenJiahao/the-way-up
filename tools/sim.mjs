@@ -314,7 +314,7 @@ function run(char) {
       if (node === 'fight') { const enc = pickOne(fights < 3 ? EN.easy : EN.hard); fights++; if (!battle(enc, 'fight')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: enc.join('+') }; reward(); dropPot('fight'); R.gold += Math.round((10 + Math.floor(Math.random() * 11)) * (A_(7) ? .7 : 1)); }
       else if (node === 'elite') { const enc = pickOne(EN.elite); if (!battle(enc, 'elite')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: '精英:' + enc.join('+') }; reward('elite'); relic(); dropPot('elite'); R.gold += Math.round((25 + Math.floor(Math.random() * 11)) * (A_(7) ? .7 : 1)); }
       else if (node === 'boss') { if (DG) DG.bosses++; const bk = pickOne(EN.boss)[0]; if (!battle([bk], 'boss')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: 'Boss:' + bk };
-        if (act === 3) { relic(); R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .2)); const r = riftRun(); if (r) return r;
+        if (act === 3) { relic(); R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .3)); const r = riftRun(); if (r) return r;
           R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .3)); if (!battle([FINAL3], 'boss')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: 'Boss:' + FINAL3 }; } }
       else if (node === 'rest') { if (R.hp < R.maxHp * W.rest) heal(Math.floor(R.maxHp * (A_(5) ? .2 : .3))); else { const c = R.deck.find(c => !c.up && CARDS[c.id].rar !== 'start') || R.deck.find(c => !c.up); if (c) c.up = 1; } }
       else if (node === 'event') event();
@@ -332,7 +332,7 @@ for (const smart of (process.env.SMARTONLY ? [true] : [false, true])) {
     let to = 0, w1 = 0, w2 = 0, w3 = 0, hp = 0, rb = 0; const at = {};
     DG = smart ? { dm: 0, bl: 0, tk: 0, turns: 0, fights: 0, bt: 0, bosses: 0, deck: 0, pk: {} } : null;
     for (let i = 0; i < N; i++) { seedS = SEED0 * 7919 + i * 104729 + (smart ? 1 : 0); const r = run(ch); if (DG) { DG.deck += R.deck.length; for (const c of R.deck) if (CARDS[c.id].rar !== 'start') DG.pk[c.id] = (DG.pk[c.id] || 0) + 1; } const ok1 = r.win || r.act >= 2; if (ok1) w1++; if (r.win || r.act === 3) w2++; if (ok1 || (r.act === 1 && (r.at || '').startsWith('Boss'))) rb++; if (r.win) { w3++; hp += r.hp; } else if (r.to) to++; else { const k = ['', '一·', '二·', '三·'][r.act] + r.at; at[k] = (at[k] || 0) + 1; } }
-    const top = Object.entries(at).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k, v]) => `${k}(${v})`).join('、');
+    const top = Object.entries(at).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, v]) => `${k}(${v})`).join('、');
     if (DG) { const f = x => (x / Math.max(1, DG.turns)).toFixed(1), tp = Object.entries(DG.pk).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => `${CARDS[k].name}(${v})`).join('、');
       diag.push(`| ◇${ch} | ${f(DG.dm)} | ${f(DG.bl)} | ${f(DG.tk)} | ${(DG.turns / Math.max(1, DG.fights)).toFixed(1)} | ${(DG.bt / Math.max(1, DG.bosses)).toFixed(1)} | ${(DG.deck / N).toFixed(1)} | ${tp} |`); }
     lines.push(`| ${ch} | ${(w1 / N * 100).toFixed(1)}% | ${(w2 / N * 100).toFixed(1)}% | ${(w3 / N * 100).toFixed(1)}% | ${rb ? (w1 / rb * 100).toFixed(0) : 0}% | ${w3 ? (hp / w3).toFixed(0) : '-'} | ${to} | ${top} |`);

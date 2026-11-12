@@ -1759,10 +1759,6 @@
   "The violet-eyed frost dragon waits on the other side — but between you and it, space itself has torn open.",
   "紫眼の霜竜は門の向こうで待っている——だがその間で、空間そのものが裂けていた。"
  ],
- "进入第三章·下半：魔界裂隙（回复 20% 生命）": [
-  "Enter Chapter 3, Part 2: Demon Rift (heal 20% HP)",
-  "第三章・後半：魔界の裂け目へ（HPを20%回復）"
- ],
  "踏进裂隙": [
   "Step into the Rift",
   "裂け目に踏み込む"
@@ -1802,5 +1798,9 @@
  "深渊之主倒下了，回家的门打开了。": [
   "The Lord of the Abyss has fallen, and the gate home is open.",
   "深淵の主が倒れ、帰りの門が開いた。"
+ ],
+ "进入第三章·下半：魔界裂隙（回复 30% 生命）": [
+  "Enter Chapter 3, Part 2: Demon Rift (heal 30% HP)",
+  "第三章・後半：魔界の裂け目へ（HPを30%回復）"
  ]
 }
