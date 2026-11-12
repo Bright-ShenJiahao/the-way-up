@@ -684,7 +684,7 @@ async function checkEnd() {
   if (!alive().length) {
     B.over = true; render(); sting(B.kind === 'boss' ? 'bossWin' : 'win', B.kind === 'boss' ? 2600 : 1400); await sleep(600); if (B !== b0) return true;
     if (R.relics.some(x => RELICS[x] && RELICS[x].rar === 'start') && !has('crown')) R.hp = Math.min(R.maxHp, R.hp + 4);
-    { const m = MECH.victory(G, B.kind); if (m) say(tr(m)); const bo = MECH.boonOpts && MECH.boonOpts(G, B.kind); if (bo) { const k = await pickOpt(tr('团子的灵魂恩赐：选一个（整局有效）'), bo, true); MECH.boonPick(G, k); } } if (has('grail')) R.hp = Math.min(R.maxHp, R.hp + 5);
+    { const m = MECH.victory(G, B.kind); if (m) say(tr(m)); const bo = MECH.boonOpts && MECH.boonOpts(G, B.kind); if (bo) { bo.forEach(o => { o.html = `<button class="btn"><b>${tr(o.name)}</b>：${tr(o.desc)}</button>`; }); const k = await pickOpt(tr('团子的灵魂恩赐：选一个（整局有效）'), bo, true); MECH.boonPick(G, k); } } if (has('grail')) R.hp = Math.min(R.maxHp, R.hp + 5);
     if (B.en.some(e => (e.st.hostage || 0) > 0)) { R.gold += 40; say(tr('（被救下的村民塞给你 40 金币：“谢谢你们！”）')); }
     if (B.kind === 'elite') R.elites = (R.elites || 0) + 1;
     if (B.kind === 'boss') { R.bosses = (R.bosses || 0) + 1; if (ACT() === 1) { delete R.pending; delete R.pendEnc; delete R.snap; R.after = 'act2'; save(); rewardScreen(); return true; } clearSave(); B = null; return story('story_end2', [R.boss === 'vamp_count' ? '伯爵化为了灰烬，天终于亮了。被关押的村民们，终于重获自由。' : t('{0}倒下了。古堡的血月熄灭，天终于亮了。被关押的村民们重获自由。', tr((ENEMIES[R.boss] || {}).name || '')), '可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。', '“回家的路……还在更高的地方。”'], () => story('story_party', ['天亮了。大家并肩站在晨光里，笑得满脸是灰。', '“走吧，往上。”'], () => endScreen(true))); }

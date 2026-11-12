@@ -4834,5 +4834,69 @@
  "每把让攻击牌的第一击 {0} 伤害，回合结束每 {1} 把给 {2} 点格挡；可以射出（最多 {3} 把）": [
   "Each gives {0} damage to an Attack's first hit; every {1} give {2} Block at end of turn; can be launched (max {3})",
   "1本ごとにアタックの最初の一撃{0}、ターン終了時{1}本ごとにブロック{2}。放つこともできる（最大{3}本）"
+ ],
+ "利爪": [
+  "Sharp Claws",
+  "鋭い爪"
+ ],
+ "团子攻击 +2": [
+  "Dango Attack +2",
+  "団子の攻撃力+2"
+ ],
+ "厚毛": [
+  "Thick Fur",
+  "厚い毛皮"
+ ],
+ "团子生命上限 +6": [
+  "Dango Max HP +6",
+  "団子の最大HP+6"
+ ],
+ "守护本能": [
+  "Guardian Instinct",
+  "守護本能"
+ ],
+ "护卫多挡 4 点": [
+  "Guard blocks 4 more",
+  "護衛で防ぐ量+4"
+ ],
+ "猎手": [
+  "Hunter",
+  "狩人"
+ ],
+ "扑击附带 1 层虚弱": [
+  "Pounce also applies 1 Weak",
+  "飛びかかりで弱体1も与える"
+ ],
+ "敏捷": [
+  "Agile",
+  "俊敏"
+ ],
+ "每场第一回合团子额外扑击一次": [
+  "Dango pounces an extra time on each combat's first turn",
+  "各戦闘の最初のターン、団子がもう一度飛びかかる"
+ ],
+ "心灵相通": [
+  "Kindred Hearts",
+  "心通わせ"
+ ],
+ "合体时每回合格挡从 5 变 8": [
+  "While fused, Block each turn goes from 5 to 8",
+  "合体中の毎ターンのブロックが5から8に"
+ ],
+ "九命猫": [
+  "Nine-Lived Cat",
+  "九生の猫"
+ ],
+ "每场第一次倒地时以 5 生命站起来": [
+  "The first time each combat Dango falls, it gets back up with 5 HP",
+  "各戦闘で初めて倒れた時、HP5で立ち上がる"
+ ],
+ "猫之馈赠": [
+  "Cat's Gift",
+  "猫の贈り物"
+ ],
+ "战斗胜利时团子在场，额外 +5 金币": [
+  "If Dango is standing when you win, +5 Gold",
+  "勝利時に団子が場にいれば+5ゴールド"
  ]
 }

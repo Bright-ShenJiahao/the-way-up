@@ -524,7 +524,7 @@ export const MECH = {
   /* 米娅：打完精英或 Boss，三选一灵魂恩赐 */
   boonOpts(g, kind) { if (g.R.char !== 'mia' || (kind !== 'elite' && kind !== 'boss')) return null; const own = g.R.boons || []; if (own.length >= 5) return null;
     const pool = Object.keys(BOONS).filter(k => !own.includes(k)); const pick = []; while (pool.length && pick.length < 3) pick.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
-    return pick.map(k => opt(k, `<b>${BOONS[k][0]}</b>：${BOONS[k][1]}`)); },
+    return pick.map(k => ({ val: k, name: BOONS[k][0], desc: BOONS[k][1], html: `<button class="btn"><b>${BOONS[k][0]}</b>：${BOONS[k][1]}</button>` })); },
   boonPick(g, k) { if (!k || !BOONS[k]) return; (g.R.boons = g.R.boons || []).push(k); },
   /* 角色按钮 */
   actions(g) { const p = P(g), out = [], c = p.cat;
