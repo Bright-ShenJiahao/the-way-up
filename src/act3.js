@@ -118,7 +118,7 @@ export const S3 = {
   frost: ['冻伤', '回合结束时，手里每剩 1 张牌失去 1 生命（最多按层数算），然后减 1 层', '#9ad8ff'],
   zap: ['麻痹', '回合开始时少 1 点能量，然后减 1 层', '#ffe14a'],
   ppois: ['中毒', '回合开始时失去等同层数的生命，然后减 1 层', '#70d040'],
-  scale: ['鳞甲', '受到的每次攻击伤害减少等同层数；一次受到 10 点以上的攻击会打碎 1 层', '#b0a080'],
+  scale: ['鳞甲', '受到的每次攻击伤害减少等同层数（最多减一半）；一次受到 10 点以上的攻击会打碎 1 层', '#b0a080'],
   hatch: ['孵化', '归零时孵化成幼龙', '#ffb060'], grow: ['成长', '归零时长成满血的成龙', '#ff9040'],
   heads: ['头', '每个头咬一口', '#60c0a0'], chg: ['蓄力', '下回合放出龙息。这回合内受到足够伤害就会被打断', '#ffffff'],
   wing: ['飞翼', '这回合第一次受到的伤害减半', '#c0a0ff'],
@@ -157,7 +157,7 @@ export const CORE3 = {
     if (amt <= 0) return amt;
     if (!isP && attacker === B.p && tgt.chg && has('slayer')) amt = Math.floor(amt * 1.3);
     if (!isP && tgt.st.wing) { amt = Math.ceil(amt / 2); tgt.st.wing = 0; }
-    const sc = tgt.st.scale || 0; if (sc && !(isP ? false : B.p.pierceS && attacker === B.p)) { const raw = amt; amt = Math.max(0, amt - sc); if (raw >= 10) { tgt.st.scale = sc - 1; if (!tgt.st.scale) delete tgt.st.scale; } }
+    const sc = tgt.st.scale || 0; if (sc && !(isP ? false : B.p.pierceS && attacker === B.p)) { const raw = amt; amt = Math.max(Math.ceil(amt / 2), amt - sc); if (raw >= 10) { tgt.st.scale = sc - 1; if (!tgt.st.scale) delete tgt.st.scale; } }
     return amt;
   },
   after(tgt, left, isP, attacker, B) { if (isP) return; tgt.dmgT = (tgt.dmgT || 0) + left; tgt.lastHit = left; tgt.hitByP = attacker === B.p; },

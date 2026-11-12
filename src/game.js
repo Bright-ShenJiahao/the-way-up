@@ -1,8 +1,8 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul } from './data.js?v=live2_11122230';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11122230';
-import { createAudio } from './audio.js?v=live2_11122230';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11122230';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul } from './data.js?v=live2_11122300';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11122300';
+import { createAudio } from './audio.js?v=live2_11122300';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11122300';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -374,8 +374,8 @@ function mkEnemy(key) {
   const d = ENEMIES[key], hp = rnd(d.hp[0], d.hp[1]);
   const hm = 1 + (A_(1) && d.elite ? .15 : 0) + (A_(2) && !d.elite && !d.boss ? .1 : 0) + (A_(6) && d.boss ? .15 : 0);
   const xm = R && R.endless ? endlessMul(R.endless) : { hp: 1, dmg: 1 }, tr2 = R && R.trials || [];
-  const hp1 = Math.round(hp * hm * (ACT() === 2 ? RULES.act2Mul : 1) * xm.hp * (d.elite && tr2.includes('blood') ? 1.25 : 1));
-  const e = { key, d, name: d.name, hp: hp1, max: hp1, dmul: (1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0)) * (ACT() === 2 ? RULES.act2Mul : 1) * xm.dmg * (d.boss && tr2.includes('tyrant') ? 1.15 : 1), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++, move: null };
+  const hp1 = Math.round(hp * hm * (ACT() === 2 ? RULES.act2Mul : ACT() === 3 ? RULES.act3Hp : 1) * xm.hp * (d.elite && tr2.includes('blood') ? 1.25 : 1));
+  const e = { key, d, name: d.name, hp: hp1, max: hp1, dmul: (1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0)) * (ACT() === 2 ? RULES.act2Mul : ACT() === 3 ? RULES.act3Dmg : 1) * xm.dmg * (d.boss && tr2.includes('tyrant') ? 1.15 : 1), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++, move: null };
   d.init && d.init(e); return e;
 }
 const alive = () => B.en.filter(e => !e.dead);

@@ -18,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ch: [miko, hero, witch, heroine, erin, gu, sylvie, mia, feiyue]
+        ch: [miko, hero, witch, heroine, erin, gu, sylvie, mia, feiyue, dev]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

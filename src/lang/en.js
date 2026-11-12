@@ -2424,7 +2424,6 @@ export default {
 "回合开始时少 {0} 点能量，然后减 {1} 层": "Start of turn: {0} less energy, then reduce by {1}",
 "回合开始时失去等同层数的生命，然后减 {0} 层": "At start of turn, lose HP equal to stacks, then reduce by {0}",
 "鳞甲": "Scale",
-"受到的每次攻击伤害减少等同层数；一次受到 {0} 点以上的攻击会打碎 {1} 层": "Each attack's damage is reduced by the stack count; a hit of {0}+ breaks {1} stack",
 "孵化": "Hatch",
 "归零时孵化成幼龙": "Hatches into a whelp at zero",
 "成长": "Grow",
@@ -2657,5 +2656,6 @@ export default {
 "天外之塔 · 第 {0} 轮": "Sky Tower · Round {0}",
 "第 {0} 轮通过": "Round {0} cleared",
 "在天外之塔爬到了第 {0} 轮。": "Reached round {0} of the Sky Tower.",
-"无尽轮数 ({0})": "Endless rounds ({0})"
+"无尽轮数 ({0})": "Endless rounds ({0})",
+"受到的每次攻击伤害减少等同层数（最多减一半）；一次受到 {0} 点以上的攻击会打碎 {1} 层": "Each attack's damage is reduced by the stack count (at most halved); a hit of {0}+ breaks {1} stack"
 };

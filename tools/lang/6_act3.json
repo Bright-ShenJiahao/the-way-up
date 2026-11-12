@@ -327,10 +327,6 @@
   "Scale",
   "鱗甲"
  ],
- "受到的每次攻击伤害减少等同层数；一次受到 {0} 点以上的攻击会打碎 {1} 层": [
-  "Each attack's damage is reduced by the stack count; a hit of {0}+ breaks {1} stack",
-  "受ける攻撃ダメージが層数分減る。{0}以上の一撃で{1}層砕ける"
- ],
  "孵化": [
   "Hatch",
   "孵化"
@@ -1262,5 +1258,9 @@
  "无尽轮数 ({0})": [
   "Endless rounds ({0})",
   "エンドレス周回（{0}）"
+ ],
+ "受到的每次攻击伤害减少等同层数（最多减一半）；一次受到 {0} 点以上的攻击会打碎 {1} 层": [
+  "Each attack's damage is reduced by the stack count (at most halved); a hit of {0}+ breaks {1} stack",
+  "受ける攻撃ダメージが層数分減る（最大で半分まで）。{0}以上の一撃で{1}層砕ける"
  ]
 }
