@@ -82,16 +82,16 @@ export const E3 = {
     onTurn: (e, B) => { if (e.p2) { if (e.grounded) { e.grounded = 0; e.st.fly = 3; return 'skip'; } e.st.fly = 3; breathTurn(e, B, 'fbreath', 'ffizzle'); } else breathTurn(e, B, 'breath', 'fizzle'); },
     onDie: (e, B) => B.say('「门……开了。去吧，去你们想去的地方。」'),
     ai: e => e.p2 ? cycle({ turn: e.turn - (e.t2 || 0) }, ['fcharge', 'fbreath', 'dive']) : cycle(e, ['hatch', 'claw', 'charge', 'breath', 'scales']) },
-  dev_boss: { name: '开发者', art: 'necromancer', tint: 'hue-rotate(180deg) saturate(.7)', hd: 300, hp: [300, 300], sc: 2.6, boss: 1, lore: '这个游戏的作者。他能看你的手牌、改你的牌。弱点：一回合打出 3 张 0 费牌，他就会「程序报错」晕一回合。',
+  dev_boss: { name: '开发者', art: 'necromancer', tint: 'hue-rotate(180deg) saturate(.7)', hd: 300, hp: [260, 260], sc: 2.6, boss: 1, lore: '这个游戏的作者。他能看你的手牌、改你的牌。弱点：一回合打出 3 张 0 费牌，他就会「程序报错」晕一回合。',
     intro: '「这一关……其实我自己都没打过。」',
-    moves: { peek: { n: '偷看', i: 'unknown' }, peekDef: { n: '看穿', i: 'atkdef', d: 8, f: (e, B) => B.eBlock(e, 20) }, peekHit: { n: '看穿', i: 'atk', d: 16 },
+    moves: { peek: { n: '偷看', i: 'unknown' }, peekDef: { n: '看穿', i: 'def', f: (e, B) => B.eBlock(e, 18) }, peekHit: { n: '看穿', i: 'atk', d: 14 },
       keys: { n: '键盘连打', i: 'atk', d: 7, x: 3 },
       swap: { n: '换牌', i: 'debuff', f: e => { e.pend = 'swap'; } },
-      del: { n: 'Delete', i: 'atkdebuff', d: 11, f: e => { e.pend = 'del'; } },
-      patch: { n: '平衡补丁', i: 'buff', f: (e, B) => { B.addSt(e, 'str', 2); const n = B.nerfTop(3); B.say(n ? `「「${n}」太强了，削。」` : '「嗯……没什么好削的。」'); } },
-      flip: { n: '敲回车', i: 'atkdebuff', d: 13, f: e => { e.pend = 'flip'; } },
-      debug: { n: '调试召唤', i: 'summon', f: (e, B) => { const m = B.summon(Math.random() < .5 ? 'gob_king' : 'wolf_lord', 60); if (m) { m.mini = 1; m.hd = 200; } B.say('「调试一下……」'); } },
-      demand: { n: '需求变更', i: 'atk', d: 24 } },
+      del: { n: 'Delete', i: 'atkdebuff', d: 9, f: e => { e.pend = 'del'; } },
+      patch: { n: '平衡补丁', i: 'debuff', f: (e, B) => { const n = B.nerfTop(3); B.say(n ? `「「${n}」太强了，削。」` : '「嗯……没什么好削的。」'); } },
+      flip: { n: '敲回车', i: 'atkdebuff', d: 11, f: e => { e.pend = 'flip'; } },
+      debug: { n: '调试召唤', i: 'summon', f: (e, B) => { const m = B.summon(Math.random() < .5 ? 'gob_king' : 'wolf_lord', 45); if (m) { m.mini = 1; m.hd = 200; } B.say('「调试一下……」'); } },
+      demand: { n: '需求变更', i: 'atk', d: 20 } },
     onPTurn: (e, B) => { e.bugT = 0;
       if (e.move === 'peek') { const h = B.handTypes(); e.move = h.atk >= h.skill ? 'peekDef' : 'peekHit'; B.say('「你手里的牌，我都看到了。」'); }
       if (e.pend === 'swap') { const n = B.swapHigh(); if (n) B.say(`「「${n}」借我用用。」`); }
@@ -99,7 +99,7 @@ export const E3 = {
       if (e.pend === 'flip') { B.flipRand(); B.say('「这张……正负反过来试试。」'); }
       e.pend = null; },
     onCard: (e, type, B) => { if (!e.bugT && !e.stun && B.zc() >= 3) { e.bugT = 1; e.stun = 1; B.say('「程序报错了？！」'); } },
-    onHurt: (e, B) => { if (!e.z && e.hp > 0 && e.hp <= e.max / 2) { e.z = 1; B.healE(e, Math.floor(e.max * .35)); B.addSt(e, 'str', 2); B.addHand('bugcard', 3); B.say('「这个数值不对……Ctrl+Z。」'); } },
+    onHurt: (e, B) => { if (!e.z && e.hp > 0 && e.hp <= e.max / 2) { e.z = 1; B.healE(e, Math.floor(e.max * .3)); B.addSt(e, 'str', 1); B.addHand('bugcard', 2); B.say('「这个数值不对……Ctrl+Z。」'); } },
     onTurn: e => { if (e.stun) { e.stun = 0; e.pose = 'stun'; return 'skip'; } e.pose = null; },
     onDie: (e, B) => B.say('「行，你们比我会玩。门在上面，替我向那条龙问好。」'),
     ai: (e, B) => { const m = cycle(e, ['peek', 'keys', 'swap', 'del', 'patch', 'flip', 'debug']); return m === 'debug' && B.alive().some(a => a.mini) ? 'demand' : m; } },
