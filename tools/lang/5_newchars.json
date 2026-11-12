@@ -4998,5 +4998,17 @@
  "便宜的攻击牌一张接一张，越连越痛。": [
   "Chain cheap Attacks one after another — the longer the chain, the harder it hits.",
   "安い攻撃カードを次々と繋ぎ、繋ぐほど痛くなる。"
+ ],
+ "其他敌人各得到共鸣最多的敌人一半的共鸣（至少 {0} 层）；只有一个敌人时改为给它 {1} 层共鸣。": [
+  "Other enemies each gain half the Resonance of the enemy with the most (at least {0}). If there is only one enemy, give it {1} Resonance instead.",
+  "他の敵それぞれに共鳴が最も多い敵の半分の共鳴（最低{0}）を付与。敵が1体だけなら、代わりにその敵に共鳴{1}を付与。"
+ ],
+ "其他敌人各得到共鸣最多的敌人一半的共鸣（至少 {0} 层），再各 {1}；只有一个敌人时改为给它 {2} 层共鸣。": [
+  "Other enemies each gain half the Resonance of the enemy with the most (at least {0}), then {1} more each. If there is only one enemy, give it {2} Resonance instead.",
+  "他の敵それぞれに共鳴が最も多い敵の半分の共鳴（最低{0}）を付与し、さらに{1}。敵が1体だけなら、代わりにその敵に共鳴{2}を付与。"
+ ],
+ "下回合三选一：得到 {0} 点能量 / 攻击伤害 {1} / 受到伤害 {2}。抽 {3} 张牌。": [
+  "Next turn, choose one: gain {0} Energy / Attack damage {1} / Damage taken {2}. Draw {3} card.",
+  "次のターン、1つ選ぶ：エネルギー{0} / 攻撃ダメージ{1} / 被ダメージ{2}。カードを{3}枚引く。"
  ]
 }

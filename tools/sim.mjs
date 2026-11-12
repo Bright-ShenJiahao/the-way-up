@@ -10,7 +10,12 @@ const SHA = (process.env.GITHUB_SHA || 'local').slice(0, 7);
 let DG = null; /* 诊断计数（只统计熟练机器人） */
 /* 机器人策略权重：默认就是原来的常数；强化训练（tools/train.mjs）通过环境变量 WEIGHTS 传入新权重 */
 export const W0 = { pow0: 9, pow1: 3, blkN: 8, blk0: 1, atk: 5, atkK: 1, leth: 6, zero: 2, pot: 3, skill: 4, rs: 1, arch: 2, archW: .8, needBlk: 1, needAtk: 1.2, nonAtk: .8, powPen: 1.5, dup: 1.2, skip: 1.5, rest: .55, needMul: 1 };
-const W = { ...W0, ...JSON.parse(process.env.WEIGHTS || '{}') };
+/* 强化训练学到的每个角色的权重（tools/weights.json，训练完自动更新）；环境变量 WEIGHTS 优先（训练时用） */
+import { readFileSync } from 'fs';
+let TW = {}; try { TW = JSON.parse(readFileSync(new URL('./weights.json', import.meta.url), 'utf8')); } catch (e) {}
+const WENV = process.env.WEIGHTS ? JSON.parse(process.env.WEIGHTS) : null;
+let W = { ...W0, ...(WENV || {}) };
+const useW = ch => { W = WENV ? { ...W0, ...WENV } : { ...W0, ...(TW[ch] || {}) }; };
 let SMART = false; /* false=新手机器人；true=熟练机器人（会用药水、按流派选牌） */
 const POTS = ['heal', 'str', 'dex', 'block', 'energy', 'fire', 'bomb', 'weak', 'draw', 'fairy'];
 const KEYW = { ...OLDKEYW, ...NEWKEYW };
@@ -42,7 +47,7 @@ function hurt(t, amt, att, direct = true) {
 function killE(e) { e.dead = true; e.hp = 0; R.kills++; if (!e.rewarded && !e.fled) { e.rewarded = 1; if (has('fang')) heal(3); if (has('wolffang')) addSt(B.p, 'str', 1); if (B && B.p.st.chain) { G.ammo(3 * B.p.st.chain); drawCards(B.p.st.chain); } } const od = CARDS && e.d.onDie; if (od && !e.fled) od(e, BE); }
 function pDeath() { if (R.hp > 0) return; const i = R.pots.indexOf('fairy'); if (i >= 0) { R.pots.splice(i, 1); R.hp = Math.floor(R.maxHp * .3); return; } if (has('feather') && !R.feather) { R.feather = 1; R.hp = Math.floor(R.maxHp * .3); } }
 const heal = n => { if (n <= 0 || R.hp <= 0) return 0; const k = Math.min(n, R.maxHp - R.hp); R.hp += k; return k; };
-function boom(t) { if (!t.boomCC) { t.boomCC = 1; MECH.cc(G, t, 'stun'); } const d = 16 + (B.p.st.dist ? 8 : 0) + (has('mic') ? 6 : 0); t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0); hurt(t, d); if (has('metro') && !B.p.metroUsed) { B.p.metroUsed = 1; B.p.energy++; } }
+function boom(t) { if (!t.boomCC) { t.boomCC = 1; MECH.cc(G, t, 'stun'); } const d = 18 + (B.p.st.dist ? 8 : 0) + (has('mic') ? 6 : 0); t.st.res = t.st.res - 10 + 3 + (B.p.st.dist ? 3 : 0); hurt(t, d); if (has('metro') && !B.p.metroUsed) { B.p.metroUsed = 1; B.p.energy++; } }
 function drawCards(n) { for (let i = 0; i < n; i++) { if (B.p.noDraw || B.hand.length >= 10) return; if (!B.draw.length) { if (!B.disc.length) return; B.draw = shuffle(B.disc); B.disc = []; } B.hand.push(B.draw.pop()); } }
 const G = {
   has: id => has(id), handSize() { return B.hand.length; }, potsInHand() { return B.hand.filter(c => CARDS[c.id].potion).length; },
@@ -75,7 +80,7 @@ const G = {
   potion(n, id) { const ps = ['p_fire', 'p_frost', 'p_heal', 'p_poison', 'p_boom', 'p_vine']; for (let i = 0; i < n; i++) (B.hand.length < 10 ? B.hand : B.disc).push(mk(id || pickOne(ps))); },
   poison(t, n) { if (!t || t.dead || n <= 0) return; addSt(t, 'poison', n + (has('toad') ? 1 : 0)); },
   volley(clear = true, max = 99) { // 光弹齐射
-    const n = Math.min(max, B.p.st.ammo || 0); if (!n) return; const dmg = 3 + (B.p.st.dual || 0) + (B.p.oc || 0);
+    const n = Math.min(max, B.p.st.ammo || 0); if (!n) return; const dmg = 4 + (B.p.st.dual || 0) + (B.p.oc || 0);
     for (let i = 0; i < n; i++) { const a = alive(); if (!a.length) break; if (B.p.aoe && i < B.p.aoe) a.forEach(e => hurt(e, atkVal(B.p, e, dmg + (i % 2 ? 0 : 1)), B.p)); else { const e = pickOne(a); hurt(e, atkVal(B.p, e, dmg + (i % 2 ? 0 : 1)), B.p); } }
     if (B.p.st.rapid) G.block(B.p.st.rapid * n, true);
     if (clear) { B.shots = (B.shots || 0) + n; if (has('pad')) { B.p.padDraw = Math.floor(B.shots / 4); B.shots %= 4; } addSt(B.p, 'ammo', -Math.min(n, B.p.st.ammo || 0)); }
@@ -329,6 +334,7 @@ const diag = [];
 for (const smart of (process.env.SMARTONLY ? [true] : [false, true])) {
   SMART = smart; lines.push(`## ${smart ? '熟练机器人（≈ 真人）' : '新手机器人'}`, '', '| 角色 | 第一章通关 | 第二章通关 | 第三章通关 | 第一章 Boss 战胜率 | 通关剩余生命 | 超时 | 最常死在 |', '|---|---|---|---|---|---|---|---|');
   for (const ch of ['miko', 'hero', 'witch', 'heroine', 'erin', 'gu', 'sylvie', 'mia', 'feiyue'].filter(c => !ONLY || c === ONLY)) {
+    useW(smart ? ch : '__none__');
     let to = 0, w1 = 0, w2 = 0, w3 = 0, hp = 0, rb = 0; const at = {};
     DG = smart ? { dm: 0, bl: 0, tk: 0, turns: 0, fights: 0, bt: 0, bosses: 0, deck: 0, pk: {} } : null;
     for (let i = 0; i < N; i++) { seedS = SEED0 * 7919 + i * 104729 + (smart ? 1 : 0); const r = run(ch); if (DG) { DG.deck += R.deck.length; for (const c of R.deck) if (CARDS[c.id].rar !== 'start') DG.pk[c.id] = (DG.pk[c.id] || 0) + 1; } const ok1 = r.win || r.act >= 2; if (ok1) w1++; if (r.win || r.act === 3) w2++; if (ok1 || (r.act === 1 && (r.at || '').startsWith('Boss'))) rb++; if (r.win) { w3++; hp += r.hp; } else if (r.to) to++; else { const k = ['', '一·', '二·', '三·'][r.act] + r.at; at[k] = (at[k] || 0) + 1; } }

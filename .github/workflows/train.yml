@@ -6,6 +6,8 @@ on:
   push:
     branches: [preview]
     paths: ['tools/train.mjs', '.github/workflows/train.yml']
+permissions:
+  contents: write
 jobs:
   train:
     runs-on: ubuntu-latest
@@ -21,3 +23,18 @@ jobs:
       - run: node tools/train.mjs ${{ matrix.ch }} ${{ inputs.minutes || '55' }} | tee -a $GITHUB_STEP_SUMMARY
       - uses: actions/upload-artifact@v4
         with: { name: 'train-${{ matrix.ch }}', path: 'data/train_${{ matrix.ch }}.json' }
+  save:
+    needs: train
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { path: parts, merge-multiple: true }
+      - name: 把学到的权重存进 tools/weights.json，并写训练报告
+        run: |
+          node -e "const fs=require('fs');let W={};try{W=JSON.parse(fs.readFileSync('tools/weights.json','utf8'))}catch(e){};const rows=[];for(const f of fs.readdirSync('parts').filter(f=>f.startsWith('train_')).sort()){const r=JSON.parse(fs.readFileSync('parts/'+f,'utf8'));W[r.ch]=r.weights;rows.push('| '+r.ch+' | '+r.before.a+'% / '+r.before.b+'% / '+r.before.c+'% | '+r.after.a+'% / '+r.after.b+'% / '+r.after.c+'% | '+r.gens+' |')}fs.writeFileSync('tools/weights.json',JSON.stringify(W,null,1));fs.writeFileSync('data/train.md','# 强化训练结果（'+new Date().toISOString()+'）\n\n| 角色 | 训练前 一/二/三章通关 | 训练后 一/二/三章通关 | 代数 |\n|---|---|---|---|\n'+rows.join('\n')+'\n')"
+          cat data/train.md >> $GITHUB_STEP_SUMMARY
+          git config user.name "train-bot"; git config user.email "bot@users.noreply.github.com"
+          git add tools/weights.json data/train.md; git commit -m "强化训练：更新 AI 权重 [skip ci]" || true
+          git pull --rebase origin preview && git push origin HEAD:preview

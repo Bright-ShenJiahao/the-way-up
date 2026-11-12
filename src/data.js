@@ -1,7 +1,7 @@
-import { tr } from './i18n.js?v=live2_11130230';
-import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11130230';
+import { tr } from './i18n.js?v=live2_11130410';
+import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11130410';
 export { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 };
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11130230';
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11130410';
 export { MECH, NEWKEYW, OLDKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
@@ -229,7 +229,7 @@ export const CARDS = {
     desc: u => `对所有敌人造成结界层数 ×${v(u, 2, 3)} 的伤害（至少 4，最多算 6 层）。`, play: (g, u) => g.attackAll(Math.max(4, Math.min(6, g.p.st.kek || 0) * v(u, 2, 3))) },
   shinju: { ch: 'miko', name: '召唤式神', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/shinju', tgt: 'self',
     desc: u => `召唤 1 个式神（最多同时 2 个），获得 ${v(u, 3, 6)} 点格挡。式神会整段挡下敌人的下一次攻击。`, play: (g, u) => { MECH.shiki(g, 1); g.block(v(u, 3, 6)); } },
-  fullmag: { ch: 'hero', act2: 1, name: '满弹连射', type: 'skill', rar: 'r', cost: [2, 2], icon: 'icons2/fullmag', tgt: 'self',
+  fullmag: { ch: 'hero', act2: 1, name: '满弹连射', type: 'skill', rar: 'r', cost: [1, 1], icon: 'icons2/fullmag', tgt: 'self',
     desc: u => `光弹补到 ${v(u, 6, 8)} 发。`, play: (g, u) => g.ammo(Math.max(0, v(u, 6, 8) - (g.p.st.ammo || 0))) },
   silverbul: { ch: 'hero', act2: 1, name: '银弹', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/silverbul', tgt: 'one',
     desc: u => `造成 ${v(u, 7, 9)} 点伤害，对亡灵翻倍。得到 2 发光弹。`, play: (g, u, t) => { g.attack(t, v(u, 7, 9) * (t && t.d.undead ? 2 : 1)); g.ammo(2); } },
@@ -248,8 +248,8 @@ export const CARDS = {
   mute2: { ch: 'heroine', act2: 1, name: '静音', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/mute2', tgt: 'one', exhaust: 1,
     desc: u => `给予 ${v(u, 3, 4)} 层虚弱和 ${v(u, 3, 4)} 层共鸣。消耗。`, play: (g, u, t) => { g.apply(t, 'weak', v(u, 3, 4)); g.res(t, v(u, 3, 4)); } },
   silvercross_c: { act2: 1, name: '银之十字', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/silvercross_c', tgt: 'self',
-    desc: u => `获得 ${v(u, 8, 11)} 点格挡。`, play: (g, u) => g.block(v(u, 8, 11)) },
-  garlic: { act2: 1, name: '大蒜', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/garlic', tgt: 'all', exhaust: 1,
+    desc: u => `获得 ${v(u, 8, 11)} 点格挡，抽 1 张牌。`, play: (g, u) => { g.block(v(u, 8, 11)); g.draw(1); } },
+  garlic: { act2: 1, name: '大蒜', type: 'skill', rar: 'c', cost: [0, 0], icon: 'icons2/garlic', tgt: 'all', exhaust: 1,
     desc: u => `给所有敌人 ${v(u, 2, 3)} 层虚弱。消耗。`, play: (g, u) => g.eachEnemy(e => g.apply(e, 'weak', v(u, 2, 3))) },
   dexp: { name: '灵巧', type: 'power', rar: 'u', cost: [1, 1], icon: 'sk_flamestep', tgt: 'self',
     desc: u => `获得 ${v(u, 2, 3)} 点敏捷。`, play: (g, u) => g.self('dex', v(u, 2, 3)) },
@@ -334,7 +334,7 @@ export const STATUS = {
   regen: ['再生', '回合结束回复生命', '#50d080'], enrage: ['激怒', '你每打出一张技能牌，它获得力量', '#ff7030'],
   ritual: ['战意', '回合结束获得力量', '#ff9050'], fuse: ['引信', '归零时自爆', '#ffcc00'],
   intang: ['虚化', '受到的伤害减半，轮到它行动时消失', '#a8f0ff'],
-  ammo: ['光弹', '回合结束时自动射出，每发对随机敌人造成 3 点伤害（第 1、3、5… 发为 4 点），然后清零（最多 8 发）', '#60d0ff'], res: ['共鸣', '叠到 10 层时爆音，造成 16 点伤害（每个敌人第一次被爆音时还会眩晕），之后保留 3 层（多出的也保留）', '#ff80c0'],
+  ammo: ['光弹', '回合结束时自动射出，每发对随机敌人造成 4 点伤害（第 1、3、5… 发为 5 点），然后清零（最多 8 发）', '#60d0ff'], res: ['共鸣', '叠到 10 层时爆音，造成 18 点伤害（每个敌人第一次被爆音时还会眩晕），之后保留 3 层（多出的也保留）', '#ff80c0'],
   gen: ['扩容', '回合开始得到光弹', '#60d0ff'], rapid: ['连发', '回合结束射出光弹时获得格挡', '#60d0ff'], dual: ['双持', '每发光弹伤害增加', '#60d0ff'],
   lowf: ['低频', '回合开始给所有敌人共鸣', '#ff80c0'], dist: ['失真', '爆音后多保留 3 层共鸣，爆音伤害 +8', '#ff80c0'], concert: ['演唱会', '出牌时给所有敌人共鸣', '#ff80c0'],
   kek: ['结界', '回合开始时按层数获得格挡', '#ffd060'], kagura: ['神乐舞', '回合开始结界 +1', '#ffd060'], shinboku: ['御神木', '结界格挡翻倍', '#ffd060'],
