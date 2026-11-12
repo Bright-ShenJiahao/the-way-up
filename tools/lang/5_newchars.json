@@ -4930,5 +4930,41 @@
  "【猫】造成 {0} 点伤害；合体时再 {1}。": [
   "【Cat】Deal {0} damage; {1} more while fused.",
   "【猫】{0}ダメージ。合体中はさらに{1}。"
+ ],
+ "狂暴": [
+  "Frenzy",
+  "狂暴"
+ ],
+ "不动如山": [
+  "Immovable",
+  "不動如山"
+ ],
+ "呼唤团子": [
+  "Call Dango",
+  "団子を呼ぶ"
+ ],
+ "团子回来了！": [
+  "Dango is back!",
+  "団子が戻ってきた！"
+ ],
+ "·狂暴": [
+  "·Frenzy",
+  "·狂暴"
+ ],
+ "·不动如山": [
+  "·Immovable",
+  "·不動如山"
+ ],
+ "接下来 {0} 回合团子失控：只会扑击生命最少的敌人，扑击伤害翻倍；这期间团子不护卫，米娅受到的伤害 {1}。合体时打出会先分离。消耗。": [
+  "For the next {0} turns Dango goes wild: it only Pounces the lowest-HP enemy, and Pounce damage is doubled. Meanwhile Dango won't Guard and Mia takes {1} damage. If fused, unfuses first. Exhaust.",
+  "次の{0}ターン、団子が暴走：HPが最も低い敵にだけ飛びかかり、飛びかかりのダメージ2倍。その間団子は護衛せず、ミアの被ダメージ{1}。合体中なら先に分離。廃棄。"
+ ],
+ "接下来 {0} 回合团子只能护卫：护卫多挡 {1} 点，团子自己受到的伤害再减半，每次护卫成功米娅获得 {2} 点格挡。合体时打出会先分离。": [
+  "For the next {0} turns Dango can only Guard: Guard blocks {1} more, Dango takes half damage again, and each successful Guard gives Mia {2} Block. If fused, unfuses first.",
+  "次の{0}ターン、団子は護衛のみ：護衛で{1}多く防ぎ、団子の被ダメージをさらに半減。護衛成功ごとにミアがブロック{2}を得る。合体中なら先に分離。"
+ ],
+ "团子倒地时：带 {0} 生命回到场上，这回合可以下指令。团子没倒时：团子回复 {1} 生命。消耗。": [
+  "If Dango is down: it returns with {0} HP and can take an order this turn. Otherwise: Dango heals {1} HP. Exhaust.",
+  "団子が倒れている時：HP{0}で復帰し、このターン指示を出せる。倒れていない時：団子がHPを{1}回復。廃棄。"
  ]
 }
