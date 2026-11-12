@@ -381,18 +381,80 @@ const NEW2 = {
 };
 
 for (const k of Object.keys(ERIN)) if (k.startsWith('sp_')) ERIN[k].icon = 'icons2/n_' + k;
-export const NEWCARDS = { ...ERIN, ...GU, ...SYL, ...MIA, ...FEI, ...OLD, ...NEW2 };
+
+/* ===== 第三章专属卡（只在永冬之巅和无尽模式出现）===== */
+const NEW3 = {
+  a3_miko: { ch: 'miko', act3: 1, name: '破龙之矢', type: 'atk', rar: 'u', cost: [2, 2], icon: 'ic_bow', tgt: 'one', desc: u => `造成 ${v(u, 14, 18)} 点伤害，无视格挡和鳞甲；结界不少于 3 层时再 +6。`, play: (g, u, t) => { const p = P(g); p.pierce = 1; g.attack(t, v(u, 14, 18) + ((p.st.kek || 0) >= 3 ? 6 : 0)); p.pierce = 0; } },
+  a3_hero: { ch: 'hero', act3: 1, name: '屠龙弹', type: 'skill', rar: 'u', cost: [1, 1], icon: 'ic_gun', tgt: 'self', desc: u => `光弹 +${v(u, 3, 4)}；本回合射出的光弹无视鳞甲。`, play: (g, u) => { g.ammo(v(u, 3, 4)); P(g).pierceS = 1; } },
+  a3_song: { ch: 'heroine', act3: 1, name: '龙吟', type: 'skill', rar: 'u', cost: [1, 1], icon: 'ic_drum', tgt: 'all', desc: u => `所有敌人共鸣 +${v(u, 6, 9)}，并打断所有正在蓄力的龙息。`, play: (g, u) => { g.resAll(v(u, 6, 9)); g.alive().forEach(e => { if (e.chg) e.dmgT = 999; }); } },
+  a3_blood: { ch: 'witch', act3: 1, name: '龙血药剂', type: 'skill', rar: 'u', cost: [1, 1], icon: 'm_blood', tgt: 'self', exhaust: 1, desc: u => `获得 2 点力量，回复 ${v(u, 6, 9)} 点生命。消耗。`, play: (g, u) => { g.self('str', 2); g.heal(v(u, 6, 9)); } },
+  a3_el: { ch: 'erin', act3: 1, name: '龙之元素', type: 'skill', rar: 'u', cost: [1, 0], icon: 'ic_orbit', tgt: 'self', desc: u => `依次写入火、水、风。`, play: g => { writeEl(g, '火'); writeEl(g, '水'); writeEl(g, '风'); } },
+  a3_gu: { ch: 'gu', act3: 1, name: '斩龙剑', type: 'atk', rar: 'u', cost: [1, 1], icon: 'sk_greatsword', tgt: 'one', desc: u => `射出所有飞剑，每把对目标造成 ${v(u, 6, 8)} 点伤害，无视鳞甲。`, play: (g, u, t) => { const p = P(g), o = p.pierceS; p.pierceS = 1; fire(g, t, 'all', v(u, 6, 8)); p.pierceS = o; } },
+  a3_syl: { ch: 'sylvie', act3: 1, name: '龙裔觉醒', type: 'power', rar: 'r', cost: [2, 2], icon: 'ic_crystal', tgt: 'self', desc: u => `本场每回合开始得到 ${v(u, 2, 3)} 点龙血。`, play: (g, u) => { P(g).st.sawake = v(u, 2, 3); } },
+  a3_mia: { ch: 'mia', act3: 1, name: '龙鳞项圈', type: 'skill', rar: 'u', cost: [1, 1], icon: 'ic_bell', tgt: 'self', desc: u => `驯养：团子本场护卫多挡 4 点、自己受伤 -2；米娅获得 ${v(u, 6, 9)} 点格挡。`, play: (g, u) => { const c = cat(g); if (c) { c.gP = (c.gP || 0) + 4; c.sRp = (c.sRp || 0) + 2; } g.block(v(u, 6, 9)); } },
+  a3_fei: { ch: 'feiyue', act3: 1, name: '龙血盛宴', type: 'atk', rar: 'u', cost: [2, 2], icon: 'b_vamp', tgt: 'one', desc: u => `造成 ${v(u, 16, 20)} 点伤害并吸血；击杀时最大生命 +3（整局）。`, play: (g, u, t) => { fa(g, t, v(u, 16, 20)); if (t && t.dead) { g.R.maxHp += 3; g.R.hp += 3; } } },
+  grudge: { name: '龙之怨', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'b_curse', tgt: 'self', unplay: 1, burn: 2, curse: 1, desc: () => `诅咒。不能打出。回合结束时若在手中，失去 2 点生命。`, play: () => {} },
+  bugcard: { name: '报错', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'sk_shadow', tgt: 'self', unplay: 1, ethereal: 1, desc: () => `不能打出。回合结束时消耗。`, play: () => {} },
+  draft: { name: '草稿', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'sk_pouch', tgt: 'self', exhaust: 1, desc: () => `随机：造成 3 点伤害、获得 3 点格挡或抽 1 张牌。消耗。`, play: g => { const r = Math.random(); if (r < 1 / 3) g.attackRandom(3, 1); else if (r < 2 / 3) g.block(3); else g.draw(1); } },
+  devperm: { name: '开发者权限', type: 'skill', rar: 'gen', cost: [1, 0], icon: 'm_crown', tgt: 'self', exhaust: 1, pick: 1, bot: (g, o) => botPt(g, o), pickT: '选一张手牌：升级、补丁 +5、本场 0 费', desc: () => `选一张手牌：升级并补丁 +5，它本场费用变 0。消耗。`, play: (g, u, t, c, pk) => { const x = g.hand.find(y => y.uid === pk); if (x) { x.up = 1; g.patch(x, 5); x.free = 1; } } },
+};
+/* ===== 开发者：补丁 / 脚本 ===== */
+const handPick = (g, pk) => g.hand.find(y => y.uid === pk);
+/* 机器人：补丁优先给攻击牌（重构/上线优先），其次格挡牌 */
+const botPt = (g, o) => { const sc = x => { const d = g.cardOf(x.c); return d.unplay ? -9 : (d.dbl || d.launch ? 6 : 0) + (d.type === 'atk' ? 3 : /格挡/.test(d.desc(0)) ? 1 : -2) + (x.c.pt || 0) * .2; }; return [...o].sort((a, b) => sc(b) - sc(a))[0]; };
+const DEV = {
+  v_code: { ch: 'dev', name: '敲代码', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_rapier', tgt: 'one', desc: u => `造成 ${v(u, 7, 10)} 点伤害。`, play: (g, u, t) => g.attack(t, v(u, 7, 10)) },
+  v_fw: { ch: 'dev', name: '防火墙', type: 'skill', rar: 'start', cost: [1, 1], icon: 'ic_barrier', tgt: 'self', desc: u => `获得 ${v(u, 5, 8)} 点格挡。`, play: (g, u) => g.block(v(u, 5, 8)) },
+  v_patch: { ch: 'dev', prio: 6, name: '打补丁', type: 'skill', rar: 'start', cost: [0, 0], icon: 'ic_hammer', tgt: 'self', pick: 1, bot: botPt, pickT: '选一张手牌打补丁', desc: u => `选一张手牌补丁 +${v(u, 4, 6)}。`, play: (g, u, t, c, pk) => { const x = handPick(g, pk); if (x) g.patch(x, v(u, 4, 6)); } },
+  v_hotfix: { ch: 'dev', prio: 6, name: '热修复', type: 'skill', rar: 'c', cost: [0, 0], icon: 'ic_stride', tgt: 'self', pick: 1, bot: (g, o) => botPt(g, o), pickT: '选一张手牌打补丁', desc: u => `选一张手牌补丁 +${v(u, 3, 4)}。`, play: (g, u, t, c, pk) => { const x = handPick(g, pk); if (x) g.patch(x, v(u, 3, 4)); } },
+  v_refactor: { ch: 'dev', name: '重构', type: 'atk', rar: 'c', cost: [2, 2], icon: 'sk_gsword', tgt: 'one', dbl: 1, desc: u => `造成 ${v(u, 12, 16)} 点伤害。给这张牌打补丁时，补丁翻倍。`, play: (g, u, t) => g.attack(t, v(u, 12, 16)) },
+  v_unit: { ch: 'dev', name: '单元测试', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_hexa', tgt: 'self', desc: u => `获得 ${v(u, 7, 10)} 点格挡；手里有打过补丁的牌时，抽 1 张牌。`, play: (g, u) => { g.block(v(u, 7, 10)); if (g.hand.some(x => x.pt > 0)) g.draw(1); } },
+  v_major: { ch: 'dev', name: '大版本', type: 'atk', rar: 'c', cost: [1, 1], icon: 'p_crit', tgt: 'one', desc: u => `造成 ${v(u, 5, 7)} 点伤害，再加上本场打过的补丁次数 ×2。`, play: (g, u, t) => g.attack(t, v(u, 5, 7) + 2 * (P(g).ptN || 0)) },
+  v_backup: { ch: 'dev', name: '备份', type: 'skill', rar: 'c', cost: [1, 1], icon: 'box', tgt: 'self', pick: 1, bot: (g, o) => botPt(g, o), pickT: '选一张手牌留到下回合', desc: u => `获得 ${v(u, 6, 9)} 点格挡；选一张手牌留到下回合，不弃掉。`, play: (g, u, t, c, pk) => { g.block(v(u, 6, 9)); const x = handPick(g, pk); if (x) x.keep = 1; } },
+  v_script: { ch: 'dev', prio: 6, name: '写脚本', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_rune', tgt: 'self', desc: u => `把 ${v(u, 2, 3)} 张脚本放进手牌。`, play: (g, u) => { for (let k = 0; k < v(u, 2, 3); k++) g.addHand('v_s'); } },
+  v_hotkey: { ch: 'dev', name: '快捷键', type: 'atk', rar: 'c', cost: [0, 0], icon: 'p_knock', tgt: 'one', desc: u => `造成 ${v(u, 4, 6)} 点伤害。`, play: (g, u, t) => g.attack(t, v(u, 4, 6)) },
+  v_copy: { ch: 'dev', name: 'Ctrl+C', type: 'atk', rar: 'c', cost: [1, 1], icon: 'p_mag', tgt: 'one', desc: u => `造成 ${v(u, 7, 9)} 点伤害；把 1 张脚本放进手牌。`, play: (g, u, t) => { g.attack(t, v(u, 7, 9)); g.addHand('v_s'); } },
+  v_log: { ch: 'dev', name: '日志', type: 'skill', rar: 'c', cost: [1, 1], icon: 'b_dur', tgt: 'self', desc: u => `抽 ${v(u, 2, 3)} 张牌；本回合打过 0 费牌时，再抽 1 张。`, play: (g, u) => g.draw(v(u, 2, 3) + ((P(g).zc || 0) > 0 ? 1 : 0)) },
+  v_defense: { ch: 'dev', name: '防御性编程', type: 'skill', rar: 'c', cost: [1, 1], icon: 'sk_hshield', tgt: 'self', desc: u => `获得 ${v(u, 5, 8)} 点格挡，再加上手里 0 费牌数量 ×2。`, play: (g, u) => g.block(v(u, 5, 8) + 2 * g.hand.filter(x => g.costOf(x) === 0).length) },
+  v_peek: { ch: 'dev', name: '偷看', type: 'skill', rar: 'c', cost: [0, 0], icon: 'p_hunt', tgt: 'self', exhaust: 1, pickT: '选一张放进手牌，其余弃掉', pick: (g, u) => g.topOpts(v(u, 3, 4)), desc: u => `看抽牌堆顶 ${v(u, 3, 4)} 张，选 1 张放进手牌，其余弃掉。消耗。`, play: (g, u, t, c, pk) => g.takeTop(v(u, 3, 4), pk) },
+  v_delete: { ch: 'dev', name: 'Delete', type: 'atk', rar: 'c', cost: [1, 1], icon: 'p_exec', tgt: 'one', desc: u => `移除目标所有格挡，再造成 ${v(u, 8, 11)} 点伤害。`, play: (g, u, t) => { if (t && !t.dead) t.block = 0; g.attack(t, v(u, 8, 11)); } },
+  v_break: { ch: 'dev', name: '断点', type: 'skill', rar: 'c', cost: [1, 1], icon: 'p_dodge', tgt: 'self', desc: u => `获得 ${v(u, 8, 11)} 点格挡；下回合开始多抽 1 张牌。`, play: (g, u) => { g.block(v(u, 8, 11)); P(g).nextDraw = (P(g).nextDraw || 0) + 1; } },
+  v_commit: { ch: 'dev', name: '提交', type: 'atk', rar: 'c', cost: [1, 1], icon: 'p_arc', tgt: 'one', desc: u => `造成 ${v(u, 9, 12)} 点伤害；如果这是本回合打出的第 3 张牌，得到 1 点能量。`, play: (g, u, t) => { g.attack(t, v(u, 9, 12)); if (P(g).cpt === 3) g.energy(1); } },
+  v_iter: { ch: 'dev', prio: 6, name: '迭代', type: 'skill', rar: 'u', cost: [1, 1], icon: 'ic_vortex', tgt: 'self', desc: u => `手里所有攻击牌补丁 +${v(u, 2, 3)}。`, play: (g, u) => g.hand.filter(x => g.cardOf(x).type === 'atk').forEach(x => g.patch(x, v(u, 2, 3))) },
+  v_revert: { ch: 'dev', name: '版本回退', type: 'skill', rar: 'u', cost: [1, 0], icon: 'p_rev', tgt: 'self', exhaust: 1, desc: u => `把本回合打出的上一张牌拿回手里，它本回合费用变 0。消耗。`, play: g => g.revert() },
+  v_review: { ch: 'dev', prio: 6, name: '代码审查', type: 'skill', rar: 'u', cost: [1, 1], icon: 'p_gamble', tgt: 'self', pick: 1, bot: (g, o) => botPt(g, o), pickT: '选一张手牌复制', desc: u => `复制一张手牌（保留它的补丁），复制品打出后消耗${v(u, '', '；获得 5 点格挡')}。`, play: (g, u, t, c, pk) => { const x = handPick(g, pk); if (x) g.copyCard(x); if (u) g.block(5); } },
+  v_regress: { ch: 'dev', name: '回归测试', type: 'skill', rar: 'u', cost: [1, 1], icon: 'sk_hwall', tgt: 'self', desc: u => `获得 ${v(u, 9, 12)} 点格挡；从弃牌堆拿回一张打过补丁的牌。`, play: (g, u) => { g.block(v(u, 9, 12)); g.fromDisc(x => x.pt > 0); } },
+  v_bug: { ch: 'dev', name: '报错', type: 'power', rar: 'u', cost: [1, 0], icon: 'ic_thunder', tgt: 'self', desc: u => `每回合打出第 3 张 0 费牌时，所有敌人「报错」：受到 6 点伤害并晚一回合行动（每个敌人每场一次；精英和 Boss 改为攻击减半）。`, play: g => { P(g).st.vbug = 1; } },
+  v_auto: { ch: 'dev', name: '自动化', type: 'power', rar: 'u', cost: [1, 1], icon: 'sk_golem', tgt: 'self', desc: u => `每回合开始把 ${v(u, 1, 2)} 张脚本放进手牌。`, play: (g, u) => { P(g).st.vauto = v(u, 1, 2); } },
+  v_thread: { ch: 'dev', name: '多线程', type: 'skill', rar: 'u', cost: [2, 1], icon: 'ic_whip', tgt: 'self', desc: u => `本回合接下来打出的 2 张 0 费牌，各生效两次。`, play: g => { P(g).thr = 2; } },
+  v_macro: { ch: 'dev', name: '热键宏', type: 'atk', rar: 'u', cost: [1, 1], icon: 'p_berserk', tgt: 'one', desc: u => `造成本回合已打出的 0 费牌数 ×${v(u, 4, 5)} 的伤害。`, play: (g, u, t) => g.attack(t, (P(g).zc || 0) * v(u, 4, 5)) },
+  v_nerf: { ch: 'dev', name: '平衡补丁', type: 'skill', rar: 'u', cost: [1, 1], icon: 'm_anger', tgt: 'one', exhaust: 1, desc: u => `目标本场力量 -${v(u, 2, 3)}。消耗。`, play: (g, u, t) => g.apply(t, 'str', -v(u, 2, 3)) },
+  v_flip: { ch: 'dev', name: '正负反转', type: 'skill', rar: 'u', cost: [1, 1], icon: 'ic_necro', tgt: 'one', desc: u => `把目标的力量转成等量的虚弱${v(u, '', '，再给予 1 层易伤')}。`, play: (g, u, t) => { if (!t || t.dead) return; const n = Math.max(0, t.st.str || 0); if (n) { t.st.str = 0; g.apply(t, 'weak', n); } if (u) g.apply(t, 'vuln', 1); } },
+  v_lag: { ch: 'dev', name: '卡顿', type: 'atk', rar: 'u', cost: [1, 1], icon: 'p_svamp', tgt: 'one', desc: u => `造成 ${v(u, 7, 10)} 点伤害，目标下一次攻击伤害减半。`, play: (g, u, t) => { g.attack(t, v(u, 7, 10)); if (t && !t.dead) g.apply(t, 'para', 1); } },
+  v_bot: { ch: 'dev', name: '调试召唤', type: 'power', rar: 'u', cost: [2, 2], icon: 'sk_orb', tgt: 'self', desc: u => `召唤测试机器人：每回合结束对随机敌人造成 ${v(u, 5, 7)} 点伤害。`, play: (g, u) => { P(g).st.vbot = (P(g).st.vbot || 0) + v(u, 5, 7); } },
+  v_admin: { ch: 'dev', prio: 6, name: '开发者权限', type: 'skill', rar: 'r', cost: [1, 0], icon: 'm_crown', tgt: 'self', exhaust: 1, pick: 1, bot: (g, o) => botPt(g, o), pickT: '选一张手牌：升级、补丁 +5、本场 0 费', desc: () => `选一张手牌：升级并补丁 +5，它本场费用变 0。消耗。`, play: (g, u, t, c, pk) => { const x = handPick(g, pk); if (x) { x.up = 1; g.patch(x, 5); x.free = 1; } } },
+  v_launch: { ch: 'dev', name: '上线', type: 'atk', rar: 'r', cost: [3, 3], icon: 'sk_fireel', tgt: 'one', launch: 1, desc: u => `造成 ${v(u, 30, 40)} 点伤害；手里每有一张打过补丁的牌，费用 -1。`, play: (g, u, t) => g.attack(t, v(u, 30, 40)) },
+  v_ci: { ch: 'dev', name: '持续集成', type: 'power', rar: 'r', cost: [1, 1], icon: 'ic_gods', tgt: 'self', desc: u => `每回合开始，给手里随机一张牌补丁 +${v(u, 2, 3)}。`, play: (g, u) => { P(g).st.vci = v(u, 2, 3); } },
+  v_loop: { ch: 'dev', name: '无限循环', type: 'power', rar: 'r', cost: [2, 1], icon: 'ic_boomer', tgt: 'self', desc: u => `每回合打出的第一张 0 费牌生效两次。`, play: g => { P(g).st.vloop = 1; } },
+  v_reboot: { ch: 'dev', name: '重启', type: 'skill', rar: 'r', cost: [2, 1], icon: 'sk_bmist', tgt: 'self', exhaust: 1, desc: u => `弃掉全部手牌，抽同样数量 +2 张，能量回满到 3。消耗。`, play: g => { const n = g.hand.length; g.discardAll(); g.draw(n + 2); P(g).energy = Math.max(P(g).energy, 3); } },
+  v_ctrlz: { ch: 'dev', name: 'Ctrl+Z', type: 'power', rar: 'r', cost: [2, 1], icon: 'p_tough', tgt: 'self', desc: u => `本场你的回合开始时，如果生命低于一半，回复 20% 最大生命（每场一次）。`, play: g => { P(g).st.vz = 1; } },
+  v_s: { ch: 'dev', name: '脚本', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'sk_dcoil', tgt: 'self', exhaust: 1, desc: () => `对随机敌人造成 3 点伤害，获得 2 点格挡。消耗。`, play: g => { g.attackRandom(3, 1); g.block(2); } },
+};
+export const NEWCARDS = { ...ERIN, ...GU, ...SYL, ...MIA, ...FEI, ...OLD, ...NEW2, ...NEW3, ...DEV };
 for (const c of Object.values(NEWCARDS)) c.noart = 1;
 // 机器人估值：sim 的熟练机器人按这些词判断「流派牌」
 export const OLDKEYW = { miko: /结界|技能牌/, hero: /光弹|攻击牌/, witch: /中毒|炼金瓶|火焰瓶/, heroine: /共鸣|爆音|弃/ };
-export const NEWKEYW = { erin: /元素|祈唤|写入/, gu: /飞剑/, sylvie: /龙血|霜龙/, mia: /团子|扑击|护卫/, feiyue: /鲜血|吸血|献血/ };
+export const NEWKEYW = { dev: /补丁|脚本|0 费/, erin: /元素|祈唤|写入/, gu: /飞剑/, sylvie: /龙血|霜龙/, mia: /团子|扑击|护卫/, feiyue: /鲜血|吸血|献血/ };
 const B5 = ['tstrike', 'tstrike', 'tstrike', 'tstrike', 'defend', 'defend', 'defend'];
 export const NEWSTARTERS = {
   erin: ['tstrike', 'tstrike', 'tstrike', 'defend', 'defend', 'defend', 'e_spark', 'e_ripple', 'e_needle', 'e_invoke'], gu: [...B5, 'g_sheath', 'g_breath', 'g_shift'], sylvie: [...B5, 's_lance', 's_scale', 's_pulse'],
-  mia: [...B5, 'm_staff', 'm_side', 'm_snack'], feiyue: [...B5, 'f_claw', 'f_sleeve', 'f_bats'],
+  mia: [...B5, 'm_staff', 'm_side', 'm_snack'], dev: [...B5, 'v_code', 'v_fw', 'v_patch'], feiyue: [...B5, 'f_claw', 'f_sleeve', 'f_bats'],
 };
-export const NEWSTARTRELIC = { erin: 'oldstaff', gu: 'swordtassel', sylvie: 'eggshard', mia: 'catbell', feiyue: 'ribbon' };
+export const NEWSTARTRELIC = { dev: 'keyboard', erin: 'oldstaff', gu: 'swordtassel', sylvie: 'eggshard', mia: 'catbell', feiyue: 'ribbon' };
 export const NEWRELICS = {
+  keyboard: { ch: 'dev', name: '机械键盘', icon: 'ic_rapier', rar: 'start', desc: '每场战斗开始时，手里随机一张攻击牌补丁 +3；每回合打出的第一张 0 费牌，抽 1 张。战斗结束时回复 4 点生命。' },
+  mug: { ch: 'dev', name: '咖啡杯', icon: 'pot', rar: 'u', desc: '每场战斗第一次打补丁时，得到 1 点能量。' },
+  rubber: { ch: 'dev', name: '小黄鸭', icon: 'meat', rar: 'r', desc: '每回合第一次触发「报错」或打出脚本时，获得 3 点格挡。' },
   oldstaff: { ch: 'erin', name: '旧世界法杖', icon: 'ic_rune', rar: 'start', desc: '每场战斗第一张祈唤牌少 1 费。战斗结束时回复 4 点生命。' },
   lens: { ch: 'erin', name: '定相透镜', icon: 'ic_crystal', rar: 'u', desc: '每场战斗第一次三格元素相同时，获得 6 点格挡。' },
   prism: { ch: 'erin', name: '裂色棱镜', icon: 'ic_hexa', rar: 'r', desc: '每场战斗第一次打出两种不同配方的法术后，抽 2 张牌，得到 1 点能量。' },
@@ -449,6 +511,12 @@ export const MECH = {
     if (c === 'feiyue') { p.bats = 0; p.big = null; }
   },
   turnStart(g, first) { const p = P(g);
+    if (first && g.has('keyboard')) { const as = g.hand.filter(x => g.cardOf(x).type === 'atk'); if (as.length) g.patch(as[Math.floor(Math.random() * as.length)], 3); }
+    if (p.nextDraw) { g.draw(p.nextDraw); p.nextDraw = 0; } p.kbU = 0; p.bugU = 0; p.duckU = 0; p.thr = 0;
+    if (p.st.vauto) for (let k = 0; k < p.st.vauto; k++) g.addHand('v_s');
+    if (p.st.vci) { const hs = g.hand.filter(x => !g.cardOf(x).unplay); if (hs.length) g.patch(hs[Math.floor(Math.random() * hs.length)], p.st.vci); }
+    if (p.st.vz && !p.vzU && g.R.hp < g.R.maxHp / 2) { p.vzU = 1; g.heal(Math.floor(g.R.maxHp * .2)); }
+    if (p.st.sawake) gainDB(g, p.st.sawake);
     for (const k of ['invN', 'seasT', 'gateT', 'noteT', 'spells', 'windT', 'mtnT', 'windDisc', 'mtnB', 'dualT', 'combo', 'burnT', 'qiT', 'frostT', 'donT', 'vpT', 'vowT', 'vdT', 'setT', 'patT', 'syT', 'syR', 'rzT', 'drawnT', 'avT', 'drHit', 'crT', 'lsT', 'grevT', 'hangT', 'mergeT', 'lostT', 'batB', 'bigG', 'skillN', 'fireN', 'wnT', 'discN', 'loopT', 'zenT']) delete p[k];
     if (p.st.efocus && p.el) { writeEl(g, p.el[2]); if (p.st.efocus > 1) g.block(3, true); }
     if (p.hang && p.hang.length) { const q = p.hang; p.hang = []; for (const h of q) swordHits(g, null, h.k, h.dmg, h.mode); }
@@ -470,6 +538,7 @@ export const MECH = {
   },
   /* 玩家回合结束、敌人行动前 */
   turnEnd(g) { const p = P(g), c = p.cat;
+    if (p.st.vbot) { const a = g.alive(); if (a.length) g.hitE(a[Math.floor(Math.random() * a.length)], p.st.vbot); }
     if (c && !c.down && !c.merged) { const did = k => catDid(g, k); const both = p.st.mtwin; if (both) c.guardOn = 1; const extra = hasBoon(g, 'agile') && !p.agU ? (p.agU = 1) : 0; if (extra) c.twice = 1;
       if (c.cmd === 'pounce' || both) { const a = g.alive(), t = a.find(e => e.id === c.pt) || a[0]; if (t) { c.fx = { k: 'atk', t: Date.now() }; p.fh = 0; for (let n = 0; n < (c.twice && !c.big ? 2 : 1); n++) { const a2 = g.alive(), t2 = t.dead ? a2[0] : t; if (!t2) break; if (c.big) g.attack(t2, c.big + (c.pB || 0), 2); else g.attack(t2, (c.atk + (c.pB || 0)) * (p.rage ? 2 : 1)); } if (hasBoon(g, 'hunt') && !t.dead) g.apply(t, 'weak', 1); } did('pounce'); }
       if (c.cmd === 'guard') c.guardOn = 1; }
@@ -486,7 +555,7 @@ export const MECH = {
     if (e) { if (e.cutH) amt = Math.floor(amt / 2); if (e.cutS) amt = Math.max(0, amt - e.cutS); if (p.st.permaf && e.st && e.st.fburn) amt = Math.max(0, amt - p.st.permaf); }
     if (p.flhsD) amt = Math.floor(amt * .8);
     if (e) { if (bats(g) && !e.batHit && amt > 0) { e.batHit = 1; p.bats--; } if (p.big && p.big.kind === 'knight' && !p.bigG && amt > 0) { p.bigG = 1; p.big.hp -= amt; g.note(`血骑士挡下 ${amt}`); amt = 0; if (p.big.hp <= 0) { p.big = null; g.note('血骑士倒下了'); } } }
-    if (c && !c.down && !c.merged && (c.cmd === 'guard' || p.st.mtwin) && c.guardOn && amt > 0) { c.guardOn = 0; const capN = 6 + (c.gB || 0) + (c.gP || 0) + (p.st.mgate ? 3 : 0) + (p.mount ? p.mountB || 8 : 0), k = Math.min(amt, capN, c.hp); if (k > 0) { const hurtC = Math.max(0, Math.ceil(k / (p.mount ? 4 : 2)) - (c.sR || 0)); if (p.mount) g.block(3, true); c.fx = { k: 'hit', t: Date.now() }; c.hp -= hurtC; c.tookN = (c.tookN || 0) + k; amt -= k; catDid(g, 'guard'); if (p.st.mpact) g.block(Math.floor(k / 2), true); g.note(`团子挡下 ${k}`); if (hurtC > 0 && p.st.mgate) p.gateD = 1; if (c.hp <= 0) catFall(g); } }
+    if (c && !c.down && !c.merged && (c.cmd === 'guard' || p.st.mtwin) && c.guardOn && amt > 0) { c.guardOn = 0; const capN = 6 + (c.gB || 0) + (c.gP || 0) + (p.st.mgate ? 3 : 0) + (p.mount ? p.mountB || 8 : 0), k = Math.min(amt, capN, c.hp); if (k > 0) { const hurtC = Math.max(0, Math.ceil(k / (p.mount ? 4 : 2)) - (c.sR || 0) - (c.sRp || 0)); if (p.mount) g.block(3, true); c.fx = { k: 'hit', t: Date.now() }; c.hp -= hurtC; c.tookN = (c.tookN || 0) + k; amt -= k; catDid(g, 'guard'); if (p.st.mpact) g.block(Math.floor(k / 2), true); g.note(`团子挡下 ${k}`); if (hurtC > 0 && p.st.mgate) p.gateD = 1; if (c.hp <= 0) catFall(g); } }
     return amt; },
   /* 格挡之后（霜龙减伤） */
   postBlock(g, left, e) { const p = P(g); if (left <= 0) return left;
@@ -507,8 +576,11 @@ export const MECH = {
     if (e.st.awe) { delete e.st.awe; e.cutS = 5; } },
   /* 攻击牌第一击的加成 */
   firstHit(g) { const p = P(g); let b = (p.st.sword || 0) * (p.st.zen ? 2 : 1) + (p.st.dragon ? 8 : 0) + (p.fhx || 0) + (merged(g) ? (p.st.wild ? p.cat.atk : Math.floor(p.cat.atk / 2)) : 0) + (p.st.bloodlust ? Math.floor((p.lostF || 0) / 10) : 0); p.fhx = 0; return b; },
-  costMod(g, d) { const p = P(g); return d.invoke && g.has('oldstaff') && !p.staffU ? -1 : 0; },
+  costMod(g, d) { const p = P(g); if (d.launch) return -g.hand.filter(x => x.pt > 0).length; return d.invoke && g.has('oldstaff') && !p.staffU ? -1 : 0; },
   postPlay(g, d) { const p = P(g);
+    if (p.lastZero) { if (g.has('keyboard') && !p.kbU) { p.kbU = 1; g.draw(1); }
+      if (p.st.vbug && p.zc >= 3 && !p.bugU) { p.bugU = 1; g.alive().forEach(e => { g.hitE(e, 6); hardCC(g, e, 'stun'); }); g.note('报错！'); if (g.has('rubber') && !p.duckU) { p.duckU = 1; g.block(3, true); } }
+      if (d.id === 'v_s' && g.has('rubber') && !p.duckU) { p.duckU = 1; g.block(3, true); } }
     if (d.invoke && g.has('oldstaff')) p.staffU = 1;
     if (d.spell) { p.spells = p.spells || []; p.spells.push(d.id); p.spellB = p.spellB || []; if (!p.spellB.includes(d.id)) p.spellB.push(d.id);
       if (p.st.emaster) g.block(p.st.emaster, true);

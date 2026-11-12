@@ -1,5 +1,7 @@
-import { tr } from './i18n.js?v=live2_11121825';
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11121825';
+import { tr } from './i18n.js?v=live2_11122230';
+import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul } from './act3.js?v=live2_11122230';
+export { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul };
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11122230';
 export { MECH, NEWKEYW, OLDKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
@@ -301,7 +303,7 @@ export const RELICS = {
   feather: { name: '凤凰羽', icon: 'p_rev', rar: 'r', desc: '死亡时，复活并回复 30% 生命（一次）。' },
   crown: { name: '王冠', icon: 'm_crown', rar: 'r', desc: '每回合开始时，获得 1 点额外能量。拾取时最大生命 -10，战斗结束不再回复生命。' },
 };
-Object.assign(RELICS, NEWRELICS);
+Object.assign(RELICS, NEWRELICS, R3);
 export const STARTRELIC = { hero: 'gameboy', heroine: 'phones', miko: 'suzu', witch: 'cauldron', ...NEWSTARTRELIC };
 for (const [k, r] of Object.entries(RELICS)) { r.id = k; if (['spare', 'pad', 'phones', 'metro', 'mic', 'cauldron', 'toad', 'hat', 'suzu', 'omamori', 'hamaya'].includes(k)) r.icon = 'icons2/r_' + k; r.img = I(r.icon); }
 
@@ -340,7 +342,7 @@ export const STATUS = {
   aegis: ['圣盾', '免疫所有伤害', '#ffe070'],
 };
 
-Object.assign(STATUS, NEWSTATUS);
+Object.assign(STATUS, NEWSTATUS, S3);
 // ---- 敌人 ----
 // moves: {n 名称, i 意图(atk/def/buff/debuff/atkdef/atkdebuff/summon/unknown), d 伤害, x 次数, f(e,B) 额外效果}
 const pick = (e, opts) => { // 避免同一招连用 3 次
@@ -491,6 +493,7 @@ export const ENEMIES = {
 
 /* 敌人伤害：以前在战斗里偷偷 ×1.1，现在直接写进招式数值，图鉴和意图显示一致 */
 for (const e of Object.values(ENEMIES)) for (const m of Object.values(e.moves)) if (m.d) m.d = Math.round(m.d * 1.1);
+Object.assign(ENEMIES, E3);
 export const ENCOUNTERS = {
   easy: [['goblin', 'goblin'], ['gob_kid', 'gob_kid', 'gob_kid'], ['gob_blade'], ['gob_archer', 'gob_shield']],
   hard: [['gob_wolf'], ['gob_bomb', 'gob_bomb', 'goblin'], ['gob_thrower', 'gob_thrower'], ['gob_kid', 'gob_blade'],
@@ -609,7 +612,7 @@ for (const r of Object.values(RELICS)) { tx(r, 'name'); tx(r, 'desc'); }
 for (const x of Object.values(POTIONS)) { tx(x, 'name'); tx(x, 'desc'); }
 for (const e of Object.values(ENEMIES)) { tx(e, 'name'); for (const m of Object.values(e.moves)) tx(m, 'n'); }
 for (const st of Object.values(STATUS)) { tx(st, 0); tx(st, 1); }
-for (const ev of [...EVENTS, ...EVENTS2]) { tx(ev, 'title'); tx(ev, 'text'); for (const o of ev.opts) { tx(o, 't'); tf(o, 'go'); } }
+for (const ev of [...EVENTS, ...EVENTS2, ...EV3]) { tx(ev, 'title'); tx(ev, 'text'); for (const o of ev.opts) { tx(o, 't'); tf(o, 'go'); } }
 
 // 两个引擎共用的规则常量（游戏和平衡模拟都从这里读）
 export const RULES = { furyTurn: 9, furyEvery: 2, bloodTurn: 5, bloodStr: 1, act2Mul: 0.9, maxTurns: 60 };
