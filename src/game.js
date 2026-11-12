@@ -1,8 +1,8 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11130230';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11130230';
-import { createAudio } from './audio.js?v=live2_11130230';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11130230';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11130300';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11130300';
+import { createAudio } from './audio.js?v=live2_11130300';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11130300';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -639,7 +639,7 @@ function eFrame(e) {
   if (e.pose && ENEMIES[e.key].hd && (!ENEMIES[e.key].poses || ENEMIES[e.key].poses.includes(e.pose))) return `assets/enemies2/${k}/${e.pose}.png`;
   return `assets/enemies2/${k}/${ONEIDLE.has(k) ? 'idle0' : 'idle' + (Math.floor(now / 480) % 2)}.png`;
 }
-const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 林拓', h: 241, desc: '掌机 · 光弹' }, witch: { dir: 'witch2', name: '魔女 · 莉泽', h: 235, desc: '炼金瓶 · 剧毒' }, miko: { dir: 'miko2', name: '巫女 · 千早', h: 257, desc: '和弓 · 结界' }, heroine: { dir: 'heroine2', name: '穿越者 · 苏音', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 }, erin: { dir: 'erin', name: '元素使 · 艾琳', h: 276, desc: '法杖 · 元素', temp: 1, idle: [0, 3], idleMs: 650 }, gu: { dir: 'gu', name: '剑客 · 顾清寒', h: 297, desc: '长剑 · 飞剑', temp: 1, idle: [0, 3], idleMs: 650 }, sylvie: { dir: 'sylvie', name: '霜龙裔 · 希尔薇', h: 270, desc: '冰枪 · 变身', temp: 1, idle: [0, 3], idleMs: 650 }, mia: { dir: 'mia', name: '猫耳族 · 米娅', h: 263, desc: '魔杖 · 云猫', temp: 1, idle: [0, 3], idleMs: 650 }, feiyue: { dir: 'feiyue', name: '半吸血鬼 · 绯月', h: 257, desc: '血爪 · 蝙蝠', temp: 1, idle: [0, 3], idleMs: 650 } };
+const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 林拓', h: 241, desc: '掌机 · 光弹' }, witch: { dir: 'witch2', name: '魔女 · 莉泽', h: 235, desc: '炼金瓶 · 剧毒' }, miko: { dir: 'miko2', name: '巫女 · 千早', h: 257, desc: '和弓 · 结界' }, heroine: { dir: 'heroine2', name: '穿越者 · 苏音', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 }, erin: { dir: 'erin', name: '元素使 · 艾琳', h: 276, desc: '法杖 · 元素', idle: [0, 3], idleMs: 650 }, gu: { dir: 'gu', name: '剑客 · 顾清寒', h: 297, desc: '长剑 · 飞剑', idle: [0, 3], idleMs: 650 }, sylvie: { dir: 'sylvie', name: '霜龙裔 · 希尔薇', h: 270, desc: '冰枪 · 变身', idle: [0, 3], idleMs: 650 }, mia: { dir: 'mia', name: '猫耳族 · 米娅', h: 263, desc: '魔杖 · 云猫', idle: [0, 3], idleMs: 650 }, feiyue: { dir: 'feiyue', name: '半吸血鬼 · 绯月', h: 257, desc: '血爪 · 蝙蝠', idle: [0, 3], idleMs: 650 } };
 const isDragon = () => R && R.char === 'sylvie' && B && B.p && B.p.st.dragon && hst.n !== 'down';
 const isMerged = () => R && R.char === 'mia' && B && B.p && B.p.cat && B.p.cat.merged && !B.p.cat.down;
 const cdir = () => isDragon() ? 'sylvie_dragon' : isMerged() ? 'mia_merge' : CHARS[(R && R.char) || 'hero'].dir;
