@@ -2342,6 +2342,8 @@ export default {
 "接下来 {0} 回合团子失控：只会扑击生命最少的敌人，扑击伤害翻倍；这期间团子不护卫，米娅受到的伤害 {1}。合体时打出会先分离。消耗。": "For the next {0} turns Dango goes wild: it only Pounces the lowest-HP enemy, and Pounce damage is doubled. Meanwhile Dango won't Guard and Mia takes {1} damage. If fused, unfuses first. Exhaust.",
 "接下来 {0} 回合团子只能护卫：护卫多挡 {1} 点，团子自己受到的伤害再减半，每次护卫成功米娅获得 {2} 点格挡。合体时打出会先分离。": "For the next {0} turns Dango can only Guard: Guard blocks {1} more, Dango takes half damage again, and each successful Guard gives Mia {2} Block. If fused, unfuses first.",
 "团子倒地时：带 {0} 生命回到场上，这回合可以下指令。团子没倒时：团子回复 {1} 生命。消耗。": "If Dango is down: it returns with {0} HP and can take an order this turn. Otherwise: Dango heals {1} HP. Exhaust.",
+"每回合第一次射出飞剑时，抽 {0} 张牌并得到 {1} 点能量；飞剑归零时再得到 {2} 把。": "The first time each turn you fire a Flying Sword, draw {0} cards and gain {1} Energy; when your Flying Swords run out, gain {2}.",
+"每回合第一次射出飞剑时，抽 {0} 张牌并得到 {1} 点能量；飞剑归零时再得到 {2} 把": "The first time each turn you fire a Flying Sword, draw {0} cards and gain {1} Energy; when your Flying Swords run out, gain {2}",
 "（龙息被打断了！）": "(The breath was interrupted!)",
 "小股龙息": "Weak Breath",
 "龙蛋": "Dragon Egg",

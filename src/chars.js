@@ -76,7 +76,7 @@ const sw = g => P(g).st.sword || 0;
 function addSword(g, n) { const p = P(g), a = sw(g), b = Math.min(6, a + n); if (b > a) p.st.sword = b; return a + n - b; }
 const live = (g, t) => (t && !t.dead ? t : g.alive()[0]);
 function afterShoot(g, k) { const p = P(g); if (!k) return;
-  if (p.st.grev) { const n = Math.min(k, 3 - (p.grevT || 0)); if (n > 0) { p.grevT = (p.grevT || 0) + n; g.draw(n); } if (!sw(g)) addSword(g, 2); }
+  if (p.st.grev) { if (!p.grevT) { p.grevT = 1; g.draw(2); g.energy(1); } if (!sw(g)) addSword(g, 3); }
   if (p.st.dualst && !p.dualT) { p.dualT = 1; g.energy(1); }
   if (g.has('jade') && !p.jadeU) { p.jadeU = 1; addSword(g, 2); } }
 function swordHits(g, t, k, dmg, mode) { const p = P(g), fh = p.fh; p.fh = 0;
@@ -109,7 +109,7 @@ const GU = {
   g_quake: { ch: 'gu', name: '横扫千军', type: 'atk', rar: 'u', cost: [2, 2], icon: 'icons2/n_g_quake', tgt: 'one', desc: u => `造成 ${v(u, 5, 7)} 点伤害 3 次，每一下都吃飞剑加成；下回合少 1 点能量。`, play: (g, u, t) => { const p = P(g); for (let i = 0; i < 3; i++) { p.fh = 1; g.attack(live(g, t), v(u, 5, 7)); } p.fh = 0; p.restE = 1; } },
   g_flow: { ch: 'gu', name: '剑气护体', type: 'power', rar: 'u', cost: [1, 0], icon: 'icons2/n_g_flow', tgt: 'self', desc: u => `回合结束时每把飞剑都给 1 点格挡（原来是每 2 把 1 点）。`, play: g => { P(g).st.gflow = 1; } },
   g_myriad: { ch: 'gu', name: '万剑归一', type: 'atk', rar: 'r', cost: [2, 2], icon: 'icons2/n_g_myriad', tgt: 'one', desc: u => `射出全部飞剑，每把造成 ${v(u, 9, 12)} 点伤害。`, play: (g, u, t) => fire(g, t, 'all', v(u, 9, 12)) },
-  g_rev: { ch: 'gu', name: '剑意循环', type: 'power', rar: 'r', cost: [2, 1], icon: 'icons2/n_g_rev', tgt: 'self', desc: u => `每射出 1 把飞剑抽 1 张牌（每回合最多 3 张）；飞剑归零时再得到 2 把。`, play: g => { P(g).st.grev = 1; } },
+  g_rev: { ch: 'gu', name: '剑意循环', type: 'power', rar: 'r', cost: [2, 1], icon: 'icons2/n_g_rev', tgt: 'self', desc: u => `每回合第一次射出飞剑时，抽 2 张牌并得到 1 点能量；飞剑归零时再得到 3 把。`, play: g => { P(g).st.grev = 1; } },
   g_dual: { ch: 'gu', name: '剑意', type: 'power', rar: 'u', cost: [2, 1], icon: 'icons2/n_g_dual', tgt: 'self', desc: u => `每回合第一次射出飞剑后，得到 1 点能量。`, play: g => { P(g).st.dualst = 1; } },
 };
 
@@ -431,7 +431,7 @@ export const NEWSTATUS = {
   
   
   sword: ['飞剑', '每把让攻击牌的第一击 +1 伤害，每 2 把再额外 +1；回合结束每 2 把给 1 点格挡；可以射出（最多 6 把）', '#9fd8ff'], swordgen: ['剑阵', '每回合开始得到 1 把飞剑', '#9fd8ff'], zen: ['剑心通明', '每把飞剑的第一击加成变成 +2', '#9fd8ff'], 
-  gflow: ['剑气护体', '回合结束时每把飞剑给 1 点格挡', '#9fd8ff'], grev: ['剑意循环', '每射出 1 把飞剑抽 1 张牌（每回合最多 3 张）；飞剑归零时再得到 2 把', '#9fd8ff'], dualst: ['剑意', '每回合第一次射出飞剑后得到 1 点能量', '#9fd8ff'],
+  gflow: ['剑气护体', '回合结束时每把飞剑给 1 点格挡', '#9fd8ff'], grev: ['剑意循环', '每回合第一次射出飞剑时，抽 2 张牌并得到 1 点能量；飞剑归零时再得到 3 把', '#9fd8ff'], dualst: ['剑意', '每回合第一次射出飞剑后得到 1 点能量', '#9fd8ff'],
   dblood: ['龙血', '攒满 8 点后可以变身霜龙', '#ff9090'], dragon: ['霜龙形态', '变身时对所有敌人造成 14 点伤害；攻击牌第一击 +8；每个敌方回合第一段打穿格挡的伤害 -4。数字是剩余回合', '#c8f0ff'],
   dbgen: ['冰晶脊', '每回合开始得到 1 点龙血', '#ff9090'], dscale: ['龙鳞', '霜龙形态下每回合开始获得格挡', '#c8f0ff'], dheart: ['龙心', '变身时得到 2 点能量并抽 1 张牌', '#c8f0ff'], perma: ['永冻', '龙血满 8 点时攻击牌第一击额外加成', '#a8e8ff'],
   aval: ['雪崩之心', '每花掉 1 点龙血获得 1 点格挡；变身时获得 8 点格挡', '#a8e8ff'], wake: ['冬眠苏醒', '退出霜龙形态时得到龙血并抽牌', '#a8e8ff'],
