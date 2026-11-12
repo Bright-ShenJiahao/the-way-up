@@ -1,8 +1,8 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11122400';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11122400';
-import { createAudio } from './audio.js?v=live2_11122400';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11122400';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11130100';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11130100';
+import { createAudio } from './audio.js?v=live2_11130100';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11130100';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -125,7 +125,7 @@ function cardHTML(c, extra = '', energy = 99) {
   const rr = d.rar === 'start' || d.rar === 'gen' ? 'c' : d.rar;
   return `<div class="card t-${d.type} r-${d.rar} ${c.up ? 'up' : ''} ${extra}" data-uid="${c.uid}" data-cid="${c.id}" data-up="${c.up ? 1 : 0}">
    <div class="art"><img src="${d.img}"></div><div class="cdesc" data-noi18n><span>${kwify(d.desc(c.up))}</span></div><img class="frame" src="assets/ui2/frame_${d.type}_${rr}.png">
-   <div class="cost ${no ? 'no' : ''}"${d.unplay ? ' style="visibility:hidden"' : ''}>${cost}</div><div class="cname">${d.name}${c.up ? '+' : ''}</div>${c.pt ? `<i class="ver ${c.pt < 0 ? 'neg' : ''}">v1.${c.pv || 1} ${c.pt > 0 ? '+' : ''}${c.pt}</i>` : ''}${c.flip ? `<i class="flipb">${tr('反转')}</i>` : ''}${c.seal ? `<i class="sealb"><span>🔒</span>${tr(c.seal === 'perm' ? '封印到战斗结束' : '封印')}</i>` : ''}</div>`;
+   <div class="cost ${no ? 'no' : ''}"${d.unplay ? ' style="visibility:hidden"' : ''}>${cost}</div><div class="cname">${d.name}${c.up ? '+' : ''}</div>${c.pt ? `<i class="ver ${c.pt < 0 ? 'neg' : ''}">v1.${c.pv || 1} ${c.pt > 0 ? '+' : ''}${c.pt}</i>` : ''}${c.flip ? `<i class="flipb">${tr('反转')}</i>` : ''}${c.seal ? `<i class="sealb"><img src="assets/icons2/st_seal.png" alt="">${tr(c.seal === 'perm' ? '封印到战斗结束' : '封印')}</i>` : ''}</div>`;
 }
 function overlay(html) { const o = document.createElement('div'); o.className = 'overlay'; o.innerHTML = html; stage.appendChild(o); return o; }
 function pickOpt(title, opts, noCancel) { /* 出牌时的选择：返回所选 val，点取消返回 undefined */
@@ -383,7 +383,7 @@ function battle(keys, kind) {
   preloadExtra(R.char);
   hst = { n: 'idle', t: performance.now() };
   if (kind === 'fight' && R.trials && R.trials.includes('swarm') && keys.length < 4) keys = [...keys, 'd_egg'];
-  const bg = ACT() === 3 && R.rift ? RIFTBG : ACT() >= 3 ? (kind === 'boss' ? 'c3_hall' : 'c3_battle') : ACT() === 2 ? (kind === 'boss' ? 'c2_hall' : pickOne(['c2_exterior', 'c2_crypt'])) : kind === 'boss' ? 'battle_castle' : pickOne(BGS);
+  const bg = ACT() === 3 && R.rift ? (kind === 'boss' && keys[0] !== FINAL3 ? 'c3_hall' : RIFTBG) : ACT() >= 3 ? (kind === 'boss' ? 'c3_hall' : 'c3_battle') : ACT() === 2 ? (kind === 'boss' ? 'c2_hall' : pickOne(['c2_exterior', 'c2_crypt'])) : kind === 'boss' ? 'battle_castle' : pickOne(BGS);
   B = { kind, bg, en: keys.map(mkEnemy), p: { block: 0, energy: 0, st: {}, noDraw: 0 }, draw: shuffle(R.deck.map(c => ({ ...c }))), hand: [], disc: [], exh: [], turn: 0, atkCnt: 0, sel: -1, busy: false, fx: [], over: false };
   setMusic(kind === 'boss' ? 'boss' : kind === 'elite' ? 'elite' : 'battle'); setTimeout(() => B && B.en[0] && gv(B.en[0], 'laugh'), 500); if (kind === 'boss') audio.boss();
   if (has('charm')) B.p.st.str = 1; if (has('lantern')) B.p.st.dex = (B.p.st.dex || 0) + 1;
@@ -1036,7 +1036,7 @@ function act3Choice() { sting('act2', 2600);
     save(); story('story_snow', ['古堡后面的山路，一直通向终年不化的雪峰。', '风里传来龙的长啸，一声接着一声。', '“那双紫色的眼睛……就在山顶。”'], mapScreen); };
   $('#end2').onclick = () => { delete R.wait; clearSave(); story('story_end2', END2(), () => story('story_party', ['天亮了。大家并肩站在晨光里，笑得满脸是灰。', '“走吧，往上。”'], () => endScreen(true))); };
 }
-const RIFTBG = 'c3_battle'; /* 魔界裂隙背景图到了换成 c3_rift */
+const RIFTBG = 'c3_rift';
 function riftChoice() { sting('act2', 2600);
   B = null; delete R.pending; delete R.pendEnc; delete R.snap; R.wait = 'rift'; save(); setMusic('menu');
   view.innerHTML = `${bgHTML(false, 'story_gate')}<div class="panel" style="width:780px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('门后的裂隙')}</h2>
