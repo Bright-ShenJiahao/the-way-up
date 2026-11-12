@@ -1,8 +1,11 @@
-import { tr } from './i18n.js?v=live2_11112600';
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, MECH } from './chars.js?v=live2_11112600';
-export { MECH, NEWKEYW };
+import { tr } from './i18n.js?v=live2_11130230';
+import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11130230';
+export { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 };
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11130230';
+export { MECH, NEWKEYW, OLDKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
+const potKill = (g, n0) => { const k = n0 - g.alive().length; if (k > 0 && g.p.st.aleye) { g.R.gold += 5 * k; g.draw(k); } };
 const I = n => n.includes('/') ? `assets/${n}.png` : `assets/icons/${n}.png`;
 const v = (u, a, b) => (u ? b : a);
 
@@ -13,19 +16,19 @@ export const CARDS = {
   load: { ch: 'hero', name: '装填', type: 'skill', rar: 'start', cost: [1, 0], icon: 'gb', tgt: 'self',
     desc: () => `得到 2 发光弹。抽 1 张牌。`, play: g => { g.ammo(2); g.draw(1); } },
   charge: { ch: 'hero', name: '速射', type: 'skill', rar: 'start', cost: [1, 0], icon: 'p_arc', tgt: 'self',
-    desc: u => `立刻额外射出一轮光弹（最多 ${v(u, 4, 6)} 发）。光弹不会减少，回合结束时照常再射一次。`, play: (g, u) => g.volley(false, v(u, 4, 6)) },
+    desc: u => `立刻额外射出一轮光弹（最多 ${v(u, 2, 3)} 发）。光弹不会减少，回合结束时照常再射一次。`, play: (g, u) => g.volley(false, v(u, 2, 3)) },
   recharge: { ch: 'hero', name: '充电', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_crystal', tgt: 'self',
-    desc: u => `得到 ${v(u, 4, 5)} 发光弹。`, play: (g, u) => g.ammo(v(u, 4, 5)) },
+    desc: u => `得到 ${v(u, 3, 4)} 发光弹。`, play: (g, u) => g.ammo(v(u, 3, 4)) },
   burst: { ch: 'hero', name: '三连发', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/burst', tgt: 'one',
     desc: u => `造成 ${v(u, 7, 10)} 点伤害。得到 1 发光弹。`, play: (g, u, t) => { g.attack(t, v(u, 7, 10)); g.ammo(1); } },
   barrage: { ch: 'hero', name: '弹幕', type: 'atk', rar: 'c', cost: [1, 1], icon: 'ic_orbit', tgt: 'all',
     desc: u => `对所有敌人造成 ${v(u, 5, 7)} 点伤害。得到 1 发光弹。`, play: (g, u) => { g.attackAll(v(u, 5, 7)); g.ammo(1); } },
   eshield: { ch: 'hero', name: '能量护盾', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_barrier', tgt: 'self',
-    desc: u => `获得 ${v(u, 6, 8)} 点格挡。卸下最多 3 发光弹，每发再 +3（最多共 ${v(u, 12, 14)} 点）。`, play: (g, u) => { const k = Math.min(3, g.p.st.ammo || 0); if (k) g.p.st.ammo -= k; if (!g.p.st.ammo) delete g.p.st.ammo; g.block(Math.min(v(u, 12, 14), v(u, 6, 8) + k * 3)); } },
+    desc: u => `获得 ${v(u, 6, 8)} 点格挡。卸下最多 2 发光弹，每发再 +3。`, play: (g, u) => { const k = Math.min(2, g.p.st.ammo || 0); if (k) g.p.st.ammo -= k; if (!g.p.st.ammo) delete g.p.st.ammo; g.block(v(u, 6, 8) + k * 3); } },
   standby: { ch: 'hero', name: '待机模式', type: 'skill', rar: 'c', cost: [1, 1], icon: 'p_tough', tgt: 'self',
     desc: u => `获得 ${v(u, 5, 7)} 点格挡。得到 1 发光弹。`, play: (g, u) => { g.block(v(u, 5, 7)); g.ammo(1); } },
   heatsink: { ch: 'hero', name: '散热片', type: 'skill', rar: 'c', cost: [1, 1], icon: 'b_armor', tgt: 'self',
-    desc: u => `获得 ${v(u, 8, 11)} 点格挡。`, play: (g, u) => g.block(v(u, 8, 11)) },
+    desc: u => `获得 ${v(u, 7, 10)} 点格挡；本回合打出过攻击牌时抽 1 张牌。`, play: (g, u) => { g.block(v(u, 7, 10)); if (g.p.combo) g.draw(1); } },
   overload: { ch: 'hero', name: '超载', type: 'skill', rar: 'u', cost: [0, 0], icon: 'ic_thunder', tgt: 'self',
     desc: u => `失去 2 点生命。得到 ${v(u, 3, 4)} 发光弹。`, play: (g, u) => { g.loseHp(2); g.ammo(v(u, 3, 4)); } },
   cannon: { ch: 'hero', name: '超频', type: 'skill', rar: 'u', cost: [1, 1], icon: 'p_boom', tgt: 'self',
@@ -35,7 +38,7 @@ export const CARDS = {
   rapid: { ch: 'hero', name: '连发模式', type: 'power', rar: 'u', cost: [1, 1], icon: 'sk_hshield', tgt: 'self',
     desc: u => `回合结束每射出 1 发光弹，获得 ${v(u, 1, 2)} 点格挡。`, play: (g, u) => g.self('rapid', v(u, 1, 2)) },
   screen: { ch: 'hero', name: '全屏扫射', type: 'skill', rar: 'r', cost: [2, 2], icon: 'ic_vortex', tgt: 'self',
-    desc: u => `本回合结束时，每发光弹改为打所有敌人。${v(u, '', '得到 2 发光弹。')}`, play: (g, u) => { g.p.aoe = 1; if (u) g.ammo(2); } },
+    desc: u => `本回合结束时，前 ${v(u, 5, 7)} 发光弹改为打所有敌人。`, play: (g, u) => { g.p.aoe = v(u, 5, 7); } },
   dual: { ch: 'hero', name: '双持', type: 'power', rar: 'r', cost: [3, 2], icon: 'p_critd', tgt: 'self',
     desc: () => `每发光弹的伤害永久 +1。`, play: g => g.self('dual', 1) },
 
@@ -57,7 +60,7 @@ export const CARDS = {
   skip: { ch: 'heroine', name: '切歌', type: 'skill', rar: 'c', cost: [0, 0], icon: 'p_gamble', tgt: 'self',
     desc: u => `抽 1 张牌。随机给一个敌人 ${v(u, 2, 3)} 层共鸣。`, play: (g, u) => { g.draw(1); g.resRandom(v(u, 2, 3)); } },
   mute: { ch: 'heroine', name: '隔音墙', type: 'skill', rar: 'c', cost: [1, 1], icon: 'sk_hwall', tgt: 'self',
-    desc: u => `获得 ${v(u, 7, 10)} 点格挡。本回合主动弃过牌则再 +4。`, play: (g, u) => g.block(v(u, 7, 10) + (g.p.disc ? 4 : 0)) },
+    desc: u => `获得 ${v(u, 7, 10)} 点格挡。本回合主动弃过牌则再 +3，并给 1 个随机敌人 1 层共鸣。`, play: (g, u) => { g.block(v(u, 7, 10) + (g.p.disc ? 3 : 0)); if (g.p.disc) { const a = g.alive(); if (a.length) g.res(a[Math.floor(Math.random() * a.length)], 1); } } },
   refrain: { ch: 'heroine', name: '副歌', type: 'atk', rar: 'c', cost: [1, 1], icon: 'ic_bell', tgt: 'one',
     desc: u => `造成 ${v(u, 8, 10)} 点伤害；目标共鸣不少于 8 层时改为 ${v(u, 16, 20)} 点并再给 2 层。`, play: (g, u, t) => { if ((t.st.res || 0) >= 8) { g.attack(t, v(u, 16, 20)); g.res(t, 2); } else g.attack(t, v(u, 8, 10)); } },
   harmony: { ch: 'heroine', name: '和声', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_aura', tgt: 'all',
@@ -65,7 +68,7 @@ export const CARDS = {
   echo: { ch: 'heroine', name: '回声', type: 'skill', rar: 'u', cost: [1, 0], icon: 'sk_vortex', tgt: 'one',
     desc: () => `目标的共鸣层数翻倍（最多增加 8 层）。`, play: (g, u, t) => g.res(t, Math.min(8, t.st.res || 0)) },
   crack: { ch: 'heroine', name: '破音', type: 'atk', rar: 'u', cost: [1, 1], icon: 'p_knock', tgt: 'one',
-    desc: u => `清空目标的共鸣，每层造成 ${v(u, 2, 3)} 点伤害。`, play: (g, u, t) => { const n = t.st.res || 0; delete t.st.res; g.attack(t, n * v(u, 2, 3)); } },
+    desc: u => `造成 ${v(u, 5, 7)} 点伤害；移除目标最多 4 层共鸣，每层再 +2。`, play: (g, u, t) => { const n = Math.min(4, t.st.res || 0); if (n) { t.st.res -= n; if (!t.st.res) delete t.st.res; } g.attack(t, v(u, 5, 7) + 2 * n); } },
   wave: { ch: 'heroine', name: '共鸣冲击', type: 'atk', rar: 'u', cost: [1, 1], icon: 'sk_waterel', tgt: 'all',
     desc: u => `对每个敌人造成 ${v(u, 3, 4)} 点伤害，再加上它的共鸣层数。`, play: (g, u) => g.eachEnemy(e => g.attack(e, v(u, 3, 4) + (e.st.res || 0))) },
   lowf: { ch: 'heroine', name: '低频', type: 'power', rar: 'u', cost: [1, 1], icon: 'ic_hexa', tgt: 'self',
@@ -82,8 +85,8 @@ export const CARDS = {
     desc: u => `结界 +1。获得 ${v(u, 4, 6)} 点格挡。`, play: (g, u) => { g.kek(1); g.block(v(u, 4, 6)); } },
   hama: { ch: 'miko', name: '破魔箭', type: 'atk', rar: 'start', cost: [1, 1], icon: 'sk_holyorb', tgt: 'one',
     desc: u => `造成 ${v(u, 8, 11)} 点伤害，每层结界 +${v(u, 2, 3)}（最多算 6 层）。`, play: (g, u, t) => g.attack(t, v(u, 8, 11) + Math.min(6, g.p.st.kek || 0) * v(u, 2, 3)) },
-  fuda: { ch: 'miko', name: '符咒', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_rune', tgt: 'self',
-    desc: u => `结界 +1。抽 ${v(u, 1, 2)} 张牌。`, play: (g, u) => { g.kek(1); g.draw(v(u, 1, 2)); } },
+  fuda: { ch: 'miko', name: '纸人替身', type: 'skill', rar: 'c', cost: [0, 0], icon: 'ic_rune', tgt: 'self', exhaust: 1,
+    desc: u => `召唤 1 个式神${v(u, '', '，获得 3 点格挡')}。消耗。`, play: (g, u) => { MECH.shiki(g, 1); if (u) g.block(3); } },
   shime: { ch: 'miko', name: '注连绳', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_whip', tgt: 'self',
     desc: u => `结界 +${v(u, 2, 3)}。`, play: (g, u) => g.kek(v(u, 2, 3)) },
   purify: { ch: 'miko', name: '净化', type: 'skill', rar: 'c', cost: [1, 1], icon: 'holywater', tgt: 'self',
@@ -107,53 +110,55 @@ export const CARDS = {
   kagura: { ch: 'miko', name: '神乐舞', type: 'power', rar: 'u', cost: [2, 1], icon: 'sk_fairy', tgt: 'self',
     desc: () => `每回合开始时，结界 +1。`, play: g => g.self('kagura', 1) },
   shinboku: { ch: 'miko', name: '御神木', type: 'power', rar: 'r', cost: [2, 1], icon: 'sk_treant', tgt: 'self',
-    desc: () => `结界给的格挡翻倍（翻倍部分最多 +5）。`, play: g => { g.p.st.shinboku = 1; } },
+    desc: () => `结界给的格挡翻倍（翻倍部分最多 +8）。`, play: g => { g.p.st.shinboku = 1; } },
 
   // ======== 魔女 · 药瓶 / 毒 ========
   // 药瓶牌（rar:'gen' 不进奖励池，只由其他牌生成）
   p_fire: { ch: 'witch', potion: 1, name: '火焰瓶', type: 'atk', rar: 'gen', cost: [0, 0], icon: 'ic_flame', tgt: 'all', exhaust: 1,
-    desc: () => `对所有敌人造成 5 点伤害。消耗。`, play: g => g.attackAll(5 * g.pm()) },
+    desc: () => `对所有敌人造成 7 点伤害。消耗。`, play: g => { const n0 = g.alive().length; g.attackAll((7 + (g.p.st.inferno || 0)) * g.pm()); potKill(g, n0); } },
   p_frost: { ch: 'witch', potion: 1, name: '冰霜瓶', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'ic_water', tgt: 'one', exhaust: 1,
-    desc: () => `给予 1 层虚弱和 1 层易伤。消耗。`, play: (g, u, t) => { g.apply(t, 'weak', 1); g.apply(t, 'vuln', 1); } },
+    desc: () => `冰冻目标（跳过下一次行动；精英和 Boss 改为下一次攻击减半）。消耗。`, play: (g, u, t) => MECH.cc(g, t, 'frozen') },
   p_heal: { ch: 'witch', potion: 1, name: '治疗瓶', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'pot', tgt: 'self', exhaust: 1,
     desc: () => `回复 4 点生命（每场战斗最多共回 8 点）。消耗。`, play: g => { const n = Math.min(4, 8 - (g.p.healed || 0)); if (n > 0) { g.p.healed = (g.p.healed || 0) + n; g.heal(n); } } },
   /* —— 角色加强（第一批）—— */
-  chain: { noart: 1, ch: 'hero', name: '连锁反应', type: 'power', rar: 'u', cost: [1, 0], icon: 'p_boom', tgt: 'self',
+  chain: { noart: 1, ch: 'hero', name: '连锁反应', type: 'power', rar: 'u', cost: [1, 0], icon: 'icons2/n_chain', tgt: 'self',
     desc: () => `每打倒 1 个敌人，得到 3 发光弹，抽 1 张牌。`, play: g => { g.self('chain', 1); } },
-  bigshot: { noart: 1, ch: 'hero', name: '蓄能炮', type: 'atk', rar: 'u', cost: [2, 2], icon: 'ic_gun', tgt: 'one',
+  bigshot: { noart: 1, ch: 'hero', name: '蓄能炮', type: 'atk', rar: 'u', cost: [2, 2], icon: 'icons2/n_bigshot', tgt: 'one',
     desc: u => `用掉所有光弹，每发对目标造成 ${v(u, 6, 8)} 点伤害。`, play: (g, u, t) => { const k = g.spend(99); g.fire(t, k, v(u, 6, 8)); } },
-  cutmix: { noart: 1, ch: 'heroine', name: '切歌连拍', type: 'skill', rar: 'c', cost: [1, 0], icon: 'sk_vortex', tgt: 'self', pick: 1,
+  cutmix: { noart: 1, ch: 'heroine', name: '切歌连拍', type: 'skill', rar: 'c', cost: [1, 0], icon: 'icons2/n_cutmix', tgt: 'self', pick: 1,
     desc: () => `选 1 张手牌弃掉，再随机弃 1 张，然后抽 3 张牌。`, play: (g, u, t, c, k) => { g.discardPick(k); g.discard(1); g.draw(3); } },
-  rondo: { noart: 1, ch: 'heroine', name: '回旋曲', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_bell', tgt: 'self', sly: 1,
+  rondo: { noart: 1, ch: 'heroine', name: '回旋曲', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_rondo', tgt: 'self', sly: 1,
     desc: u => `给予所有敌人 ${v(u, 2, 3)} 层共鸣，抽 1 张牌。狡诈。`, play: (g, u) => { g.resAll(v(u, 2, 3)); g.draw(1); } },
-  scratch: { noart: 1, ch: 'heroine', name: '搓碟', type: 'atk', rar: 'c', cost: [0, 0], icon: 'sk_holyorb', tgt: 'one', sly: 1,
+  scratch: { noart: 1, ch: 'heroine', name: '搓碟', type: 'atk', rar: 'c', cost: [0, 0], icon: 'icons2/n_scratch', tgt: 'one', sly: 1,
     desc: u => `造成 ${v(u, 4, 6)} 点伤害，给予 1 层共鸣。狡诈。`, play: (g, u, t) => { g.attack(t, v(u, 4, 6)); g.res(t, 1); } },
-  finale: { noart: 1, ch: 'heroine', name: '终曲', type: 'atk', rar: 'r', cost: [2, 1], icon: 'sk_holyorb', tgt: 'one',
+  finale: { noart: 1, ch: 'heroine', name: '终曲', type: 'atk', rar: 'r', cost: [2, 1], icon: 'icons2/n_finale', tgt: 'one',
     desc: () => `如果目标的生命不高于它共鸣层数的 3 倍，直接打倒它；否则给予 5 层共鸣。`, play: (g, u, t) => { if (t.hp <= (t.st.res || 0) * 3) g.execute(t); else g.res(t, 5); } },
-  kbreak: { noart: 1, ch: 'miko', name: '结界崩', type: 'skill', rar: 'u', cost: [0, 0], icon: 'sk_sigil', tgt: 'self',
+  kbreak: { noart: 1, ch: 'miko', name: '结界崩', type: 'skill', rar: 'u', cost: [0, 0], icon: 'icons2/n_kbreak', tgt: 'self',
     desc: u => `花掉 3 层结界，获得 2 点能量，抽 ${v(u, 2, 3)} 张牌。`, play: (g, u) => { if (g.kekSpend(3)) { g.energy(2); g.draw(v(u, 2, 3)); } } },
-  gohou: { noart: 1, ch: 'miko', name: '护法', type: 'skill', rar: 'c', cost: [1, 0], icon: 'sk_sigil', tgt: 'self',
+  gohou: { noart: 1, ch: 'miko', name: '护法', type: 'skill', rar: 'c', cost: [1, 0], icon: 'icons2/n_gohou', tgt: 'self',
     desc: () => `花掉 2 层结界，给予所有敌人 2 层虚弱，获得 6 点格挡。`, play: g => { if (g.kekSpend(2)) g.applyAll('weak', 2); g.block(6); } },
-  mixpoison: { noart: 1, ch: 'witch', name: '毒瓶调和', type: 'skill', rar: 'u', cost: [1, 0], icon: 'b_curse', tgt: 'one',
+  mixpoison: { noart: 1, ch: 'witch', name: '毒瓶调和', type: 'skill', rar: 'u', cost: [1, 0], icon: 'icons2/n_mixpoison', tgt: 'one',
     desc: () => `手里每有 1 个炼金瓶，给予 2 层中毒（最多算 4 个，至少 3 层）。`, play: (g, u, t) => g.poison(t, Math.max(3, 2 * Math.min(4, g.potsInHand()))) },
-  taima: { noart: 1, ch: 'miko', name: '退魔', type: 'atk', rar: 'c', cost: [1, 1], icon: 'ic_bow', tgt: 'one',
+  taima: { noart: 1, ch: 'miko', name: '退魔', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_taima', tgt: 'one',
     desc: u => `造成 ${v(u, 8, 11)} 点伤害。若有结界，花掉 1 层，给予 1 层易伤。`, play: (g, u, t) => { if (g.kekSpend(1)) g.apply(t, 'vuln', 1); g.attack(t, v(u, 8, 11)); } },
-  kekarrow: { noart: 1, ch: 'miko', name: '结界箭', type: 'atk', rar: 'c', cost: [1, 1], icon: 'ic_bow', tgt: 'one',
+  kekarrow: { noart: 1, ch: 'miko', name: '结界箭', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_kekarrow', tgt: 'one',
     desc: u => `造成 ${v(u, 5, 7)} 点伤害。结界 +1。`, play: (g, u, t) => { g.attack(t, v(u, 5, 7)); g.kek(1); } },
-  renju: { noart: 1, ch: 'miko', name: '连珠箭', type: 'atk', rar: 'c', cost: [0, 0], icon: 'ic_bow', tgt: 'one',
-    desc: u => `造成 ${v(u, 3, 5)} 点伤害。`, play: (g, u, t) => g.attack(t, v(u, 3, 5)) },
-  offbeat: { noart: 1, ch: 'heroine', name: '切分音', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_bell', tgt: 'self', sly: 1,
+  renju: { noart: 1, ch: 'miko', name: '连珠箭', type: 'atk', rar: 'c', cost: [0, 0], icon: 'icons2/n_renju', tgt: 'one',
+    desc: u => `造成 ${v(u, 3, 5)} 点伤害；本回合打出过至少 2 张技能牌时再造成 ${v(u, 3, 5)} 点。`, play: (g, u, t) => { g.attack(t, v(u, 3, 5)); if ((g.p.skillN || 0) >= 2) g.attack(t, v(u, 3, 5)); } },
+  offbeat: { noart: 1, ch: 'heroine', name: '切分音', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_offbeat', tgt: 'self', sly: 1,
     desc: u => `获得 ${v(u, 6, 9)} 点格挡，给予所有敌人 1 层共鸣。狡诈。`, play: (g, u) => { g.block(v(u, 6, 9)); g.resAll(1); } },
-  dropbeat: { noart: 1, ch: 'heroine', name: '落拍', type: 'atk', rar: 'u', cost: [1, 1], icon: 'sk_holyorb', tgt: 'one', sly: 1,
+  dropbeat: { noart: 1, ch: 'heroine', name: '落拍', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_dropbeat', tgt: 'one', sly: 1,
     desc: u => `造成 ${v(u, 8, 11)} 点伤害，给予 3 层共鸣。狡诈。`, play: (g, u, t) => { g.attack(t, v(u, 8, 11)); g.res(t, 3); } },
-  remix: { noart: 1, ch: 'heroine', name: '混音', type: 'skill', rar: 'u', cost: [1, 0], icon: 'sk_vortex', tgt: 'self',
+  remix: { noart: 1, ch: 'heroine', name: '混音', type: 'skill', rar: 'u', cost: [1, 0], icon: 'icons2/n_remix', tgt: 'self',
     desc: () => `弃掉所有手牌，再抽同样数量的牌。`, play: g => { const n = g.handSize(); g.discard(n); g.draw(n); } },
   tstrike: { noart: 1, ch: 'temp', name: '打击', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_sword', tgt: 'one',
     desc: u => `造成 ${v(u, 6, 9)} 点伤害。`, play: (g, u, t) => g.attack(t, v(u, 6, 9)) },
   p_poison: { ch: 'witch', potion: 1, name: '毒药瓶', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'b_curse', tgt: 'one', exhaust: 1,
-    desc: () => `给予 4 层中毒。消耗。`, play: (g, u, t) => g.poison(t, Math.floor(4 * g.ppm() * (g.has('venompot') ? 2 : 1))) },
-  p_boom: { ch: 'witch', potion: 1, name: '爆炸瓶', type: 'atk', rar: 'gen', cost: [0, 0], icon: 'p_boom', tgt: 'one', exhaust: 1,
-    desc: () => `造成 8 点伤害。消耗。`, play: (g, u, t) => g.attack(t, 8 * g.pm()) },
+    desc: () => `给予 5 层中毒。消耗。`, play: (g, u, t) => g.poison(t, Math.floor(5 * g.ppm() * (g.has('venompot') ? 2 : 1))) },
+  p_boom: { ch: 'witch', potion: 1, name: '雷电瓶', type: 'atk', rar: 'gen', cost: [0, 0], icon: 'p_boom', tgt: 'one', exhaust: 1,
+    desc: () => `造成 9 点伤害，并让目标麻痹（下一次攻击减半）。消耗。`, play: (g, u, t) => { const n0 = g.alive().length; g.attack(t, 9 * g.pm()); if (t && !t.dead) g.apply(t, 'para', 1); potKill(g, n0); } },
+  p_vine: { ch: 'witch', potion: 1, name: '藤蔓瓶', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'p_boom', tgt: 'one', exhaust: 1,
+    desc: () => `束缚目标（跳过下一次行动），并且接下来 2 次行动前各受到 4 点伤害。消耗。`, play: (g, u, t) => { MECH.cc(g, t, 'bind'); if (t && !t.dead) g.apply(t, 'bindD', 2); } },
   zap: { ch: 'witch', name: '魔弹', type: 'atk', rar: 'start', cost: [1, 1], icon: 'sk_orb', tgt: 'one',
     desc: u => `造成 ${v(u, 6, 9)} 点伤害。`, play: (g, u, t) => g.attack(t, v(u, 6, 9)) },
   brew: { ch: 'witch', name: '调药', type: 'skill', rar: 'start', cost: [1, 1], icon: 'pot', tgt: 'self',
@@ -161,17 +166,17 @@ export const CARDS = {
   needle: { ch: 'witch', name: '毒针', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_stake', tgt: 'one',
     desc: u => `造成 3 点伤害，给予 ${v(u, 4, 6)} 层中毒。`, play: (g, u, t) => { g.attack(t, 3); g.poison(t, v(u, 4, 6)); } },
   venom: { ch: 'witch', name: '剧毒', type: 'skill', rar: 'c', cost: [1, 1], icon: 'b_curse', tgt: 'one',
-    desc: u => `给予 ${v(u, 5, 7)} 层中毒。`, play: (g, u, t) => g.poison(t, v(u, 5, 7)) },
+    desc: u => `给予 ${v(u, 7, 10)} 层中毒。`, play: (g, u, t) => g.poison(t, v(u, 7, 10)) },
   miasma: { ch: 'witch', name: '毒雾', type: 'skill', rar: 'c', cost: [1, 1], icon: 'sk_bmist', tgt: 'all',
-    desc: u => `给予所有敌人 ${v(u, 3, 5)} 层中毒。`, play: (g, u) => g.eachEnemy(e => g.poison(e, v(u, 3, 5))) },
-  quickbrew: { ch: 'witch', name: '速调', type: 'skill', rar: 'c', cost: [0, 0], icon: 'sk_pouch', tgt: 'self',
-    desc: u => `随机获得 1 个炼金瓶。抽 1 张牌。${v(u, '', '获得 3 点格挡。')}`, play: (g, u) => { g.potion(1); g.draw(1); if (u) g.block(3); } },
+    desc: u => `给予所有敌人 ${v(u, 4, 6)} 层中毒。`, play: (g, u) => g.eachEnemy(e => g.poison(e, v(u, 4, 6))) },
+  quickbrew: { ch: 'witch', name: '嬗变', type: 'skill', rar: 'c', cost: [0, 0], icon: 'sk_pouch', tgt: 'self', pick: 1, pickT: '选 1 张手牌变成炼金瓶',
+    desc: u => `把 1 张手牌变成 1 个随机炼金瓶${v(u, '', '，抽 1 张牌')}。`, play: (g, u, t, c, k) => { const h = g.hand, i = h.findIndex(x => x.uid === k); if (i >= 0) h.splice(i, 1); g.potion(1); if (u) g.draw(1); } },
   broom: { ch: 'witch', name: '扫帚格挡', type: 'skill', rar: 'c', cost: [1, 1], icon: 'ic_whip', tgt: 'self',
     desc: u => `获得 ${v(u, 6, 9)} 点格挡。随机获得 1 个炼金瓶。`, play: (g, u) => { g.block(v(u, 6, 9)); g.potion(1); } },
   firebrew: { ch: 'witch', name: '火焰配方', type: 'skill', rar: 'c', cost: [1, 1], icon: 'sk_fireel', tgt: 'self',
     desc: u => `获得 1 瓶火焰瓶。获得 ${v(u, 4, 7)} 点格挡。`, play: (g, u) => { g.potion(1, 'p_fire'); g.block(v(u, 4, 7)); } },
   antidote: { ch: 'witch', name: '解毒剂', type: 'skill', rar: 'c', cost: [0, 0], icon: 'holywater', tgt: 'self',
-    desc: u => `清除自身虚弱和易伤。获得 ${v(u, 4, 7)} 点格挡。`, play: (g, u) => { delete g.p.st.weak; delete g.p.st.vuln; g.block(v(u, 4, 7)); } },
+    exhaust: 1, desc: u => `清除自身虚弱和易伤，获得 ${v(u, 3, 5)} 点格挡；清除了至少一种时得到 1 瓶毒药瓶。消耗。`, play: (g, u) => { const had = g.p.st.weak || g.p.st.vuln; delete g.p.st.weak; delete g.p.st.vuln; g.block(v(u, 3, 5)); if (had) g.potion(1, 'p_poison'); } },
   distill: { ch: 'witch', name: '蒸馏', type: 'skill', rar: 'u', cost: [1, 1], icon: 'ic_crystal', tgt: 'self',
     desc: u => `消耗手里 1 个炼金瓶（没有就先随机获得 1 个），获得 2 点能量。${v(u, '', '抽 1 张牌。')}`, play: (g, u) => { if (!g.potsInHand()) g.potion(1); if (g.usePotion()) g.energy(2); if (u) g.draw(1); } },
   catalyst: { ch: 'witch', name: '催化剂', type: 'skill', rar: 'u', cost: [1, 0], icon: 'ic_crystal', tgt: 'one', exhaust: 1,
@@ -179,13 +184,13 @@ export const CARDS = {
   alchemy: { ch: 'witch', name: '炼金爆发', type: 'atk', rar: 'u', cost: [2, 2], icon: 'ic_vortex', tgt: 'one',
     desc: u => `造成 ${v(u, 7, 9)} 点伤害，本回合每用过 1 个炼金瓶，再打 1 次。`, play: (g, u, t) => g.attack(t, v(u, 7, 9), 1 + (g.p.pot || 0)) },
   plague: { ch: 'witch', name: '疫病', type: 'power', rar: 'u', cost: [1, 1], icon: 'sk_undead', tgt: 'self',
-    desc: u => `每回合开始时，给予所有敌人 ${v(u, 1, 2)} 层中毒。`, play: (g, u) => g.self('plague', v(u, 1, 2)) },
+    desc: u => `每回合开始时，给予所有敌人 ${v(u, 2, 3)} 层中毒。`, play: (g, u) => g.self('plague', v(u, 2, 3)) },
   satchel: { ch: 'witch', name: '药剂腰包', type: 'power', rar: 'u', cost: [2, 1], icon: 'goldbag', tgt: 'self',
     desc: u => `每 2 回合开始时，随机获得 1 个炼金瓶（多张不叠加）。${v(u, '', '每回合结束时获得 2 点格挡（可叠加）。')}`, play: (g, u) => { g.p.st.satchel = 1; if (u) g.self('metal', 2); } },
   sage: { ch: 'witch', name: '贤者之石', type: 'power', rar: 'r', cost: [2, 1], icon: 'ic_gods', tgt: 'self',
     desc: () => `炼金瓶的伤害翻倍，中毒 +50%（治疗、削弱不变）。`, play: g => g.self('sage', 1) },
   deadly: { ch: 'witch', name: '毒爆', type: 'atk', rar: 'r', cost: [2, 2], icon: 'sk_dcoil', tgt: 'one',
-    desc: u => `清空目标的中毒，每层造成 ${v(u, 3, 4)} 点伤害。`, play: (g, u, t) => { const n = t.st.poison || 0; delete t.st.poison; if (n) g.attack(t, n * v(u, 3, 4)); } },
+    desc: u => `清空目标的中毒，每层造成 ${v(u, 4, 5)} 点伤害。`, play: (g, u, t) => { const n = t.st.poison || 0; delete t.st.poison; if (n) g.attack(t, n * v(u, 4, 5)); } },
 
   // ======== 共用 ========
   defend: { name: '闪避', type: 'skill', rar: 'start', cost: [1, 1], icon: 'p_dodge', tgt: 'self',
@@ -211,6 +216,10 @@ export const CARDS = {
     desc: () => `不能打出。`, play: () => {} },
   burn: { name: '烧伤', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'ic_flame', tgt: 'self', unplay: 1, burn: 2,
     desc: () => `不能打出。回合结束时若在手中，失去 2 点生命。`, play: () => {} },
+  regret: { name: '悔意', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'icons2/n_regret', tgt: 'self', unplay: 1, burn: 1, curse: 1,
+    desc: () => `诅咒。不能打出。回合结束时若在手中，失去 1 点生命。`, play: () => {} },
+  doubt: { name: '疑心', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'icons2/n_doubt', tgt: 'self', unplay: 1, endWeak: 1, curse: 1,
+    desc: () => `诅咒。不能打出。回合结束时若在手中，获得 1 层虚弱。`, play: () => {} },
   rot: { name: '腐烂', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'b_curse', tgt: 'self', unplay: 1, burn: 1,
     desc: () => `不能打出。回合结束时若在手中，失去 1 点生命。`, play: () => {} },
   /* ===== 第二章专属卡牌（只在血月古堡出现） ===== */
@@ -218,20 +227,20 @@ export const CARDS = {
     desc: u => `结界层数翻倍（至少 +${v(u, 1, 2)}）。${v(u, '', '获得 6 点格挡。')}消耗。`, play: (g, u) => { g.kek(Math.max(v(u, 1, 2), g.p.st.kek || 0)); if (u) g.block(6); } },
   chinkon: { ch: 'miko', act2: 1, name: '镇魂歌', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/chinkon', tgt: 'all',
     desc: u => `对所有敌人造成结界层数 ×${v(u, 2, 3)} 的伤害（至少 4，最多算 6 层）。`, play: (g, u) => g.attackAll(Math.max(4, Math.min(6, g.p.st.kek || 0) * v(u, 2, 3))) },
-  shinju: { ch: 'miko', act2: 1, name: '神木之盾', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/shinju', tgt: 'self',
-    desc: u => `获得 ${v(u, 10, 14)} 点格挡。结界 +1。`, play: (g, u) => { g.block(v(u, 10, 14)); g.kek(1); } },
+  shinju: { ch: 'miko', name: '召唤式神', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/shinju', tgt: 'self',
+    desc: u => `召唤 1 个式神（最多同时 2 个），获得 ${v(u, 3, 6)} 点格挡。式神会整段挡下敌人的下一次攻击。`, play: (g, u) => { MECH.shiki(g, 1); g.block(v(u, 3, 6)); } },
   fullmag: { ch: 'hero', act2: 1, name: '满弹连射', type: 'skill', rar: 'r', cost: [2, 2], icon: 'icons2/fullmag', tgt: 'self',
-    desc: u => `光弹补到 ${v(u, 7, 10)} 发。`, play: (g, u) => g.ammo(Math.max(0, v(u, 7, 10) - (g.p.st.ammo || 0))) },
+    desc: u => `光弹补到 ${v(u, 6, 8)} 发。`, play: (g, u) => g.ammo(Math.max(0, v(u, 6, 8) - (g.p.st.ammo || 0))) },
   silverbul: { ch: 'hero', act2: 1, name: '银弹', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/silverbul', tgt: 'one',
     desc: u => `造成 ${v(u, 7, 9)} 点伤害，对亡灵翻倍。得到 2 发光弹。`, play: (g, u, t) => { g.attack(t, v(u, 7, 9) * (t && t.d.undead ? 2 : 1)); g.ammo(2); } },
   reload2: { ch: 'hero', act2: 1, name: '快速换弹', type: 'skill', rar: 'u', cost: [0, 0], icon: 'icons2/reload2', tgt: 'self',
-    desc: u => `抽 ${v(u, 2, 3)} 张牌。得到 1 发光弹。`, play: (g, u) => { g.draw(v(u, 2, 3)); g.ammo(1); } },
+    exhaust: 1, desc: u => `抽 ${v(u, 2, 3)} 张牌。得到 1 发光弹。消耗。`, play: (g, u) => { g.draw(v(u, 2, 3)); g.ammo(1); } },
   holywater: { ch: 'witch', act2: 1, name: '圣水瓶', type: 'atk', rar: 'u', cost: [0, 0], icon: 'icons2/holywater', tgt: 'one', exhaust: 1,
     desc: u => `造成 ${v(u, 10, 14)} 点伤害，对亡灵翻倍。消耗。`, play: (g, u, t) => g.attack(t, v(u, 10, 14) * (t && t.d.undead ? 2 : 1)) },
   megabrew: { ch: 'witch', act2: 1, name: '炼成大爆发', type: 'skill', rar: 'r', cost: [2, 2], icon: 'icons2/megabrew', tgt: 'self',
     desc: u => `随机获得 ${v(u, 4, 5)} 个炼金瓶。`, play: (g, u) => g.potion(v(u, 4, 5)) },
-  fogpoison: { ch: 'witch', act2: 1, name: '毒雾结界', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/fogpoison', tgt: 'all',
-    desc: u => `给所有敌人 ${v(u, 4, 6)} 层中毒。`, play: (g, u) => g.eachEnemy(e => g.poison(e, v(u, 4, 6))) },
+  fogpoison: { ch: 'witch', name: '点金术', type: 'atk', rar: 'u', cost: [2, 2], icon: 'icons2/fogpoison', tgt: 'one',
+    desc: u => `造成 ${v(u, 14, 18)} 点伤害；这一击打倒敌人时，获得 ${v(u, 12, 15)} 金币。`, play: (g, u, t) => { g.attack(t, v(u, 14, 18)); if (t && t.dead && !t.fled) { g.R.gold += v(u, 12, 15); g.note(`点金术：+${v(u, 12, 15)} 金币`); } } },
   requiem: { ch: 'heroine', act2: 1, name: '安魂曲', type: 'skill', rar: 'r', cost: [2, 2], icon: 'icons2/requiem', tgt: 'all',
     desc: u => `给所有敌人 ${v(u, 5, 7)} 层共鸣。`, play: (g, u) => g.resAll(v(u, 5, 7)) },
   echo2: { ch: 'heroine', act2: 1, name: '残响', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/echo2', tgt: 'one',
@@ -249,7 +258,7 @@ export const CARDS = {
   regen: { name: '生命之泉', type: 'power', rar: 'r', cost: [1, 1], icon: 'b_regen', tgt: 'self',
     desc: u => `每回合结束时，回复 ${v(u, 3, 4)} 点生命（每场最多 3 次）。`, play: (g, u) => g.self('regen', v(u, 3, 4)) },
 };
-Object.assign(CARDS, NEWCARDS);
+Object.assign(CARDS, NEWCARDS); bindCards(CARDS);
 for (const [k, c] of Object.entries(CARDS)) { c.id = k; if (c.ch && !c.noart) c.icon = 'icons2/' + k; c.img = I(c.icon); }
 export const STARTERS = {
   hero: ['shoot', 'shoot', 'shoot', 'shoot', 'defend', 'defend', 'defend', 'defend', 'load', 'charge'],
@@ -266,7 +275,7 @@ export const RELICS = {
   cauldron: { noart: 1, ch: 'witch', name: '魔女的坩埚', icon: 'pot', rar: 'start', desc: '战斗开始时随机获得 1 个炼金瓶。战斗结束时回复 4 点生命。' },
   toad: { noart: 1, ch: 'witch', name: '蟾蜍干', icon: 'b_curse', rar: 'c', desc: '每次给予中毒时，额外 +1 层。' },
   hat: { noart: 1, ch: 'witch', name: '魔女帽', icon: 'sk_shadow', rar: 'u', desc: '每使用 1 个炼金瓶，获得 2 点格挡。' },
-  suzu: { noart: 1, ch: 'miko', name: '神乐铃', icon: 'ic_bell', rar: 'start', desc: '战斗开始时结界 +3。战斗结束时回复 4 点生命。' },
+  suzu: { noart: 1, ch: 'miko', name: '神乐铃', icon: 'ic_bell', rar: 'start', desc: '战斗开始时结界 +5。战斗结束时回复 4 点生命。' },
   omamori: { noart: 1, ch: 'miko', name: '御守', icon: 'm_ward', rar: 'c', desc: '每场战斗开始时，结界 +2。' },
   hamaya: { noart: 1, ch: 'miko', name: '破魔矢', icon: 'ic_bow', rar: 'u', desc: '回合开始时，若结界不少于 4 层，抽 1 张牌。' },
   spare: { noart: 1, ch: 'hero', name: '备用电池', icon: 'ic_crystal', rar: 'c', desc: '每回合开始时，额外得到 1 发光弹。' },
@@ -274,7 +283,7 @@ export const RELICS = {
   metro: { noart: 1, ch: 'heroine', name: '节拍器', icon: 'ic_hexa', rar: 'c', desc: '每回合第一次爆音，获得 1 点能量。' },
   venompot: { noart: 1, ch: 'witch', name: '毒液坩埚', icon: 'pot', rar: 'u', desc: '毒药瓶给予的中毒翻倍。' },
   mic: { noart: 1, ch: 'heroine', name: '麦克风', icon: 'sk_holyorb', rar: 'u', desc: '爆音伤害 +6。' },
-  silvercross: { act2: 1, name: '银十字架', icon: 'icons2/r_silvercross', rar: 'u', desc: '对亡灵造成的伤害 +25%。' },
+  silvercross: { act2: 1, name: '银十字架', icon: 'icons2/r_silvercross', rar: 'u', desc: '对亡灵造成的攻击伤害 +25%（中毒等持续伤害不算）。' },
   batcloak: { act2: 1, name: '蝙蝠披风', icon: 'icons2/r_batcloak', rar: 'c', desc: '每场战斗开始时，获得 8 点格挡。' },
   grail: { act2: 1, name: '圣杯', icon: 'icons2/r_grail', rar: 'u', desc: '每场战斗结束时，回复 5 点生命。拾取时最大生命 -5。' },
   pocketwatch: { act2: 1, name: '伯爵的怀表', icon: 'icons2/r_pocketwatch', rar: 'u', desc: '每场战斗第 1 回合，多抽 2 张牌。' },
@@ -294,7 +303,7 @@ export const RELICS = {
   feather: { name: '凤凰羽', icon: 'p_rev', rar: 'r', desc: '死亡时，复活并回复 30% 生命（一次）。' },
   crown: { name: '王冠', icon: 'm_crown', rar: 'r', desc: '每回合开始时，获得 1 点额外能量。拾取时最大生命 -10，战斗结束不再回复生命。' },
 };
-Object.assign(RELICS, NEWRELICS);
+Object.assign(RELICS, NEWRELICS, R3);
 export const STARTRELIC = { hero: 'gameboy', heroine: 'phones', miko: 'suzu', witch: 'cauldron', ...NEWSTARTRELIC };
 for (const [k, r] of Object.entries(RELICS)) { r.id = k; if (['spare', 'pad', 'phones', 'metro', 'mic', 'cauldron', 'toad', 'hat', 'suzu', 'omamori', 'hamaya'].includes(k)) r.icon = 'icons2/r_' + k; r.img = I(r.icon); }
 
@@ -317,6 +326,7 @@ for (const [k, x] of Object.entries(POTIONS)) { x.id = k; x.icon = 'icons2/pot_'
 export const STATUS = {
   str: ['力量', '攻击伤害增加', '#e05a3a'], dex: ['敏捷', '获得的格挡增加', '#5ab45a'],
   vuln: ['易伤', '受到的攻击伤害 +50%', '#c070e0'], weak: ['虚弱', '造成的攻击伤害 -25%', '#7a90c0'],
+  chain: ['连锁反应', '每打倒 1 个敌人，得到 3 发光弹并抽 1 张牌（每层）', '#ffd060'],
   metal: ['金属化', '回合结束获得格挡', '#aaaaaa'], thorns: ['荆棘', '被攻击时反伤', '#c08a40'],
   fly: ['飞行', '受到的伤害减半。每被打中 1 次 -1 层，掉光就坠落，下回合不能行动', '#c0a0ff'],
   hostage: ['人质', '监工绑着的村民。你的回合没打到监工，村民就挨 5 鞭。战斗结束时村民还活着，额外得到 40 金币', '#ffd080'],
@@ -324,7 +334,7 @@ export const STATUS = {
   regen: ['再生', '回合结束回复生命', '#50d080'], enrage: ['激怒', '你每打出一张技能牌，它获得力量', '#ff7030'],
   ritual: ['战意', '回合结束获得力量', '#ff9050'], fuse: ['引信', '归零时自爆', '#ffcc00'],
   intang: ['虚化', '受到的伤害减半，轮到它行动时消失', '#a8f0ff'],
-  ammo: ['光弹', '回合结束时自动射出，每发对随机敌人造成 4 点伤害，然后清零（最多 10 发）', '#60d0ff'], res: ['共鸣', '叠到 10 层时爆音，造成 20 点伤害，之后保留 3 层（多出的也保留）', '#ff80c0'],
+  ammo: ['光弹', '回合结束时自动射出，每发对随机敌人造成 3 点伤害（第 1、3、5… 发为 4 点），然后清零（最多 8 发）', '#60d0ff'], res: ['共鸣', '叠到 10 层时爆音，造成 16 点伤害（每个敌人第一次被爆音时还会眩晕），之后保留 3 层（多出的也保留）', '#ff80c0'],
   gen: ['扩容', '回合开始得到光弹', '#60d0ff'], rapid: ['连发', '回合结束射出光弹时获得格挡', '#60d0ff'], dual: ['双持', '每发光弹伤害增加', '#60d0ff'],
   lowf: ['低频', '回合开始给所有敌人共鸣', '#ff80c0'], dist: ['失真', '爆音后多保留 3 层共鸣，爆音伤害 +8', '#ff80c0'], concert: ['演唱会', '出牌时给所有敌人共鸣', '#ff80c0'],
   kek: ['结界', '回合开始时按层数获得格挡', '#ffd060'], kagura: ['神乐舞', '回合开始结界 +1', '#ffd060'], shinboku: ['御神木', '结界格挡翻倍', '#ffd060'],
@@ -333,7 +343,7 @@ export const STATUS = {
   aegis: ['圣盾', '免疫所有伤害', '#ffe070'],
 };
 
-Object.assign(STATUS, NEWSTATUS);
+Object.assign(STATUS, NEWSTATUS, S3);
 // ---- 敌人 ----
 // moves: {n 名称, i 意图(atk/def/buff/debuff/atkdef/atkdebuff/summon/unknown), d 伤害, x 次数, f(e,B) 额外效果}
 const pick = (e, opts) => { // 避免同一招连用 3 次
@@ -354,8 +364,8 @@ export const ENEMIES = {
       guard: { n: '劈挡', i: 'atkdef', d: 7, f: (e, B) => B.eBlock(e, 5) } },
     ai: e => e.turn === 0 ? 'slash' : pick(e, ['slash', 'hone', 'guard']) },
   gob_archer: { name: '哥布林弓手', hp: [18, 22], sc: 2.6, hd: 200,
-    moves: { shoot: { n: '射击', i: 'atk', d: 8 }, aim: { n: '瞄准', i: 'buff', f: (e, B) => B.addSt(e, 'str', 2) } },
-    ai: e => pick(e, ['shoot', 'shoot', 'aim']) },
+    moves: { shoot: { n: '射击', i: 'atk', d: 8 }, barb: { n: '倒刺箭', i: 'atkdebuff', d: 5, f: (e, B) => B.addCard('wound', 1) }, aim: { n: '瞄准', i: 'buff', f: (e, B) => B.addSt(e, 'str', 2) } },
+    ai: e => pick(e, ['shoot', 'barb', 'aim']) },
   gob_shield: { name: '哥布林盾兵', hp: [30, 34], sc: 2.4, hd: 205,
     moves: { cover: { n: '举盾', i: 'def', f: (e, B) => { const al = B.allies(e); B.eBlock(al.length ? al[Math.floor(Math.random() * al.length)] : e, 7); } },
       bash: { n: '盾撞', i: 'atk', d: 7 } },
@@ -368,7 +378,7 @@ export const ENEMIES = {
     ai: e => e.st.fuse <= 1 ? 'boom' : 'toss', after: e => { e.st.fuse--; } },
   gob_mage: { name: '哥布林法师', hp: [24, 28], sc: 2.4, hd: 285,
     lore: '血量低于一半时，会喝下随身的药水，回血并变强（只喝一次）。',
-    moves: { fire: { n: '火球', i: 'atk', d: 9 }, hex: { n: '邪火', i: 'atkdebuff', d: 4, f: (e, B) => B.applyP('vuln', 2) },
+    moves: { fire: { n: '火球', i: 'atk', d: 9 }, hex: { n: '邪火', i: 'atkdebuff', d: 4, f: (e, B) => { B.applyP('vuln', 2); B.addCard('burn', 1); } },
       drink: { n: '喝药水', i: 'buff', f: (e, B) => { e.drank = 1; B.healE(e, 12); B.addSt(e, 'str', 2); } } },
     ai: e => !e.drank && e.hp < e.max / 2 ? 'drink' : pick(e, ['fire', 'fire', 'hex']) },
   gob_thrower: { name: '哥布林投石手', hp: [24, 28], sc: 2.4, hd: 248,
@@ -403,7 +413,7 @@ export const ENEMIES = {
     ai: e => cycle(e, ['bite', 'claw', 'claw']) },
   ghost: { name: '幽灵', undead: 1, hp: [24, 28], sc: 2.4, hd: 255, lore: '徘徊在古堡里的亡魂，虚化时很难伤到它。撑过 5 回合，它就会自己飘走。',
     onTurn: (e, B) => { if (e.turn >= 5) { B.flee(e); B.say('（幽灵叹了口气，飘走了）'); return 'gone'; } },
-    moves: { phase: { n: '虚化', i: 'buff', f: (e, B) => B.addSt(e, 'intang', 1) }, wail: { n: '哀嚎', i: 'atkdebuff', d: 8, f: (e, B) => B.applyP('weak', 1) } },
+    moves: { phase: { n: '虚化', i: 'buff', f: (e, B) => B.addSt(e, 'intang', 1) }, wail: { n: '哀嚎', i: 'atkdebuff', d: 8, f: (e, B) => { B.applyP('weak', 1); B.addCard('daze', 1); } } },
     ai: e => cycle(e, ['phase', 'wail']) },
   gargoyle: { name: '石像鬼', hp: [34, 38], sc: 2.4, hd: 250, lore: '守在古堡屋檐上的石头恶魔。石化时格挡很厚，还带 3 点反伤，下一回合就会扑下来。',
     moves: { stone: { n: '石化', i: 'def', f: (e, B) => { B.eBlock(e, 14); B.addSt(e, 'thorns', 3); } }, dive: { n: '俯冲', i: 'atk', d: 16 } },
@@ -426,7 +436,7 @@ export const ENEMIES = {
     ai: e => cycle(e, ['slam', 'spit']) },
   vamp_bride: { name: '吸血鬼新娘', undead: 1, vamp: 1, hp: [70, 74], sc: 2.5, hd: 290, elite: 1, lore: '伯爵的新娘。会飞，受到的伤害减半；一回合打中她 3 次，她就会坠落一回合。',
     init: e => { e.st.fly = 3; }, onTurn: e => { if (e.grounded) { e.grounded = 0; e.st.fly = 3; return 'skip'; } e.st.fly = 3; },
-    moves: { kiss: { n: '血之吻', i: 'atk', d: 11, f: (e, B) => B.healE(e, 8) }, charm: { n: '魅惑', i: 'debuff', f: (e, B) => { B.applyP('weak', 2); B.applyP('vuln', 1); } }, mist: { n: '血雾', i: 'atk', d: 4, x: 3 } },
+    moves: { kiss: { n: '血之吻', i: 'atk', d: 11, f: (e, B) => B.healE(e, 8) }, charm: { n: '魅惑', i: 'debuff', f: (e, B) => { B.applyP('weak', 2); B.applyP('vuln', 1); B.addCard('wound', 1); } }, mist: { n: '血雾', i: 'atk', d: 4, x: 3 } },
     ai: e => cycle(e, ['charm', 'kiss', 'mist', 'kiss']) },
   necromancer: { name: '亡灵法师', undead: 1, hp: [62, 66], sc: 2.5, hd: 300, elite: 1, lore: '替伯爵唤醒亡者的老巫师。不先打断他，骷髅就杀不完。他的诅咒会让你下回合的手牌费用变得混乱。',
     moves: { raise: { n: '唤醒亡者', i: 'summon', f: (e, B) => { if (B.alive().length < 4) B.summon('skeleton', 16); } }, bolt: { n: '鬼火', i: 'atk', d: 12 }, curse: { n: '腐朽诅咒', i: 'debuff', f: (e, B) => { B.applyP('weak', 2); B.applyP('confuse', 1); B.addCard('rot', 1); } } },
@@ -442,8 +452,8 @@ export const ENEMIES = {
     ai: e => cycle(e, ['howl', 'maul', 'pounce']) },
   vamp_count: { name: '吸血鬼伯爵', undead: 1, vamp: 1, hp: [210, 210], sc: 2.9, hd: 340, boss: 1, lore: '古堡的主人。你一回合打出 12 张牌，他就会停止时间，强制结束你的回合。第一次被打倒后会化作蝙蝠群复活。',
     intro: '「异界来的小老鼠……你们的血，一定很美味。」',
-    onCard: (e, type, B) => { if ((e.cn = (e.cn || 0) + 1) === 12) { B.say('「时间……停止吧。」'); B.endPlayerTurn(); } }, onTurn: e => { e.cn = 0; },
-    onDie: (e, B) => { if (!e.p2) { e.p2 = 1; B.revive(e, 0.5); e.st = { fly: 3, poison: Math.floor((e.st.poison || 0) / 2), res: Math.floor((e.st.res || 0) / 2) }; e.move = 'swarm'; B.say('（伯爵化作一团蝙蝠，又在王座上聚了回来）「游戏才刚开始。」'); } else B.say('「我只是……替山顶那位看门而已……」'); },
+    onCard: (e, type, B) => { if ((e.cn = (e.cn || 0) + 1) === 12) { B.say('「时间……停止吧。」'); B.endPlayerTurn(); } }, onPTurn: e => { e.cn = 0; },
+    onDie: (e, B) => { if (!e.p2) { e.p2 = 1; const pz = e.st.poison || 0, rs = e.st.res || 0; B.revive(e, 0.5); e.st = { fly: 3 }; if (pz >= 2) e.st.poison = Math.floor(pz / 2); if (rs >= 2) e.st.res = Math.floor(rs / 2); e.move = 'swarm'; B.say('（伯爵化作一团蝙蝠，又在王座上聚了回来）「游戏才刚开始。」'); } else B.say('「我只是……替山顶那位看门而已……」'); },
     moves: { bats: { n: '蝙蝠群', i: 'atk', d: 4, x: 3 }, drain: { n: '吸血', i: 'atk', d: 12, f: (e, B) => B.healE(e, 10) },
       mist: { n: '蝙蝠化', i: 'def', f: (e, B) => { B.addSt(e, 'intang', 1); B.eBlock(e, 10); } },
       moon: { n: '血月', i: 'buff', f: (e, B) => { e.moon = 1; B.alive().forEach(a => B.addSt(a, 'str', 2)); B.summon('skeleton', 0); B.say('「血月升起吧！」'); } },
@@ -484,6 +494,7 @@ export const ENEMIES = {
 
 /* 敌人伤害：以前在战斗里偷偷 ×1.1，现在直接写进招式数值，图鉴和意图显示一致 */
 for (const e of Object.values(ENEMIES)) for (const m of Object.values(e.moves)) if (m.d) m.d = Math.round(m.d * 1.1);
+Object.assign(ENEMIES, E3);
 export const ENCOUNTERS = {
   easy: [['goblin', 'goblin'], ['gob_kid', 'gob_kid', 'gob_kid'], ['gob_blade'], ['gob_archer', 'gob_shield']],
   hard: [['gob_wolf'], ['gob_bomb', 'gob_bomb', 'goblin'], ['gob_thrower', 'gob_thrower'], ['gob_kid', 'gob_blade'],
@@ -543,12 +554,13 @@ export const EVENTS = [
     opts: [
       { t: '重新祭拜：最大生命 +4（千早改为最大生命 +8 并回满生命）', go: (R, A) => { if (R.char === 'miko') { A.maxHp(8); A.heal(999); return '铃声响起，熟悉的神力流遍全身。'; } A.maxHp(4); return '你学着巫女的样子拜了拜，心里踏实了一些。'; } },
       { t: '摇铃祈福：回复 15 生命', go: (R, A) => { A.heal(15); return '清脆的铃声让人安心。'; } },
-      { t: '捡走香火钱：获得 35 金币，失去 4 生命', go: (R, A) => { A.gold(35); A.hurt(4); return '一阵阴风刮过，你打了个寒战。'; } }] },
+      { t: '捡走香火钱：获得 60 金币，牌组加入一张「疑心」', go: (R, A) => { A.gold(60); A.curse('doubt'); return '一阵阴风刮过，你总觉得有谁在看着你。'; } }] },
   { title: '魔女的旧实验室', pic: 'lab', img: 'pot', text: '一间被藤蔓吞没的小屋，桌上堆满落灰的瓶瓶罐罐。',
     opts: [
       { t: '翻找笔记：选一张牌（莉泽改为稀有牌）', go: (R, A) => { if (R.char === 'witch') { A.rareCard(); return '原来是师父留下的配方！'; } A.card(); return '笔记上的字一半看不懂，但有几页还用得上。'; } },
       { t: '喝下可疑的药：50% 最大生命 +6，50% 失去 8 生命', go: (R, A) => { if (Math.random() < .5) { A.maxHp(6); return '浑身发热……你感觉更强壮了。'; } A.hurt(8); return '一阵剧痛，你吐了个昏天黑地。'; } },
-      { t: '带走两瓶药水', go: (R, A) => { const a = A.potion(), b = A.potion(); return `你收起了「${a}」和「${b}」。`; } }] },
+      { t: '带走两瓶药水', go: (R, A) => { const a = A.potion(), b = A.potion(); return `你收起了「${a}」和「${b}」。`; } },
+      { t: '撬开上锁的柜子：获得一个随机秘宝，牌组加入一张「悔意」', go: (R, A) => { const n = A.relic(); A.curse('regret'); return `你找到了「${n}」……可柜门上刻着一行诅咒。`; } }] },
   { title: '掉线的掌机', pic: 'console', img: 'gb', text: '路边草丛里躺着一台和你很像的掌机，屏幕还在闪。',
     opts: [
       { t: '插上卡带：选一张牌（林拓改为稀有牌）', go: (R, A) => { if (R.char === 'hero') { A.rareCard(); return '“新关卡已解锁。”'; } A.card(); return '屏幕上跳出了几张卡牌的图案。'; } },
@@ -556,7 +568,8 @@ export const EVENTS = [
       { t: '拆了卖零件：获得 30 金币', go: (R, A) => { A.gold(30); return '哥布林商人一定会喜欢这些零件。'; } }] },
   { title: '哥布林的晚餐', pic: 'dinner', img: 'meat', text: '营地里一锅肉汤正咕嘟作响，哥布林们都不见了。',
     opts: [
-      { t: '偷喝一碗：回复 20 生命', go: (R, A) => { A.heal(20); return '味道……出乎意料地不错。'; } },
+      { t: '偷喝一碗：回复 12 生命', go: (R, A) => { A.heal(12); return '味道……出乎意料地不错。'; } },
+      { t: '把一整锅喝光：回复 30 生命，牌组加入一张「悔意」', go: (R, A) => { A.heal(30); A.curse('regret'); return '撑得走不动路……你有点后悔了。'; } },
       { t: '在汤里下毒再走：移除一张牌', ok: R => R.deck.length > 1, go: (R, A) => { A.pick('remove'); return '你轻手轻脚地离开了。'; } },
       { t: '离开', go: () => '你不吃来路不明的东西。' }] },
   { title: '迷路的商队', pic: 'wagon', img: 'box', text: '一辆翻倒的马车，箱子散了一地，车夫早已逃走。',
@@ -600,8 +613,8 @@ for (const r of Object.values(RELICS)) { tx(r, 'name'); tx(r, 'desc'); }
 for (const x of Object.values(POTIONS)) { tx(x, 'name'); tx(x, 'desc'); }
 for (const e of Object.values(ENEMIES)) { tx(e, 'name'); for (const m of Object.values(e.moves)) tx(m, 'n'); }
 for (const st of Object.values(STATUS)) { tx(st, 0); tx(st, 1); }
-for (const ev of [...EVENTS, ...EVENTS2]) { tx(ev, 'title'); tx(ev, 'text'); for (const o of ev.opts) { tx(o, 't'); tf(o, 'go'); } }
+for (const ev of [...EVENTS, ...EVENTS2, ...EV3]) { tx(ev, 'title'); tx(ev, 'text'); for (const o of ev.opts) { tx(o, 't'); tf(o, 'go'); } }
 
 // 两个引擎共用的规则常量（游戏和平衡模拟都从这里读）
-export const RULES = { furyTurn: 9, furyEvery: 2, bloodTurn: 5, bloodStr: 1, act2Mul: 0.9, maxTurns: 60 };
+export const RULES = { furyTurn: 9, furyEvery: 2, bloodTurn: 5, bloodStr: 1, act2Mul: 0.9, act3Hp: 1.25, act3Dmg: 1.15, maxTurns: 60 };
 export const isFury = turn => turn >= RULES.furyTurn && (turn - RULES.furyTurn) % RULES.furyEvery === 0;

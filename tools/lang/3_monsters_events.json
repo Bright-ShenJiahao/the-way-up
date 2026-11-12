@@ -1274,5 +1274,9 @@
  "血量掉到一半时会暴怒，叫来两个手下。": [
   "At half HP he flies into a rage and calls two minions.",
   "HPが半分になると激怒し、手下を2体呼ぶ。"
+ ],
+ "对亡灵造成的攻击伤害 {0}（中毒等持续伤害不算）。": [
+  "Attack damage dealt to Undead {0} (damage over time like Poison doesn't count).",
+  "アンデッドへの攻撃ダメージ{0}（毒などの継続ダメージは対象外）。"
  ]
 }

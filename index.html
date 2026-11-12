@@ -46,18 +46,22 @@ button{font-family:inherit;cursor:pointer}
 .unit{position:relative;display:flex;flex-direction:column;align-items:center}
 .unit .sprw{position:relative;display:block}
 .unit .spr{display:block;transform-origin:50% 100%;position:relative;z-index:1}
+.catw{position:absolute;left:calc(100% - 55px);bottom:-8px;z-index:2;pointer-events:none;display:flex;flex-direction:column;align-items:center}.catspr{display:block;transition:filter .3s,opacity .3s}.cathp{position:relative;width:86px;height:12px;margin-top:-6px;background:#2a1414;border:1px solid #000;border-radius:6px;overflow:hidden}.cathp i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(#f07a9a,#c2405f)}.cathp span{position:relative;display:block;font-size:10px;line-height:12px;color:#fff;text-align:center;text-shadow:0 0 2px #000}.catspr.down{filter:grayscale(1);opacity:.45}
+.allyw{position:absolute;z-index:2;pointer-events:none;display:flex;flex-direction:column;align-items:center}.allyw.a1{left:calc(100% - 40px);bottom:-8px}.allyw.a2{left:calc(100% - 10px);bottom:150px}.sumspr{display:block}.sumspr.thrall{transform:scaleX(-1)}.batn{font-size:13px;font-weight:bold;color:#ffb0c0;text-shadow:0 0 3px #000,0 0 3px #000;margin-top:-10px}
+@media (max-width:600px){.allyw.a1{left:calc(100% - 60px)}.allyw.a2{left:calc(100% - 40px);bottom:120px}.allyw .sumspr.big{height:110px!important}.allyw .sumspr.bats{height:60px!important}}
 .unit .shd{position:absolute;left:50%;bottom:-12px;width:110%;height:30px;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(0,0,0,.8),rgba(0,0,0,.35) 60%,transparent);z-index:0}
 .unit.enemy .spr{transform:scaleX(-1)}
 .unit.enemy.hd .spr{transform:none;flex:none;max-width:none}
 .unit.enemy.hd .sprw{width:150px;display:flex;justify-content:center}
 .unit.enemy.hd.dead{animation:die .5s .7s forwards}
-.unit .bar{width:130px;height:14px;background:#2a0d0d;border:1px solid #000;border-radius:7px;position:relative;margin-top:6px;overflow:hidden}
-.unit .bar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(#e04a3a,#a02018)}
+.unit .bar{width:130px;height:14px;background:#2a0d0d;border:1px solid #000;border-radius:7px;position:relative;margin-top:6px;overflow:visible}
+.unit .bar i{position:absolute;left:0;top:0;bottom:0;max-width:100%;border-radius:inherit;background:linear-gradient(#e04a3a,#a02018)}
 .unit .bar.blk{border-color:#6ab0ff}.unit .bar.blk i{background:linear-gradient(#6aa0e0,#3a60a0)}
 .unit .bar span{position:absolute;inset:0;font-size:11px;line-height:13px;text-align:center;color:#fff;text-shadow:0 1px 1px #000}
 .unit .blkv{position:absolute;left:-16px;bottom:-3px;width:26px;height:26px;background:#3a70c0;border:2px solid #bde;border-radius:50% 50% 45% 45%;font-size:13px;font-weight:bold;display:flex;align-items:center;justify-content:center;z-index:2}
 .sts{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;max-width:150px;margin-top:3px;min-height:18px}
 .sts b{font-size:11px;padding:1px 4px;border-radius:4px;background:rgba(0,0,0,.6);border:1px solid;cursor:help;font-weight:normal}
+.sts b .sti{width:15px;height:15px;vertical-align:-3px;margin-right:2px}
 .uname{font-size:13px;color:#ffe9b8;margin-top:2px;text-shadow:0 1px 2px #000;opacity:0;transition:opacity .15s}
 .unit:hover .uname{opacity:1}
 #enemies{position:absolute;right:calc(200px + (var(--sw,1280px) - 1280px) / 4);bottom:200px;display:flex;align-items:flex-end;gap:20px}
@@ -170,6 +174,7 @@ button{font-family:inherit;cursor:pointer}
 .bi .mvl{margin:3px 0;font-size:15px;line-height:1.5}.bi.mon.unk{opacity:.55}.bi.mon.unk .qm{flex:0 0 100px;width:100px;height:110px;font-size:60px}
 .who .core{margin:0 0 6px!important}.who .chip{display:inline-block;margin:2px 6px 2px 0;padding:1px 8px;border-radius:10px;background:#5a3a1a;color:#ffe6a8;font-size:14px}
 .who .cl{text-align:left!important}.csel .reward.cc img{height:88px}.csel h2{margin:0 0 6px}.csel .reward.cc .ct{display:none}.csel .reward.cc{padding:6px 8px 8px;gap:2px}.csel .reward.cc b{font-size:17px}
+.card .sealb{position:absolute;inset:0;z-index:7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:rgba(40,0,60,.6);border-radius:12px;color:#ecd0ff;font:bold 18px/1.2 sans-serif;font-style:normal;text-shadow:0 0 6px #000;pointer-events:none}.card .sealb img{width:74px;height:74px}.card .ver{position:absolute;right:6px;top:30px;z-index:5;font-style:normal;font:bold 12px/1 sans-serif;background:#1a6a3a;color:#d8ffe0;border:1px solid #7fe0a0;border-radius:8px;padding:3px 6px}.card .ver.neg{background:#6a1a1a;color:#ffd8d8;border-color:#e08080}.card .flipb{position:absolute;left:50%;top:44%;transform:translateX(-50%) rotate(-12deg);z-index:6;font-style:normal;font:bold 18px/1 sans-serif;color:#fff;background:#c0202a;border:2px solid #ffb0b0;border-radius:8px;padding:4px 10px}.reward.trial{display:flex;flex-direction:column;gap:4px;align-items:flex-start;text-align:left;width:100%}
 .reward.cc.locked{cursor:default;position:relative;filter:saturate(.75) brightness(.8)}.reward.cc.locked:hover{transform:none}.reward.cc .lockb{position:absolute;top:6px;right:6px;font-style:normal;font-size:12px;background:#000a;color:#ffd35a;padding:1px 6px;border-radius:8px}
 .reward.cc .cl,.who .cl{color:#ffe6a8;font-style:italic;font-size:13px;line-height:1.45;text-align:center}
 .reward.cc.soon{cursor:default;opacity:.7;filter:grayscale(1)}.reward.cc.soon:hover{transform:none}
@@ -275,6 +280,6 @@ button{font-family:inherit;cursor:pointer}
 <body>
 <div id="rot"><div class="ph"></div><div>请把手机横过来玩</div><div style="font-size:15px;color:#c8b890">Please rotate your device</div></div>
 <div id="stage"><div id="view"></div><div id="fx"></div></div>
-<script type="module" src="src/game.js?v=live2_11112600"></script>
+<script type="module" src="src/game.js?v=live2_11130230"></script>
 </body>
 </html>
