@@ -8,6 +8,9 @@ Math.random = rng; /* data.js 里怪物 AI 的随机也走同一个种子 */
 const A_ = n => ASC >= n;
 const SHA = (process.env.GITHUB_SHA || 'local').slice(0, 7);
 let DG = null; /* 诊断计数（只统计熟练机器人） */
+/* 机器人策略权重：默认就是原来的常数；强化训练（tools/train.mjs）通过环境变量 WEIGHTS 传入新权重 */
+export const W0 = { pow0: 9, pow1: 3, blkN: 8, blk0: 1, atk: 5, atkK: 1, leth: 6, zero: 2, pot: 3, skill: 4, rs: 1, arch: 2, archW: .8, needBlk: 1, needAtk: 1.2, nonAtk: .8, powPen: 1.5, dup: 1.2, skip: 1.5, rest: .55, needMul: 1 };
+const W = { ...W0, ...JSON.parse(process.env.WEIGHTS || '{}') };
 let SMART = false; /* false=新手机器人；true=熟练机器人（会用药水、按流派选牌） */
 const POTS = ['heal', 'str', 'dex', 'block', 'energy', 'fire', 'bomb', 'weak', 'draw', 'fairy'];
 const KEYW = { ...OLDKEYW, ...NEWKEYW };
@@ -164,11 +167,11 @@ function botTurn() { usePots(); if (!alive().length) return; MECH.bot(G, incomin
     if (!opts.length) break;
     const hpLeft = alive().reduce((m, e) => m + e.hp + e.block, 0), dmgHand = opts.filter(o => o.d.type === 'atk').reduce((m, o) => m + estDmg(o), 0), lethal = dmgHand >= hpLeft;
     const sc = o => { const d = o.d; let s = 0;
-      if (d.type === 'power') s = B.turn <= 3 ? 9 : 3;
-      else if (isBlock(d)) s = need > 0 ? 8 : 1;
-      else if (d.type === 'atk') s = 5 + o.k + (lethal ? 6 : 0);
-      else s = 4;
-      if (o.k === 0) s += 2; if (d.potion) s += 3;
+      if (d.type === 'power') s = B.turn <= 3 ? W.pow0 : W.pow1;
+      else if (isBlock(d)) s = need * W.needMul > 0 ? W.blkN : W.blk0;
+      else if (d.type === 'atk') s = W.atk + o.k * W.atkK + (lethal ? W.leth : 0);
+      else s = W.skill;
+      if (o.k === 0) s += W.zero; if (d.potion) s += W.pot;
       if (d.prio) s += d.prio; if (o.c.pt > 0) s += 2; if (o.c.pt < 0 && !isBlock(d)) s -= 2;
       if (/打出所有光弹|满格炮/.test(d.desc(0)) && (B.p.st.ammo || 0) < 4) s -= 6;
       if (/用掉|打出所有光弹/.test(d.desc(0)) && !(B.p.st.ammo || 0)) s -= 10;
@@ -176,8 +179,8 @@ function botTurn() { usePots(); if (!alive().length) return; MECH.bot(G, incomin
       if (/消耗全部结界/.test(d.desc(0)) && (B.p.st.kek || 0) < 4) s -= 6;
       if (SMART) { const tx = d.desc(o.c.up), RS = { 结界: 'kek', 鲜血: 'vblood', 龙血: 'dblood', 飞剑: 'sword', 光弹: 'ammo' };
         for (const [w, k] of Object.entries(RS)) { const have = B.p.st[k] || 0;
-          if (new RegExp('(花掉|用掉|射出)[^。；]{0,8}' + w).test(tx)) s += have >= 3 ? 3 : have ? -1 : -5;
-          else if (new RegExp('(得到|获得) \\d+ (层|点|把|发)' + w + '|' + w + ' \\+').test(tx)) s += 1; }
+          if (new RegExp('(花掉|用掉|射出)[^。；]{0,8}' + w).test(tx)) s += (have >= 3 ? 3 : have ? -1 : -5) * W.rs;
+          else if (new RegExp('(得到|获得) \\d+ (层|点|把|发)' + w + '|' + w + ' \\+').test(tx)) s += W.rs; }
         if (/回合结束没打出就消失/.test(tx)) s += 3;
         if (/霜龙形态下/.test(tx)) s += B.p.st.dragon ? 3 : 0;
         if (/写入/.test(tx) && !/祈唤/.test(tx)) s += 1; if (/祈唤/.test(tx) && d.type !== 'atk') s -= .5; }
@@ -274,14 +277,14 @@ const ARCH = {
 const dtxt = id => { try { return CARDS[id].desc(0); } catch (e) { return ''; } };
 function archOf() { const A = ARCH[R.char] || []; const n = A.map(re => R.deck.filter(c => re.test(dtxt(c.id))).length); let b = 0; n.forEach((x, i) => { if (x > n[b]) b = i; }); return { A, b, n }; }
 function smartScore(id) { const d = CARDS[id], t = dtxt(id), { A, b, n } = archOf(); let v = TIER[d.rar] + (d.ch ? .5 : 0);
-  if (A[b] && n[b] >= 2 && A[b].test(t)) v += 2; else if (A.some(re => re.test(t))) v += .8;
+  if (A[b] && n[b] >= 2 && A[b].test(t)) v += W.arch; else if (A.some(re => re.test(t))) v += W.archW;
   const blocks = R.deck.filter(c => isBlock(CARDS[c.id])).length, atks = R.deck.filter(c => CARDS[c.id].type === 'atk').length;
-  if (isBlock(d) && blocks < R.deck.length * .3) v += 1; if (d.type === 'atk' && atks < R.deck.length * .4) v += 1.2; if (d.type !== 'atk' && !isBlock(d) && atks < R.deck.length * .35) v -= .8;
-  if (d.type === 'power' && R.deck.filter(c => CARDS[c.id].type === 'power').length >= 3) v -= 1.5;
-  v -= (R.picks[id] || 0) * (d.type === 'power' ? 3 : 1.2); return v; }
+  if (isBlock(d) && blocks < R.deck.length * .3) v += W.needBlk; if (d.type === 'atk' && atks < R.deck.length * .4) v += W.needAtk; if (d.type !== 'atk' && !isBlock(d) && atks < R.deck.length * .35) v -= W.nonAtk;
+  if (d.type === 'power' && R.deck.filter(c => CARDS[c.id].type === 'power').length >= 3) v -= W.powPen;
+  v -= (R.picks[id] || 0) * (d.type === 'power' ? 3 : W.dup); return v; }
 function reward(kind) { const cs = rollCards(3, kind === 'elite' ? .07 : 0);
   if (SMART) { const sc = smartScore;
-    const best = cs.sort((a, b) => sc(b) - sc(a))[0]; if (sc(best) < 1.5 && R.deck.length > 18) return; R.deck.push(mk(best)); R.picks[best] = (R.picks[best] || 0) + 1; return; } if (R.deck.length > 26 && Math.random() < .5) return; const best = cs.sort((a, b) => TIER[CARDS[b].rar] - TIER[CARDS[a].rar] + (CARDS[b].ch ? .5 : 0) - (CARDS[a].ch ? .5 : 0))[0]; R.deck.push(mk(best)); R.picks[best] = (R.picks[best] || 0) + 1; }
+    const best = cs.sort((a, b) => sc(b) - sc(a))[0]; if (sc(best) < W.skip && R.deck.length > 18) return; R.deck.push(mk(best)); R.picks[best] = (R.picks[best] || 0) + 1; return; } if (R.deck.length > 26 && Math.random() < .5) return; const best = cs.sort((a, b) => TIER[CARDS[b].rar] - TIER[CARDS[a].rar] + (CARDS[b].ch ? .5 : 0) - (CARDS[a].ch ? .5 : 0))[0]; R.deck.push(mk(best)); R.picks[best] = (R.picks[best] || 0) + 1; }
 function relic() { let pool = []; for (let k = 0; k < 30 && !pool.length; k++) { const rr = pickOne(['c', 'c', 'c', 'u', 'u', 'r']); pool = Object.values(RELICS).filter(r => r.rar === rr && mine(r) && !has(r.id) && r.id !== 'crown'); } if (!pool.length) pool = Object.values(RELICS).filter(r => r.rar !== 'start' && mine(r) && !has(r.id)); if (!pool.length) return; const r = pickOne(pool); R.relics.push(r.id); if (r.id === 'herb') { R.maxHp += 10; R.hp += 10; } if (r.id === 'crown') { R.maxHp -= 10; R.hp = Math.min(R.hp, R.maxHp); } if (r.id === 'grail') { R.maxHp -= 5; R.hp = Math.min(R.hp, R.maxHp); } }
 const UNLOCKS = [{ cards: ['dual', 'concert'], relics: [] }, { cards: ['shinboku', 'sage'], relics: ['mic'] }, { cards: ['screen', 'distort', 'deadly'], relics: ['pad'] }, { cards: ['thunder'], relics: ['crown', 'feather'] }];
 const LOCK = new Set(UNLOCKS.slice(LOCKLV).flatMap(u => [...u.cards, ...u.relics]));
@@ -301,7 +304,7 @@ function run(char) {
       else if (node === 'elite') { const enc = pickOne(EN.elite); if (!battle(enc, 'elite')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: '精英:' + enc.join('+') }; reward('elite'); relic(); dropPot('elite'); R.gold += Math.round((25 + Math.floor(Math.random() * 11)) * (A_(7) ? .7 : 1)); }
       else if (node === 'boss') { if (DG) DG.bosses++; const bk = pickOne(EN.boss)[0]; if (!battle([bk], 'boss')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: 'Boss:' + bk };
         if (act === 3) { relic(); R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .3)); if (!battle([FINAL3], 'boss')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: 'Boss:' + FINAL3 }; } }
-      else if (node === 'rest') { if (R.hp < R.maxHp * .55) heal(Math.floor(R.maxHp * (A_(5) ? .2 : .3))); else { const c = R.deck.find(c => !c.up && CARDS[c.id].rar !== 'start') || R.deck.find(c => !c.up); if (c) c.up = 1; } }
+      else if (node === 'rest') { if (R.hp < R.maxHp * W.rest) heal(Math.floor(R.maxHp * (A_(5) ? .2 : .3))); else { const c = R.deck.find(c => !c.up && CARDS[c.id].rar !== 'start') || R.deck.find(c => !c.up); if (c) c.up = 1; } }
       else if (node === 'event') event();
       else if (node === 'treasure') relic();
       else if (node === 'shop') shop();
@@ -311,7 +314,7 @@ function run(char) {
 }
 const lines = [`# 平衡测试结果（每个角色每档 N=${N} 局，解锁档 ${LOCKLV}，进阶 ${ASC}，种子 ${SEED0}，commit ${SHA}）`, '', `生成时间：${new Date().toISOString()}`, '', '新手机器人：很少想起用药水、选牌只看稀有度。熟练机器人：会用药水、按角色流派选牌。', ''];
 const diag = [];
-for (const smart of [false, true]) {
+for (const smart of (process.env.SMARTONLY ? [true] : [false, true])) {
   SMART = smart; lines.push(`## ${smart ? '熟练机器人（≈ 真人）' : '新手机器人'}`, '', '| 角色 | 第一章通关 | 第二章通关 | 第三章通关 | 第一章 Boss 战胜率 | 通关剩余生命 | 超时 | 最常死在 |', '|---|---|---|---|---|---|---|---|');
   for (const ch of ['miko', 'hero', 'witch', 'heroine', 'erin', 'gu', 'sylvie', 'mia', 'feiyue'].filter(c => !ONLY || c === ONLY)) {
     let to = 0, w1 = 0, w2 = 0, w3 = 0, hp = 0, rb = 0; const at = {};
@@ -326,4 +329,4 @@ for (const smart of [false, true]) {
 }
 lines.push('诊断（熟练机器人，所有战斗平均）：', '', '| 角色 | 每回合造成伤害 | 每回合格挡挡下 | 每回合掉血 | 每场回合数 | Boss 战回合数 | 结束时牌组张数 | 最常拿的牌 |', '|---|---|---|---|---|---|---|---|', ...diag, '');
 const out = lines.join('\n'); console.log(out);
-import('fs').then(fs => { fs.mkdirSync('data', { recursive: true }); fs.writeFileSync('data/balance.md', out + '\n'); });
+if (!process.env.NOWRITE) import('fs').then(fs => { fs.mkdirSync('data', { recursive: true }); fs.writeFileSync('data/balance.md', out + '\n'); });

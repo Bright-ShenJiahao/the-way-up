@@ -1,0 +1,23 @@
+name: train
+on:
+  workflow_dispatch:
+    inputs:
+      minutes: { description: '每个角色训练多少分钟', default: '55' }
+  push:
+    branches: [preview]
+    paths: ['tools/train.mjs', '.github/workflows/train.yml']
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    strategy:
+      fail-fast: false
+      matrix:
+        ch: [miko, hero, witch, heroine, erin, gu, sylvie, mia, feiyue]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node tools/train.mjs ${{ matrix.ch }} ${{ inputs.minutes || '55' }} | tee -a $GITHUB_STEP_SUMMARY
+      - uses: actions/upload-artifact@v4
+        with: { name: 'train-${{ matrix.ch }}', path: 'data/train_${{ matrix.ch }}.json' }
