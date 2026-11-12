@@ -1113,6 +1113,8 @@ export default {
 "血月当空：不死系敌人力量 +1": "Blood Moon: undead enemies gain 1 Strength",
 "共鸣满 {0} 层时，对该敌人造成 {1} 点伤害，之后保留 {2} 层（多出的层数也保留）。每个敌人第一次被爆音时还会眩晕（跳过下一次行动）。": "At {0} Resonance, the enemy takes {1} damage, then keeps {2} (plus any extra). Each enemy is also Stunned (skips its next action) the first time.",
 "共鸣满 {0} 层时爆炸，造成 {1} 点伤害，之后保留 {2} 层；每个敌人第一次被爆音时还会眩晕。": "At {0} Resonance it explodes for {1} damage, then keeps {2}; each enemy is also Stunned the first time.",
+"回合结束时自动射出，每发对随机敌人造成 {0} 点伤害（第 {1}、{2}、{3}… 发为 {4} 点），然后清零（最多 {5} 发）": "Fired automatically at end of turn; each shot deals {0} damage to a random enemy (shots {1}, {2}, {3}… deal {4}), then resets (max {5})",
+"林拓的掌机子弹。回合结束时自动射出，每发对随机敌人造成 {0} 点伤害（第 {1}、{2}、{3}… 发为 {4} 点），然后清零。最多 {5} 发。": "Lin Tuo's handheld bullets. Fired automatically at end of turn; each shot deals {0} damage to a random enemy (shots {1}, {2}, {3}… deal {4}), then resets. Max {5}.",
 "打击": "Strike",
 "火种": "Ember",
 "水纹": "Ripple",
@@ -2331,5 +2333,6 @@ export default {
 "造成 {0} 点伤害，再加上一轮团子替你挡下的伤害（最多 {1}）。": "Deal {0} damage plus the damage Dango blocked for you last round (up to {1}).",
 "造成 {0} 点伤害；团子的扑击目标改成这个敌人。": "Deal {0} damage. Dango's Pounce target becomes this enemy.",
 "造成 {0} 点伤害；团子的指令改成扑击这个敌人。": "Deal {0} damage. Dango's command becomes Pounce on this enemy.",
-"合体": "Fuse"
+"合体": "Fuse",
+"【猫】造成 {0} 点伤害；合体时再 {1}。": "【Cat】Deal {0} damage; {1} more while fused."
 };

@@ -622,5 +622,13 @@
  "共鸣满 {0} 层时爆炸，造成 {1} 点伤害，之后保留 {2} 层；每个敌人第一次被爆音时还会眩晕。": [
   "At {0} Resonance it explodes for {1} damage, then keeps {2}; each enemy is also Stunned the first time.",
   "共鳴{0}で爆発、{1}ダメージ。その後{2}残る。各敵は初回の爆音で眩暈も受ける。"
+ ],
+ "回合结束时自动射出，每发对随机敌人造成 {0} 点伤害（第 {1}、{2}、{3}… 发为 {4} 点），然后清零（最多 {5} 发）": [
+  "Fired automatically at end of turn; each shot deals {0} damage to a random enemy (shots {1}, {2}, {3}… deal {4}), then resets (max {5})",
+  "ターン終了時に自動発射。1発ごとにランダムな敵へ{0}ダメージ（{1}・{2}・{3}…発目は{4}）、その後リセット（最大{5}発）"
+ ],
+ "林拓的掌机子弹。回合结束时自动射出，每发对随机敌人造成 {0} 点伤害（第 {1}、{2}、{3}… 发为 {4} 点），然后清零。最多 {5} 发。": [
+  "Lin Tuo's handheld bullets. Fired automatically at end of turn; each shot deals {0} damage to a random enemy (shots {1}, {2}, {3}… deal {4}), then resets. Max {5}.",
+  "リン・タクの携帯機の弾。ターン終了時に自動発射。1発ごとにランダムな敵へ{0}ダメージ（{1}・{2}・{3}…発目は{4}）、その後リセット。最大{5}発。"
  ]
 }

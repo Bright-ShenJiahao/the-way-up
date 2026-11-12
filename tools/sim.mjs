@@ -63,8 +63,8 @@ const G = {
   potion(n, id) { const ps = ['p_fire', 'p_frost', 'p_heal', 'p_poison', 'p_boom', 'p_vine']; for (let i = 0; i < n; i++) (B.hand.length < 10 ? B.hand : B.disc).push(mk(id || pickOne(ps))); },
   poison(t, n) { if (!t || t.dead || n <= 0) return; addSt(t, 'poison', n + (has('toad') ? 1 : 0)); },
   volley(clear = true, max = 99) { // 光弹齐射
-    const n = Math.min(max, B.p.st.ammo || 0); if (!n) return; const dmg = 4 + (B.p.st.dual || 0) + (B.p.oc || 0);
-    for (let i = 0; i < n; i++) { const a = alive(); if (!a.length) break; if (B.p.aoe && i < B.p.aoe) a.forEach(e => hurt(e, atkVal(B.p, e, dmg), B.p)); else { const e = pickOne(a); hurt(e, atkVal(B.p, e, dmg), B.p); } }
+    const n = Math.min(max, B.p.st.ammo || 0); if (!n) return; const dmg = 3 + (B.p.st.dual || 0) + (B.p.oc || 0);
+    for (let i = 0; i < n; i++) { const a = alive(); if (!a.length) break; if (B.p.aoe && i < B.p.aoe) a.forEach(e => hurt(e, atkVal(B.p, e, dmg + (i % 2 ? 0 : 1)), B.p)); else { const e = pickOne(a); hurt(e, atkVal(B.p, e, dmg + (i % 2 ? 0 : 1)), B.p); } }
     if (B.p.st.rapid) G.block(B.p.st.rapid * n, true);
     if (clear) { B.shots = (B.shots || 0) + n; if (has('pad')) { B.p.padDraw = Math.floor(B.shots / 4); B.shots %= 4; } addSt(B.p, 'ammo', -Math.min(n, B.p.st.ammo || 0)); }
     },
