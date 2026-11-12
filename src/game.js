@@ -1,8 +1,8 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11130110';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11130110';
-import { createAudio } from './audio.js?v=live2_11130110';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11130110';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11130120';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11130120';
+import { createAudio } from './audio.js?v=live2_11130120';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11130120';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -10,7 +10,8 @@ watch(stage); window.__i18nMissing = missing;
 let SCREEN = 'title';
 const TOUCH = matchMedia('(hover: none), (pointer: coarse)').matches; document.documentElement.classList.toggle('touch', TOUCH);
 /* 卡牌说明放不下时自动缩小字号（最小 8px） */
-const fitCard = c => { const sp = c.querySelector('.cdesc span'), box = c.querySelector('.cdesc'), nm = c.querySelector('.cname'); if (box && sp) { let f = 12; sp.style.fontSize = ''; while (box.scrollHeight > box.clientHeight + 1 && f > 8) { f -= .5; sp.style.fontSize = f + 'px'; } } if (nm) { let f = 14; nm.style.fontSize = ''; while (nm.scrollWidth > nm.clientWidth + 1 && f > 9) { f -= .5; nm.style.fontSize = f + 'px'; } } };
+const fitCard = c => { const sp = c.querySelector('.cdesc span'), box = c.querySelector('.cdesc'), nm = c.querySelector('.cname'); if (box && sp) { if (!box.clientHeight) { if ((c._fr = (c._fr || 0) + 1) < 20) requestAnimationFrame(() => fitCard(c)); return; } let f = 12; sp.style.fontSize = ''; const room = () => box.clientHeight - 6; /* 文字是上下居中的，溢出会两头冒，用文字本身的高度比 */ while (sp.offsetHeight > room() && f > 7) { f -= .5; sp.style.fontSize = f + 'px'; } } if (nm) { let f = 14; nm.style.fontSize = ''; while (nm.scrollWidth > nm.clientWidth + 1 && f > 9) { f -= .5; nm.style.fontSize = f + 'px'; } } };
+try { document.fonts && document.fonts.addEventListener('loadingdone', () => stage.querySelectorAll('.card').forEach(fitCard)); } catch (e) {} addEventListener('resize', () => setTimeout(() => stage.querySelectorAll('.card').forEach(fitCard), 50));
 new MutationObserver(ms => { for (const m of ms) m.addedNodes.forEach(n => { if (n.nodeType !== 1) return; if (n.matches?.('.card')) fitCard(n); n.querySelectorAll?.('.card').forEach(fitCard); }); }).observe(stage, { childList: true, subtree: true });
 addEventListener('error', e => { try { tip(tr('出错了，可以在设置里保存并退出后重新进入') + ' (' + (e.message || '').slice(0, 60) + ')'); } catch (_) {} });
 const LANGS = [['zh', '中文'], ['en', 'English'], ['ja', '日本語']];
@@ -19,7 +20,7 @@ const bindLang = after => view.querySelectorAll('[data-lang]').forEach(el => el.
 const applyStatic = () => { document.title = tr('通往顶端') + ' The Way Up: Otherworld Deck'; const r = document.querySelector('#rot div:nth-child(2)'); if (r) r.textContent = getLanguage() === 'zh' ? '请把手机横过来玩' : tr('请把手机横过来玩'); const r3 = document.querySelector('#rot div:nth-child(3)'); if (r3) r3.style.display = getLanguage() === 'en' ? 'none' : ''; document.documentElement.lang = getLanguage() === 'zh' ? 'zh-CN' : getLanguage(); };
 onLanguageChange(applyStatic); applyStatic();
 const DEBUG = /[?&]debug/.test(location.search) || location.hash === '#debug';
-if (DEBUG) window.__dbg = { get B() { return B; }, get R() { return R; }, act3Choice: () => act3Choice(), riftChoice: () => riftChoice(), finalPrep: () => finalPrep(), endingChoice: () => endingChoice(), startEndless: () => startEndless(), layerEnd: () => layerEnd(), enterNode: k => enterNode(k), mapScreen: () => mapScreen(), newRun: (...a) => newRun(...a), battle: (...a) => battle(...a), playCard: (...a) => playCard(...a), endTurn: () => endTurn(), mkCard: (...a) => mkCard(...a) };
+if (DEBUG) window.__dbg = { get B() { return B; }, get R() { return R; }, act3Choice: () => act3Choice(), riftChoice: () => riftChoice(), finalPrep: () => finalPrep(), endingChoice: () => endingChoice(), startEndless: () => startEndless(), layerEnd: () => layerEnd(), enterNode: k => enterNode(k), mapScreen: () => mapScreen(), newRun: (...a) => newRun(...a), battle: (...a) => battle(...a), playCard: (...a) => playCard(...a), endTurn: () => endTurn(), mkCard: (...a) => mkCard(...a), chooseCard: (...a) => chooseCard(...a) };
 const audio = createAudio();
 let SET = { shake: 1, fast: 0, kwtip: 1 }; try { Object.assign(SET, JSON.parse(localStorage.getItem('tw_set') || '{}')); } catch (e) {}
 const saveSet = () => { try { localStorage.setItem('tw_set', JSON.stringify(SET)); } catch (e) {} };
