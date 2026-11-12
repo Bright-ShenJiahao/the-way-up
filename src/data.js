@@ -1,5 +1,5 @@
-import { tr } from './i18n.js?v=live2_11121345';
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11121345';
+import { tr } from './i18n.js?v=live2_11121520';
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11121520';
 export { MECH, NEWKEYW, OLDKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
@@ -273,7 +273,7 @@ export const RELICS = {
   cauldron: { noart: 1, ch: 'witch', name: '魔女的坩埚', icon: 'pot', rar: 'start', desc: '战斗开始时随机获得 1 个炼金瓶。战斗结束时回复 4 点生命。' },
   toad: { noart: 1, ch: 'witch', name: '蟾蜍干', icon: 'b_curse', rar: 'c', desc: '每次给予中毒时，额外 +1 层。' },
   hat: { noart: 1, ch: 'witch', name: '魔女帽', icon: 'sk_shadow', rar: 'u', desc: '每使用 1 个炼金瓶，获得 2 点格挡。' },
-  suzu: { noart: 1, ch: 'miko', name: '神乐铃', icon: 'ic_bell', rar: 'start', desc: '战斗开始时结界 +3。战斗结束时回复 4 点生命。' },
+  suzu: { noart: 1, ch: 'miko', name: '神乐铃', icon: 'ic_bell', rar: 'start', desc: '战斗开始时结界 +5。战斗结束时回复 4 点生命。' },
   omamori: { noart: 1, ch: 'miko', name: '御守', icon: 'm_ward', rar: 'c', desc: '每场战斗开始时，结界 +2。' },
   hamaya: { noart: 1, ch: 'miko', name: '破魔矢', icon: 'ic_bow', rar: 'u', desc: '回合开始时，若结界不少于 4 层，抽 1 张牌。' },
   spare: { noart: 1, ch: 'hero', name: '备用电池', icon: 'ic_crystal', rar: 'c', desc: '每回合开始时，额外得到 1 发光弹。' },
@@ -331,7 +331,7 @@ export const STATUS = {
   regen: ['再生', '回合结束回复生命', '#50d080'], enrage: ['激怒', '你每打出一张技能牌，它获得力量', '#ff7030'],
   ritual: ['战意', '回合结束获得力量', '#ff9050'], fuse: ['引信', '归零时自爆', '#ffcc00'],
   intang: ['虚化', '受到的伤害减半，轮到它行动时消失', '#a8f0ff'],
-  ammo: ['光弹', '回合结束时自动射出，每发对随机敌人造成 4 点伤害，然后清零（最多 10 发）', '#60d0ff'], res: ['共鸣', '叠到 10 层时爆音，造成 16 点伤害（每个敌人第一次被爆音时还会眩晕），之后保留 3 层（多出的也保留）', '#ff80c0'],
+  ammo: ['光弹', '回合结束时自动射出，每发对随机敌人造成 3 点伤害，然后清零（最多 10 发）', '#60d0ff'], res: ['共鸣', '叠到 10 层时爆音，造成 16 点伤害（每个敌人第一次被爆音时还会眩晕），之后保留 3 层（多出的也保留）', '#ff80c0'],
   gen: ['扩容', '回合开始得到光弹', '#60d0ff'], rapid: ['连发', '回合结束射出光弹时获得格挡', '#60d0ff'], dual: ['双持', '每发光弹伤害增加', '#60d0ff'],
   lowf: ['低频', '回合开始给所有敌人共鸣', '#ff80c0'], dist: ['失真', '爆音后多保留 3 层共鸣，爆音伤害 +8', '#ff80c0'], concert: ['演唱会', '出牌时给所有敌人共鸣', '#ff80c0'],
   kek: ['结界', '回合开始时按层数获得格挡', '#ffd060'], kagura: ['神乐舞', '回合开始结界 +1', '#ffd060'], shinboku: ['御神木', '结界格挡翻倍', '#ffd060'],

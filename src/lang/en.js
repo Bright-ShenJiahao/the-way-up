@@ -2320,7 +2320,7 @@ export default {
 "扑击附带 1 层虚弱": "Pounce also applies 1 Weak",
 "每场第一回合团子额外扑击一次": "Dango pounces an extra time on each combat's first turn",
 "心灵相通": "Kindred Hearts",
-"合体时每回合格挡从 5 变 8": "While fused, Block each turn goes from 5 to 8",
+"合体时每回合格挡从 3 变 6": "While fused, Block each turn goes from 3 to 6",
 "九命猫": "Nine-Lived Cat",
 "每场第一次倒地时以 5 生命站起来": "The first time each combat Dango falls, it gets back up with 5 HP",
 "猫之馈赠": "Cat's Gift",

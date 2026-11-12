@@ -115,7 +115,7 @@ const GU = {
 
 /* ======================= 希尔薇 · 龙血 / 霜龙形态 =======================
    龙血最多 8 点。攒满 8 点后点「变身」：霜龙形态持续本回合和接下来两个回合（每场最多 2 次），变身时花光龙血。
-   霜龙形态：变身时对所有敌人造成 10 点伤害；攻击牌的第一击 +6；每个敌方回合第一段打穿格挡的伤害 -4。退形后虚弱 1。
+   霜龙形态：变身时对所有敌人造成 14 点伤害；攻击牌的第一击 +8；每个敌方回合第一段打穿格挡的伤害 -4。退形后虚弱 1。
    每张牌都有人形和【龙】形两种效果：龙形下攻击更强、格挡更弱，得到龙血改为对所有敌人每点 2 伤害。
    两种打法：变身——攒满就变，三回合打爆发；人形——花龙血换格挡和霜灼。 */
 const dr = g => !!P(g).st.dragon;
@@ -148,7 +148,7 @@ const SYL = {
 
 /* ======================= 米娅 · 云猫团子 =======================
    团子第一章 1 级、第二章 2 级。分离时每回合免费下一个指令：护卫（替米娅挡下一次攻击的前 8 点）或扑击（回合结束攻击目标）。
-   界面上的「合体 / 分离」按钮每回合可以免费切换一次。合体时团子不在场、每回合回复 3 生命；【猫】牌合体时更强。米娅攻击 + 团子攻击力的一半，每回合开始 5 点格挡。
+   界面上的「合体 / 分离」按钮每回合可以免费切换一次。合体时团子不在场、每回合回复 2 生命；【猫】牌合体时更强。米娅攻击 + 团子攻击力的一半，每回合开始 3 点格挡。
    驯养牌给团子的强化本场有效；灵魂恩赐（打完精英或 Boss 三选一）整局有效。 */
 function catDid(g, k) { const p = P(g), c = p.cat; if (c.did[k]) return; c.did[k] = 1; if (p.st.mjump) g.block(p.st.mjump, true); if (Object.keys(c.did).length >= 2 && g.has('lynx') && !p.lynxU) { p.lynxU = 1; p.lynxD = 1; } }
 const CATLV = [null, { max: 16, atk: 7 }, { max: 21, atk: 9 }, { max: 26, atk: 11 }];
@@ -156,7 +156,7 @@ const cat = g => P(g).cat;
 function catFall(g) { const p = P(g), c = cat(g); c.hp = 0; c.merged = 0; if (c.hold) { c.hold = 0; c.hp = 6; g.note('团子又站起来了'); return; } if (hasBoon(g, 'nine') && !p.nineB) { p.nineB = 1; c.hp = 5; g.note('九命猫：团子又站起来了'); return; } c.down = 1; g.note('团子倒下了'); }
 const merged = g => { const c = cat(g); return !!(c && !c.down && c.merged); };
 function setForm(g, f) { const c = cat(g); if (!c || c.down) return; const m = f === 'cat' ? 1 : 0; if (!!c.merged !== !!m) { c.merged = m; g.note(m ? '合体！' : '分离'); } }
-const BOONS = { claw: ['利爪', '团子攻击 +2'], fur: ['厚毛', '团子生命上限 +6'], guard: ['守护本能', '护卫多挡 4 点'], hunt: ['猎手', '扑击附带 1 层虚弱'], agile: ['敏捷', '每场第一回合团子额外扑击一次'], heart: ['心灵相通', '合体时每回合格挡从 5 变 8'], nine: ['九命猫', '每场第一次倒地时以 5 生命站起来'], gift: ['猫之馈赠', '战斗胜利时团子在场，额外 +5 金币'] };
+const BOONS = { claw: ['利爪', '团子攻击 +2'], fur: ['厚毛', '团子生命上限 +6'], guard: ['守护本能', '护卫多挡 4 点'], hunt: ['猎手', '扑击附带 1 层虚弱'], agile: ['敏捷', '每场第一回合团子额外扑击一次'], heart: ['心灵相通', '合体时每回合格挡从 3 变 6'], nine: ['九命猫', '每场第一次倒地时以 5 生命站起来'], gift: ['猫之馈赠', '战斗胜利时团子在场，额外 +5 金币'] };
 const hasBoon = (g, k) => (g.R.boons || []).includes(k);
 const catGuarded = g => { const c = cat(g); return !!(c && !c.down && (c.took || 0) > 0); }; /* 上一轮护卫时真的挡下过伤害 */
 const catUp = g => cat(g) && !cat(g).down;
@@ -414,7 +414,7 @@ export const NEWSTATUS = {
   
   sword: ['飞剑', '每把让攻击牌的第一击 +1 伤害，回合结束每 2 把给 1 点格挡；可以射出（最多 6 把）', '#9fd8ff'], swordgen: ['剑阵', '每回合开始得到 1 把飞剑', '#9fd8ff'], zen: ['剑心通明', '每把飞剑的第一击加成变成 +2', '#9fd8ff'], 
   gflow: ['剑气护体', '回合结束时每把飞剑给 1 点格挡', '#9fd8ff'], grev: ['剑意循环', '每射出 1 把飞剑抽 1 张牌（每回合最多 3 张）；飞剑归零时再得到 2 把', '#9fd8ff'], dualst: ['剑意', '每回合第一次射出飞剑后得到 1 点能量', '#9fd8ff'],
-  dblood: ['龙血', '攒满 8 点后可以变身霜龙', '#ff9090'], dragon: ['霜龙形态', '变身时对所有敌人造成 10 点伤害；攻击牌第一击 +6；每个敌方回合第一段打穿格挡的伤害 -4。数字是剩余回合', '#c8f0ff'],
+  dblood: ['龙血', '攒满 8 点后可以变身霜龙', '#ff9090'], dragon: ['霜龙形态', '变身时对所有敌人造成 14 点伤害；攻击牌第一击 +8；每个敌方回合第一段打穿格挡的伤害 -4。数字是剩余回合', '#c8f0ff'],
   dbgen: ['冰晶脊', '每回合开始得到 1 点龙血', '#ff9090'], dscale: ['龙鳞', '霜龙形态下每回合开始获得格挡', '#c8f0ff'], dheart: ['龙心', '变身时得到 2 点能量并抽 1 张牌', '#c8f0ff'], perma: ['永冻', '龙血满 8 点时攻击牌第一击额外加成', '#a8e8ff'],
   aval: ['雪崩之心', '每花掉 1 点龙血获得 1 点格挡；变身时获得 8 点格挡', '#a8e8ff'], wake: ['冬眠苏醒', '退出霜龙形态时得到龙血并抽牌', '#a8e8ff'],
   mbond: ['羁绊', '每回合开始团子回血', '#ffc0e0'], mpact: ['守护契约', '团子挡下的伤害一半变成米娅的格挡', '#ffc0e0'], mjump: ['练习跳台', '每种指令第一次执行时获得格挡', '#ffc0e0'], mgate: ['云猫守门', '团子护卫多挡 3 点，受伤后下回合抽牌', '#ffc0e0'],
@@ -460,7 +460,7 @@ export const MECH = {
     if (p.st.dscale && p.st.dragon) g.block(p.st.dscale, true);
     if (p.st.mbond && p.cat) healCat(g, p.st.mbond);
     if (p.st.batgen) addBats(g, p.st.batgen);
-    if (merged(g)) { healCat(g, 3); g.block((hasBoon(g, 'heart') ? 8 : 5) + (p.st.wild > 1 ? 3 : 0), true); }
+    if (merged(g)) { healCat(g, 2); g.block((hasBoon(g, 'heart') ? 6 : 3) + (p.st.wild > 1 ? 3 : 0), true); }
     if (p.st.nshade) { const a = g.alive(); if (a.length) g.poison(a.reduce((m, e) => (e.st.poison || 0) > (m.st.poison || 0) ? e : m, a[0]), p.st.nshade); }
     if (p.st.dragon && !first) { p.st.dragon--; if (!p.st.dragon) { delete p.st.dragon; if (g.has('dayscale') && !p.dsU) { p.dsU = 1; gainDB(g, 3); } else g.self('weak', 1); if (p.st.wake) { gainDB(g, 4); g.draw(2); if (p.st.wake > 1) g.energy(1); } } }
     if (p.manualD) { g.draw(2); p.manualD = 0; }
@@ -504,7 +504,7 @@ export const MECH = {
     if (e.st.para) { delete e.st.para; e.cutH = 1; }
     if (e.st.awe) { delete e.st.awe; e.cutS = 5; } },
   /* 攻击牌第一击的加成 */
-  firstHit(g) { const p = P(g); let b = (p.st.sword || 0) * (p.st.zen ? 2 : 1) + (p.st.dragon ? 6 : 0) + (p.fhx || 0) + (merged(g) ? (p.st.wild ? p.cat.atk : Math.floor(p.cat.atk / 2)) : 0) + (p.st.bloodlust ? Math.floor((p.lostF || 0) / 10) : 0); p.fhx = 0; return b; },
+  firstHit(g) { const p = P(g); let b = (p.st.sword || 0) * (p.st.zen ? 2 : 1) + (p.st.dragon ? 8 : 0) + (p.fhx || 0) + (merged(g) ? (p.st.wild ? p.cat.atk : Math.floor(p.cat.atk / 2)) : 0) + (p.st.bloodlust ? Math.floor((p.lostF || 0) / 10) : 0); p.fhx = 0; return b; },
   costMod(g, d) { const p = P(g); return d.invoke && g.has('oldstaff') && !p.staffU ? -1 : 0; },
   postPlay(g, d) { const p = P(g);
     if (d.invoke && g.has('oldstaff')) p.staffU = 1;
@@ -536,7 +536,7 @@ export const MECH = {
   act(g, id, val) { const p = P(g), c = p.cat;
     if (id === 'merge' && c && !c.down && !p.mergeT) { p.mergeT = 1; setForm(g, c.merged ? 'hum' : 'cat'); return; }
     if (id.startsWith('cmd_') && c && !c.down) { const k = id.slice(4); if (c.set && c.cmd !== k) return; if (k === 'pounce' && val == null) return 'enemy'; c.cmd = k; c.set = 1; if (k === 'pounce') c.pt = val; return; }
-    if (id === 'drake' && (p.st.dblood || 0) >= 8 && !p.st.dragon && (p.drN || 0) < 2) { p.st.dragon = 3; delete p.st.dblood; p.drN = (p.drN || 0) + 1; g.alive().forEach(e => { if (e.st.fburn) e.st.fburn *= 2; }); if (p.st.aval) g.block(8, true); if (p.st.dheart) { g.energy(p.st.dheart); g.draw(1); } if (g.has('horn') && !p.hornU) { p.hornU = 1; g.block(8, true); } g.attackAll(10); g.note('霜龙形态！'); return; } },
+    if (id === 'drake' && (p.st.dblood || 0) >= 8 && !p.st.dragon && (p.drN || 0) < 2) { p.st.dragon = 3; delete p.st.dblood; p.drN = (p.drN || 0) + 1; g.alive().forEach(e => { if (e.st.fburn) e.st.fburn *= 2; }); if (p.st.aval) g.block(8, true); if (p.st.dheart) { g.energy(p.st.dheart); g.draw(1); } if (g.has('horn') && !p.hornU) { p.hornU = 1; g.block(8, true); } g.attackAll(14); g.note('霜龙形态！'); return; } },
   /* 机器人用的按钮策略 */
   bot(g, incoming) { const p = P(g), c = p.cat, a = g.alive(); if (!a.length) return;
     if (c && !c.down && !p.mergeT) { const catN = g.hand.filter(x => (CARDS_[x.id] || {}).form === 'cat').length; if (!c.merged && (c.hp * 10 < c.max * 4 || catN >= 2)) MECH.act(g, 'merge'); else if (c.merged && c.hp * 10 >= c.max * 8 && catN === 0) MECH.act(g, 'merge'); }
