@@ -313,7 +313,7 @@ const lines = [`# 平衡测试结果（每个角色每档 N=${N} 局，解锁档
 const diag = [];
 for (const smart of [false, true]) {
   SMART = smart; lines.push(`## ${smart ? '熟练机器人（≈ 真人）' : '新手机器人'}`, '', '| 角色 | 第一章通关 | 第二章通关 | 第三章通关 | 第一章 Boss 战胜率 | 通关剩余生命 | 超时 | 最常死在 |', '|---|---|---|---|---|---|---|---|');
-  for (const ch of ['miko', 'hero', 'witch', 'heroine', 'erin', 'gu', 'sylvie', 'mia', 'feiyue', 'dev'].filter(c => !ONLY || c === ONLY)) {
+  for (const ch of ['miko', 'hero', 'witch', 'heroine', 'erin', 'gu', 'sylvie', 'mia', 'feiyue'].filter(c => !ONLY || c === ONLY)) {
     let to = 0, w1 = 0, w2 = 0, w3 = 0, hp = 0, rb = 0; const at = {};
     DG = smart ? { dm: 0, bl: 0, tk: 0, turns: 0, fights: 0, bt: 0, bosses: 0, deck: 0, pk: {} } : null;
     for (let i = 0; i < N; i++) { seedS = SEED0 * 7919 + i * 104729 + (smart ? 1 : 0); const r = run(ch); if (DG) { DG.deck += R.deck.length; for (const c of R.deck) if (CARDS[c.id].rar !== 'start') DG.pk[c.id] = (DG.pk[c.id] || 0) + 1; } const ok1 = r.win || r.act >= 2; if (ok1) w1++; if (r.win || r.act === 3) w2++; if (ok1 || (r.act === 1 && (r.at || '').startsWith('Boss'))) rb++; if (r.win) { w3++; hp += r.hp; } else if (r.to) to++; else { const k = ['', '一·', '二·', '三·'][r.act] + r.at; at[k] = (at[k] || 0) + 1; } }
