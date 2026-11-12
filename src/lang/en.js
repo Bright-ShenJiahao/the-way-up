@@ -683,7 +683,7 @@ export default {
 "火球": "Fireball",
 "邪火": "Hex Fire",
 "乱投": "Pelt",
-"蓄力": "Wind Up",
+"蓄力": "Charge",
 "暗影弹": "Shadow Bolt",
 "诅咒": "Curse",
 "治疗图腾": "Healing Totem",
@@ -2657,5 +2657,12 @@ export default {
 "第 {0} 轮通过": "Round {0} cleared",
 "在天外之塔爬到了第 {0} 轮。": "Reached round {0} of the Sky Tower.",
 "无尽轮数 ({0})": "Endless rounds ({0})",
-"受到的每次攻击伤害减少等同层数（最多减一半）；一次受到 {0} 点以上的攻击会打碎 {1} 层": "Each attack's damage is reduced by the stack count (at most halved); a hit of {0}+ breaks {1} stack"
+"受到的每次攻击伤害减少等同层数（最多减一半）；一次受到 {0} 点以上的攻击会打碎 {1} 层": "Each attack's damage is reduced by the stack count (at most halved); a hit of {0}+ breaks {1} stack",
+"敌人受到的每次攻击伤害减少等同层数（最多减一半）；一次受到 {0} 点以上的攻击会打碎 {1} 层。": "Each attack an enemy takes is reduced by the stack count (at most halved); a hit of {0}+ breaks {1} stack.",
+"回合结束时，手里每剩 {0} 张牌失去 {1} 生命（最多按层数算），然后减 {2} 层。": "At end of turn, lose {1} HP for every {0} card left in hand (up to the stack count), then reduce by {2}.",
+"回合结束时失去等同层数的生命，然后减 {0} 层。": "At end of turn, lose HP equal to stacks, then reduce by {0}.",
+"回合开始时少 {0} 点能量，然后减 {1} 层。": "Start of turn: {0} less energy, then reduce by {1}.",
+"龙下回合要放龙息。蓄力的那个回合里打它足够多的伤害，就能打断。": "The dragon will breathe next turn. Deal enough damage to it during the charge turn to interrupt.",
+"补丁": "Patch",
+"这张牌本场伤害或格挡增加，牌面显示版本号。": "This card's damage or Block is increased for this combat; the card shows a version number."
 };

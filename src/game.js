@@ -1,8 +1,8 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul } from './data.js?v=live2_11122345';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11122345';
-import { createAudio } from './audio.js?v=live2_11122345';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11122345';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul } from './data.js?v=live2_11121710';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11121710';
+import { createAudio } from './audio.js?v=live2_11121710';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11121710';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -41,7 +41,7 @@ stage.addEventListener('scroll', () => { stage.scrollTop = 0; stage.scrollLeft =
 
 // ---------- 局 ----------
 let TIPS = true; try { TIPS = localStorage.getItem('tipsOff') !== '1'; } catch (e) {}
-const KW = { '狡诈': '这张牌被弃掉时，会自动免费打出。', '格挡': '抵挡受到的伤害。你的回合开始时清零。', '易伤': '受到的攻击伤害 +50%，每回合减 1 层。', '虚弱': '造成的攻击伤害 -25%，每回合减 1 层。',
+const KW = { '鳞甲': '敌人受到的每次攻击伤害减少等同层数（最多减一半）；一次受到 10 点以上的攻击会打碎 1 层。', '冻伤': '回合结束时，手里每剩 1 张牌失去 1 生命（最多按层数算），然后减 1 层。', '灼烧': '回合结束时失去等同层数的生命，然后减 1 层。', '麻痹': '回合开始时少 1 点能量，然后减 1 层。', '蓄力': '龙下回合要放龙息。蓄力的那个回合里打它足够多的伤害，就能打断。', '补丁': '这张牌本场伤害或格挡增加，牌面显示版本号。', '狡诈': '这张牌被弃掉时，会自动免费打出。', '格挡': '抵挡受到的伤害。你的回合开始时清零。', '易伤': '受到的攻击伤害 +50%，每回合减 1 层。', '虚弱': '造成的攻击伤害 -25%，每回合减 1 层。',
   '力量': '每次攻击伤害增加等同于力量的数值。', '敏捷': '每次获得格挡时额外增加等同于敏捷的数值。', '消耗': '打出后移出本场战斗，不进弃牌堆。',
   '荆棘': '被攻击时，对攻击者造成等同于层数的伤害。', '能量': '出牌要花能量，每回合开始恢复为 3 点。',
   '光弹': '林拓的掌机子弹。回合结束时自动射出，每发对随机敌人造成 3 点伤害（第 1、3、5… 发为 4 点），然后清零。最多 8 发。', '共鸣': '叠在敌人身上，到 10 层自动爆音。', '中毒': '敌人行动前受到等同层数的伤害（无视格挡），然后减 1 层。', '炼金瓶': '魔女的 0 费一次性牌，由其他牌生成，用完消耗。', '药水': '所有角色通用的一次性道具，最多带 3 瓶，战斗中点左上角的药水就能用，不花能量。', '结界': '叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。', '爆音': '共鸣满 10 层时，对该敌人造成 16 点伤害，之后保留 3 层（多出的层数也保留）。每个敌人第一次被爆音时还会眩晕（跳过下一次行动）。' };
@@ -113,7 +113,7 @@ function bindTop() {
   $('#tbmute')?.addEventListener('click', () => { dispatchEvent(new KeyboardEvent('keydown', { key: 'm' })); setTimeout(() => { const b = $('#tbmute'); if (b) b.textContent = audio.muted ? '🔇' : '🔊'; }, 30); });
 }
 const BGS = ['battle_forest', 'battle_birch', 'battle_castle'];
-const bgHTML = (dim, img = (typeof R !== 'undefined' && R && R.act === 2) ? 'c2_exterior' : 'battle_forest') => `<div class="bg ${dim ? 'dim' : ''}"><img class="full px" src="assets/bg/${img}.jpg"><div class="light"></div><div class="vig"></div></div>`;
+const bgHTML = (dim, img = (typeof R !== 'undefined' && R && R.act >= 3) ? 'c3_battle' : (typeof R !== 'undefined' && R && R.act === 2) ? 'c2_exterior' : 'battle_forest') => `<div class="bg ${dim ? 'dim' : ''}"><img class="full px" src="assets/bg/${img}.jpg"><div class="light"></div><div class="vig"></div></div>`;
 const foreHTML = () => `<div id="fore"><img src="assets/fg/bush.png" style="left:-90px;bottom:-70px;width:400px"><img src="assets/fg/fern.png" style="right:-80px;bottom:-60px;width:360px"></div>`;
 
 // ---------- 卡牌显示 ----------
@@ -382,7 +382,7 @@ function battle(keys, kind) {
   preloadExtra(R.char);
   hst = { n: 'idle', t: performance.now() };
   if (kind === 'fight' && R.trials && R.trials.includes('swarm') && keys.length < 4) keys = [...keys, 'd_egg'];
-  const bg = ACT() >= 3 ? (kind === 'boss' ? 'c2_hall' : pickOne(['c2_exterior', 'c2_crypt'])) : ACT() === 2 ? (kind === 'boss' ? 'c2_hall' : pickOne(['c2_exterior', 'c2_crypt'])) : kind === 'boss' ? 'battle_castle' : pickOne(BGS);
+  const bg = ACT() >= 3 ? (kind === 'boss' ? 'c3_hall' : 'c3_battle') : ACT() === 2 ? (kind === 'boss' ? 'c2_hall' : pickOne(['c2_exterior', 'c2_crypt'])) : kind === 'boss' ? 'battle_castle' : pickOne(BGS);
   B = { kind, bg, en: keys.map(mkEnemy), p: { block: 0, energy: 0, st: {}, noDraw: 0 }, draw: shuffle(R.deck.map(c => ({ ...c }))), hand: [], disc: [], exh: [], turn: 0, atkCnt: 0, sel: -1, busy: false, fx: [], over: false };
   setMusic(kind === 'boss' ? 'boss' : kind === 'elite' ? 'elite' : 'battle'); setTimeout(() => B && B.en[0] && gv(B.en[0], 'laugh'), 500); if (kind === 'boss') audio.boss();
   if (has('charm')) B.p.st.str = 1; if (has('lantern')) B.p.st.dex = (B.p.st.dex || 0) + 1;
@@ -629,7 +629,7 @@ function eFrame(e) {
   if (e.dead) return `assets/enemies2/${ENEMIES[e.key].deadArt && !e.art ? ENEMIES[e.key].deadArt : k}/${(a && a.n === 'down' && dt < 260) ? 'down0' : 'down1'}.png`;
   if (a && a.n === 'atk' && dt < 420) return `assets/enemies2/${k}/${a.f ? a.f[Math.min(a.f.length - 1, Math.floor(dt / 210))] : dt < 160 ? 'atk0' : 'atk1'}.png`;
   if (a && a.n === 'hurt' && dt < 320) return `assets/enemies2/${k}/hurt0.png`;
-  if (e.pose && ENEMIES[e.key].hd && e.pose !== 'stun') return `assets/enemies2/${k}/${e.pose}.png`;
+  if (e.pose && ENEMIES[e.key].hd) return `assets/enemies2/${k}/${e.pose}.png`;
   return `assets/enemies2/${k}/${ONEIDLE.has(k) ? 'idle0' : 'idle' + (Math.floor(now / 480) % 2)}.png`;
 }
 const CHARS = { hero: { dir: 'hero2', name: '穿越者 · 林拓', h: 241, desc: '掌机 · 光弹' }, witch: { dir: 'witch2', name: '魔女 · 莉泽', h: 235, desc: '炼金瓶 · 剧毒' }, miko: { dir: 'miko2', name: '巫女 · 千早', h: 257, desc: '和弓 · 结界' }, heroine: { dir: 'heroine2', name: '穿越者 · 苏音', h: 251, desc: '耳机 · 音波', idle: [0, 3], idleMs: 520 }, erin: { dir: 'erin', name: '元素使 · 艾琳', h: 276, desc: '法杖 · 元素', temp: 1, idle: [0, 3], idleMs: 650 }, gu: { dir: 'gu', name: '剑客 · 顾清寒', h: 297, desc: '长剑 · 飞剑', temp: 1, idle: [0, 3], idleMs: 650 }, sylvie: { dir: 'sylvie', name: '霜龙裔 · 希尔薇', h: 270, desc: '冰枪 · 变身', temp: 1, idle: [0, 3], idleMs: 650 }, mia: { dir: 'mia', name: '猫耳族 · 米娅', h: 263, desc: '魔杖 · 云猫', temp: 1, idle: [0, 3], idleMs: 650 }, feiyue: { dir: 'feiyue', name: '半吸血鬼 · 绯月', h: 257, desc: '血爪 · 蝙蝠', temp: 1, idle: [0, 3], idleMs: 650 } };
@@ -923,7 +923,7 @@ function rewardScreen() { /* 战利品先存进存档（R.loot），刷新页面
 // ---------- 营火 ----------
 function restScreen() {
   const heal = Math.floor(R.maxHp * ((A_(5) ? .2 : .3) - (R.trials && R.trials.includes('hunger') ? .15 : 0))) + (has('stove') ? 10 : 0);
-  view.innerHTML = `${bgHTML(false, 'c' + Math.min(2, ACT()) + '_rest')}${topBar()}<div class="panel"><h2>营火</h2><p>篝火噼啪作响，难得的安宁。</p><div class="row">
+  view.innerHTML = `${bgHTML(false, 'c' + Math.min(3, ACT()) + '_rest')}${topBar()}<div class="panel"><h2>营火</h2><p>篝火噼啪作响，难得的安宁。</p><div class="row">
    <button class="btn" id="rest">休息：回复 ${heal} 生命</button><button class="btn" id="smith" ${R.deck.some(c => !c.up) ? '' : 'disabled'}>锻造：升级一张牌</button></div></div>`;
   bindTop();
   $('#rest').onclick = () => { R.hp = Math.min(R.maxHp, R.hp + heal); audio.holy(); mapScreen(); };
@@ -949,7 +949,7 @@ function shopScreen() {
   const pots = [rollPotion(), rollPotion()].map(id => ({ id, p: id === 'fairy' ? 120 : rnd(45, 60) }));
   let removed = false;
   const draw = () => {
-    view.innerHTML = `${bgHTML(false, 'c' + Math.min(2, ACT()) + '_shop')}${topBar()}<div class="panel" style="top:53%;width:1000px;padding:14px 26px"><h2 style="margin-bottom:8px">哥布林商人</h2>
+    view.innerHTML = `${bgHTML(false, 'c' + Math.min(3, ACT()) + '_shop')}${topBar()}<div class="panel" style="top:53%;width:1000px;padding:14px 26px"><h2 style="margin-bottom:8px">哥布林商人</h2>
      <div class="row" style="flex-wrap:nowrap">${cards.map((x, i) => `<div class="shopitem" data-c="${i}">${x.c ? cardHTML(x.c) : '<div style="width:129px;height:181px"></div>'}<span class="price ${x.p > R.gold ? 'no' : ''}">${x.c ? '● ' + x.p : '已售出'}</span></div>`).join('')}</div>
      <div class="row" style="margin-top:14px">${rels.map((x, i) => `<div class="relicbig" data-r="${i}" title="${x.id ? esc(RELICS[x.id].desc) : ''}">${x.id ? `<img src="${RELICS[x.id].img}">${RELICS[x.id].name}<span class="price ${x.p > R.gold ? 'no' : ''}">● ${x.p}</span>` : '已售出'}</div>`).join('')}
 ${pots.map((x, i) => `<div class="relicbig" data-pt="${i}" title="${x.id ? esc(POTIONS[x.id].desc) : ''}">${x.id ? `<img src="${POTIONS[x.id].img}">${POTIONS[x.id].name}<span class="price ${x.p > R.gold ? 'no' : ''}">● ${x.p}</span>` : '已售出'}</div>`).join('')}
@@ -1027,12 +1027,12 @@ function act3Choice() { sting('act2', 2600);
    <p>${t('古堡的血月熄灭了，被关押的村民们重获自由。')}</p><p>${t('可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。')}</p><p style="color:#a8dcff">${t('进入第三章：永冬之巅（回复 50% 生命）')}</p>
    <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="go3">${t('前往雪山')}</button><button class="btn" id="end2">${t('到此为止')}</button></div></div>`;
   $('#go3').onclick = () => { delete R.wait; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; R.act = 3; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .5)); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = ENC3.boss[0][0];
-    save(); story('story_road', ['古堡后面的山路，一直通向终年不化的雪峰。', '风里传来龙的长啸，一声接着一声。', '“那双紫色的眼睛……就在山顶。”'], mapScreen); };
+    save(); story('story_snow', ['古堡后面的山路，一直通向终年不化的雪峰。', '风里传来龙的长啸，一声接着一声。', '“那双紫色的眼睛……就在山顶。”'], mapScreen); };
   $('#end2').onclick = () => { delete R.wait; clearSave(); story('story_end2', END2(), () => story('story_party', ['天亮了。大家并肩站在晨光里，笑得满脸是灰。', '“走吧，往上。”'], () => endScreen(true))); };
 }
 function finalPrep() {
   B = null; R.wait = 'final'; save(); setMusic('menu');
-  view.innerHTML = `${bgHTML(false, 'story_road')}<div class="panel" style="width:760px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('山顶')}</h2>
+  view.innerHTML = `${bgHTML(false, 'story_gate')}<div class="panel" style="width:760px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('山顶')}</h2>
    <p>${t('开发者让开了路，嘴里还在嘀咕着数值。')}</p><p>${t('风雪的尽头，一条银白的巨龙伏在发光的门前。')}</p><p style="color:#a8dcff">${t('回复 30% 生命')}</p>
    <div class="row" style="justify-content:center;margin-top:14px"><button class="btn gold" id="gof">${t('登顶')}</button></div></div>`;
   $('#gof').onclick = () => { delete R.wait; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .3)); R.floor++; R.pending = 'final'; snap(); save(); enterNode('final'); };
@@ -1040,10 +1040,10 @@ function finalPrep() {
 const CH3END = { hero: '存档……保存好了。下次再来，我还带掌机。', heroine: '回去以后，我想把这一路的声音写成歌。', miko: '神社的铃铛响了……我到家了。', witch: '你们走吧。村子……我会替你们守着的。', erin: '火、水、风……都归于平静了。', gu: '剑收入鞘。这一程，走完了。', sylvie: '我不是龙，也不只是人。我是你们的同伴。', mia: '团子，我们也回家吧喵。', feiyue: '天亮了。……原来我也能站在太阳底下。', dev: '这一关，总算是通了。下个版本见。' };
 function endingChoice() {
   B = null; R.wait = 'ending'; save(); setMusic('menu'); sting('act2', 2600);
-  view.innerHTML = `${bgHTML(false, 'story_end2')}<div class="panel" style="width:780px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('门亮了起来')}</h2>
+  view.innerHTML = `${bgHTML(false, 'story_gate')}<div class="panel" style="width:780px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('门亮了起来')}</h2>
    <p>${t('紫瞳霜龙倒下了。门的对面，是放学路上的那条街。')}</p><p>${t('门的上方，还有一节台阶。')}</p>
    <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="home">${t('回家')}</button><button class="btn" id="up">${t('继续往上（无尽模式）')}</button></div></div>`;
-  $('#home').onclick = () => { delete R.wait; R.home = 1; clearSave(); story('story_party', ['门对面，是放学路上的那条街。', '大家互相看了一眼，谁也没先迈步。', '“……走吧，回家。”'], () => endScreen(true)); };
+  $('#home').onclick = () => { delete R.wait; R.home = 1; clearSave(); story('story_home', ['门对面，是放学路上的那条街。', '大家互相看了一眼，谁也没先迈步。', '“……走吧，回家。”'], () => endScreen(true)); };
   $('#up').onclick = () => { delete R.wait; startEndless(); };
 }
 function startEndless() { R.act = 4; R.endless = 1; R.rows = 8; R.trials = []; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; newLayer(); }
@@ -1085,7 +1085,7 @@ function endScreen(win) {
   if (!DEBUG) { M.xp += total; if (win && ACT() >= 2 && (R.asc || 0) >= (M.asc[R.char] || 0) && (M.asc[R.char] || 0) < 8) { M.asc[R.char] = (R.asc || 0) + 1; news.push(`${CHARS[R.char].name} 解锁进阶 ${M.asc[R.char]}`); } metaSet(M); }
   UNLOCKS.forEach(u => { if (before < u.xp && M.xp >= u.xp) news.push('解锁：' + [...u.cards.map(c => CARDS[c].name), ...u.relics.map(x => RELICS[x].name)].join('、')); });
   const nx = UNLOCKS.find(u => M.xp < u.xp), left = UNLOCKS.filter(u => M.xp < u.xp).length;
-  view.innerHTML = `${win && ACT() === 2 ? bgHTML(true, 'story_end2') : bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
+  view.innerHTML = `${win && ACT() === 3 ? bgHTML(true, 'story_home') : win && ACT() === 2 ? bgHTML(true, 'story_end2') : bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
    <p class="endsub" data-noi18n>${ACT() === 4 ? `${t('在天外之塔爬到了第 {0} 轮。', R.endless || 1)}<br><b style="color:#ffe08a">${t('感谢游玩！')}</b>` : win && ACT() === 3 ? `${t('紫瞳霜龙倒下了，回家的门打开了。')}<br><b style="color:#ffe08a">${t('全部通关 · 感谢游玩！')}</b>` : win && ACT() === 2 ? `${t('{0}化为了灰烬，古堡的血月熄灭了。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第二章完 · 感谢游玩！')}</b>${t('山顶上，还有更深的黑暗在等待……')}` : win ? `${t('{0}倒下了，翠绿之地恢复了平静。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第一章完 · 感谢游玩！')}</b>${t('远处山顶的古堡，亮起了血红的光……')}<br><b style="color:#ff8a8a">${t('第二章：血月古堡（制作中）')}</b>` : t(ACT() === 3 ? '{0}倒在了永冬之巅第 {1} 层。' : ACT() === 2 ? '{0}倒在了血月古堡第 {1} 层。' : '{0}倒在了翠绿之地第 {1} 层。', tr(CHARS[R.char || 'hero'].name), R.floor)}</p>
    ${win && ACT() === 3 && CH3END[R.char] ? `<p class="endsub endq"><b>${CHARS[R.char].name}</b>：“<span>${tr(CH3END[R.char])}</span>”</p>` : ''}${win && ACT() === 2 && CHARINFO[R.char] && CHARINFO[R.char].end ? `<p class="endsub endq"><b>${CHARS[R.char].name}</b>：“<span>${CHARINFO[R.char].end}</span>”</p>` : ''}
    <table class="score">${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}<tr class="tot"><td>分数</td><td>${total}</td></tr></table>

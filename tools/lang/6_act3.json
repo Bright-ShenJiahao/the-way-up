@@ -1262,5 +1262,37 @@
  "受到的每次攻击伤害减少等同层数（最多减一半）；一次受到 {0} 点以上的攻击会打碎 {1} 层": [
   "Each attack's damage is reduced by the stack count (at most halved); a hit of {0}+ breaks {1} stack",
   "受ける攻撃ダメージが層数分減る（最大で半分まで）。{0}以上の一撃で{1}層砕ける"
+ ],
+ "敌人受到的每次攻击伤害减少等同层数（最多减一半）；一次受到 {0} 点以上的攻击会打碎 {1} 层。": [
+  "Each attack an enemy takes is reduced by the stack count (at most halved); a hit of {0}+ breaks {1} stack.",
+  "敵が受ける攻撃ダメージが層数分減る（最大で半分まで）。{0}以上の一撃で{1}層砕ける。"
+ ],
+ "回合结束时，手里每剩 {0} 张牌失去 {1} 生命（最多按层数算），然后减 {2} 层。": [
+  "At end of turn, lose {1} HP for every {0} card left in hand (up to the stack count), then reduce by {2}.",
+  "ターン終了時、手札{0}枚ごとにHPを{1}失う（最大で層数分）。その後{2}層減る。"
+ ],
+ "回合结束时失去等同层数的生命，然后减 {0} 层。": [
+  "At end of turn, lose HP equal to stacks, then reduce by {0}.",
+  "ターン終了時、層数分のHPを失い、{0}層減る。"
+ ],
+ "回合开始时少 {0} 点能量，然后减 {1} 层。": [
+  "Start of turn: {0} less energy, then reduce by {1}.",
+  "ターン開始時にエネルギー-{0}、その後{1}層減る。"
+ ],
+ "龙下回合要放龙息。蓄力的那个回合里打它足够多的伤害，就能打断。": [
+  "The dragon will breathe next turn. Deal enough damage to it during the charge turn to interrupt.",
+  "竜が次のターンにブレスを吐く。溜めのターン中に十分なダメージを与えれば中断できる。"
+ ],
+ "补丁": [
+  "Patch",
+  "パッチ"
+ ],
+ "这张牌本场伤害或格挡增加，牌面显示版本号。": [
+  "This card's damage or Block is increased for this combat; the card shows a version number.",
+  "この戦闘中、このカードのダメージかブロックが増える。カードにバージョン番号が表示される。"
+ ],
+ "蓄力": [
+  "Charge",
+  "溜め"
  ]
 }
