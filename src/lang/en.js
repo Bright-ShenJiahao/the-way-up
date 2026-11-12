@@ -652,6 +652,7 @@ export default {
 "你每打出一张技能牌，他力量 {0}（每回合最多 {1}）。血量掉到一半时会暴怒，叫来两个手下。": "Gains Strength {0} whenever you play a Skill (max {1} per turn). At half HP he flies into a rage and calls two minions.",
 "临时攻击": "Temp Strike",
 "光弹装满（{0} 发）。消耗。": "Fill Ammo to max ({0}). Exhaust.",
+"抽 {0} 张牌。得到 {1} 发光弹。消耗。": "Draw {0}. Gain {1} Ammo. Exhaust.",
 "哥布林小兵": "Goblin Grunt",
 "哥布林小鬼": "Goblin Imp",
 "哥布林刀手": "Goblin Blade",
@@ -969,6 +970,7 @@ export default {
 "坠地·无法行动": "Grounded · can't act",
 "血量掉到一半时会暴怒，叫来两个手下。暴怒后，你每打出一张技能牌，他力量 {0}（每回合最多 {1}）。": "At half HP he flies into a rage and calls two minions. While enraged, he gains Strength {0} whenever you play a Skill (max {1} per turn).",
 "血量掉到一半时会暴怒，叫来两个手下。": "At half HP he flies into a rage and calls two minions.",
+"对亡灵造成的攻击伤害 {0}（中毒等持续伤害不算）。": "Attack damage dealt to Undead {0} (damage over time like Poison doesn't count).",
 "格挡": "Block",
 "易伤": "Vulnerable",
 "虚弱": "Weak",
@@ -2345,6 +2347,12 @@ export default {
 "团子倒地时：带 {0} 生命回到场上，这回合可以下指令。团子没倒时：团子回复 {1} 生命。消耗。": "If Dango is down: it returns with {0} HP and can take an order this turn. Otherwise: Dango heals {1} HP. Exhaust.",
 "每回合第一次射出飞剑时，抽 {0} 张牌并得到 {1} 点能量；飞剑归零时再得到 {2} 把。": "The first time each turn you fire a Flying Sword, draw {0} cards and gain {1} Energy; when your Flying Swords run out, gain {2}.",
 "每回合第一次射出飞剑时，抽 {0} 张牌并得到 {1} 点能量；飞剑归零时再得到 {2} 把": "The first time each turn you fire a Flying Sword, draw {0} cards and gain {1} Energy; when your Flying Swords run out, gain {2}",
+"养剑流": "Sword Nurturing",
+"飞剑攒在身上，攻击牌第一击越来越重，回合结束还给格挡。": "Keep Flying Swords on you: your Attacks' first hit grows stronger, and they give Block at end of turn.",
+"射剑流": "Sword Barrage",
+"养够飞剑后一口气射出去，打出一回合爆发。": "Build up Flying Swords, then fire them all at once for a burst turn.",
+"连击流": "Combo",
+"便宜的攻击牌一张接一张，越连越痛。": "Chain cheap Attacks one after another — the longer the chain, the harder it hits.",
 "（龙息被打断了！）": "(The breath was interrupted!)",
 "小股龙息": "Weak Breath",
 "龙蛋": "Dragon Egg",
@@ -2791,5 +2799,6 @@ export default {
 "迎战魔王": "Face the Demon Lord",
 "深渊之主化成了黑烟。门的对面，是放学路上的那条街。": "The Lord of the Abyss dissolves into black smoke. On the other side of the gate is the street on the way home from school.",
 "深渊之主倒下了，回家的门打开了。": "The Lord of the Abyss has fallen, and the gate home is open.",
-"进入第三章·下半：魔界裂隙（回复 30% 生命）": "Enter Chapter 3, Part 2: Demon Rift (heal 30% HP)"
+"进入第三章·下半：魔界裂隙（回复 30% 生命）": "Enter Chapter 3, Part 2: Demon Rift (heal 30% HP)",
+"每场战斗开始时，你获得 {0} 层鳞甲（每层让每次受到的攻击伤害 {1}，最多减一半；一次受到 {2} 点以上的攻击会打碎 {3} 层）。": "At the start of each combat, gain {0} Scales (each reduces attack damage taken per hit by {1}, up to half; a single hit of {2}+ breaks {3} Scale)."
 };

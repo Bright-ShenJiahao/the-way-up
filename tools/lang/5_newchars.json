@@ -4974,5 +4974,29 @@
  "每回合第一次射出飞剑时，抽 {0} 张牌并得到 {1} 点能量；飞剑归零时再得到 {2} 把": [
   "The first time each turn you fire a Flying Sword, draw {0} cards and gain {1} Energy; when your Flying Swords run out, gain {2}",
   "毎ターン最初に飛剣を放った時、カードを{0}枚引きエネルギーを{1}得る。飛剣が0になると{2}本得る"
+ ],
+ "养剑流": [
+  "Sword Nurturing",
+  "養剣型"
+ ],
+ "飞剑攒在身上，攻击牌第一击越来越重，回合结束还给格挡。": [
+  "Keep Flying Swords on you: your Attacks' first hit grows stronger, and they give Block at end of turn.",
+  "飛剣を溜めるほど攻撃カードの初撃が重くなり、ターン終了時にブロックも得る。"
+ ],
+ "射剑流": [
+  "Sword Barrage",
+  "射剣型"
+ ],
+ "养够飞剑后一口气射出去，打出一回合爆发。": [
+  "Build up Flying Swords, then fire them all at once for a burst turn.",
+  "飛剣を十分溜めてから一気に放ち、爆発的なターンを作る。"
+ ],
+ "连击流": [
+  "Combo",
+  "連撃型"
+ ],
+ "便宜的攻击牌一张接一张，越连越痛。": [
+  "Chain cheap Attacks one after another — the longer the chain, the harder it hits.",
+  "安い攻撃カードを次々と繋ぎ、繋ぐほど痛くなる。"
  ]
 }

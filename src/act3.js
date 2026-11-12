@@ -239,7 +239,7 @@ export const S3 = {
 };
 export const R3 = {
   slayer: { act3: 1, name: '屠龙者勋章', icon: 'icons2/r_slayer', rar: 'u', desc: '对蓄力中的敌人造成的伤害 +30%。' },
-  dscale: { act3: 1, name: '龙鳞护符', icon: 'icons2/r_dscale', rar: 'c', desc: '每场战斗开始时，你获得 3 层鳞甲（每次受到的攻击伤害 -1）。' },
+  dscale: { act3: 1, name: '龙鳞护符', icon: 'icons2/r_dscale', rar: 'c', desc: '每场战斗开始时，你获得 3 层鳞甲（每层让每次受到的攻击伤害 -1，最多减一半；一次受到 10 点以上的攻击会打碎 1 层）。' },
   stove: { act3: 1, name: '雪山暖炉', icon: 'icons2/r_stove', rar: 'c', desc: '冻伤对你无效。营火休息多回复 10 点生命。' },
 };
 export const EV3 = [

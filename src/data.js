@@ -1,7 +1,7 @@
-import { tr } from './i18n.js?v=live2_11130200';
-import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11130200';
+import { tr } from './i18n.js?v=live2_11130230';
+import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11130230';
 export { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 };
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11130200';
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11130230';
 export { MECH, NEWKEYW, OLDKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
@@ -234,7 +234,7 @@ export const CARDS = {
   silverbul: { ch: 'hero', act2: 1, name: '银弹', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/silverbul', tgt: 'one',
     desc: u => `造成 ${v(u, 7, 9)} 点伤害，对亡灵翻倍。得到 2 发光弹。`, play: (g, u, t) => { g.attack(t, v(u, 7, 9) * (t && t.d.undead ? 2 : 1)); g.ammo(2); } },
   reload2: { ch: 'hero', act2: 1, name: '快速换弹', type: 'skill', rar: 'u', cost: [0, 0], icon: 'icons2/reload2', tgt: 'self',
-    desc: u => `抽 ${v(u, 2, 3)} 张牌。得到 1 发光弹。`, play: (g, u) => { g.draw(v(u, 2, 3)); g.ammo(1); } },
+    exhaust: 1, desc: u => `抽 ${v(u, 2, 3)} 张牌。得到 1 发光弹。消耗。`, play: (g, u) => { g.draw(v(u, 2, 3)); g.ammo(1); } },
   holywater: { ch: 'witch', act2: 1, name: '圣水瓶', type: 'atk', rar: 'u', cost: [0, 0], icon: 'icons2/holywater', tgt: 'one', exhaust: 1,
     desc: u => `造成 ${v(u, 10, 14)} 点伤害，对亡灵翻倍。消耗。`, play: (g, u, t) => g.attack(t, v(u, 10, 14) * (t && t.d.undead ? 2 : 1)) },
   megabrew: { ch: 'witch', act2: 1, name: '炼成大爆发', type: 'skill', rar: 'r', cost: [2, 2], icon: 'icons2/megabrew', tgt: 'self',
@@ -283,7 +283,7 @@ export const RELICS = {
   metro: { noart: 1, ch: 'heroine', name: '节拍器', icon: 'ic_hexa', rar: 'c', desc: '每回合第一次爆音，获得 1 点能量。' },
   venompot: { noart: 1, ch: 'witch', name: '毒液坩埚', icon: 'pot', rar: 'u', desc: '毒药瓶给予的中毒翻倍。' },
   mic: { noart: 1, ch: 'heroine', name: '麦克风', icon: 'sk_holyorb', rar: 'u', desc: '爆音伤害 +6。' },
-  silvercross: { act2: 1, name: '银十字架', icon: 'icons2/r_silvercross', rar: 'u', desc: '对亡灵造成的伤害 +25%。' },
+  silvercross: { act2: 1, name: '银十字架', icon: 'icons2/r_silvercross', rar: 'u', desc: '对亡灵造成的攻击伤害 +25%（中毒等持续伤害不算）。' },
   batcloak: { act2: 1, name: '蝙蝠披风', icon: 'icons2/r_batcloak', rar: 'c', desc: '每场战斗开始时，获得 8 点格挡。' },
   grail: { act2: 1, name: '圣杯', icon: 'icons2/r_grail', rar: 'u', desc: '每场战斗结束时，回复 5 点生命。拾取时最大生命 -5。' },
   pocketwatch: { act2: 1, name: '伯爵的怀表', icon: 'icons2/r_pocketwatch', rar: 'u', desc: '每场战斗第 1 回合，多抽 2 张牌。' },
