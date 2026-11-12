@@ -192,6 +192,7 @@ function endTurn() {
     if (e.dead || R.hp <= 0) continue;
     if (e.st.aegis) addSt(e, 'aegis', -1); if (e.st.intang) e.st.intang = 0;
     if (e.st.poison && !e.st.aegis) { e.hp -= e.st.poison; addSt(e, 'poison', -1); if (e.hp <= 0) { killE(e); continue; } }
+    { const cc = MECH.enemyAct ? MECH.enemyAct(G, e) : null; if (e.dead) continue; if (cc === 'skip') { e.hist.push(e.move); continue; } }
     if (e.d.onTurn && e.d.onTurn(e, BE)) { e.hist.push(e.move); continue; }
     e.hitT = 0; e.enT = 0;
     const mv = e.d.moves[e.move];
@@ -242,8 +243,8 @@ const TIER = { r: 3, u: 2, c: 1 };
 /* 每个角色的 2~3 套打法：熟练机器人看牌组里哪套最多，就往哪套拿牌 */
 const ARCH = {
   hero: [/光弹/, /攻击牌/], heroine: [/共鸣|爆音/, /弃/], miko: [/结界/, /技能牌/], witch: [/炼金瓶/, /中毒/, /火焰瓶|火球/],
-  erin: [/祈唤|火 \+|水 \+|风 \+/, /每有 1 层|层数|总层数/], gu: [/得到 \d 把飞剑|每有 1 把|飞剑不少于|飞剑数/, /射出/],
-  sylvie: [/霜龙|变身/, /每有 \d 点龙血|龙血不少于|龙血 ×|龙血点数/], mia: [/扑击/, /护卫|团子回复/], feiyue: [/吸血/, /献血|花掉/],
+  erin: [/祈唤|火 \+|水 \+|风 \+/, /每有 1 层|层数|总层数/], gu: [/得到 \d 把飞剑|飞剑不少于|每有 1 把|剑阵|剑心/, /射出/],
+  sylvie: [/【龙】造成|变身|龙心|龙鳞/, /花掉|霜灼|收鳞|冰盾/], mia: [/扑击/, /护卫|团子回复/], feiyue: [/吸血/, /献血|花掉/],
 };
 const dtxt = id => { try { return CARDS[id].desc(0); } catch (e) { return ''; } };
 function archOf() { const A = ARCH[R.char] || []; const n = A.map(re => R.deck.filter(c => re.test(dtxt(c.id))).length); let b = 0; n.forEach((x, i) => { if (x > n[b]) b = i; }); return { A, b, n }; }

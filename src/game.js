@@ -1,7 +1,7 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11120400';
-import { createAudio } from './audio.js?v=live2_11120400';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11120400';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11121330';
+import { createAudio } from './audio.js?v=live2_11121330';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11121330';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -651,6 +651,7 @@ async function endTurn() {
     if (e.st.aegis) addSt(e, 'aegis', -1); /* 圣盾挡住玩家的一个回合，轮到它行动时才消失 */
     if (e.st.intang) e.st.intang = 0; /* 虚化同理 */
     if (e.st.poison && !e.st.aegis) { const pz = e.st.poison; e.hp -= pz; fx(e.id, `-${pz}`, 'dmg'); B.hitSet.add(e.id); addSt(e, 'poison', -1); if (e.hp <= 0) { killE(e); render(); await sleep(300); if (await checkEnd()) return; continue; } }
+    { const cc = MECH.enemyAct ? MECH.enemyAct(G, e) : null; if (e.dead) { render(); await sleep(300); if (await checkEnd()) return; continue; } if (cc === 'skip') { fx(e.id, tr('无法行动'), 'st'); e.hist.push(e.move); render(); await sleep(380); continue; } }
     const otr = e.d.onTurn && e.d.onTurn(e, BE); if (otr) { if (otr === 'skip' && !e.dead && !e.fled) fx(e.id, '坠地·无法行动', 'st'); e.hist.push(e.move); render(); await sleep(300); if (await checkEnd()) return; continue; }
     e.hitT = 0; e.enT = 0;
     const mv = e.d.moves[e.move]; B.lunge = mv.d != null && mv.i.startsWith('atk') && mv.d > 0 ? e.id : null;
@@ -701,7 +702,7 @@ function intentHTML(e) {
   return `<div class="intent" title="${esc(tip)}">${ICON[mv.i]}${num}<small>${mv.n}</small></div>`;
 }
 const stsLabel = (k, n, st) => k === 'res' ? `共鸣${n}/10${n >= 9 ? '⚠' : ''}` : k === 'kek' ? `结界${n}（下回合+${st.shinboku ? n + Math.min(n, 8) : n}挡）` : k === 'poison' ? `中毒${n}（下回合-${n}）` : k === 'ammo' ? `光弹${n}（回合末${n}发）` : STATUS[k][0] + n;
-const stsHTML = st => `<div class="sts">${Object.entries(st).filter(([k, n]) => n && STATUS[k]).map(([k, n]) => `<b style="border-color:${STATUS[k][2]};color:${STATUS[k][2]}" title="${esc(STATUS[k][0] + '：' + STATUS[k][1])}">${stsLabel(k, n, st)}</b>`).join('')}</div>`;
+const stsHTML = st => `<div class="sts">${Object.entries(st).filter(([k, n]) => n && STATUS[k]).map(([k, n]) => `<b style="border-color:${STATUS[k][2]};color:${STATUS[k][2]}" title="${esc(STATUS[k][0] + '：' + STATUS[k][1])}">${STATUS[k][3] ? `<img class="sti" src="assets/${STATUS[k][3]}.png" alt="">` : ''}${stsLabel(k, n, st)}</b>`).join('')}</div>`;
 function incoming() { let t = 0; for (const e of alive()) { const mv = e.d.moves[e.move]; if (mv.d && mv.i.startsWith('atk')) t += atkVal(e, B.p, mv.d) * hitsOf(e, mv); } return t; }
 function hitsOf(e, mv) { return mv.x ? mv.x + (e.xb || 0) : 1; }
 function barHTML(hp, max, blk, me) {

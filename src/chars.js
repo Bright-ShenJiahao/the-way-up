@@ -5,6 +5,13 @@ const v = (u, a, b) => (u ? b : a);
 const P = g => g.p;
 const cap = (x, n) => Math.max(0, Math.min(n, x));
 
+/* ======================= 通用：控制效果 =======================
+   硬控（冰冻 / 眩晕 / 束缚）：敌人跳过下一次行动；同一个敌人每场只吃 1 次，精英和 Boss 不吃硬控，改为麻痹（下一次攻击减半）。
+   霜灼 N：敌人每次行动前受到 N 点伤害，然后层数减半。威吓：下一次攻击每段 -5。 */
+const isBig = e => !!(e.d && (e.d.elite || e.d.boss)) || e.max >= 120;
+function hardCC(g, t, k) { if (!t || t.dead) return; if (isBig(t) || t.ccU) g.apply(t, 'para', 1); else { t.ccU = 1; g.apply(t, k, 1); } }
+function fburn(g, t, n) { if (t && !t.dead && n > 0) g.apply(t, 'fburn', n); }
+const opt = (val, t) => ({ val, html: `<button class="btn">${t}</button>` });
 /* ======================= 艾琳 · 元素层 =======================
    火、水、风各自叠层（每种最多 6 层）。「祈唤」一次兑现全部元素：每层火对目标造成 5 点伤害，每层水获得 4 点格挡，每 2 层风抽 1 张牌（单出的 1 层风留着）。
    两种打法：攒——把元素堆高再一次祈唤；花——不急着祈唤，用「每有 1 层……」的牌吃层数加成。 */
@@ -47,67 +54,79 @@ const ERIN = {
 };
 
 /* ======================= 顾清寒 · 飞剑 =======================
-   飞剑最多 6 把：每把让攻击牌的第一击 +2；「射出」移除飞剑，每把单独造成 4 点伤害。
-   两种打法：养剑——飞剑留在身上，每张攻击牌都吃加成；射剑——攒一波一口气射出去。 */
+   飞剑最多 6 把。留在身上：每把让攻击牌第一击 +2，回合结束每把给 1 点格挡。射出去：每把单独造成伤害（一般 4 点），射完就离开身上。
+   两种打法：养剑——飞剑留着吃加成和格挡；射剑——攒够了一口气射出去，再用回剑牌补回来。 */
 const sw = g => P(g).st.sword || 0;
 function addSword(g, n) { const p = P(g), a = sw(g), b = Math.min(6, a + n); if (b > a) p.st.sword = b; return a + n - b; }
-function afterShoot(g, k) { const p = P(g); if (!k) return;
-  if (p.st.grev) { const n = Math.min(k, 3 - (p.grevT || 0)); if (n > 0) { p.grevT = (p.grevT || 0) + n; g.draw(n); } }
-  if (p.st.dualst && !p.dualT) { p.dualT = 1; g.energy(1); if (p.st.dualst > 1) g.block(4, true); }
-  if (g.has('jade') && !p.jadeU) { p.jadeU = 1; addSword(g, 2); } }
-function shootSword(g, t, k, dmg = 4) { const p = P(g); k = Math.min(k, sw(g)); if (!k) return 0; p.st.sword -= k; if (!p.st.sword) delete p.st.sword; const fh = p.fh; p.fh = 0; for (let i = 0; i < k; i++) { const a = g.alive(); if (!a.length) break; g.attack(t && !t.dead ? t : a[0], dmg); } p.fh = fh; afterShoot(g, k); return k; }
-function shootAll(g) { const p = P(g), k = sw(g); if (!k) return 0; delete p.st.sword; afterShoot(g, k); return k; }
 const live = (g, t) => (t && !t.dead ? t : g.alive()[0]);
+function afterShoot(g, k) { const p = P(g); if (!k) return;
+  if (p.st.grev) { const n = Math.min(k, 3 - (p.grevT || 0)); if (n > 0) { p.grevT = (p.grevT || 0) + n; g.draw(n); } if (!sw(g)) addSword(g, 2); }
+  if (p.st.dualst && !p.dualT) { p.dualT = 1; g.energy(1); }
+  if (g.has('jade') && !p.jadeU) { p.jadeU = 1; addSword(g, 2); } }
+function swordHits(g, t, k, dmg, mode) { const p = P(g), fh = p.fh; p.fh = 0;
+  for (let i = 0; i < k; i++) { const a = g.alive(); if (!a.length) break;
+    if (mode === 'fall') a.forEach((e, j) => g.attack(e, j === 0 ? dmg : j === 1 ? Math.round(dmg * 2 / 3) : Math.round(dmg / 2)));
+    else g.attack(t && !t.dead ? t : a[0], dmg); }
+  p.fh = fh; }
+/* 射出 k 把（'all' = 全部）；后发制人那回合先悬空，下回合落下 ×2.5 */
+function fire(g, t, k, dmg, mode = 'one') { const p = P(g); k = k === 'all' ? sw(g) : Math.min(k, sw(g)); if (!k) return 0;
+  p.st.sword -= k; if (!p.st.sword) delete p.st.sword;
+  if (p.hangT) { (p.hang = p.hang || []).push({ k, dmg: Math.round(dmg * 2.5), mode }); g.block(3 * k, true); }
+  else swordHits(g, t, k, dmg, mode);
+  afterShoot(g, k); return k; }
 const GU = {
   g_sheath: { ch: 'gu', name: '收剑式', type: 'atk', rar: 'start', cost: [1, 1], icon: 'icons2/n_g_sheath', tgt: 'one', desc: u => `造成 ${v(u, 6, 9)} 点伤害，得到 1 把飞剑。`, play: (g, u, t) => { g.attack(t, v(u, 6, 9)); addSword(g, 1); } },
-  g_breath: { ch: 'gu', name: '吐纳', type: 'skill', rar: 'start', cost: [1, 1], icon: 'icons2/n_g_breath', tgt: 'self', desc: u => `获得 ${v(u, 5, 8)} 点格挡，得到 1 把飞剑。`, play: (g, u) => { g.block(v(u, 5, 8)); addSword(g, 1); } },
-  g_shift: { ch: 'gu', name: '易势', type: 'skill', rar: 'start', cost: [0, 0], icon: 'icons2/n_g_shift', tgt: 'one', desc: u => `射出 1 把飞剑，抽 1 张牌。${v(u, '', '再得到 1 把飞剑。')}`, play: (g, u, t) => { shootSword(g, t, 1); g.draw(1); if (u) addSword(g, 1); } },
+  g_breath: { ch: 'gu', name: '御剑', type: 'skill', rar: 'start', cost: [1, 1], icon: 'icons2/n_g_breath', tgt: 'self', desc: u => `获得 ${v(u, 5, 8)} 点格挡，得到 1 把飞剑。`, play: (g, u) => { g.block(v(u, 5, 8)); addSword(g, 1); } },
+  g_shift: { ch: 'gu', name: '试剑', type: 'skill', rar: 'start', cost: [0, 0], icon: 'icons2/n_g_shift', tgt: 'one', desc: u => `射出 1 把飞剑，抽 ${v(u, 1, 2)} 张牌。`, play: (g, u, t) => { fire(g, t, 1, 4); g.draw(v(u, 1, 2)); } },
   g_return: { ch: 'gu', name: '归鞘', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_return', tgt: 'self', desc: u => `得到 ${v(u, 2, 3)} 把飞剑。`, play: (g, u) => addSword(g, v(u, 2, 3)) },
-  g_finger: { ch: 'gu', name: '指剑', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_finger', tgt: 'one', desc: u => `造成 ${v(u, 6, 9)} 点伤害，再射出 1 把飞剑。`, play: (g, u, t) => { g.attack(t, v(u, 6, 9)); shootSword(g, live(g, t), 1); } },
-  g_pine: { ch: 'gu', name: '风过松', type: 'atk', rar: 'c', cost: [0, 0], icon: 'icons2/n_g_pine', tgt: 'one', desc: u => `造成 ${v(u, 3, 5)} 点伤害 2 次。`, play: (g, u, t) => g.attack(t, v(u, 3, 5), 2) },
-  g_cliff: { ch: 'gu', name: '断崖', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_cliff', tgt: 'one', desc: u => `造成 ${v(u, 9, 12)} 点伤害；飞剑不少于 3 把时给予 1 层易伤。`, play: (g, u, t) => { if (sw(g) >= 3) g.apply(t, 'vuln', 1); g.attack(t, v(u, 9, 12)); } },
-  g_guard: { ch: 'gu', name: '守中', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_guard', tgt: 'self', desc: u => `获得 ${v(u, 6, 9)} 点格挡；每有 1 把飞剑再 +1。`, play: (g, u) => g.block(v(u, 6, 9) + sw(g)) },
-  g_burn: { ch: 'gu', name: '焚脉', type: 'skill', rar: 'c', cost: [0, 0], icon: 'icons2/n_g_burn', tgt: 'self', desc: u => `失去 2 点生命，得到 ${v(u, 2, 3)} 把飞剑。`, play: (g, u) => { g.loseHp(2); addSword(g, v(u, 2, 3)); } },
-  g_palm: { ch: 'gu', name: '绵掌', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_palm', tgt: 'one', desc: u => `造成 ${v(u, 7, 10)} 点伤害，给予 1 层虚弱。`, play: (g, u, t) => { g.attack(t, v(u, 7, 10)); g.apply(t, 'weak', 1); } },
-  g_qi: { ch: 'gu', name: '运气', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_qi', tgt: 'self', desc: u => `抽 ${v(u, 2, 3)} 张牌，得到 1 把飞剑。`, play: (g, u) => { g.draw(v(u, 2, 3)); addSword(g, 1); } },
-  g_three: { ch: 'gu', name: '并指三剑', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_three', tgt: 'self', desc: u => `得到 ${v(u, 3, 4)} 把飞剑；超出上限的每把改为获得 3 点格挡。`, play: (g, u) => { const over = addSword(g, v(u, 3, 4)); if (over > 0) g.block(3 * over); } },
-  g_rain: { ch: 'gu', name: '长空落剑', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_rain', tgt: 'all', desc: u => `射出全部飞剑，每把对所有敌人造成 ${v(u, 4, 5)} 点伤害。`, play: (g, u) => { const k = shootAll(g); if (k) g.attackAll(v(u, 4, 5), k); } },
-  g_horse: { ch: 'gu', name: '回马势', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_horse', tgt: 'one', desc: u => `射出最多 2 把飞剑，每射出 1 把获得 ${v(u, 3, 4)} 点格挡。`, play: (g, u, t) => { const k = shootSword(g, t, 2); g.block(k * v(u, 3, 4)); } },
+  g_finger: { ch: 'gu', name: '指剑', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_finger', tgt: 'one', desc: u => `造成 ${v(u, 6, 9)} 点伤害，再射出 1 把飞剑。`, play: (g, u, t) => { g.attack(t, v(u, 6, 9)); fire(g, t, 1, 4); } },
+  g_pine: { ch: 'gu', name: '风过松', type: 'atk', rar: 'c', cost: [0, 0], icon: 'icons2/n_g_pine', tgt: 'one', desc: u => `造成 ${v(u, 3, 4)} 点伤害 2 次。`, play: (g, u, t) => g.attack(t, v(u, 3, 4), 2) },
+  g_cliff: { ch: 'gu', name: '断崖', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_cliff', tgt: 'one', desc: u => `造成 ${v(u, 9, 12)} 点伤害；飞剑不少于 3 把时给予 ${v(u, 1, 2)} 层易伤。`, play: (g, u, t) => { g.attack(t, v(u, 9, 12)); if (sw(g) >= 3) g.apply(live(g, t), 'vuln', v(u, 1, 2)); } },
+  g_guard: { ch: 'gu', name: '剑幕', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_guard', tgt: 'self', desc: u => `获得 ${v(u, 6, 8)} 点格挡，每有 1 把飞剑再 +1。`, play: (g, u) => g.block(v(u, 6, 8) + sw(g)) },
+  g_burn: { ch: 'gu', name: '以血饲剑', type: 'skill', rar: 'c', cost: [0, 0], icon: 'icons2/n_g_burn', tgt: 'self', desc: u => `失去 2 点生命，得到 ${v(u, 2, 3)} 把飞剑。`, play: (g, u) => { g.loseHp(2); addSword(g, v(u, 2, 3)); } },
+  g_palm: { ch: 'gu', name: '剑柄击', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_palm', tgt: 'one', desc: u => `造成 ${v(u, 7, 10)} 点伤害，给予 ${v(u, 1, 2)} 层虚弱。`, play: (g, u, t) => { g.attack(t, v(u, 7, 10)); g.apply(live(g, t), 'weak', v(u, 1, 2)); } },
+  g_qi: { ch: 'gu', name: '唤剑', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_qi', tgt: 'self', desc: u => `抽 ${v(u, 2, 3)} 张牌；飞剑不多于 2 把时，再得到 2 把。`, play: (g, u) => { g.draw(v(u, 2, 3)); if (sw(g) <= 2) addSword(g, 2); } },
+  g_three: { ch: 'gu', name: '并指三剑', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_three', tgt: 'self', desc: u => `得到 ${v(u, 3, 4)} 把飞剑；超出上限的每把改为 3 点格挡。`, play: (g, u) => { const o = addSword(g, v(u, 3, 4)); if (o > 0) g.block(3 * o, true); } },
+  g_rain: { ch: 'gu', name: '破釜沉舟', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_rain', tgt: 'all', desc: u => `射出全部飞剑：每把对第 1 个敌人造成 ${v(u, 6, 8)} 点伤害，第 2 个 ${v(u, 4, 5)} 点，其余各 ${v(u, 3, 4)} 点。`, play: (g, u) => fire(g, null, 'all', v(u, 6, 8), 'fall') },
+  g_horse: { ch: 'gu', name: '回旋剑', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_horse', tgt: 'one', desc: u => `射出 2 把飞剑（每把 ${v(u, 4, 6)} 点伤害），回合结束时这 2 把飞回身上。`, play: (g, u, t) => { const k = fire(g, t, 2, v(u, 4, 6)); P(g).boomer = (P(g).boomer || 0) + k; } },
   g_snow: { ch: 'gu', name: '雪径连斩', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_snow', tgt: 'one', desc: u => `造成 ${v(u, 3, 4)} 点伤害，次数等于飞剑数（至少 1 次，不消耗飞剑）。`, play: (g, u, t) => g.attack(t, v(u, 3, 4), Math.max(1, sw(g))) },
-  g_quake: { ch: 'gu', name: '震山掌', type: 'atk', rar: 'u', cost: [2, 2], icon: 'icons2/n_g_quake', tgt: 'one', desc: u => `造成 ${v(u, 16, 20)} 点伤害；飞剑不少于 4 把时给予 2 层易伤。`, play: (g, u, t) => { if (sw(g) >= 4) g.apply(t, 'vuln', 2); g.attack(t, v(u, 16, 20)); } },
-  g_flow: { ch: 'gu', name: '气走周天', type: 'power', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_flow', tgt: 'self', desc: u => `每回合结束时，每有 1 把飞剑获得 ${v(u, 1, 2)} 点格挡。`, play: (g, u) => { P(g).st.gflow = v(u, 1, 2); } },
-  g_myriad: { ch: 'gu', name: '万剑归一', type: 'atk', rar: 'r', cost: [2, 2], icon: 'icons2/n_g_myriad', tgt: 'one', desc: u => `射出全部飞剑，每把造成 ${v(u, 9, 11)} 点伤害。`, play: (g, u, t) => shootSword(g, t, 99, v(u, 9, 11)) },
-  g_rev: { ch: 'gu', name: '逆行经脉', type: 'power', rar: 'r', cost: [2, 1], icon: 'icons2/n_g_rev', tgt: 'self', desc: u => `每射出 1 把飞剑，抽 1 张牌（每回合最多 3 张）。`, play: g => { P(g).st.grev = 1; } },
-  g_dual: { ch: 'gu', name: '双势归元', type: 'power', rar: 'r', cost: [2, 1], icon: 'icons2/n_g_dual', tgt: 'self', desc: u => `每回合第一次射出飞剑后，得到 1 点能量${v(u, '', '，获得 4 点格挡')}。`, play: (g, u) => { P(g).st.dualst = u ? 2 : 1; } },
+  g_quake: { ch: 'gu', name: '横扫千军', type: 'atk', rar: 'u', cost: [2, 2], icon: 'icons2/n_g_quake', tgt: 'one', desc: u => `造成 ${v(u, 5, 7)} 点伤害 3 次，每一下都吃飞剑加成；下回合少 1 点能量。`, play: (g, u, t) => { const p = P(g); for (let i = 0; i < 3; i++) { p.fh = 1; g.attack(live(g, t), v(u, 5, 7)); } p.fh = 0; p.restE = 1; } },
+  g_flow: { ch: 'gu', name: '剑气护体', type: 'power', rar: 'u', cost: [1, 0], icon: 'icons2/n_g_flow', tgt: 'self', desc: u => `回合结束时每把飞剑的格挡从 1 点变成 2 点。`, play: g => { P(g).st.gflow = 1; } },
+  g_myriad: { ch: 'gu', name: '万剑归一', type: 'atk', rar: 'r', cost: [2, 2], icon: 'icons2/n_g_myriad', tgt: 'one', desc: u => `射出全部飞剑，每把造成 ${v(u, 9, 12)} 点伤害。`, play: (g, u, t) => fire(g, t, 'all', v(u, 9, 12)) },
+  g_rev: { ch: 'gu', name: '剑意循环', type: 'power', rar: 'r', cost: [2, 1], icon: 'icons2/n_g_rev', tgt: 'self', desc: u => `每射出 1 把飞剑抽 1 张牌（每回合最多 3 张）；飞剑归零时再得到 2 把。`, play: g => { P(g).st.grev = 1; } },
+  g_dual: { ch: 'gu', name: '剑意', type: 'power', rar: 'u', cost: [2, 1], icon: 'icons2/n_g_dual', tgt: 'self', desc: u => `每回合第一次射出飞剑后，得到 1 点能量。`, play: g => { P(g).st.dualst = 1; } },
 };
 
 /* ======================= 希尔薇 · 龙血 / 霜龙形态 =======================
    龙血最多 8 点。攒满 8 点后点「变身」：霜龙形态持续本回合和接下来两个回合（每场最多 2 次），变身时花光龙血。
    霜龙形态：变身时对所有敌人造成 10 点伤害；攻击牌的第一击 +6；每个敌方回合第一段打穿格挡的伤害 -4。退形后虚弱 1。
-   两种打法：变身——攒满就变，三回合打爆发；不变身——把龙血留在身上，吃「每有 1 点龙血」的加成。 */
+   每张牌都有人形和【龙】形两种效果：龙形下攻击更强、格挡更弱，得到龙血改为对所有敌人每点 2 伤害。
+   两种打法：变身——攒满就变，三回合打爆发；人形——花龙血换格挡和霜灼。 */
 const dr = g => !!P(g).st.dragon;
 const db = g => P(g).st.dblood || 0;
-function gainDB(g, n) { const p = P(g), b = Math.max(0, Math.min(8, db(g) + n)); if (b) p.st.dblood = b; else delete p.st.dblood; }
+function gainDB(g, n) { const p = P(g); if (n > 0 && dr(g)) { const fh = p.fh; p.fh = 0; g.attackAll(2 * n); p.fh = fh; return; } const b = Math.max(0, Math.min(8, db(g) + n)); if (b) p.st.dblood = b; else delete p.st.dblood; }
+function spendDB(g, n) { if (db(g) < n) return false; gainDB(g, -n); if (P(g).st.aval) g.block(n, true); return true; }
+function spendUpTo(g, n) { const k = Math.min(n, db(g)); if (k) spendDB(g, k); return k; }
 const SYL = {
-  s_lance: { ch: 'sylvie', name: '霜枪', type: 'atk', rar: 'start', cost: [1, 1], icon: 'icons2/n_s_lance', tgt: 'one', desc: u => `造成 ${v(u, 7, 10)} 点伤害，得到 2 点龙血。`, play: (g, u, t) => { g.attack(t, v(u, 7, 10)); gainDB(g, 2); } },
-  s_scale: { ch: 'sylvie', name: '鳞守', type: 'skill', rar: 'start', cost: [1, 1], icon: 'icons2/n_s_scale', tgt: 'self', desc: u => `获得 ${v(u, 5, 8)} 点格挡，得到 1 点龙血。`, play: (g, u) => { g.block(v(u, 5, 8)); gainDB(g, 1); } },
-  s_pulse: { ch: 'sylvie', name: '龙脉吐纳', type: 'skill', rar: 'start', cost: [1, 1], icon: 'icons2/n_s_pulse', tgt: 'self', desc: u => `得到 ${v(u, 3, 4)} 点龙血，获得 3 点格挡。`, play: (g, u) => { gainDB(g, v(u, 3, 4)); g.block(3); } },
-  s_crack: { ch: 'sylvie', name: '裂冰', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_crack', tgt: 'one', desc: u => `造成 ${v(u, 8, 11)} 点伤害；霜龙形态下给予 2 层易伤。`, play: (g, u, t) => { if (dr(g)) g.apply(t, 'vuln', 2); g.attack(t, v(u, 8, 11)); } },
-  s_rev: { ch: 'sylvie', name: '逆鳞刺', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_rev', tgt: 'one', desc: u => `造成 ${v(u, 5, 7)} 点伤害；每有 1 点龙血再 +1（不消耗龙血）。`, play: (g, u, t) => g.attack(t, v(u, 5, 7) + db(g)) },
-  s_sweep: { ch: 'sylvie', name: '横扫冰原', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_sweep', tgt: 'all', desc: u => `对所有敌人造成 ${v(u, 6, 8)} 点伤害，得到 1 点龙血。`, play: (g, u) => { g.attackAll(v(u, 6, 8)); gainDB(g, 1); } },
-  s_frost: { ch: 'sylvie', name: '结霜', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_frost', tgt: 'self', desc: u => `获得 ${v(u, 7, 10)} 点格挡，得到 1 点龙血。`, play: (g, u) => { g.block(v(u, 7, 10)); gainDB(g, 1); } },
-  s_borrow: { ch: 'sylvie', name: '借寒', type: 'skill', rar: 'c', cost: [0, 0], icon: 'icons2/n_s_borrow', tgt: 'self', desc: u => `失去 2 点生命，得到 ${v(u, 3, 4)} 点龙血。`, play: (g, u) => { g.loseHp(2); gainDB(g, v(u, 3, 4)); } },
-  s_breath: { ch: 'sylvie', name: '凝息', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_breath', tgt: 'self', desc: u => `获得 ${v(u, 8, 11)} 点格挡；霜龙形态下抽 1 张牌。`, play: (g, u) => { g.block(v(u, 8, 11)); if (dr(g)) g.draw(1); } },
-  s_sneak: { ch: 'sylvie', name: '冰下潜行', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_sneak', tgt: 'one', desc: u => `获得 ${v(u, 6, 9)} 点格挡，给予 1 层虚弱。`, play: (g, u, t) => { g.block(v(u, 6, 9)); g.apply(t, 'weak', 1); } },
-  s_shatter: { ch: 'sylvie', name: '晶碎', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_shatter', tgt: 'one', desc: u => `造成 ${v(u, 8, 11)} 点伤害；龙血不少于 5 点时再 +6。`, play: (g, u, t) => g.attack(t, v(u, 8, 11) + (db(g) >= 5 ? 6 : 0)) },
-  s_claw: { ch: 'sylvie', name: '龙爪二式', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_s_claw', tgt: 'one', desc: u => `造成 ${v(u, 5, 7)} 点伤害 2 次；霜龙形态下打 3 次。`, play: (g, u, t) => g.attack(t, v(u, 5, 7), dr(g) ? 3 : 2) },
-  s_echo: { ch: 'sylvie', name: '血脉回响', type: 'skill', rar: 'u', cost: [1, 0], icon: 'icons2/n_s_echo', tgt: 'self', exhaust: 1, desc: u => `龙血翻倍（最多 8 点）。消耗。`, play: g => gainDB(g, db(g)) },
-  s_coffin: { ch: 'sylvie', name: '冰棺', type: 'skill', rar: 'u', cost: [2, 2], icon: 'icons2/n_s_coffin', tgt: 'self', desc: u => `获得 ${v(u, 15, 19)} 点格挡；龙血不少于 5 点时再 +5。`, play: (g, u) => g.block(v(u, 15, 19) + (db(g) >= 5 ? 5 : 0)) },
-  s_gather: { ch: 'sylvie', name: '收鳞', type: 'skill', rar: 'u', cost: [1, 0], icon: 'icons2/n_s_gather', tgt: 'self', desc: u => `获得等同龙血 ×2 的格挡（不消耗龙血）。`, play: g => g.block(2 * db(g)) },
-  s_roar: { ch: 'sylvie', name: '龙吼', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_s_roar', tgt: 'all', desc: u => `给予所有敌人 ${v(u, 1, 2)} 层虚弱；霜龙形态下再给予 1 层易伤。`, play: (g, u) => { g.applyAll('weak', v(u, 1, 2)); if (dr(g)) g.applyAll('vuln', 1); } },
-  s_spine: { ch: 'sylvie', name: '冰晶脊', type: 'power', rar: 'u', cost: [1, 1], icon: 'icons2/n_s_spine', tgt: 'self', desc: u => `每回合开始时，得到 1 点龙血${v(u, '', '，获得 2 点格挡')}。`, play: (g, u) => { P(g).st.dbgen = u ? 2 : 1; } },
-  s_night: { ch: 'sylvie', name: '极夜龙息', type: 'atk', rar: 'r', cost: [2, 2], icon: 'icons2/n_s_night', tgt: 'all', desc: u => `对所有敌人造成 ${v(u, 13, 17)} 点伤害；霜龙形态下再 +8。`, play: (g, u) => g.attackAll(v(u, 13, 17) + (dr(g) ? 8 : 0)) },
-  s_aval: { ch: 'sylvie', name: '雪崩之心', type: 'power', rar: 'r', cost: [2, 1], icon: 'icons2/n_s_aval', tgt: 'self', desc: u => `每回合结束时，每有 1 点龙血获得 1 点格挡。`, play: g => { P(g).st.aval = 1; } },
+  s_lance: { ch: 'sylvie', name: '霜枪', type: 'atk', rar: 'start', cost: [1, 1], icon: 'icons2/n_s_lance', tgt: 'one', desc: u => `造成 ${v(u, 7, 10)} 点伤害，得到 2 点龙血。【龙】造成 ${v(u, 7, 10)}，全体 4。`, play: (g, u, t) => { g.attack(t, v(u, 7, 10)); gainDB(g, 2); } },
+  s_scale: { ch: 'sylvie', name: '鳞守', type: 'skill', rar: 'start', cost: [1, 1], icon: 'icons2/n_s_scale', tgt: 'self', desc: u => `获得 ${v(u, 5, 8)} 点格挡，得到 1 点龙血。【龙】${v(u, 3, 5)} 格挡，全体 2。`, play: (g, u) => { g.block(dr(g) ? v(u, 3, 5) : v(u, 5, 8)); gainDB(g, 1); } },
+  s_pulse: { ch: 'sylvie', name: '龙脉吐纳', type: 'skill', rar: 'start', cost: [1, 1], icon: 'icons2/n_s_pulse', tgt: 'self', desc: u => `得到 3 点龙血，获得 ${v(u, 3, 5)} 点格挡。【龙】全体 6，${v(u, 3, 5)} 格挡。`, play: (g, u) => { gainDB(g, 3); g.block(v(u, 3, 5)); } },
+  s_crack: { ch: 'sylvie', name: '裂冰', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_crack', tgt: 'one', desc: u => `造成 ${v(u, 8, 11)} 点伤害。【龙】造成 ${v(u, 12, 15)}，给予 2 层霜灼。`, play: (g, u, t) => { if (dr(g)) { g.attack(t, v(u, 12, 15)); fburn(g, live(g, t), 2); } else g.attack(t, v(u, 8, 11)); } },
+  s_rev: { ch: 'sylvie', name: '逆鳞刺', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_rev', tgt: 'one', desc: u => `造成 ${v(u, 5, 7)} 点伤害；花掉最多 3 点龙血，每点给目标 3 层霜灼。【龙】造成 ${v(u, 11, 14)}。`, play: (g, u, t) => { if (dr(g)) { g.attack(t, v(u, 11, 14)); return; } g.attack(t, v(u, 5, 7)); const k = spendUpTo(g, 3); if (k) fburn(g, live(g, t), 3 * k); } },
+  s_sweep: { ch: 'sylvie', name: '横扫冰原', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_sweep', tgt: 'all', desc: u => `对所有敌人造成 ${v(u, 6, 8)} 点伤害，得到 1 点龙血。【龙】全体 ${v(u, 6, 8)} + 2。`, play: (g, u) => { g.attackAll(v(u, 6, 8)); gainDB(g, 1); } },
+  s_frost: { ch: 'sylvie', name: '结霜', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_frost', tgt: 'self', desc: u => `获得 ${v(u, 7, 10)} 点格挡，得到 1 点龙血。【龙】${v(u, 4, 6)} 格挡，全体 2。`, play: (g, u) => { g.block(dr(g) ? v(u, 4, 6) : v(u, 7, 10)); gainDB(g, 1); } },
+  s_borrow: { ch: 'sylvie', name: '借寒', type: 'skill', rar: 'c', cost: [0, 0], icon: 'icons2/n_s_borrow', tgt: 'self', desc: u => `失去 2 点生命，得到 ${v(u, 3, 4)} 点龙血。【龙】失去 2 点生命，全体 ${v(u, 6, 8)}。`, play: (g, u) => { g.loseHp(2); gainDB(g, v(u, 3, 4)); } },
+  s_breath: { ch: 'sylvie', name: '凝息', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_breath', tgt: 'self', desc: u => `获得 ${v(u, 8, 11)} 点格挡。【龙】${v(u, 5, 8)} 格挡，抽 1 张牌。`, play: (g, u) => { if (dr(g)) { g.block(v(u, 5, 8)); g.draw(1); } else g.block(v(u, 8, 11)); } },
+  s_sneak: { ch: 'sylvie', name: '冰下潜行', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_sneak', tgt: 'one', desc: u => `获得 ${v(u, 6, 9)} 点格挡，给予 ${v(u, 1, 2)} 层虚弱。【龙】${v(u, 3, 5)} 格挡，冰冻目标。`, play: (g, u, t) => { if (dr(g)) { g.block(v(u, 3, 5)); hardCC(g, t, 'frozen'); } else { g.block(v(u, 6, 9)); g.apply(t, 'weak', v(u, 1, 2)); } } },
+  s_shatter: { ch: 'sylvie', name: '晶碎', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_shatter', tgt: 'one', desc: u => `造成 ${v(u, 8, 10)} 点伤害；花 2 点龙血再 +8。【龙】造成 ${v(u, 14, 17)}。`, play: (g, u, t) => { if (dr(g)) { g.attack(t, v(u, 14, 17)); return; } g.attack(t, v(u, 8, 10) + (spendDB(g, 2) ? 8 : 0)); } },
+  s_claw: { ch: 'sylvie', name: '龙爪二式', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_s_claw', tgt: 'one', desc: u => `造成 ${v(u, 5, 7)} 点伤害 2 次。【龙】打 3 次。`, play: (g, u, t) => g.attack(t, v(u, 5, 7), dr(g) ? 3 : 2) },
+  s_echo: { ch: 'sylvie', name: '血脉回响', type: 'skill', rar: 'u', cost: [1, 0], icon: 'icons2/n_s_echo', tgt: 'self', exhaust: 1, desc: u => `龙血翻倍（最多 8 点）。【龙】霜龙多持续 1 回合。消耗。`, play: g => { const p = P(g); if (dr(g)) p.st.dragon++; else gainDB(g, db(g)); } },
+  s_coffin: { ch: 'sylvie', name: '冰棺', type: 'skill', rar: 'u', cost: [2, 2], icon: 'icons2/n_s_coffin', tgt: 'self', desc: u => `获得 ${v(u, 15, 19)} 点格挡；龙血不少于 5 点时再 +5。【龙】${v(u, 10, 13)} 格挡。`, play: (g, u) => g.block(dr(g) ? v(u, 10, 13) : v(u, 15, 19) + (db(g) >= 5 ? 5 : 0)) },
+  s_gather: { ch: 'sylvie', name: '收鳞', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_s_gather', tgt: 'self', desc: u => `花掉最多 4 点龙血，每点获得 ${v(u, 4, 5)} 点格挡。【龙】${v(u, 4, 5)} 格挡。`, play: (g, u) => { if (dr(g)) { g.block(v(u, 4, 5)); return; } const k = spendUpTo(g, 4); g.block(Math.max(1, k) * v(u, 4, 5)); } },
+  s_roar: { ch: 'sylvie', name: '龙吼', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_s_roar', tgt: 'all', desc: u => `给予所有敌人 ${v(u, 1, 2)} 层虚弱。【龙】威吓所有敌人，并给予 1 层易伤。`, play: (g, u) => { if (dr(g)) { g.applyAll('awe', 1); g.applyAll('vuln', 1); } else g.applyAll('weak', v(u, 1, 2)); } },
+  s_spine: { ch: 'sylvie', name: '冰晶脊', type: 'power', rar: 'u', cost: [1, 1], icon: 'icons2/n_s_spine', tgt: 'self', desc: u => `每回合开始得到 1 点龙血${v(u, '', '，获得 2 点格挡')}。`, play: (g, u) => { P(g).st.dbgen = u ? 2 : 1; } },
+  s_night: { ch: 'sylvie', name: '极夜龙息', type: 'atk', rar: 'r', cost: [2, 2], icon: 'icons2/n_s_night', tgt: 'all', desc: u => `对所有敌人造成 ${v(u, 13, 17)} 点伤害。【龙】全体 ${v(u, 21, 26)}，并给予 2 层霜灼。`, play: (g, u) => { if (dr(g)) { g.attackAll(v(u, 21, 26)); g.alive().forEach(e => fburn(g, e, 2)); } else g.attackAll(v(u, 13, 17)); } },
+  s_aval: { ch: 'sylvie', name: '雪崩之心', type: 'power', rar: 'r', cost: [2, 1], icon: 'icons2/n_s_aval', tgt: 'self', desc: u => `每花掉 1 点龙血，获得 1 点格挡；变身时获得 8 点格挡。`, play: g => { P(g).st.aval = 1; } },
   s_wake: { ch: 'sylvie', name: '冬眠苏醒', type: 'power', rar: 'r', cost: [1, 1], icon: 'icons2/n_s_wake', tgt: 'self', desc: u => `退出霜龙形态时，得到 4 点龙血，抽 2 张牌${v(u, '', '，得到 1 点能量')}。`, play: (g, u) => { P(g).st.wake = u ? 2 : 1; } },
 };
 
@@ -265,35 +284,35 @@ const NEW2 = {
   // ---- 顾清寒：剑宗 / 气宗 / 剑势 ----
   g_unsheath: { ch: 'gu', name: '拔剑', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_unsheath', tgt: 'one', desc: u => `造成 ${v(u, 7, 10)} 点伤害；飞剑不少于 3 把时抽 1 张牌。`, play: (g, u, t) => { g.attack(t, v(u, 7, 10)); if (sw(g) >= 3) g.draw(1); } },
   g_twin: { ch: 'gu', name: '双剑', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_twin', tgt: 'one', desc: u => `造成 ${v(u, 4, 5)} 点伤害 2 次，得到 1 把飞剑。`, play: (g, u, t) => { g.attack(t, v(u, 4, 5), 2); addSword(g, 1); } },
-  g_sit: { ch: 'gu', name: '静坐', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_sit', tgt: 'self', desc: u => `获得 ${v(u, 7, 10)} 点格挡，得到 1 把飞剑。`, play: (g, u) => { g.block(v(u, 7, 10)); addSword(g, 1); } },
+  g_sit: { ch: 'gu', name: '养剑', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_sit', tgt: 'self', desc: u => `获得 ${v(u, 7, 10)} 点格挡，得到 1 把飞剑。`, play: (g, u) => { g.block(v(u, 7, 10)); addSword(g, 1); } },
   g_parry: { ch: 'gu', name: '格剑', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_parry', tgt: 'self', desc: u => `获得 ${v(u, 8, 11)} 点格挡；飞剑满 6 把时再 +4。`, play: (g, u) => g.block(v(u, 8, 11) + (sw(g) >= 6 ? 4 : 0)) },
-  g_galestep: { ch: 'gu', name: '疾风步', type: 'skill', rar: 'c', cost: [0, 0], icon: 'icons2/n_g_galestep', tgt: 'self', desc: u => `获得 ${v(u, 3, 5)} 点格挡，抽 1 张牌。`, play: (g, u) => { g.block(v(u, 3, 5)); g.draw(1); } },
-  g_rooted: { ch: 'gu', name: '稳如山', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_rooted', tgt: 'self', desc: u => `获得 ${v(u, 9, 12)} 点格挡；飞剑不少于 3 把时再得到 1 把。`, play: (g, u) => { g.block(v(u, 9, 12)); if (sw(g) >= 3) addSword(g, 1); } },
-  g_array: { ch: 'gu', name: '剑阵', type: 'power', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_array', tgt: 'self', desc: u => `每回合开始时，得到 1 把飞剑${v(u, '', '，获得 2 点格挡')}。`, play: (g, u) => { P(g).st.swordgen = u ? 2 : 1; } },
-  g_surge: { ch: 'gu', name: '内力奔涌', type: 'skill', rar: 'u', cost: [0, 0], icon: 'icons2/n_g_surge', tgt: 'self', desc: u => `得到 ${v(u, 2, 3)} 把飞剑，抽 1 张牌。`, play: (g, u) => { addSword(g, v(u, 2, 3)); g.draw(1); } },
-  g_heavy: { ch: 'gu', name: '千斤坠', type: 'atk', rar: 'u', cost: [2, 2], icon: 'icons2/n_g_heavy', tgt: 'one', desc: u => `射出全部飞剑，每把伤害再 +${v(u, 3, 4)}。`, play: (g, u, t) => shootSword(g, t, 99, 4 + v(u, 3, 4)) },
-  g_chain: { ch: 'gu', name: '连环剑', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_chain', tgt: 'one', desc: u => `造成 ${v(u, 3, 4)} 点伤害；本回合每打出过 1 张攻击牌，再打 1 次（最多再 4 次）。`, play: (g, u, t) => g.attack(t, v(u, 3, 4), 1 + Math.min(4, cmb(g))) },
-  g_crush: { ch: 'gu', name: '碎岳', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_crush', tgt: 'one', desc: u => `造成 ${v(u, 10, 13)} 点伤害，再射出 1 把飞剑。`, play: (g, u, t) => { g.attack(t, v(u, 10, 13)); shootSword(g, live(g, t), 1); } },
-  g_recall: { ch: 'gu', name: '回剑', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_recall', tgt: 'one', desc: u => `射出 1 把飞剑，再得到 2 把飞剑，获得 ${v(u, 3, 6)} 点格挡。`, play: (g, u, t) => { shootSword(g, t, 1); addSword(g, 2); g.block(v(u, 3, 6)); } },
-  g_immortal: { ch: 'gu', name: '天外飞仙', type: 'atk', rar: 'r', cost: [3, 2], icon: 'icons2/n_g_immortal', tgt: 'one', exhaust: 1, desc: u => `射出全部飞剑（每把 7 点伤害），然后得到同样数量的飞剑。消耗。`, play: (g, u, t) => { const k = shootSword(g, t, 99, 7); addSword(g, k); } },
+  g_galestep: { ch: 'gu', name: '杀气诀', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_galestep', tgt: 'self', desc: u => `之后 ${v(u, 3, 4)} 回合，攻击牌命中后，对另一个随机敌人造成等于飞剑加成的伤害。`, play: (g, u) => { P(g).st.kaura = v(u, 3, 4); } },
+  g_rooted: { ch: 'gu', name: '剑壁', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_rooted', tgt: 'self', desc: u => `获得 ${v(u, 9, 12)} 点格挡；飞剑不少于 3 把时再得到 1 把。`, play: (g, u) => { g.block(v(u, 9, 12)); if (sw(g) >= 3) addSword(g, 1); } },
+  g_array: { ch: 'gu', name: '剑阵', type: 'power', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_array', tgt: 'self', desc: u => `每回合开始得到 1 把飞剑${v(u, '', '，获得 2 点格挡')}。`, play: (g, u) => { P(g).st.swordgen = u ? 2 : 1; } },
+  g_surge: { ch: 'gu', name: '剑鸣', type: 'skill', rar: 'u', cost: [0, 0], icon: 'icons2/n_g_surge', tgt: 'self', desc: u => `得到 2 把飞剑，抽 ${v(u, 1, 2)} 张牌。`, play: (g, u) => { addSword(g, 2); g.draw(v(u, 1, 2)); } },
+  g_heavy: { ch: 'gu', name: '风林火山', type: 'skill', rar: 'u', cost: [1, 0], icon: 'icons2/n_g_heavy', tgt: 'self', pick: () => [opt('e', '风：下回合 +1 能量'), opt('a', '火：下回合攻击 +20%'), opt('d', '山：下回合受伤 -20%')], pickT: '风林火山：选一种', bot: (g, o) => o[0], desc: u => `下回合三选一：得到 1 点能量 / 攻击伤害 +20% / 受到伤害 -20%。`, play: (g, u, t, c, k) => { P(g).flhsN = k || 'e'; } },
+  g_chain: { ch: 'gu', name: '连环剑', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_chain', tgt: 'one', desc: u => `造成 ${v(u, 3, 4)} 点伤害；本回合每打过 1 张攻击牌再打 1 次（最多再 4 次）。`, play: (g, u, t) => g.attack(t, v(u, 3, 4), 1 + Math.min(4, P(g).combo || 0)) },
+  g_crush: { ch: 'gu', name: '收剑归鞘', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_crush', tgt: 'one', desc: u => `射出全部飞剑（每把 ${v(u, 4, 6)} 点伤害），然后得到 3 把。`, play: (g, u, t) => { fire(g, t, 'all', v(u, 4, 6)); addSword(g, 3); } },
+  g_recall: { ch: 'gu', name: '回剑', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_g_recall', tgt: 'one', desc: u => `射出 1 把飞剑，再得到 2 把，获得 ${v(u, 3, 5)} 点格挡。`, play: (g, u, t) => { fire(g, t, 1, 4); addSword(g, 2); g.block(v(u, 3, 5)); } },
+  g_immortal: { ch: 'gu', name: '天外飞仙', type: 'atk', rar: 'r', cost: [3, 2], icon: 'icons2/n_g_immortal', tgt: 'one', exhaust: 1, desc: u => `射出全部飞剑（每把 7 点伤害），然后得回同样数量。消耗。`, play: (g, u, t) => { const k = fire(g, t, 'all', 7); addSword(g, k); } },
   g_zen: { ch: 'gu', name: '剑心通明', type: 'power', rar: 'r', cost: [1, 0], icon: 'icons2/n_g_zen', tgt: 'self', desc: u => `每把飞剑给攻击牌第一击的加成从 +2 变成 +3。`, play: g => { P(g).st.zen = 1; } },
-  g_qiarmor: { ch: 'gu', name: '护体真气', type: 'power', rar: 'u', cost: [1, 1], icon: 'icons2/n_g_qiarmor', tgt: 'self', desc: u => `每回合开始时，飞剑不少于 3 把就获得 ${v(u, 4, 6)} 点格挡。`, play: (g, u) => { P(g).st.qiarmor = v(u, 4, 6); } },
+  g_qiarmor: { ch: 'gu', name: '后发制人', type: 'skill', rar: 'r', cost: [1, 0], icon: 'icons2/n_g_qiarmor', tgt: 'self', desc: u => `本回合射出的飞剑先悬在空中，每把给 3 点格挡；下回合开始时落下，伤害 ×2.5。`, play: g => { P(g).hangT = 1; } },
   // ---- 希尔薇：抢变身 / 霜甲反击 ----
-  s_icicle: { ch: 'sylvie', name: '冰锥', type: 'atk', rar: 'c', cost: [0, 0], icon: 'icons2/n_s_icicle', tgt: 'one', desc: u => `造成 ${v(u, 4, 6)} 点伤害，得到 1 点龙血。`, play: (g, u, t) => { g.attack(t, v(u, 4, 6)); gainDB(g, 1); } },
-  s_fang: { ch: 'sylvie', name: '龙牙', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_fang', tgt: 'one', desc: u => `造成 ${v(u, 9, 12)} 点伤害；霜龙形态下再 +5。`, play: (g, u, t) => g.attack(t, v(u, 9, 12) + (dr(g) ? 5 : 0)) },
-  s_iceshield: { ch: 'sylvie', name: '冰盾', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_iceshield', tgt: 'self', desc: u => `获得 ${v(u, 8, 11)} 点格挡；每有 2 点龙血再 +1（不消耗龙血）。`, play: (g, u) => g.block(v(u, 8, 11) + Math.floor(db(g) / 2)) },
-  s_rage: { ch: 'sylvie', name: '龙怒', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_rage', tgt: 'self', desc: u => `得到 ${v(u, 3, 4)} 点龙血，抽 1 张牌。`, play: (g, u) => { gainDB(g, v(u, 3, 4)); g.draw(1); } },
-  s_nova: { ch: 'sylvie', name: '霜爆', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_s_nova', tgt: 'all', desc: u => `对所有敌人造成 ${v(u, 4, 6)} 点伤害，再加龙血点数（不消耗龙血）。`, play: (g, u) => g.attackAll(v(u, 4, 6) + db(g)) },
-  s_awaken: { ch: 'sylvie', name: '觉醒', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_s_awaken', tgt: 'self', desc: u => `得到 ${v(u, 5, 6)} 点龙血；龙血攒满时抽 2 张牌。`, play: (g, u) => { gainDB(g, v(u, 5, 6)); if (db(g) >= 8) g.draw(2); } },
-  s_dscale: { ch: 'sylvie', name: '龙鳞', type: 'power', rar: 'u', cost: [1, 1], icon: 'icons2/n_s_dscale', tgt: 'self', desc: u => `霜龙形态下，每回合开始时获得 ${v(u, 6, 8)} 点格挡。`, play: (g, u) => { P(g).st.dscale = v(u, 6, 8); } },
-  s_glacier: { ch: 'sylvie', name: '冰川', type: 'skill', rar: 'u', cost: [2, 2], icon: 'icons2/n_s_glacier', tgt: 'self', desc: u => `获得 ${v(u, 12, 15)} 点格挡，得到 2 点龙血。`, play: (g, u) => { g.block(v(u, 12, 15)); gainDB(g, 2); } },
-  s_tail: { ch: 'sylvie', name: '龙尾扫', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_s_tail', tgt: 'all', desc: u => `对所有敌人造成 ${v(u, 6, 8)} 点伤害；霜龙形态下给予所有敌人 1 层虚弱。`, play: (g, u) => { g.attackAll(v(u, 6, 8)); if (dr(g)) g.applyAll('weak', 1); } },
-  s_dheart: { ch: 'sylvie', name: '龙心', type: 'power', rar: 'r', cost: [1, 1], icon: 'icons2/n_s_dheart', tgt: 'self', desc: u => `每次变身时，得到 ${v(u, 2, 3)} 点能量，抽 1 张牌。`, play: (g, u) => { P(g).st.dheart = v(u, 2, 3); } },
-  s_permafrost: { ch: 'sylvie', name: '永冻', type: 'power', rar: 'r', cost: [1, 1], icon: 'icons2/n_s_permafrost', tgt: 'self', desc: u => `龙血不少于 8 点时，攻击牌第一击 +${v(u, 4, 6)}。`, play: (g, u) => { P(g).st.perma = v(u, 4, 6); } },
-  s_mirror: { ch: 'sylvie', name: '冰反射', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_s_mirror', tgt: 'self', desc: u => `获得 ${v(u, 5, 7)} 点格挡；龙血不少于 5 点时抽 2 张牌。`, play: (g, u) => { g.block(v(u, 5, 7)); if (db(g) >= 5) g.draw(2); } },
-  s_dive: { ch: 'sylvie', name: '俯冲', type: 'atk', rar: 'r', cost: [2, 2], icon: 'icons2/n_s_dive', tgt: 'one', desc: u => `造成 ${v(u, 18, 22)} 点伤害；霜龙形态下改为 ${v(u, 30, 36)} 点。`, play: (g, u, t) => g.attack(t, dr(g) ? v(u, 30, 36) : v(u, 18, 22)) },
-  s_chill: { ch: 'sylvie', name: '寒息', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_chill', tgt: 'one', desc: u => `给予 2 层虚弱，得到 ${v(u, 2, 3)} 点龙血。`, play: (g, u, t) => { g.apply(t, 'weak', 2); gainDB(g, v(u, 2, 3)); } },
-  s_calm: { ch: 'sylvie', name: '平静', type: 'skill', rar: 'c', cost: [0, 0], icon: 'icons2/n_s_calm', tgt: 'self', desc: u => `获得 ${v(u, 4, 6)} 点格挡，得到 1 点龙血。`, play: (g, u) => { g.block(v(u, 4, 6)); gainDB(g, 1); } },
+  s_icicle: { ch: 'sylvie', name: '冰锥', type: 'atk', rar: 'c', cost: [0, 0], icon: 'icons2/n_s_icicle', tgt: 'one', desc: u => `造成 ${v(u, 4, 6)} 点伤害，得到 1 点龙血。【龙】造成 ${v(u, 4, 6)}，全体 2。`, play: (g, u, t) => { g.attack(t, v(u, 4, 6)); gainDB(g, 1); } },
+  s_fang: { ch: 'sylvie', name: '龙牙', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_fang', tgt: 'one', desc: u => `造成 ${v(u, 9, 12)} 点伤害。【龙】造成 ${v(u, 14, 17)}，给予 2 层霜灼。`, play: (g, u, t) => { if (dr(g)) { g.attack(t, v(u, 14, 17)); fburn(g, live(g, t), 2); } else g.attack(t, v(u, 9, 12)); } },
+  s_iceshield: { ch: 'sylvie', name: '冰盾', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_iceshield', tgt: 'self', desc: u => `获得 ${v(u, 8, 11)} 点格挡；再花 2 点龙血额外 +8。【龙】${v(u, 5, 7)} 格挡。`, play: (g, u) => { if (dr(g)) { g.block(v(u, 5, 7)); return; } g.block(v(u, 8, 11) + (spendDB(g, 2) ? 8 : 0)); } },
+  s_rage: { ch: 'sylvie', name: '龙怒', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_rage', tgt: 'self', desc: u => `得到 3 点龙血，抽 ${v(u, 1, 2)} 张牌。【龙】全体 6，抽 ${v(u, 1, 2)} 张牌。`, play: (g, u) => { gainDB(g, 3); g.draw(v(u, 1, 2)); } },
+  s_nova: { ch: 'sylvie', name: '霜爆', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_s_nova', tgt: 'all', desc: u => `花掉全部龙血，每点给所有敌人 ${v(u, 2, 3)} 层霜灼。【龙】所有敌人的霜灼翻倍。`, play: (g, u) => { if (dr(g)) { g.alive().forEach(e => { if (e.st.fburn) fburn(g, e, e.st.fburn); }); return; } const k = spendUpTo(g, 8); if (k) g.alive().forEach(e => fburn(g, e, k * v(u, 2, 3))); } },
+  s_awaken: { ch: 'sylvie', name: '觉醒', type: 'skill', rar: 'u', cost: [1, 0], icon: 'icons2/n_s_awaken', tgt: 'self', desc: u => `得到 5 点龙血；龙血满 8 点时抽 2 张牌。【龙】全体 10，抽 1 张牌。`, play: g => { const d = dr(g); gainDB(g, 5); if (d) g.draw(1); else if (db(g) >= 8) g.draw(2); } },
+  s_dscale: { ch: 'sylvie', name: '龙鳞', type: 'power', rar: 'u', cost: [1, 1], icon: 'icons2/n_s_dscale', tgt: 'self', desc: u => `霜龙形态下，每回合开始获得 ${v(u, 6, 8)} 点格挡。`, play: (g, u) => { P(g).st.dscale = v(u, 6, 8); } },
+  s_glacier: { ch: 'sylvie', name: '冰川', type: 'skill', rar: 'u', cost: [2, 2], icon: 'icons2/n_s_glacier', tgt: 'self', desc: u => `获得 ${v(u, 12, 15)} 点格挡，得到 2 点龙血。【龙】${v(u, 8, 10)} 格挡，全体 4。`, play: (g, u) => { g.block(dr(g) ? v(u, 8, 10) : v(u, 12, 15)); gainDB(g, 2); } },
+  s_tail: { ch: 'sylvie', name: '龙尾扫', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_s_tail', tgt: 'all', desc: u => `对所有敌人造成 ${v(u, 6, 8)} 点伤害。【龙】全体 ${v(u, 8, 10)}，并给予 1 层虚弱。`, play: (g, u) => { if (dr(g)) { g.attackAll(v(u, 8, 10)); g.applyAll('weak', 1); } else g.attackAll(v(u, 6, 8)); } },
+  s_dheart: { ch: 'sylvie', name: '龙心', type: 'power', rar: 'r', cost: [1, 0], icon: 'icons2/n_s_dheart', tgt: 'self', desc: u => `每次变身时，得到 2 点能量，抽 1 张牌。`, play: g => { P(g).st.dheart = 2; } },
+  s_permafrost: { ch: 'sylvie', name: '永冻', type: 'power', rar: 'r', cost: [1, 0], icon: 'icons2/n_s_permafrost', tgt: 'self', desc: u => `身上有霜灼的敌人，攻击伤害 -2。`, play: g => { P(g).st.permaf = 2; } },
+  s_mirror: { ch: 'sylvie', name: '冰反射', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_s_mirror', tgt: 'self', desc: u => `获得 ${v(u, 5, 8)} 点格挡；龙血不少于 5 点时抽 2 张牌。【龙】${v(u, 3, 5)} 格挡，抽 2 张牌。`, play: (g, u) => { if (dr(g)) { g.block(v(u, 3, 5)); g.draw(2); } else { g.block(v(u, 5, 8)); if (db(g) >= 5) g.draw(2); } } },
+  s_dive: { ch: 'sylvie', name: '俯冲', type: 'atk', rar: 'r', cost: [2, 2], icon: 'icons2/n_s_dive', tgt: 'one', desc: u => `造成 ${v(u, 18, 24)} 点伤害。【龙】造成 ${v(u, 30, 38)}，冰冻目标。`, play: (g, u, t) => { if (dr(g)) { g.attack(t, v(u, 30, 38)); hardCC(g, live(g, t), 'frozen'); } else g.attack(t, v(u, 18, 24)); } },
+  s_chill: { ch: 'sylvie', name: '寒息', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_chill', tgt: 'one', desc: u => `给予 ${v(u, 2, 3)} 层虚弱，得到 2 点龙血。【龙】冰冻目标，全体 4。`, play: (g, u, t) => { if (dr(g)) hardCC(g, t, 'frozen'); else g.apply(t, 'weak', v(u, 2, 3)); gainDB(g, 2); } },
+  s_calm: { ch: 'sylvie', name: '平静', type: 'skill', rar: 'c', cost: [0, 0], icon: 'icons2/n_s_calm', tgt: 'self', desc: u => `获得 ${v(u, 4, 6)} 点格挡，得到 1 点龙血。【龙】${v(u, 2, 3)} 格挡，全体 2。`, play: (g, u) => { g.block(dr(g) ? v(u, 2, 3) : v(u, 4, 6)); gainDB(g, 1); } },
   // ---- 米娅：扑击 / 护卫 / 照料 ----
   m_claw: { ch: 'mia', name: '猫抓', type: 'atk', rar: 'c', cost: [0, 0], icon: 'icons2/n_m_claw', tgt: 'one', desc: u => `造成 ${v(u, 4, 6)} 点伤害；上一轮团子护卫挡下过伤害时，再 +${v(u, 3, 4)}。`, play: (g, u, t) => g.attack(t, v(u, 4, 6) + (catGuarded(g) ? v(u, 3, 4) : 0)) },
   m_toy: { ch: 'mia', name: '逗猫棒', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_toy', tgt: 'self', desc: u => `团子回复 3 生命，本回合扑击 +${v(u, 3, 5)} 点伤害。`, play: (g, u) => { healCat(g, 3); if (cat(g)) cat(g).pB = (cat(g).pB || 0) + v(u, 3, 5); } },
@@ -359,16 +378,25 @@ export const NEWRELICS = {
 export const NEWSTATUS = {
   efire: ['火', '祈唤时每层对目标造成 5 点伤害（最多 6 层）', '#ff9050'], ewater: ['水', '祈唤时每层获得 4 点格挡（最多 6 层）', '#70c0ff'], ewind: ['风', '祈唤时每 2 层抽 1 张牌（最多 6 层）', '#9fffd0'],
   enotes: ['元素笔记', '每回合开始时层数最少的元素 +1', '#ffd060'], efocus: ['水之心', '每回合结束时按水的层数获得格挡', '#70c0ff'], ecrown: ['三相冠冕', '每回合开始时火、水、风各 +1', '#ffd060'], eseason: ['四季轮转', '每回合第一次祈唤后得到能量并抽牌', '#ffd060'], emaster: ['元素宗师', '元素上限 10 层，祈唤时每层火伤害 +1', '#ffd060'],
-  sword: ['飞剑', '每把让攻击牌的第一击 +2 伤害；可以被射出，每把造成 4 点伤害（最多 6 把）', '#9fd8ff'], swordgen: ['剑阵', '每回合开始得到 1 把飞剑', '#9fd8ff'], zen: ['剑心通明', '每把飞剑的第一击加成变成 +3', '#9fd8ff'], qiarmor: ['护体剑气', '每回合开始飞剑不少于 3 把时获得格挡', '#9fd8ff'],
-  gflow: ['剑气流转', '每回合结束时按飞剑数获得格挡', '#9fd8ff'], grev: ['回剑', '每射出 1 把飞剑抽 1 张牌（每回合最多 3 张）', '#9fd8ff'], dualst: ['剑意', '每回合第一次射出飞剑后得到能量', '#9fd8ff'],
+  sword: ['飞剑', '每把让攻击牌的第一击 +2 伤害，回合结束每把给 1 点格挡；可以射出（最多 6 把）', '#9fd8ff'], swordgen: ['剑阵', '每回合开始得到 1 把飞剑', '#9fd8ff'], zen: ['剑心通明', '每把飞剑的第一击加成变成 +3', '#9fd8ff'], 
+  gflow: ['剑气护体', '回合结束时每把飞剑给 2 点格挡', '#9fd8ff'], grev: ['剑意循环', '每射出 1 把飞剑抽 1 张牌（每回合最多 3 张）；飞剑归零时再得到 2 把', '#9fd8ff'], dualst: ['剑意', '每回合第一次射出飞剑后得到 1 点能量', '#9fd8ff'],
   dblood: ['龙血', '攒满 8 点后可以变身霜龙', '#ff9090'], dragon: ['霜龙形态', '变身时对所有敌人造成 10 点伤害；攻击牌第一击 +6；每个敌方回合第一段打穿格挡的伤害 -4。数字是剩余回合', '#c8f0ff'],
-  dbgen: ['龙血涌动', '每回合开始得到 1 点龙血', '#ff9090'], dscale: ['龙鳞', '霜龙形态下每回合开始获得格挡', '#c8f0ff'], dheart: ['龙心', '变身时得到能量并抽 1 张牌', '#c8f0ff'], perma: ['永冻', '龙血满 8 点时攻击牌第一击额外加成', '#a8e8ff'],
-  aval: ['雪崩之心', '每回合结束时按龙血点数获得格挡', '#a8e8ff'], wake: ['冬眠苏醒', '退出霜龙形态时得到龙血并抽牌', '#a8e8ff'],
+  dbgen: ['冰晶脊', '每回合开始得到 1 点龙血', '#ff9090'], dscale: ['龙鳞', '霜龙形态下每回合开始获得格挡', '#c8f0ff'], dheart: ['龙心', '变身时得到 2 点能量并抽 1 张牌', '#c8f0ff'], perma: ['永冻', '龙血满 8 点时攻击牌第一击额外加成', '#a8e8ff'],
+  aval: ['雪崩之心', '每花掉 1 点龙血获得 1 点格挡；变身时获得 8 点格挡', '#a8e8ff'], wake: ['冬眠苏醒', '退出霜龙形态时得到龙血并抽牌', '#a8e8ff'],
   mbond: ['羁绊', '每回合开始团子回血', '#ffc0e0'], mpact: ['守护契约', '团子挡下的伤害一半变成米娅的格挡', '#ffc0e0'], mjump: ['练习跳台', '每种指令第一次执行时获得格挡', '#ffc0e0'], mgate: ['云猫守门', '团子护卫多挡 3 点，受伤后下回合抽牌', '#ffc0e0'],
   vblood: ['鲜血', '献血或吸血得到，由牌花掉（最多 12）', '#ff5070'], batgen: ['蝠巢', '每回合开始得到 1 点鲜血', '#c080ff'], vhunger: ['饥渴', '每次吸血后获得格挡', '#ff5070'], undying: ['不死之身', '回合结束时花鲜血回血', '#ff5070'],
   vpulse: ['夜行脉搏', '每回合第一次献血后获得格挡', '#ff5070'], vowb: ['血色誓约', '每回合第一次吸血后得到鲜血并抽牌', '#ff5070'], vdawn: ['血尽天明', '每回合第一次一口气花 4 点以上鲜血时得到能量和格挡', '#ff5070'],
   quick: ['快枪手', '每回合第 3 张攻击牌后得到能量', '#ffd060'], mheart: ['巫女之心', '每回合第 3 张技能牌后得到能量', '#ffd060'], torii: ['鸟居', '回合结束时结界不少于 3 层就获得格挡', '#ffd060'],
   loop: ['循环播放', '每回合第一次弃牌后抽牌', '#ffd060'], wnotes: ['学徒笔记', '每回合第一次用掉炼金瓶后抽牌', '#ffd060'], nshade: ['颠茄', '每回合开始给中毒最多的敌人加中毒', '#ffd060'], inferno: ['业火', '火焰瓶伤害增加', '#ff9050'],
+  kaura: ['杀气诀', '攻击牌命中后，对另一个随机敌人造成等于飞剑加成的伤害。数字是剩余回合', '#ff8080'],
+  permaf: ['永冻', '身上有霜灼的敌人攻击伤害 -2', '#a8e8ff'],
+  fburn: ['霜灼', '每次行动前受到等于层数的伤害，然后层数减半', '#7fd4ff', 'icons2/st_fburn'],
+  frozen: ['冰冻', '跳过下一次行动', '#bfefff', 'icons2/st_frozen'],
+  stun: ['眩晕', '跳过下一次行动', '#ffe070', 'icons2/st_stun'],
+  bind: ['束缚', '跳过下一次行动', '#80d070', 'icons2/st_bind'],
+  bindD: ['藤蔓', '每次行动前受到 4 点伤害。数字是剩余次数', '#80d070', 'icons2/st_bind'],
+  para: ['麻痹', '下一次攻击伤害减半', '#ffd860', 'icons2/st_para'],
+  awe: ['威吓', '下一次攻击每段 -5', '#e0e0ff', 'icons2/st_awe'],
 };
 
 /* ---------- 角色机制钩子（两个引擎在固定时机调用） ---------- */
@@ -381,10 +409,13 @@ export const MECH = {
     if (c === 'feiyue' && g.has('ribbon')) p.st.vblood = 2;
   },
   turnStart(g, first) { const p = P(g);
-    for (const k of ['invN', 'seasT', 'gateT', 'noteT', 'spells', 'windT', 'mtnT', 'windDisc', 'mtnB', 'dualT', 'combo', 'burnT', 'qiT', 'frostT', 'donT', 'vpT', 'vowT', 'vdT', 'setT', 'patT', 'syT', 'syR', 'rzT', 'drawnT', 'avT', 'drHit', 'crT', 'lsT', 'grevT', 'skillN', 'fireN', 'wnT', 'discN', 'loopT', 'zenT']) delete p[k];
+    for (const k of ['invN', 'seasT', 'gateT', 'noteT', 'spells', 'windT', 'mtnT', 'windDisc', 'mtnB', 'dualT', 'combo', 'burnT', 'qiT', 'frostT', 'donT', 'vpT', 'vowT', 'vdT', 'setT', 'patT', 'syT', 'syR', 'rzT', 'drawnT', 'avT', 'drHit', 'crT', 'lsT', 'grevT', 'hangT', 'skillN', 'fireN', 'wnT', 'discN', 'loopT', 'zenT']) delete p[k];
     if (p.st.ecrown) for (const k of EL) addEl(g, k, 1);
     if (p.st.enotes) addEl(g, EL.reduce((m, x) => elN(g, x) < elN(g, m) ? x : m, '火'), 1);
-    if (p.st.qiarmor && sw(g) >= 3) g.block(p.st.qiarmor, true);
+    if (p.hang && p.hang.length) { const q = p.hang; p.hang = []; for (const h of q) swordHits(g, null, h.k, h.dmg, h.mode); }
+    delete p.dmul; delete p.flhsD; if (p.flhsN) { if (p.flhsN === 'e') g.energy(1); else if (p.flhsN === 'a') p.dmul = 1.2; else p.flhsD = 1; delete p.flhsN; }
+    if (p.restE) { g.energy(-1); p.restE = 0; }
+    if (p.st.kaura && !first) { p.st.kaura--; if (!p.st.kaura) delete p.st.kaura; }
     if (p.st.dbgen) { gainDB(g, 1); if (p.st.dbgen > 1) g.block(2, true); }
     if (p.cat && g.has('catbed')) healCat(g, 2);
     if (p.st.swordgen) { addSword(g, 1); if (p.st.swordgen > 1) g.block(2, true); }
@@ -404,26 +435,36 @@ export const MECH = {
       else if (c.cmd === 'guard') c.guardOn = 1; }
     if (p.st.torii && (p.st.kek || 0) >= 3) g.block(p.st.torii, true);
     if (p.st.efocus && elN(g, '水')) g.block(p.st.efocus * elN(g, '水'), true);
-    if (p.st.gflow && sw(g)) g.block(p.st.gflow * sw(g), true);
-    if (p.st.aval && db(g)) g.block(db(g), true);
+    if (p.boomer) { addSword(g, p.boomer); p.boomer = 0; }
+    if (sw(g)) g.block((p.st.gflow ? 2 : 1) * sw(g), true);
     if (p.st.undying && vb(g) >= 2) { spendB(g, 2); g.heal(p.st.undying); }
     p.ePhase = 1;
   },
   /* 敌人攻击打到玩家：格挡之前（团子护卫） */
   preBlock(g, amt, e) { const p = P(g), c = p.cat;
+    if (e) { if (e.cutH) amt = Math.floor(amt / 2); if (e.cutS) amt = Math.max(0, amt - e.cutS); if (p.st.permaf && e.st && e.st.fburn) amt = Math.max(0, amt - p.st.permaf); }
+    if (p.flhsD) amt = Math.floor(amt * .8);
     if (c && !c.down && c.cmd === 'guard' && c.guardOn && amt > 0) { c.guardOn = 0; const capN = 8 + (c.gB || 0) + (p.st.mgate ? 3 : 0), k = Math.min(amt, capN, c.hp); if (k > 0) { const hurtC = Math.max(0, Math.ceil(k / 2) - (c.sR || 0)); c.fx = { k: 'hit', t: Date.now() }; c.hp -= hurtC; c.tookN = (c.tookN || 0) + k; amt -= k; catDid(g, 'guard'); if (p.st.mpact) g.block(Math.floor(k / 2), true); g.note(`团子挡下 ${k}`); if (hurtC > 0 && p.st.mgate) p.gateD = 1; if (c.hp <= 0) { c.hp = 0; c.down = 1; g.note('团子倒下了'); } } }
     return amt; },
   /* 格挡之后（霜龙减伤） */
   postBlock(g, left, e) { const p = P(g); if (left <= 0) return left;
     if (p.st.dragon && !p.drHit) { p.drHit = 1; left = Math.max(0, left - 4); }
     return left; },
+  /* 敌人行动前：霜灼、藤蔓、硬控、麻痹、威吓。返回 'skip' 表示这次不行动 */
+  enemyAct(g, e) { e.cutH = 0; e.cutS = 0;
+    if (e.st.fburn) { const n = e.st.fburn; g.hitE(e, n); if (e.dead) return; const h = Math.floor(n / 2); if (h) e.st.fburn = h; else delete e.st.fburn; }
+    if (e.st.bindD) { g.hitE(e, 4); e.st.bindD--; if (!e.st.bindD) delete e.st.bindD; if (e.dead) return; }
+    for (const k of ['frozen', 'stun', 'bind']) if (e.st[k]) { delete e.st[k]; return 'skip'; }
+    if (e.st.para) { delete e.st.para; e.cutH = 1; }
+    if (e.st.awe) { delete e.st.awe; e.cutS = 5; } },
   /* 攻击牌第一击的加成 */
-  firstHit(g) { const p = P(g); let b = (p.st.sword || 0) * (p.st.zen ? 3 : 2) + (p.st.dragon ? 6 : 0) + (p.st.perma && db(g) >= 8 ? p.st.perma : 0) + (p.fhx || 0); p.fhx = 0; return b; },
+  firstHit(g) { const p = P(g); let b = (p.st.sword || 0) * (p.st.zen ? 3 : 2) + (p.st.dragon ? 6 : 0) + (p.fhx || 0); p.fhx = 0; return b; },
   costMod(g, d) { const p = P(g); return 0; },
   postPlay(g, d) { const p = P(g);
     if (d.type === 'skill' && !d.potion) { p.skillN = (p.skillN || 0) + 1; if (p.skillN === 3 && p.st.mheart) { g.energy(1); if (p.st.mheart > 1) g.draw(1); } }
     if (d.id === 'p_fire') p.fireN = (p.fireN || 0) + 1;
     if (d.potion && p.st.wnotes && !p.wnT) { p.wnT = 1; g.draw(p.st.wnotes); }
+    if (d.type === 'atk' && p.st.kaura && sw(g)) { const a = g.alive(); if (a.length) g.hitE(a[Math.floor(Math.random() * a.length)], sw(g) * (p.st.zen ? 3 : 2)); }
     if (d.type === 'atk') { p.combo = (p.combo || 0) + 1; if (p.combo === 3 && p.st.quick) { g.energy(1); if (p.st.quick > 1) g.draw(1); } if (p.combo >= 3 && g.has('manual') && !p.manU) { p.manU = 1; p.manualD = 1; } }
   },
   /* 胜利后 */
@@ -436,7 +477,7 @@ export const MECH = {
   /* 执行按钮：返回需要选目标的种类 */
   act(g, id, val) { const p = P(g), c = p.cat;
     if (id.startsWith('cmd_') && c && !c.down) { const k = id.slice(4); if (c.set && c.cmd !== k) return; if (k === 'pounce' && val == null) return 'enemy'; c.cmd = k; c.set = 1; if (k === 'pounce') c.pt = val; return; }
-    if (id === 'drake' && (p.st.dblood || 0) >= 8 && !p.st.dragon && (p.drN || 0) < 2) { p.st.dragon = 3; delete p.st.dblood; p.drN = (p.drN || 0) + 1; if (p.st.dheart) { g.energy(p.st.dheart); g.draw(1); } if (g.has('horn') && !p.hornU) { p.hornU = 1; g.block(8, true); } g.attackAll(10); g.note('霜龙形态！'); return; } },
+    if (id === 'drake' && (p.st.dblood || 0) >= 8 && !p.st.dragon && (p.drN || 0) < 2) { p.st.dragon = 3; delete p.st.dblood; p.drN = (p.drN || 0) + 1; g.alive().forEach(e => { if (e.st.fburn) e.st.fburn *= 2; }); if (p.st.aval) g.block(8, true); if (p.st.dheart) { g.energy(p.st.dheart); g.draw(1); } if (g.has('horn') && !p.hornU) { p.hornU = 1; g.block(8, true); } g.attackAll(10); g.note('霜龙形态！'); return; } },
   /* 机器人用的按钮策略 */
   bot(g, incoming) { const p = P(g), c = p.cat, a = g.alive(); if (!a.length) return;
     if (c && !c.down && !c.set) { const low = [...a].sort((x, y) => x.hp - y.hp)[0]; if (incoming >= 12 && c.hp > 3) MECH.act(g, 'cmd_guard'); else MECH.act(g, 'cmd_pounce', low.id); }
