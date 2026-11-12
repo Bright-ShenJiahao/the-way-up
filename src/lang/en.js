@@ -2276,7 +2276,7 @@ export default {
 "团子的灵魂恩赐：选一个（整局有效）": "Dango's Spirit Boon: pick one (lasts the whole run)",
 "合体中": "Fused",
 "合体！": "Fused!",
-"分离": "Unfused",
+"分离": "Unfuse",
 "冰冻目标（跳过下一次行动；精英和 Boss 改为下一次攻击减半）。消耗。": "Freeze the target (skips its next action; Elites and Bosses deal half damage on their next attack instead). Exhaust.",
 "叠到 {0} 层时爆音，造成 {1} 点伤害（每个敌人第一次被爆音时还会眩晕），之后保留 {2} 层（多出的也保留）": "At {0} stacks it bursts for {1} damage (each enemy is also Stunned the first time), then keeps {2} (plus any extra)",
 "召唤 {0} 个式神。消耗。": "Summon {0} Shikigami. Exhaust.",
@@ -2324,5 +2324,12 @@ export default {
 "九命猫": "Nine-Lived Cat",
 "每场第一次倒地时以 5 生命站起来": "The first time each combat Dango falls, it gets back up with 5 HP",
 "猫之馈赠": "Cat's Gift",
-"战斗胜利时团子在场，额外 +5 金币": "If Dango is standing when you win, +5 Gold"
+"战斗胜利时团子在场，额外 +5 金币": "If Dango is standing when you win, +5 Gold",
+"对所有敌人造成 {0} 点伤害；上一轮团子护卫挡下过伤害时再 {1}。": "Deal {0} damage to ALL enemies; {1} more if Dango blocked damage last round.",
+"获得 {0} 点格挡；团子本轮护卫多挡 {1} 点。": "Gain {0} Block. Dango's Guard blocks {1} more this round.",
+"获得 {0} 点格挡；本回合可以再改一次团子的指令。": "Gain {0} Block. You may change Dango's command once more this turn.",
+"造成 {0} 点伤害，再加上一轮团子替你挡下的伤害（最多 {1}）。": "Deal {0} damage plus the damage Dango blocked for you last round (up to {1}).",
+"造成 {0} 点伤害；团子的扑击目标改成这个敌人。": "Deal {0} damage. Dango's Pounce target becomes this enemy.",
+"造成 {0} 点伤害；团子的指令改成扑击这个敌人。": "Deal {0} damage. Dango's command becomes Pounce on this enemy.",
+"合体": "Fuse"
 };

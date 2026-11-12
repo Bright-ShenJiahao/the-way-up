@@ -148,7 +148,7 @@ const SYL = {
 
 /* ======================= 米娅 · 云猫团子 =======================
    团子第一章 1 级、第二章 2 级。分离时每回合免费下一个指令：护卫（替米娅挡下一次攻击的前 8 点）或扑击（回合结束攻击目标）。
-   打出【猫】牌自动合体，打出【人】牌自动分离。合体时团子不在场、每回合回复 3 生命；米娅攻击 + 团子攻击力的一半，每回合开始 5 点格挡。
+   界面上的「合体 / 分离」按钮每回合可以免费切换一次。合体时团子不在场、每回合回复 3 生命；【猫】牌合体时更强。米娅攻击 + 团子攻击力的一半，每回合开始 5 点格挡。
    驯养牌给团子的强化本场有效；灵魂恩赐（打完精英或 Boss 三选一）整局有效。 */
 function catDid(g, k) { const p = P(g), c = p.cat; if (c.did[k]) return; c.did[k] = 1; if (p.st.mjump) g.block(p.st.mjump, true); if (Object.keys(c.did).length >= 2 && g.has('lynx') && !p.lynxU) { p.lynxU = 1; p.lynxD = 1; } }
 const CATLV = [null, { max: 16, atk: 7 }, { max: 21, atk: 9 }, { max: 26, atk: 11 }];
@@ -163,27 +163,27 @@ const catUp = g => cat(g) && !cat(g).down;
 const healCat = (g, n) => { const c = cat(g); if (!c || c.down) return 0; const k = Math.min(n, c.max - c.hp); c.hp += k; return k; };
 const isPT = (g, t) => t && catUp(g) && cat(g).cmd === 'pounce' && cat(g).pt === t.id;
 const MIA = {
-  m_staff: { ch: 'mia', name: '猫杖点射', type: 'atk', rar: 'start', cost: [1, 1], icon: 'icons2/n_m_staff', tgt: 'one', form: 'hum', desc: u => `【人】造成 ${v(u, 8, 11)} 点伤害；团子的扑击目标改成这个敌人。`, play: (g, u, t, c, k) => { setForm(g, 'hum'); ((g, u, t) => { g.attack(t, v(u, 8, 11)); const c = cat(g); if (c && !c.down && t && !t.dead) c.pt = t.id; })(g, u, t, c, k); } },
-  m_side: { ch: 'mia', name: '并肩防守', type: 'skill', rar: 'start', cost: [1, 1], icon: 'icons2/n_m_side', tgt: 'self', form: 'hum', desc: u => `【人】获得 ${v(u, 7, 10)} 点格挡；团子本轮护卫多挡 3 点。`, play: (g, u, t, c, k) => { setForm(g, 'hum'); ((g, u) => { g.block(v(u, 7, 10)); const c = cat(g); if (c) c.gB = (c.gB || 0) + 3; })(g, u, t, c, k); } },
-  m_snack: { ch: 'mia', name: '猫爪拳', type: 'atk', rar: 'start', cost: [1, 1], icon: 'icons2/n_m_snack', tgt: 'one', form: 'cat', desc: u => `【猫】造成 ${v(u, 6, 8)} 点伤害；合体时打 2 次。`, play: (g, u, t, c, k) => { setForm(g, 'cat'); ((g, u, t) => g.attack(t, v(u, 6, 8), merged(g) ? 2 : 1))(g, u, t, c, k); } },
+  m_staff: { ch: 'mia', name: '猫杖点射', type: 'atk', rar: 'start', cost: [1, 1], icon: 'icons2/n_m_staff', tgt: 'one', form: 'hum', desc: u => `造成 ${v(u, 8, 11)} 点伤害；团子的扑击目标改成这个敌人。`, play: (g, u, t, c, k) => { ((g, u, t) => { g.attack(t, v(u, 8, 11)); const c = cat(g); if (c && !c.down && t && !t.dead) c.pt = t.id; })(g, u, t, c, k); } },
+  m_side: { ch: 'mia', name: '并肩防守', type: 'skill', rar: 'start', cost: [1, 1], icon: 'icons2/n_m_side', tgt: 'self', form: 'hum', desc: u => `获得 ${v(u, 7, 10)} 点格挡；团子本轮护卫多挡 3 点。`, play: (g, u, t, c, k) => { ((g, u) => { g.block(v(u, 7, 10)); const c = cat(g); if (c) c.gB = (c.gB || 0) + 3; })(g, u, t, c, k); } },
+  m_snack: { ch: 'mia', name: '猫爪拳', type: 'atk', rar: 'start', cost: [1, 1], icon: 'icons2/n_m_snack', tgt: 'one', form: 'cat', desc: u => `【猫】造成 ${v(u, 6, 8)} 点伤害；合体时打 2 次。`, play: (g, u, t, c, k) => { ((g, u, t) => g.attack(t, v(u, 6, 8), merged(g) ? 2 : 1))(g, u, t, c, k); } },
   m_flank: { ch: 'mia', name: '绕背', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_flank', tgt: 'one', desc: u => `造成 ${v(u, 7, 9)} 点伤害；目标是团子的扑击目标时再 +4。`, play: (g, u, t) => g.attack(t, v(u, 7, 9) + (isPT(g, t) ? 4 : 0)) },
-  m_bell: { ch: 'mia', name: '铃铛波', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_bell', tgt: 'all', form: 'hum', desc: u => `【人】对所有敌人造成 ${v(u, 5, 7)} 点伤害；上一轮团子护卫挡下过伤害时再 +2。`, play: (g, u, t, c, k) => { setForm(g, 'hum'); ((g, u) => g.attackAll(v(u, 5, 7) + (catGuarded(g) ? 2 : 0)))(g, u, t, c, k); } },
-  m_rope: { ch: 'mia', name: '弹跳绳', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_rope', tgt: 'self', form: 'hum', desc: u => `【人】获得 ${v(u, 7, 10)} 点格挡；本回合可以再改一次团子的指令。`, play: (g, u, t, c, k) => { setForm(g, 'hum'); ((g, u) => { g.block(v(u, 7, 10)); const c = cat(g); if (c) c.set = 0; })(g, u, t, c, k); } },
+  m_bell: { ch: 'mia', name: '铃铛波', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_bell', tgt: 'all', form: 'hum', desc: u => `对所有敌人造成 ${v(u, 5, 7)} 点伤害；上一轮团子护卫挡下过伤害时再 +2。`, play: (g, u, t, c, k) => { ((g, u) => g.attackAll(v(u, 5, 7) + (catGuarded(g) ? 2 : 0)))(g, u, t, c, k); } },
+  m_rope: { ch: 'mia', name: '弹跳绳', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_rope', tgt: 'self', form: 'hum', desc: u => `获得 ${v(u, 7, 10)} 点格挡；本回合可以再改一次团子的指令。`, play: (g, u, t, c, k) => { ((g, u) => { g.block(v(u, 7, 10)); const c = cat(g); if (c) c.set = 0; })(g, u, t, c, k); } },
   m_scarf: { ch: 'mia', name: '猫粮', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_scarf', tgt: 'self', desc: u => `驯养：团子本场生命上限 +${v(u, 5, 8)}，并回复 ${v(u, 5, 8)}。`, play: (g, u) => { const c = cat(g); if (c) { c.max += v(u, 5, 8); healCat(g, v(u, 5, 8)); } } },
   m_whistle: { ch: 'mia', name: '追踪哨', type: 'skill', rar: 'c', cost: [0, 0], icon: 'icons2/n_m_whistle', tgt: 'self', exhaust: 1, desc: u => `本回合团子扑击 +${v(u, 3, 5)} 点伤害，抽 1 张牌。消耗。`, play: (g, u) => { const c = cat(g); if (c) c.pB = (c.pB || 0) + v(u, 3, 5); g.draw(1); } },
-  m_nest: { ch: 'mia', name: '暖窝', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_nest', tgt: 'self', form: 'hum', desc: u => `【人】获得 ${v(u, 8, 11)} 点格挡，团子回复 ${v(u, 4, 6)} 生命。`, play: (g, u, t, c, k) => { setForm(g, 'hum'); ((g, u) => { g.block(v(u, 8, 11)); healCat(g, v(u, 4, 6)); })(g, u, t, c, k); } },
+  m_nest: { ch: 'mia', name: '暖窝', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_nest', tgt: 'self', form: 'hum', desc: u => `获得 ${v(u, 8, 11)} 点格挡，团子回复 ${v(u, 4, 6)} 生命。`, play: (g, u, t, c, k) => { ((g, u) => { g.block(v(u, 8, 11)); healCat(g, v(u, 4, 6)); })(g, u, t, c, k); } },
   m_duck: { ch: 'mia', name: '铃铛项圈', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_duck', tgt: 'self', desc: u => `驯养：团子本场护卫多挡 4 点；米娅获得 ${v(u, 4, 7)} 点格挡。`, play: (g, u) => { const c = cat(g); if (c) c.gP = (c.gP || 0) + 4; g.block(v(u, 4, 7)); } },
-  m_pat: { ch: 'mia', name: '递零食', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_pat', tgt: 'self', form: 'hum', desc: u => `【人】团子回复 ${v(u, 4, 6)} 生命，米娅获得 ${v(u, 5, 7)} 点格挡。`, play: (g, u, t, c, k) => { setForm(g, 'hum'); ((g, u) => { healCat(g, v(u, 4, 6)); g.block(v(u, 5, 7)); })(g, u, t, c, k); } },
+  m_pat: { ch: 'mia', name: '递零食', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_pat', tgt: 'self', form: 'hum', desc: u => `团子回复 ${v(u, 4, 6)} 生命，米娅获得 ${v(u, 5, 7)} 点格挡。`, play: (g, u, t, c, k) => { ((g, u) => { healCat(g, v(u, 4, 6)); g.block(v(u, 5, 7)); })(g, u, t, c, k); } },
   m_pincer: { ch: 'mia', name: '夹击', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_pincer', tgt: 'one', desc: u => `造成 ${v(u, 9, 12)} 点伤害；目标是团子的扑击目标时给予 1 层易伤。`, play: (g, u, t) => { const pt = isPT(g, t); g.attack(t, v(u, 9, 12)); if (pt) g.apply(live(g, t), 'vuln', 1); } },
-  m_revenge: { ch: 'mia', name: '护主反扑', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_revenge', tgt: 'one', form: 'hum', desc: u => `【人】造成 ${v(u, 8, 10)} 点伤害，再加上一轮团子替你挡下的伤害（最多 +8）。`, play: (g, u, t, c, k) => { setForm(g, 'hum'); ((g, u, t) => { const c = cat(g); g.attack(t, v(u, 8, 10) + Math.min(8, (c && c.took) || 0)); })(g, u, t, c, k); } },
-  m_swap: { ch: 'mia', name: '九命', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_swap', tgt: 'self', exhaust: 1, form: 'cat', desc: u => `【猫】获得 ${v(u, 10, 13)} 点格挡；本场合体时受到致命伤害，改为分离：团子替你倒下，米娅保留 1 生命。消耗。`, play: (g, u, t, c, k) => { setForm(g, 'cat'); ((g, u) => { g.block(v(u, 10, 13)); P(g).nineL = 1; })(g, u, t, c, k); } },
+  m_revenge: { ch: 'mia', name: '护主反扑', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_revenge', tgt: 'one', form: 'hum', desc: u => `造成 ${v(u, 8, 10)} 点伤害，再加上一轮团子替你挡下的伤害（最多 +8）。`, play: (g, u, t, c, k) => { ((g, u, t) => { const c = cat(g); g.attack(t, v(u, 8, 10) + Math.min(8, (c && c.took) || 0)); })(g, u, t, c, k); } },
+  m_swap: { ch: 'mia', name: '九命', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_swap', tgt: 'self', exhaust: 1, form: 'cat', desc: u => `【猫】获得 ${v(u, 10, 13)} 点格挡；本场合体时受到致命伤害，改为分离：团子替你倒下，米娅保留 1 生命。消耗。`, play: (g, u, t, c, k) => { ((g, u) => { g.block(v(u, 10, 13)); P(g).nineL = 1; })(g, u, t, c, k); } },
   m_mint: { ch: 'mia', name: '猫薄荷', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_mint', tgt: 'self', desc: u => `驯养：团子本场攻击 +1，回复 ${v(u, 4, 6)} 生命。`, play: (g, u) => { const c = cat(g); if (c) { c.atk += 1; healCat(g, v(u, 4, 6)); } } },
   m_jump: { ch: 'mia', name: '野性', type: 'power', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_jump', tgt: 'self', desc: u => `合体时，攻击的加成从团子攻击力的一半变成全部${v(u, '', '；合体时每回合多 3 点格挡')}。`, play: (g, u) => { P(g).st.wild = u ? 2 : 1; } },
-  m_cloud: { ch: 'mia', name: '云步', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_cloud', tgt: 'self', form: 'cat', desc: u => `【猫】获得 ${v(u, 10, 13)} 点格挡；合体时再 +5。`, play: (g, u, t, c, k) => { setForm(g, 'cat'); ((g, u) => g.block(v(u, 10, 13) + (merged(g) ? 5 : 0)))(g, u, t, c, k); } },
+  m_cloud: { ch: 'mia', name: '云步', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_cloud', tgt: 'self', form: 'cat', desc: u => `【猫】获得 ${v(u, 10, 13)} 点格挡；合体时再 +5。`, play: (g, u, t, c, k) => { ((g, u) => g.block(v(u, 10, 13) + (merged(g) ? 5 : 0)))(g, u, t, c, k); } },
   m_bigpounce: { ch: 'mia', name: '大猫扑杀', type: 'skill', rar: 'r', cost: [2, 2], icon: 'icons2/n_m_bigpounce', tgt: 'self', exhaust: 1, desc: u => `本回合团子的扑击改为造成 ${v(u, 14, 18)} 点伤害 2 次。消耗。`, play: (g, u) => { const c = cat(g); if (c) c.big = v(u, 14, 18); } },
   m_hold: { ch: 'mia', name: '绝不松手', type: 'skill', rar: 'r', cost: [1, 1], icon: 'icons2/n_m_hold', tgt: 'self', exhaust: 1, desc: u => `获得 ${v(u, 10, 13)} 点格挡；团子倒地时，带 6 生命回到场上。消耗。`, play: (g, u) => { g.block(v(u, 10, 13)); const c = cat(g); if (c && c.down) { c.down = 0; c.hp = 6; c.merged = 0; } else if (c) c.hold = 1; } },
   m_gate: { ch: 'mia', name: '云猫守门', type: 'power', rar: 'r', cost: [2, 1], icon: 'icons2/n_m_gate', tgt: 'self', desc: u => `团子护卫多挡 3 点；护卫时真的受了伤，下回合米娅抽 1 张牌。`, play: g => { P(g).st.mgate = 1; } },
-  m_sac: { ch: 'mia', name: '猫神降临', type: 'atk', rar: 'r', cost: [2, 2], icon: 'icons2/n_m_sac', tgt: 'all', exhaust: 1, form: 'cat', desc: u => `【猫】对所有敌人造成团子攻击力 ×${v(u, 3, 4)} 的伤害。消耗。`, play: (g, u, t, c, k) => { setForm(g, 'cat'); ((g, u) => { const c = cat(g); g.attackAll((c ? c.atk : 7) * v(u, 3, 4)); })(g, u, t, c, k); } },
+  m_sac: { ch: 'mia', name: '猫神降临', type: 'atk', rar: 'r', cost: [2, 2], icon: 'icons2/n_m_sac', tgt: 'all', exhaust: 1, form: 'cat', desc: u => `【猫】对所有敌人造成团子攻击力 ×${v(u, 3, 4)} 的伤害。消耗。`, play: (g, u, t, c, k) => { ((g, u) => { const c = cat(g); g.attackAll((c ? c.atk : 7) * v(u, 3, 4)); })(g, u, t, c, k); } },
 };
 
 /* ======================= 绯月 · 费血 / 召唤 =======================
@@ -347,19 +347,19 @@ const NEW2 = {
   s_chill: { ch: 'sylvie', name: '寒息', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_chill', tgt: 'one', desc: u => `给予 ${v(u, 2, 3)} 层虚弱，得到 2 点龙血。【龙】冰冻目标，全体 4。`, play: (g, u, t) => { if (dr(g)) hardCC(g, t, 'frozen'); else g.apply(t, 'weak', v(u, 2, 3)); gainDB(g, 2); } },
   s_calm: { ch: 'sylvie', name: '平静', type: 'skill', rar: 'c', cost: [0, 0], icon: 'icons2/n_s_calm', tgt: 'self', desc: u => `获得 ${v(u, 4, 6)} 点格挡，得到 1 点龙血。【龙】${v(u, 2, 3)} 格挡，全体 2。`, play: (g, u) => { g.block(dr(g) ? v(u, 2, 3) : v(u, 4, 6)); gainDB(g, 1); } },
   // ---- 米娅：扑击 / 护卫 / 照料 ----
-  m_claw: { ch: 'mia', name: '猫抓', type: 'atk', rar: 'c', cost: [0, 0], icon: 'icons2/n_m_claw', tgt: 'one', form: 'cat', desc: u => `【猫】造成 ${v(u, 4, 6)} 点伤害；合体时 +3。`, play: (g, u, t, c, k) => { setForm(g, 'cat'); ((g, u, t) => g.attack(t, v(u, 4, 6) + (merged(g) ? 3 : 0)))(g, u, t, c, k); } },
-  m_toy: { ch: 'mia', name: '猫扑', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_toy', tgt: 'one', form: 'cat', desc: u => `【猫】造成 ${v(u, 8, 11)} 点伤害；合体时给予 1 层易伤。`, play: (g, u, t, c, k) => { setForm(g, 'cat'); ((g, u, t) => { g.attack(t, v(u, 8, 11)); if (merged(g)) g.apply(live(g, t), 'vuln', 1); })(g, u, t, c, k); } },
-  m_fluff: { ch: 'mia', name: '炸毛', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_fluff', tgt: 'self', form: 'cat', desc: u => `【猫】获得 ${v(u, 8, 11)} 点格挡；合体时再 +3。`, play: (g, u, t, c, k) => { setForm(g, 'cat'); ((g, u) => g.block(v(u, 8, 11) + (merged(g) ? 3 : 0)))(g, u, t, c, k); } },
+  m_claw: { ch: 'mia', name: '猫抓', type: 'atk', rar: 'c', cost: [0, 0], icon: 'icons2/n_m_claw', tgt: 'one', form: 'cat', desc: u => `【猫】造成 ${v(u, 4, 6)} 点伤害；合体时 +3。`, play: (g, u, t, c, k) => { ((g, u, t) => g.attack(t, v(u, 4, 6) + (merged(g) ? 3 : 0)))(g, u, t, c, k); } },
+  m_toy: { ch: 'mia', name: '猫扑', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_toy', tgt: 'one', form: 'cat', desc: u => `【猫】造成 ${v(u, 8, 11)} 点伤害；合体时给予 1 层易伤。`, play: (g, u, t, c, k) => { ((g, u, t) => { g.attack(t, v(u, 8, 11)); if (merged(g)) g.apply(live(g, t), 'vuln', 1); })(g, u, t, c, k); } },
+  m_fluff: { ch: 'mia', name: '炸毛', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_fluff', tgt: 'self', form: 'cat', desc: u => `【猫】获得 ${v(u, 8, 11)} 点格挡；合体时再 +3。`, play: (g, u, t, c, k) => { ((g, u) => g.block(v(u, 8, 11) + (merged(g) ? 3 : 0)))(g, u, t, c, k); } },
   m_whistle2: { ch: 'mia', name: '口哨', type: 'skill', rar: 'c', cost: [0, 0], icon: 'icons2/n_m_whistle2', tgt: 'self', exhaust: 1, desc: u => `抽 ${v(u, 1, 2)} 张牌；本回合可以再改一次团子的指令。消耗。`, play: (g, u) => { g.draw(v(u, 1, 2)); const c = cat(g); if (c) c.set = 0; } },
   m_twice: { ch: 'mia', name: '二连扑', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_twice', tgt: 'self', desc: u => `本回合团子扑击多打 1 次${v(u, '', '，抽 1 张牌')}。`, play: (g, u) => { const c = cat(g); if (c) c.twice = 1; if (u) g.draw(1); } },
   m_bond: { ch: 'mia', name: '羁绊', type: 'power', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_bond', tgt: 'self', desc: u => `每回合开始团子回复 ${v(u, 2, 3)} 生命。`, play: (g, u) => { P(g).st.mbond = v(u, 2, 3); } },
   m_sharpen: { ch: 'mia', name: '磨爪', type: 'power', rar: 'u', cost: [1, 0], icon: 'icons2/n_m_sharpen', tgt: 'self', desc: u => `驯养：团子本场攻击 +2。`, play: g => { const c = cat(g); if (c) c.atk += 2; } },
-  m_leap: { ch: 'mia', name: '飞扑', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_leap', tgt: 'one', form: 'hum', desc: u => `【人】造成 ${v(u, 7, 10)} 点伤害；团子的指令改成扑击这个敌人。`, play: (g, u, t, c, k) => { setForm(g, 'hum'); ((g, u, t) => { g.attack(t, v(u, 7, 10)); const c = cat(g); if (c && !c.down && t && !t.dead) { c.cmd = 'pounce'; c.pt = t.id; } })(g, u, t, c, k); } },
-  m_catshield: { ch: 'mia', name: '猫步', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_catshield', tgt: 'self', form: 'cat', desc: u => `【猫】获得 ${v(u, 7, 10)} 点格挡；合体时再抽 1 张牌。`, play: (g, u, t, c, k) => { setForm(g, 'cat'); ((g, u) => { g.block(v(u, 7, 10)); if (merged(g)) g.draw(1); })(g, u, t, c, k); } },
+  m_leap: { ch: 'mia', name: '飞扑', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_leap', tgt: 'one', form: 'hum', desc: u => `造成 ${v(u, 7, 10)} 点伤害；团子的指令改成扑击这个敌人。`, play: (g, u, t, c, k) => { ((g, u, t) => { g.attack(t, v(u, 7, 10)); const c = cat(g); if (c && !c.down && t && !t.dead) { c.cmd = 'pounce'; c.pt = t.id; } })(g, u, t, c, k); } },
+  m_catshield: { ch: 'mia', name: '猫步', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_catshield', tgt: 'self', form: 'cat', desc: u => `【猫】获得 ${v(u, 7, 10)} 点格挡；合体时再抽 1 张牌。`, play: (g, u, t, c, k) => { ((g, u) => { g.block(v(u, 7, 10)); if (merged(g)) g.draw(1); })(g, u, t, c, k); } },
   m_herd: { ch: 'mia', name: '默契', type: 'power', rar: 'r', cost: [2, 1], icon: 'icons2/n_m_herd', tgt: 'self', desc: u => `驯养：本场团子每回合同时执行护卫和扑击。`, play: g => { P(g).st.mtwin = 1; } },
   m_pact: { ch: 'mia', name: '守护契约', type: 'power', rar: 'r', cost: [1, 0], icon: 'icons2/n_m_pact', tgt: 'self', desc: u => `团子护卫挡下的伤害，一半变成米娅的格挡。`, play: g => { P(g).st.mpact = 1; } },
   m_nap: { ch: 'mia', name: '打盹', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_m_nap', tgt: 'self', desc: u => `团子回复 ${v(u, 6, 9)} 生命，米娅获得 4 点格挡。`, play: (g, u) => { healCat(g, v(u, 6, 9)); g.block(4); } },
-  m_yarn: { ch: 'mia', name: '猫爪连打', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_yarn', tgt: 'one', form: 'cat', desc: u => `【猫】造成 ${v(u, 4, 5)} 点伤害 2 次；合体时打 3 次。`, play: (g, u, t, c, k) => { setForm(g, 'cat'); ((g, u, t) => g.attack(t, v(u, 4, 5), merged(g) ? 3 : 2))(g, u, t, c, k); } },
+  m_yarn: { ch: 'mia', name: '猫爪连打', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_yarn', tgt: 'one', form: 'cat', desc: u => `【猫】造成 ${v(u, 4, 5)} 点伤害 2 次；合体时打 3 次。`, play: (g, u, t, c, k) => { ((g, u, t) => g.attack(t, v(u, 4, 5), merged(g) ? 3 : 2))(g, u, t, c, k); } },
   m_trust: { ch: 'mia', name: '信任', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_m_trust', tgt: 'self', desc: u => `抽 ${v(u, 2, 3)} 张牌；团子生命不少于一半时得到 1 点能量。`, play: (g, u) => { g.draw(v(u, 2, 3)); const c = cat(g); if (c && !c.down && c.hp * 2 >= c.max) g.energy(1); } },
   // ---- 绯月：鲜血 / 吸血 / 蝙蝠 ----
   f_nick: { ch: 'feiyue', name: '划伤', type: 'atk', rar: 'c', cost: [0, 0], icon: 'icons2/n_f_nick', tgt: 'one', desc: u => `造成 ${v(u, 4, 6)} 点伤害。`, play: (g, u, t) => fa(g, t, v(u, 4, 6)) },
@@ -448,7 +448,7 @@ export const MECH = {
     if (c === 'feiyue') { p.bats = 0; p.big = null; }
   },
   turnStart(g, first) { const p = P(g);
-    for (const k of ['invN', 'seasT', 'gateT', 'noteT', 'spells', 'windT', 'mtnT', 'windDisc', 'mtnB', 'dualT', 'combo', 'burnT', 'qiT', 'frostT', 'donT', 'vpT', 'vowT', 'vdT', 'setT', 'patT', 'syT', 'syR', 'rzT', 'drawnT', 'avT', 'drHit', 'crT', 'lsT', 'grevT', 'hangT', 'lostT', 'batB', 'bigG', 'skillN', 'fireN', 'wnT', 'discN', 'loopT', 'zenT']) delete p[k];
+    for (const k of ['invN', 'seasT', 'gateT', 'noteT', 'spells', 'windT', 'mtnT', 'windDisc', 'mtnB', 'dualT', 'combo', 'burnT', 'qiT', 'frostT', 'donT', 'vpT', 'vowT', 'vdT', 'setT', 'patT', 'syT', 'syR', 'rzT', 'drawnT', 'avT', 'drHit', 'crT', 'lsT', 'grevT', 'hangT', 'mergeT', 'lostT', 'batB', 'bigG', 'skillN', 'fireN', 'wnT', 'discN', 'loopT', 'zenT']) delete p[k];
     if (p.st.efocus && p.el) { writeEl(g, p.el[2]); if (p.st.efocus > 1) g.block(3, true); }
     if (p.hang && p.hang.length) { const q = p.hang; p.hang = []; for (const h of q) swordHits(g, null, h.k, h.dmg, h.mode); }
     delete p.dmul; delete p.flhsD; if (p.flhsN) { if (p.flhsN === 'e') g.energy(1); else if (p.flhsN === 'a') p.dmul = 1.2; else p.flhsD = 1; delete p.flhsN; }
@@ -528,23 +528,26 @@ export const MECH = {
   boonPick(g, k) { if (!k || !BOONS[k]) return; (g.R.boons = g.R.boons || []).push(k); },
   /* 角色按钮 */
   actions(g) { const p = P(g), out = [], c = p.cat;
-    if (c) { if (c.down) out.push({ id: 'x', label: '团子倒地', dis: 1 }); else if (c.merged) out.push({ id: 'x', label: '合体中', dis: 1, on: 1 }); else for (const [k, n] of [['guard', '护卫'], ['pounce', '扑击']]) out.push({ id: 'cmd_' + k, label: n, on: c.cmd === k, dis: c.set && c.cmd !== k }); }
+    if (c) { if (c.down) out.push({ id: 'x', label: '团子倒地', dis: 1 }); else if (c.merged) out.push({ id: 'merge', label: '分离', on: 1, dis: p.mergeT }); else { out.push({ id: 'merge', label: '合体', dis: p.mergeT }); }
+    if (c && !c.down && !c.merged) for (const [k, n] of [['guard', '护卫'], ['pounce', '扑击']]) out.push({ id: 'cmd_' + k, label: n, on: c.cmd === k, dis: c.set && c.cmd !== k }); }
     if (g.R.char === 'sylvie') out.push({ id: 'drake', label: p.st.dragon ? `霜龙 ${p.st.dragon} 回合` : `变身（龙血 ${p.st.dblood || 0}/8）`, dis: p.st.dragon || (p.st.dblood || 0) < 8 || (p.drN || 0) >= 2, on: !!p.st.dragon });
     return out; },
   /* 执行按钮：返回需要选目标的种类 */
   act(g, id, val) { const p = P(g), c = p.cat;
+    if (id === 'merge' && c && !c.down && !p.mergeT) { p.mergeT = 1; setForm(g, c.merged ? 'hum' : 'cat'); return; }
     if (id.startsWith('cmd_') && c && !c.down) { const k = id.slice(4); if (c.set && c.cmd !== k) return; if (k === 'pounce' && val == null) return 'enemy'; c.cmd = k; c.set = 1; if (k === 'pounce') c.pt = val; return; }
     if (id === 'drake' && (p.st.dblood || 0) >= 8 && !p.st.dragon && (p.drN || 0) < 2) { p.st.dragon = 3; delete p.st.dblood; p.drN = (p.drN || 0) + 1; g.alive().forEach(e => { if (e.st.fburn) e.st.fburn *= 2; }); if (p.st.aval) g.block(8, true); if (p.st.dheart) { g.energy(p.st.dheart); g.draw(1); } if (g.has('horn') && !p.hornU) { p.hornU = 1; g.block(8, true); } g.attackAll(10); g.note('霜龙形态！'); return; } },
   /* 机器人用的按钮策略 */
   bot(g, incoming) { const p = P(g), c = p.cat, a = g.alive(); if (!a.length) return;
-    if (c && !c.down && !c.set) { const low = [...a].sort((x, y) => x.hp - y.hp)[0]; if (incoming >= 12 && c.hp > 3) MECH.act(g, 'cmd_guard'); else MECH.act(g, 'cmd_pounce', low.id); }
+    if (c && !c.down && !p.mergeT) { const catN = g.hand.filter(x => (CARDS_[x.id] || {}).form === 'cat').length; if (!c.merged && (c.hp * 10 < c.max * 4 || catN >= 2)) MECH.act(g, 'merge'); else if (c.merged && c.hp * 10 >= c.max * 8 && catN === 0) MECH.act(g, 'merge'); }
+    if (c && !c.down && !c.merged && !c.set) { const low = [...a].sort((x, y) => x.hp - y.hp)[0]; if (incoming >= 12 && c.hp > 3) MECH.act(g, 'cmd_guard'); else MECH.act(g, 'cmd_pounce', low.id); }
     if (g.R.char === 'sylvie') MECH.act(g, 'drake'); },
   /* 头顶显示：团子 */
   chips(g) { const p = P(g), out = [];
     if (p.el) out.push({ h: `${p.el.map(x => `<span class="el el${EL.indexOf(x)}">${x}</span>`).join('')} ➜ <span>${(NEWCARDS[RECIPE[elKey(p.el)]] || {}).name || ''}</span>`, c: '#ffb070', tip: '元素位：祈唤会得到箭头后面的法术' });
     if (p.bats) out.push({ h: `<span>血蝠</span> ×${p.bats}`, c: '#ff6080', tip: '每只回合结束打随机敌人 3 点；敌人每次行动会打掉 1 只' });
     if (p.big) out.push({ h: `<span>${p.big.name}</span> ${p.big.hp}/${p.big.max}`, c: '#ff6080', tip: `攻击 ${p.big.atk}` + (p.big.kind === 'knight' ? '；每回合替你挡下第一次攻击' : '') });
-    if (p.cat) out.push({ h: p.cat.down ? '<span>团子倒地</span>' : p.cat.merged ? `<span>合体中</span> 团子 ${p.cat.hp}/${p.cat.max}` : `<span>团子</span> ${p.cat.hp}/${p.cat.max} · <span>${{ guard: '护卫', pounce: '扑击' }[p.cat.cmd]}</span>`, c: '#ffc0e0', tip: `团子 ${g.R.cat ? g.R.cat.lv : 1} 级，攻击 ${p.cat.atk}` });
+    if (p.cat) out.push({ h: p.cat.down ? '<span>团子倒地</span>' : p.cat.merged ? `<span>合体中</span> ${p.cat.hp}/${p.cat.max}` : `<span>团子</span> ${p.cat.hp}/${p.cat.max} · <span>${{ guard: '护卫', pounce: '扑击' }[p.cat.cmd]}</span>`, c: '#ffc0e0', tip: `团子 ${g.R.cat ? g.R.cat.lv : 1} 级，攻击 ${p.cat.atk}` });
     return out; },
   rack() { return null; },
 };

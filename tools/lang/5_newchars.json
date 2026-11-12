@@ -745,7 +745,7 @@
  ],
  "团子回复 {0} 生命，米娅获得 {1} 点格挡。": [
   "Dango heals {0} HP. Mia gains {1} Block.",
-  "団子のHPを{0}回復。ミアはブロック{1}を得る。"
+  "団子がHPを{0}回復、ミアはブロック{1}を得る。"
  ],
  "团子回复 {0} 生命，米娅获得 {1} 点格挡。消耗。": [
   "Dango heals {0} HP. Mia gains {1} Block. Exhaust.",
@@ -2877,7 +2877,7 @@
  ],
  "获得 {0} 点格挡，团子回复 {1} 生命。": [
   "Gain {0} Block. Dango heals {1} HP.",
-  "ブロック{0}を得る。団子のHPを{1}回復。"
+  "ブロック{0}を得る。団子がHPを{1}回復。"
  ],
  "获得 {0} 点格挡，对所有敌人造成 {1} 点伤害。": [
   "Gain {0} Block. Deal {1} damage to ALL enemies.",
@@ -4696,7 +4696,7 @@
   "合体！"
  ],
  "分离": [
-  "Unfused",
+  "Unfuse",
   "分離"
  ],
  "冰冻目标（跳过下一次行动；精英和 Boss 改为下一次攻击减半）。消耗。": [
@@ -4898,5 +4898,33 @@
  "战斗胜利时团子在场，额外 +5 金币": [
   "If Dango is standing when you win, +5 Gold",
   "勝利時に団子が場にいれば+5ゴールド"
+ ],
+ "对所有敌人造成 {0} 点伤害；上一轮团子护卫挡下过伤害时再 {1}。": [
+  "Deal {0} damage to ALL enemies; {1} more if Dango blocked damage last round.",
+  "敵全体に{0}ダメージ。前のラウンドで団子が護衛でダメージを防いでいればさらに{1}。"
+ ],
+ "获得 {0} 点格挡；团子本轮护卫多挡 {1} 点。": [
+  "Gain {0} Block. Dango's Guard blocks {1} more this round.",
+  "ブロック{0}を得る。このラウンド団子の護衛が{1}多く防ぐ。"
+ ],
+ "获得 {0} 点格挡；本回合可以再改一次团子的指令。": [
+  "Gain {0} Block. You may change Dango's command once more this turn.",
+  "ブロック{0}を得る。このターン団子の指示をもう一度変えられる。"
+ ],
+ "造成 {0} 点伤害，再加上一轮团子替你挡下的伤害（最多 {1}）。": [
+  "Deal {0} damage plus the damage Dango blocked for you last round (up to {1}).",
+  "{0}ダメージ＋前のラウンドで団子が防いだダメージ（最大{1}）。"
+ ],
+ "造成 {0} 点伤害；团子的扑击目标改成这个敌人。": [
+  "Deal {0} damage. Dango's Pounce target becomes this enemy.",
+  "{0}ダメージ。団子の飛びかかり対象をこの敵にする。"
+ ],
+ "造成 {0} 点伤害；团子的指令改成扑击这个敌人。": [
+  "Deal {0} damage. Dango's command becomes Pounce on this enemy.",
+  "{0}ダメージ。団子の指示をこの敵への飛びかかりにする。"
+ ],
+ "合体": [
+  "Fuse",
+  "合体"
  ]
 }
