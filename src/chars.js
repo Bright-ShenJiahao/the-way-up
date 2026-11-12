@@ -203,7 +203,7 @@ function addBats(g, n) { const p = P(g); p.bats = Math.min(8, bats(g) + n); if (
 function summonKnight(g, hp) { const p = P(g); if (p.big && p.big.kind === 'knight') { p.big.max = Math.max(p.big.max, hp); p.big.hp = p.big.max; } else p.big = { kind: 'knight', name: '血骑士', hp, max: hp, atk: 8 }; }
 function embrace(g, t, cap) { const p = P(g); if (!t || t.dead || isBig(t) || t.hp > cap) { g.note('无法转化这个敌人'); return; }
   const atk = Math.max(4, ...Object.values(t.d.moves || {}).map(m => m.d || 0)); p.big = { kind: 'thrall', name: t.d.name, key: t.key, hp: t.hp, max: t.max, atk };
-  t.fled = 1; t.dead = true; t.hp = 0; g.note(`${t.d.name} 成为了眷属`); }
+  t.fled = 1; t.dead = true; t.hp = 0; t.deadAt = Date.now() - 5000; /* 直接从敌方消失，不留尸体 */ g.note(`${t.d.name} 成为了眷属`); }
 function summonsAttack(g) { const p = P(g), fh = p.fh; p.fh = 0; let d = 0;
   if (bats(g)) p.batFx = Date.now();
   for (let i = 0; i < bats(g); i++) { const a = g.alive(); if (!a.length) break; d += g.attack(a[Math.floor(Math.random() * a.length)], 3 + (p.batB || 0)); }
