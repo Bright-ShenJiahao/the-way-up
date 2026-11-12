@@ -1,8 +1,8 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11130300';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11130300';
-import { createAudio } from './audio.js?v=live2_11130300';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11130300';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11130315';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11130315';
+import { createAudio } from './audio.js?v=live2_11130315';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11130315';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -386,7 +386,7 @@ function battle(keys, kind) {
   if (kind === 'fight' && R.trials && R.trials.includes('swarm') && keys.length < 4) keys = [...keys, 'd_egg'];
   const bg = ACT() === 3 && R.rift ? (kind === 'boss' && keys[0] !== FINAL3 ? 'c3_hall' : RIFTBG) : ACT() >= 3 ? (kind === 'boss' ? 'c3_hall' : 'c3_battle') : ACT() === 2 ? (kind === 'boss' ? 'c2_hall' : pickOne(['c2_exterior', 'c2_crypt'])) : kind === 'boss' ? 'battle_castle' : pickOne(BGS);
   B = { kind, bg, en: keys.map(mkEnemy), p: { block: 0, energy: 0, st: {}, noDraw: 0 }, draw: shuffle(R.deck.map(c => ({ ...c }))), hand: [], disc: [], exh: [], turn: 0, atkCnt: 0, sel: -1, busy: false, fx: [], over: false };
-  setMusic(kind === 'boss' ? 'boss' : kind === 'elite' ? 'elite' : 'battle'); setTimeout(() => B && B.en[0] && gv(B.en[0], 'laugh'), 500); if (kind === 'boss') audio.boss();
+  setMusic(kind === 'boss' ? (keys[0] === FINAL3 ? 'final' : 'boss') : kind === 'elite' ? 'elite' : 'battle'); setTimeout(() => B && B.en[0] && gv(B.en[0], 'laugh'), 500); if (kind === 'boss') audio.boss();
   if (has('charm')) B.p.st.str = 1; if (has('lantern')) B.p.st.dex = (B.p.st.dex || 0) + 1;
   
   if (has('suzu')) B.p.st.kek = 5 + (has('omamori') ? 2 : 0); else if (has('omamori')) B.p.st.kek = 2;
@@ -1003,10 +1003,11 @@ function story(img, lines, done, once) {
   show(); $('#stskip').onclick = done; $('#stnext').onclick = () => { if (++i >= lines.length) done(); else show(); };
 }
 /* 外部曲子（Pixabay 许可，可商用）：标题 / 每章的地图、战斗、Boss 各一首 */
-const BGM = {}; let bgmNow = null, duckT = 0;
+const BGM = {}; let bgmNow = null, duckT = 0; const M3 = new Set(['c3_map']);
 function sting(k, ms) { try { audio[k] && audio[k](); } catch (e) {} duckT = performance.now() + ms; }
 function setMusic(m) {
-  const a = ACT() >= 2 ? 'c2' : 'c1', want = !R && m === 'menu' ? 'title' : m === 'menu' ? a + '_map' : m === 'boss' ? a + '_boss' : m === 'elite' ? a + '_elite' : a + '_battle';
+  const a = ACT() >= 2 ? 'c2' : 'c1'; let want = !R && m === 'menu' ? 'title' : m === 'menu' ? a + '_map' : m === 'boss' || m === 'final' ? a + '_boss' : m === 'elite' ? a + '_elite' : a + '_battle';
+  if (R && ACT() === 3) { const c = R.rift ? (m === 'final' ? 'c3_final' : m === 'boss' ? 'c3_elite' : 'c3_rift') : m === 'menu' ? 'c3_map' : m === 'boss' ? 'c3_boss' : m === 'elite' ? 'c3_elite' : 'c3_battle'; if (M3.has(c)) want = c; } /* 第三章的曲子到了哪首用哪首，没到的先用第二章的 */
   if (bgmNow && bgmNow !== want) { BGM[bgmNow].pause(); bgmNow = null; }
   if (!want) { audio.setMode(m); return; }
   audio.setMode('silent');
