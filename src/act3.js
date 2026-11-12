@@ -86,14 +86,14 @@ export const E3 = {
     ai: e => e.p2 ? cycle({ turn: e.turn - (e.t2 || 0) }, ['fcharge', 'fbreath', 'dive']) : cycle(e, ['hatch', 'claw', 'charge', 'breath', 'scales']) },
   dev_boss: { name: '开发者', hd: 290, hp: [260, 260], sc: 2.6, boss: 1, lore: '这个游戏的作者。他能看你的手牌、改你的牌，每轮 7 个动作做完还会「加班」力量 +2。弱点：一回合打出 3 张 0 费牌，他就会「程序报错」晕一回合。',
     intro: '「这一关……其实我自己都没打过。」',
-    moves: { peek: { n: '偷看', i: 'unknown' }, peekDef: { n: '看穿', i: 'def', f: (e, B) => B.eBlock(e, 18) }, peekHit: { n: '看穿', i: 'atk', d: 20 },
-      keys: { n: '键盘连打', i: 'atk', d: 9, x: 3 },
+    moves: { peek: { n: '偷看', i: 'unknown' }, peekDef: { n: '看穿', i: 'def', f: (e, B) => B.eBlock(e, 18) }, peekHit: { n: '看穿', i: 'atk', d: 17 },
+      keys: { n: '键盘连打', i: 'atk', d: 8, x: 3 },
       swap: { n: '换牌', i: 'debuff', f: e => { e.pend = 'swap'; e.pose = 'cast'; } },
-      del: { n: 'Delete', i: 'atkdebuff', d: 14, f: e => { e.pend = 'del'; } },
+      del: { n: 'Delete', i: 'atkdebuff', d: 12, f: e => { e.pend = 'del'; } },
       patch: { n: '平衡补丁', i: 'debuff', f: (e, B) => { e.pose = 'cast'; const n = B.nerfTop(3); B.say(n ? `「「${n}」太强了，削。」` : '「嗯……没什么好削的。」'); } },
-      flip: { n: '敲回车', i: 'atkdebuff', d: 16, f: e => { e.pend = 'flip'; } },
+      flip: { n: '敲回车', i: 'atkdebuff', d: 14, f: e => { e.pend = 'flip'; } },
       debug: { n: '调试召唤', i: 'summon', f: (e, B) => { e.pose = 'cast'; const m = B.summon(Math.random() < .5 ? 'gob_king' : 'wolf_lord', 45); if (m) { m.mini = 1; m.hd = 200; } B.say('「调试一下……」'); } },
-      demand: { n: '需求变更', i: 'atk', d: 28 } },
+      demand: { n: '需求变更', i: 'atk', d: 24 } },
     onPTurn: (e, B) => { e.bugT = 0;
       if (e.move === 'peek') { const h = B.handTypes(); e.move = h.atk >= h.skill ? 'peekDef' : 'peekHit'; B.say('「你手里的牌，我都看到了。」'); }
       if (e.pend === 'swap') { const n = B.swapHigh(); if (n) B.say(`「「${n}」借我用用。」`); }
