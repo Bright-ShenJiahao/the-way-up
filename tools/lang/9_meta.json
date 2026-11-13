@@ -1,0 +1,922 @@
+{
+ "最大生命 {0}": [
+  "Max HP {0}",
+  "最大HP{0}"
+ ],
+ "获得 {0} 金币": [
+  "Gain {0} gold",
+  "{0}ゴールドを得る"
+ ],
+ "从 {0} 张牌里选 {1} 张加入牌组": [
+  "Choose {1} of {0} cards to add to your deck",
+  "{0}枚から{1}枚選んでデッキに加える"
+ ],
+ "获得 {0} 瓶随机药水": [
+  "Gain {0} random potions",
+  "ランダムなポーションを{0}つ得る"
+ ],
+ "获得 {0} 个随机普通秘宝": [
+  "Gain {0} random common treasure",
+  "ランダムなコモン秘宝を{0}つ得る"
+ ],
+ "失去 {0} 最大生命：从 {1} 张稀有牌里选 {2} 张": [
+  "Lose {0} Max HP: choose {2} of {1} rare cards",
+  "最大HPを{0}失う：レアカード{1}枚から{2}枚選ぶ"
+ ],
+ "失去所有金币：获得 {0} 个随机稀有秘宝": [
+  "Lose all gold: gain {0} random rare treasure",
+  "ゴールドをすべて失う：ランダムなレア秘宝を{0}つ得る"
+ ],
+ "牌组混进 {0} 张「{1}」：删除 {2} 张牌": [
+  "Add {0} 「{1}」 to your deck: remove {2} cards",
+  "デッキに「{1}」を{0}枚加える：カードを{2}枚削除"
+ ],
+ "失去 {0} 点最大生命：获得 {1} 金币": [
+  "Lose {0} Max HP: gain {1} gold",
+  "最大HPを{0}失う：{1}ゴールドを得る"
+ ],
+ "每章开始回复的生命减少（{0} → {1}）": [
+  "Less healing at the start of each chapter ({0} → {1})",
+  "章の開始時の回復が減る（{0}→{1}）"
+ ],
+ "普通怪伤害 {0}": [
+  "Normal enemies deal {0} damage",
+  "通常の敵のダメージ{0}"
+ ],
+ "精英血量再 {0}": [
+  "Elites get another {0} HP",
+  "エリートのHPがさらに{0}"
+ ],
+ "开局祝福只剩有代价的那一项": [
+  "The opening blessing offers only the costly option",
+  "開始時の祝福は代償付きの1つだけ"
+ ],
+ "所有 Boss 开局有 {0} 点力量": [
+  "All bosses start with {0} Strength",
+  "すべてのボスが筋力{0}で開始"
+ ],
+ "富翁": [
+  "Tycoon",
+  "大富豪"
+ ],
+ "开局获得 {0} 金币。": [
+  "Start with {0} gold.",
+  "{0}ゴールドで開始。"
+ ],
+ "豪华开局": [
+  "Deluxe Start",
+  "豪華スタート"
+ ],
+ "开局牌组多 {0} 张随机本角色牌。": [
+  "Start with {0} extra random cards for your character.",
+  "キャラ専用のランダムなカード{0}枚を追加して開始。"
+ ],
+ "诅咒宝藏": [
+  "Cursed Treasure",
+  "呪いの財宝"
+ ],
+ "开局带 {0} 张「{1}」，同时获得 {2} 个随机稀有秘宝。": [
+  "Start with {0} 「{1}」 and {2} random rare treasure.",
+  "「{1}」{0}枚とランダムなレア秘宝{2}つで開始。"
+ ],
+ "禁药令": [
+  "Prohibition",
+  "禁薬令"
+ ],
+ "这一局得不到任何药水。": [
+  "You cannot obtain any potions this run.",
+  "このランではポーションを得られない。"
+ ],
+ "巨躯": [
+  "Giants",
+  "巨躯"
+ ],
+ "所有敌人血量 {0}。": [
+  "All enemies have {0} HP.",
+  "すべての敵のHP{0}。"
+ ],
+ "先手": [
+  "Head Start",
+  "先手"
+ ],
+ "每场战斗第一回合多 {0} 点能量。": [
+  "Gain {0} extra Energy on the first turn of each combat.",
+  "各戦闘の最初のターン、エネルギー+{0}。"
+ ],
+ "玻璃大炮": [
+  "Glass Cannon",
+  "ガラスの大砲"
+ ],
+ "你造成的伤害 {0}，但最大生命减半。": [
+  "You deal {0} damage, but your Max HP is halved.",
+  "与えるダメージ{0}、ただし最大HPが半分。"
+ ],
+ "点金": [
+  "Midas",
+  "黄金の手"
+ ],
+ "战斗掉落的金币翻倍，商店价格也翻倍。": [
+  "Combat gold is doubled, and so are shop prices.",
+  "戦闘のゴールドが2倍、ショップの価格も2倍。"
+ ],
+ "翠绿之地": [
+  "Verdant Land",
+  "翠緑の地"
+ ],
+ "通关第一章。": [
+  "Clear Chapter 1.",
+  "第1章をクリア。"
+ ],
+ "血月熄灭": [
+  "Blood Moon Fades",
+  "血月が消える"
+ ],
+ "通关第二章。": [
+  "Clear Chapter 2.",
+  "第2章をクリア。"
+ ],
+ "回家的门": [
+  "The Door Home",
+  "帰り道の扉"
+ ],
+ "打败魔王。": [
+  "Defeat the Demon Lord.",
+  "魔王を倒す。"
+ ],
+ "全员到齐": [
+  "Full Party",
+  "全員集合"
+ ],
+ "九个角色都打败过魔王。": [
+  "Defeat the Demon Lord with all nine characters.",
+  "9人全員で魔王を倒す。"
+ ],
+ "小试身手": [
+  "Warming Up",
+  "腕試し"
+ ],
+ "在进阶 {0} 以上打败魔王。": [
+  "Defeat the Demon Lord on Ascension {0} or higher.",
+  "アセンション{0}以上で魔王を倒す。"
+ ],
+ "老手": [
+  "Veteran",
+  "ベテラン"
+ ],
+ "登峰造极": [
+  "Pinnacle",
+  "頂点"
+ ],
+ "在进阶 {0} 打败魔王。": [
+  "Defeat the Demon Lord on Ascension {0}.",
+  "アセンション{0}で魔王を倒す。"
+ ],
+ "找到 Bug 了": [
+  "Found a Bug",
+  "バグ発見"
+ ],
+ "打败开发者。": [
+  "Defeat the Developer.",
+  "開発者を倒す。"
+ ],
+ "天外有天": [
+  "Beyond the Sky",
+  "天の外にも天"
+ ],
+ "在无尽模式爬到第 {0} 轮。": [
+  "Reach round {0} in Endless Mode.",
+  "エンドレスモードで第{0}周に到達。"
+ ],
+ "没有尽头": [
+  "No End",
+  "終わりなき塔"
+ ],
+ "少即是多": [
+  "Less Is More",
+  "少数精鋭"
+ ],
+ "牌组不超过 {0} 张时打败魔王。": [
+  "Defeat the Demon Lord with {0} or fewer cards.",
+  "デッキ{0}枚以下で魔王を倒す。"
+ ],
+ "百宝箱": [
+  "Treasure Chest",
+  "宝箱"
+ ],
+ "牌组达到 {0} 张以上时打败魔王。": [
+  "Defeat the Demon Lord with {0} or more cards.",
+  "デッキ{0}枚以上で魔王を倒す。"
+ ],
+ "秘宝猎人": [
+  "Treasure Hunter",
+  "秘宝ハンター"
+ ],
+ "一局里拥有 {0} 个以上秘宝。": [
+  "Own {0} or more treasures in one run.",
+  "1回のランで秘宝を{0}個以上持つ。"
+ ],
+ "守财奴": [
+  "Miser",
+  "守銭奴"
+ ],
+ "同时持有 {0} 金币。": [
+  "Hold {0} gold at once.",
+  "{0}ゴールドを同時に持つ。"
+ ],
+ "清醒的头脑": [
+  "Clear Head",
+  "冴えた頭"
+ ],
+ "一瓶药水都不用，打败魔王。": [
+  "Defeat the Demon Lord without using a single potion.",
+  "ポーションを1つも使わずに魔王を倒す。"
+ ],
+ "不眠不休": [
+  "Sleepless",
+  "不眠不休"
+ ],
+ "一次营火休息都不用，打败魔王。": [
+  "Defeat the Demon Lord without resting at a campfire.",
+  "焚き火で一度も休まずに魔王を倒す。"
+ ],
+ "毫发无伤": [
+  "Flawless",
+  "無傷"
+ ],
+ "打一场 Boss 战，一点血都没掉。": [
+  "Win a boss fight without losing any HP.",
+  "HPを1も失わずにボス戦に勝つ。"
+ ],
+ "一击必杀": [
+  "One-Hit Kill",
+  "一撃必殺"
+ ],
+ "一次攻击造成 {0} 点以上伤害。": [
+  "Deal {0} or more damage in a single attack.",
+  "1回の攻撃で{0}以上のダメージ。"
+ ],
+ "手速": [
+  "Quick Hands",
+  "早業"
+ ],
+ "一回合打出 {0} 张以上的牌。": [
+  "Play {0} or more cards in one turn.",
+  "1ターンにカードを{0}枚以上使う。"
+ ],
+ "今天也来了": [
+  "Here Again Today",
+  "今日も来た"
+ ],
+ "通关一次每日挑战（打败第一章 Boss 即可）。": [
+  "Clear a Daily Challenge (beating the Chapter 1 boss counts).",
+  "デイリーチャレンジをクリア（第1章ボス撃破でOK）。"
+ ],
+ "三把钥匙": [
+  "Three Keys",
+  "三つの鍵"
+ ],
+ "一局里集齐三把钥匙。": [
+  "Collect all three keys in one run.",
+  "1回のランで鍵を3つ集める。"
+ ],
+ "真正的归途": [
+  "The True Way Home",
+  "本当の帰り道"
+ ],
+ "看到真结局。": [
+  "See the true ending.",
+  "真エンディングを見る。"
+ ],
+ "博物学家": [
+  "Naturalist",
+  "博物学者"
+ ],
+ "图鉴里见过所有怪物。": [
+  "Encounter every monster in the codex.",
+  "図鑑のモンスターをすべて見る。"
+ ],
+ "百折不挠": [
+  "Indomitable",
+  "不撓不屈"
+ ],
+ "累计开始 {0} 局。": [
+  "Start {0} runs in total.",
+  "累計{0}回ランを開始。"
+ ],
+ "迷路的小狗": [
+  "Lost Puppy",
+  "迷子の子犬"
+ ],
+ "一只脏兮兮的小狗跟在你身后，肚子咕咕直叫。": [
+  "A scruffy little dog follows you, its belly growling.",
+  "汚れた子犬が後をついてくる。お腹がぐうぐう鳴っている。"
+ ],
+ "喂它：失去 {0} 金币，回复 {1} 生命，得到 {2} 瓶药水": [
+  "Feed it: lose {0} gold, heal {1} HP, gain {2} potion",
+  "餌をやる：{0}ゴールドを失い、HPを{1}回復、ポーションを{2}つ得る"
+ ],
+ "小狗叼来了一个瓶子：{{0}}。": [
+  "The puppy brings you a bottle: {{0}}.",
+  "子犬が瓶をくわえてきた：{{0}}。"
+ ],
+ "摸摸它的头": [
+  "Pat its head",
+  "頭をなでる"
+ ],
+ "它摇着尾巴跑远了，你的心情好了一点。": [
+  "It wags its tail and runs off. You feel a little better.",
+  "尻尾を振って走り去った。少し気分が良くなった。"
+ ],
+ "棺材里的敲门声": [
+  "Knocking in the Coffin",
+  "棺からのノック"
+ ],
+ "一口黑棺材里传出「{0}」的声音。": [
+  "A 「{0}」 comes from inside a black coffin.",
+  "黒い棺の中から「{0}」と音がする。"
+ ],
+ "打开它：可能是宝物，也可能是麻烦": [
+  "Open it: could be treasure, could be trouble",
+  "開ける：宝かもしれないし、厄介ごとかもしれない"
+ ],
+ "里面躺着一具枯骨，手里握着：{{0}}。": [
+  "Inside lies a skeleton, clutching: {{0}}.",
+  "中には骸骨が横たわり、手に握っていたのは：{{0}}。"
+ ],
+ "一只吸血蝠扑了出来，咬了你一口才飞走。": [
+  "A vampire bat bursts out, bites you, and flies away.",
+  "吸血コウモリが飛び出し、噛みついてから去っていった。"
+ ],
+ "把它钉死：获得 {0} 金币": [
+  "Nail it shut: gain {0} gold",
+  "釘で打ちつける：{0}ゴールドを得る"
+ ],
+ "敲门声停了。棺材缝里滚出几枚金币。": [
+  "The knocking stops. A few coins roll out of the cracks.",
+  "ノックが止んだ。棺の隙間から金貨が転がり出た。"
+ ],
+ "地牢的囚徒": [
+  "The Dungeon Prisoner",
+  "地下牢の囚人"
+ ],
+ "铁栏后面，一个瘦弱的人朝你伸出手。": [
+  "Behind the bars, a frail figure reaches out to you.",
+  "鉄格子の向こうで、やせ細った人が手を伸ばしている。"
+ ],
+ "救他出来：失去 {0} 生命，得到一张牌": [
+  "Free him: lose {0} HP, gain a card",
+  "助け出す：HPを{0}失い、カードを1枚得る"
+ ],
+ "他塞给你一张卡片，消失在走廊尽头。": [
+  "He presses a card into your hand and vanishes down the corridor.",
+  "彼はカードを1枚握らせ、廊下の奥へ消えた。"
+ ],
+ "拿走看守的钥匙串：获得 {0} 金币，混进一张「{1}」": [
+  "Take the jailer's keys: gain {0} gold, add a 「{1}」",
+  "看守の鍵束を奪う：{0}ゴールドを得て、「{1}」を1枚加える"
+ ],
+ "钥匙能卖钱。只是那双眼睛一直跟着你。": [
+  "The keys will sell. But those eyes keep following you.",
+  "鍵は売れる。ただ、あの目がずっとついてくる。"
+ ],
+ "血色喷泉": [
+  "Crimson Fountain",
+  "血の噴水"
+ ],
+ "喷泉里流的不是水，是温热的红色液体。": [
+  "The fountain doesn't flow with water, but with warm red liquid.",
+  "噴水から流れるのは水ではなく、温かい赤い液体だ。"
+ ],
+ "喝一口：最大生命 {0}，失去 {1} 生命": [
+  "Take a sip: Max HP {0}, lose {1} HP",
+  "ひと口飲む：最大HP{0}、HPを{1}失う"
+ ],
+ "一股热流冲遍全身，你的身体变结实了。": [
+  "A surge of heat runs through you. Your body grows sturdier.",
+  "熱が全身を駆け巡り、体が頑丈になった。"
+ ],
+ "用它洗掉污秽：删除 {0} 张牌": [
+  "Wash away the filth: remove {0} card",
+  "汚れを洗い流す：カードを{0}枚削除"
+ ],
+ "有什么东西从你身上被洗掉了。": [
+  "Something is washed away from you.",
+  "何かが洗い流された。"
+ ],
+ "骷髅商人": [
+  "Skeleton Merchant",
+  "骸骨の商人"
+ ],
+ "「{0}」骷髅咔哒咔哒地笑。": [
+  "「{0}」 The skeleton rattles with laughter.",
+  "「{0}」骸骨がカタカタと笑う。"
+ ],
+ "买神秘包裹：失去 {0} 金币，得到秘宝和药水": [
+  "Buy the mystery package: lose {0} gold, gain a treasure and a potion",
+  "謎の包みを買う：{0}ゴールドを失い、秘宝とポーションを得る"
+ ],
+ "包裹里是：{{0}}，还有{{1}}。": [
+  "Inside: {{0}}, and {{1}}.",
+  "包みの中身：{{0}}、それに{{1}}。"
+ ],
+ "只买一瓶药：失去 {0} 金币": [
+  "Just buy a potion: lose {0} gold",
+  "薬だけ買う：{0}ゴールドを失う"
+ ],
+ "你买到了：{{0}}。": [
+  "You bought: {{0}}.",
+  "買ったもの：{{0}}。"
+ ],
+ "骷髅耸了耸肩。骨头掉了一块。": [
+  "The skeleton shrugs. A bone falls off.",
+  "骸骨が肩をすくめた。骨がひとつ落ちた。"
+ ],
+ "照不出人的镜子": [
+  "The Mirror Without You",
+  "人を映さない鏡"
+ ],
+ "镜子里映着整个房间，唯独没有你。": [
+  "The mirror shows the whole room—except you.",
+  "鏡には部屋全体が映っているのに、あなただけがいない。"
+ ],
+ "凝视它：最大生命 {0}，升级 {1} 张牌": [
+  "Gaze into it: Max HP {0}, upgrade {1} cards",
+  "見つめる：最大HP{0}、カードを{1}枚強化"
+ ],
+ "镜子里慢慢出现了另一个你，她教了你几招。": [
+  "Another you slowly appears in the mirror and teaches you a few tricks.",
+  "鏡にもう一人のあなたが現れ、技をいくつか教えてくれた。"
+ ],
+ "打碎它：失去 {0} 生命，删除 {1} 张牌": [
+  "Smash it: lose {0} HP, remove {1} card",
+  "割る：HPを{0}失い、カードを{1}枚削除"
+ ],
+ "碎片划破了手，但心里轻松了一些。": [
+  "The shards cut your hand, but your mind feels lighter.",
+  "破片で手を切ったが、心は少し軽くなった。"
+ ],
+ "午夜钟楼": [
+  "Midnight Bell Tower",
+  "真夜中の鐘楼"
+ ],
+ "钟楼顶上挂着一口巨钟，绳子就在你手边。": [
+  "A huge bell hangs atop the tower. The rope is right by your hand.",
+  "鐘楼の上に巨大な鐘。綱はすぐ手元にある。"
+ ],
+ "敲响它：回复 {0} 生命，混进一张「{1}」": [
+  "Ring it: heal {0} HP, add a 「{1}」",
+  "鳴らす：HPを{0}回復し、「{1}」を1枚加える"
+ ],
+ "钟声回荡，伤口愈合了，可你开始怀疑这一切是不是真的。": [
+  "The bell echoes and your wounds close—but you begin to doubt any of this is real.",
+  "鐘の音が響き、傷は癒えた。でも、これが現実なのか疑い始めた。"
+ ],
+ "悄悄离开": [
+  "Slip away quietly",
+  "そっと立ち去る"
+ ],
+ "你没有惊动任何东西。": [
+  "You disturb nothing.",
+  "何も起こさずに済んだ。"
+ ],
+ "狼人的契约": [
+  "The Werewolf's Pact",
+  "人狼の契約"
+ ],
+ "一个披着狼皮的人拦住你：「{0}」": [
+  "A figure in a wolf pelt blocks your way: 「{0}」",
+  "狼の毛皮をまとった者が立ちはだかる：「{0}」"
+ ],
+ "签下契约：最大生命 {0}，得到一张稀有牌": [
+  "Sign the pact: Max HP {0}, gain a rare card",
+  "契約に署名：最大HP{0}、レアカードを1枚得る"
+ ],
+ "契约燃成了灰。你感到一股野性的力量。": [
+  "The pact burns to ash. You feel a wild strength.",
+  "契約は灰になった。野性の力を感じる。"
+ ],
+ "拒绝：回复 {0} 生命": [
+  "Refuse: heal {0} HP",
+  "断る：HPを{0}回復"
+ ],
+ "「{0}」他嗤笑一声，消失在雾里。你松了口气。": [
+  "「{0}」 He sneers and fades into the mist. You breathe a sigh of relief.",
+  "「{0}」彼は鼻で笑い、霧に消えた。あなたはほっと息をついた。"
+ ],
+ "冰封的勇者": [
+  "The Frozen Hero",
+  "氷漬けの勇者"
+ ],
+ "一个勇者被冻在冰里，手里还紧握着什么。": [
+  "A hero is frozen in the ice, still gripping something.",
+  "氷の中に勇者が閉じ込められ、何かを握りしめている。"
+ ],
+ "凿开冰层：失去 {0} 生命，得到一个秘宝": [
+  "Chip the ice: lose {0} HP, gain a treasure",
+  "氷を砕く：HPを{0}失い、秘宝を1つ得る"
+ ],
+ "冰碎了，你拿到了：{{0}}。": [
+  "The ice breaks. You obtain: {{0}}.",
+  "氷が割れ、手に入れた：{{0}}。"
+ ],
+ "为他默哀：回复 {0} 生命": [
+  "Pay your respects: heal {0} HP",
+  "黙祷する：HPを{0}回復"
+ ],
+ "风停了一会儿。你觉得他在冰里笑了。": [
+  "The wind stops for a moment. You feel he smiled in the ice.",
+  "風が少し止んだ。氷の中で彼が笑った気がした。"
+ ],
+ "金币山": [
+  "Mountain of Gold",
+  "金貨の山"
+ ],
+ "龙不在家，金币堆得像小山。": [
+  "The dragon isn't home, and the gold is piled like a hill.",
+  "竜は留守。金貨が山のように積まれている。"
+ ],
+ "抓一大把：获得 {0} 金币，失去 {1} 生命": [
+  "Grab a fistful: gain {0} gold, lose {1} HP",
+  "ひとつかみ取る：{0}ゴールドを得て、HPを{1}失う"
+ ],
+ "金币山塌了一角，砸得你满头包。": [
+  "The pile collapses and pelts you with coins.",
+  "金貨の山が崩れ、頭にこぶができた。"
+ ],
+ "只拿一枚当纪念：获得 {0} 金币": [
+  "Take just one as a keepsake: gain {0} gold",
+  "記念に1枚だけ：{0}ゴールドを得る"
+ ],
+ "龙大概不会为一枚金币生气。": [
+  "The dragon probably won't mind one coin.",
+  "竜も金貨1枚くらいで怒らないだろう。"
+ ],
+ "隐士的茶": [
+  "The Hermit's Tea",
+  "隠者のお茶"
+ ],
+ "山洞里的老隐士给你倒了一杯热茶。": [
+  "An old hermit in the cave pours you a cup of hot tea.",
+  "洞窟の老隠者が温かいお茶を注いでくれた。"
+ ],
+ "喝茶聊天：回复 {0} 生命，升级 {1} 张牌": [
+  "Chat over tea: heal {0} HP, upgrade {1} card",
+  "お茶を飲んで話す：HPを{0}回復、カードを{1}枚強化"
+ ],
+ "老人讲了很多故事，其中一个对你很有用。": [
+  "The old man tells many stories. One of them helps you.",
+  "老人はたくさんの話をした。そのひとつが役に立った。"
+ ],
+ "请教修行：删除 {0} 张牌": [
+  "Ask for guidance: remove {0} card",
+  "修行の教えを請う：カードを{0}枚削除"
+ ],
+ "「{0}」他只说了这一句。": [
+  "「{0}」 That is all he says.",
+  "「{0}」彼が言ったのはそれだけだった。"
+ ],
+ "雏龙的巢": [
+  "The Hatchling's Nest",
+  "雛竜の巣"
+ ],
+ "巢里有一只刚出壳的小龙，还有一颗没孵化的蛋。": [
+  "In the nest are a newly hatched dragon and an unhatched egg.",
+  "巣には孵ったばかりの小竜と、まだ孵らない卵がある。"
+ ],
+ "照顾小龙：最大生命 {0}": [
+  "Look after the hatchling: Max HP {0}",
+  "小竜の世話をする：最大HP{0}"
+ ],
+ "小龙蹭了蹭你，一股暖意留在了身体里。": [
+  "The hatchling nuzzles you, leaving a warmth inside you.",
+  "小竜がすり寄ってきて、体に温もりが残った。"
+ ],
+ "拿走龙蛋：得到一个秘宝，混进一张「{0}」": [
+  "Take the egg: gain a treasure, add a 「{0}」",
+  "卵を持ち去る：秘宝を1つ得て、「{0}」を1枚加える"
+ ],
+ "你拿到了：{{0}}。小龙一直望着你的背影。": [
+  "You obtain: {{0}}. The hatchling watches you leave.",
+  "手に入れた：{{0}}。小竜はずっとあなたの背中を見ていた。"
+ ],
+ "雪山温泉": [
+  "Snowy Hot Spring",
+  "雪山の温泉"
+ ],
+ "冰天雪地里，一汪温泉冒着白气。": [
+  "In the frozen wastes, a hot spring sends up white steam.",
+  "雪と氷の中、温泉が白い湯気を上げている。"
+ ],
+ "泡一会儿：回复 {0} 生命": [
+  "Soak for a while: heal {0} HP",
+  "少し浸かる：HPを{0}回復"
+ ],
+ "冻僵的手脚终于暖和过来了。": [
+  "Your frozen limbs finally warm up.",
+  "凍えた手足がやっと温まった。"
+ ],
+ "泡到天黑：失去 {0} 金币（被偷了），回复全部生命": [
+  "Soak until dark: lose {0} gold (stolen), heal to full",
+  "暗くなるまで浸かる：{0}ゴールドを失い（盗まれた）、HPを全回復"
+ ],
+ "你睡着了。醒来时浑身舒坦，钱袋却轻了。": [
+  "You fall asleep. You wake refreshed—but your purse is lighter.",
+  "眠ってしまった。目覚めると体は快調、でも財布は軽くなっていた。"
+ ],
+ "矮人铁匠": [
+  "Dwarven Smith",
+  "ドワーフの鍛冶屋"
+ ],
+ "「{0}」矮人敲了敲铁锤。": [
+  "「{0}」 The dwarf taps his hammer.",
+  "「{0}」ドワーフが槌を鳴らした。"
+ ],
+ "全套打磨：失去 {0} 金币，升级 {1} 张牌": [
+  "Full overhaul: lose {0} gold, upgrade {1} cards",
+  "全部磨く：{0}ゴールドを失い、カードを{1}枚強化"
+ ],
+ "叮叮当当一整夜，你的装备焕然一新。": [
+  "A whole night of clanging, and your gear is good as new.",
+  "一晩中カンカンと鳴り響き、装備は見違えるようになった。"
+ ],
+ "简单修补：升级 {0} 张牌": [
+  "Quick fix: upgrade {0} card",
+  "簡単な修理：カードを{0}枚強化"
+ ],
+ "「{0}」矮人打了个哈欠。": [
+  "「{0}」 The dwarf yawns.",
+  "「{0}」ドワーフはあくびをした。"
+ ],
+ "奇怪的终端": [
+  "Strange Terminal",
+  "奇妙な端末"
+ ],
+ "雪地里竖着一台发光的电脑，屏幕上写着：「{0}」。": [
+  "A glowing computer stands in the snow. The screen reads: 「{0}」.",
+  "雪の中に光るコンピューター。画面には「{0}」。"
+ ],
+ "随便试一个：失去 {0} 生命，得到一张稀有牌": [
+  "Try a random one: lose {0} HP, gain a rare card",
+  "適当に試す：HPを{0}失い、レアカードを1枚得る"
+ ],
+ "屏幕闪了一下：「{0}」你被电了一下，手里多了一张牌。": [
+  "The screen flickers: 「{0}」 You get a shock, and a card appears in your hand.",
+  "画面が光った：「{0}」感電したが、手にカードが1枚増えていた。"
+ ],
+ "拔掉电源：获得 {0} 金币": [
+  "Pull the plug: gain {0} gold",
+  "電源を抜く：{0}ゴールドを得る"
+ ],
+ "机箱里掉出几枚硬币。屏幕最后显示：「{0}」": [
+  "A few coins fall out of the case. The screen's last words: 「{0}」",
+  "筐体から硬貨が落ちた。画面の最後の表示：「{0}」"
+ ],
+ "裂隙的信号": [
+  "Signal from the Rift",
+  "裂け目の信号"
+ ],
+ "空气里传来断断续续的声音，像有人在呼叫。": [
+  "Broken sounds drift through the air, like someone calling.",
+  "途切れ途切れの声が聞こえる。誰かが呼んでいるようだ。"
+ ],
+ "回应它：得到 {0} 瓶药水": [
+  "Answer it: gain {0} potions",
+  "応える：ポーションを{0}つ得る"
+ ],
+ "裂缝里递出了两个瓶子：{{0}}、{{1}}。": [
+  "Two bottles are passed out of the rift: {{0}}, {{1}}.",
+  "裂け目から瓶が2つ差し出された：{{0}}、{{1}}。"
+ ],
+ "切断它：失去 {0} 生命，删除 {1} 张牌": [
+  "Cut it off: lose {0} HP, remove {1} card",
+  "断ち切る：HPを{0}失い、カードを{1}枚削除"
+ ],
+ "声音消失了，连同你的一点杂念。": [
+  "The voice fades, along with a few stray thoughts.",
+  "声は消えた。雑念も少し一緒に。"
+ ],
+ "成就": [
+  "Achievements",
+  "実績"
+ ],
+ "成就解锁": [
+  "Achievement unlocked",
+  "実績解除"
+ ],
+ "翡翠钥匙": [
+  "Emerald Key",
+  "翡翠の鍵"
+ ],
+ "血月钥匙": [
+  "Blood Moon Key",
+  "血月の鍵"
+ ],
+ "龙鳞钥匙": [
+  "Dragonscale Key",
+  "竜鱗の鍵"
+ ],
+ "得到了": [
+  "Obtained: ",
+  "入手："
+ ],
+ "为了调整平衡，游戏会匿名上传每局的数据（不含名字），可以在设置里关闭": [
+  "To help balance the game, anonymous run data (no names) is uploaded after each run. You can turn this off in Settings.",
+  "バランス調整のため、各ランのデータを匿名で送信します（名前は含みません）。設定でオフにできます。"
+ ],
+ "（并包含之前所有进阶）": [
+  " (plus all previous Ascensions)",
+  "（それ以前のアセンションもすべて含む）"
+ ],
+ "标准难度": [
+  "Standard difficulty",
+  "標準難易度"
+ ],
+ "燃烧的精英：更强了！打赢可以得到翡翠钥匙": [
+  "Burning elite: stronger! Win to get the Emerald Key",
+  "燃えるエリート：強化されている！勝てば翡翠の鍵"
+ ],
+ "燃烧的精英：更强，打赢得到翡翠钥匙": [
+  "Burning elite: stronger; win to get the Emerald Key",
+  "燃えるエリート：強い。勝てば翡翠の鍵"
+ ],
+ "门的后面，是一间亮着屏幕的小房间。": [
+  "Behind the door is a small room lit by a screen.",
+  "扉の向こうは、画面の光る小さな部屋だった。"
+ ],
+ "开发者摘下眼镜，揉了揉眼睛：“……好吧，你们赢了。”": [
+  "The Developer takes off his glasses and rubs his eyes: \"...Fine. You win.\"",
+  "開発者は眼鏡を外し、目をこすった。「……わかった、君たちの勝ちだ。」"
+ ],
+ "屏幕上跳出一行字：「{0}」": [
+  "A line appears on the screen: 「{0}」",
+  "画面に一行の文字：「{0}」"
+ ],
+ "光涌了上来。再睁开眼时，是放学路上的那条街。": [
+  "Light floods in. When you open your eyes, you're on the street home from school.",
+  "光があふれた。目を開けると、そこは下校途中のあの道だった。"
+ ],
+ "三把钥匙同时亮了起来，门的上方又裂开了一道缝。": [
+  "The three keys light up at once, and a crack opens above the door.",
+  "三つの鍵が同時に光り、扉の上にさらに裂け目が開いた。"
+ ],
+ "缝里传来敲键盘的声音。": [
+  "The sound of typing comes through the crack.",
+  "裂け目からキーボードを叩く音が聞こえる。"
+ ],
+ "“……你们怎么找到这里的？”": [
+  "\"...How did you find this place?\"",
+  "「……どうやってここを見つけた？」"
+ ],
+ "禁药令：这一局拿不到药水": [
+  "Prohibition: no potions this run",
+  "禁薬令：このランではポーションを得られない"
+ ],
+ "出发前的祝福": [
+  "A Blessing Before You Go",
+  "出発前の祝福"
+ ],
+ "路边的小神龛亮了起来。选一个带上路吧。": [
+  "A small roadside shrine lights up. Choose one to take with you.",
+  "道端の小さな祠が光った。ひとつ選んで持っていこう。"
+ ],
+ "每日挑战": [
+  "Daily Challenge",
+  "デイリーチャレンジ"
+ ],
+ "自定义模式": [
+  "Custom Mode",
+  "カスタムモード"
+ ],
+ "自定义": [
+  "Custom",
+  "カスタム"
+ ],
+ "种子": [
+  "Seed",
+  "シード"
+ ],
+ "无修正": [
+  "No modifiers",
+  "修正なし"
+ ],
+ "种子相同，地图和奖励就相同。可以和朋友比同一局。": [
+  "Same seed, same map and rewards. Race your friends on the same run.",
+  "同じシードなら、マップと報酬も同じ。友達と同じランで競える。"
+ ],
+ "留空 = 随机": [
+  "Blank = random",
+  "空欄＝ランダム"
+ ],
+ "确定，去选角色": [
+  "OK, choose a character",
+  "決定してキャラ選択へ"
+ ],
+ "今天所有人用同一个角色、同一张地图、同样的修正。": [
+  "Today everyone plays the same character, map, and modifiers.",
+  "今日は全員が同じキャラ、同じマップ、同じ修正で遊ぶ。"
+ ],
+ "今天的最好成绩": [
+  "Today's best",
+  "今日のベスト"
+ ],
+ "开始挑战": [
+  "Start",
+  "挑戦開始"
+ ],
+ "今日排行": [
+  "Today's Ranking",
+  "今日のランキング"
+ ],
+ "取得血月钥匙（这次不休息也不锻造）": [
+  "Take the Blood Moon Key (no rest or smithing this time)",
+  "血月の鍵を取る（今回は休憩も鍛造もしない）"
+ ],
+ "不开宝箱，取走龙鳞钥匙": [
+  "Leave the chest; take the Dragonscale Key",
+  "宝箱を開けず、竜鱗の鍵を取る"
+ ],
+ "用三把钥匙打开更上面的门": [
+  "Use the three keys to open the door above",
+  "三つの鍵で、さらに上の扉を開ける"
+ ],
+ "匿名上传对局数据（帮助调平衡）": [
+  "Upload anonymous run data (helps balancing)",
+  "匿名でランのデータを送信（バランス調整に協力）"
+ ],
+ "进入第三章：永冬之巅（回复 {{0}}% 生命）": [
+  "Enter Chapter 3: Everwinter Peak (heal {{0}}% HP)",
+  "第3章へ：永冬の頂（HPを{{0}}%回復）"
+ ],
+ "林拓的归途": [
+  "Lin's Way Home",
+  "リンの帰り道"
+ ],
+ "用林拓打败魔王。": [
+  "Defeat the Demon Lord as Lin.",
+  "リンで魔王を倒す。"
+ ],
+ "苏音的归途": [
+  "Suin's Way Home",
+  "スインの帰り道"
+ ],
+ "用苏音打败魔王。": [
+  "Defeat the Demon Lord as Suin.",
+  "スインで魔王を倒す。"
+ ],
+ "千早的归途": [
+  "Chihaya's Way Home",
+  "千早の帰り道"
+ ],
+ "用千早打败魔王。": [
+  "Defeat the Demon Lord as Chihaya.",
+  "千早で魔王を倒す。"
+ ],
+ "莉泽的归途": [
+  "Lise's Way Home",
+  "リーゼの帰り道"
+ ],
+ "用莉泽打败魔王。": [
+  "Defeat the Demon Lord as Lise.",
+  "リーゼで魔王を倒す。"
+ ],
+ "艾琳的归途": [
+  "Erin's Way Home",
+  "エリンの帰り道"
+ ],
+ "用艾琳打败魔王。": [
+  "Defeat the Demon Lord as Erin.",
+  "エリンで魔王を倒す。"
+ ],
+ "顾清寒的归途": [
+  "Gu Qinghan's Way Home",
+  "顧清寒の帰り道"
+ ],
+ "用顾清寒打败魔王。": [
+  "Defeat the Demon Lord as Gu Qinghan.",
+  "顧清寒で魔王を倒す。"
+ ],
+ "希尔薇的归途": [
+  "Sylvie's Way Home",
+  "シルヴィの帰り道"
+ ],
+ "用希尔薇打败魔王。": [
+  "Defeat the Demon Lord as Sylvie.",
+  "シルヴィで魔王を倒す。"
+ ],
+ "米娅的归途": [
+  "Mia's Way Home",
+  "ミアの帰り道"
+ ],
+ "用米娅打败魔王。": [
+  "Defeat the Demon Lord as Mia.",
+  "ミアで魔王を倒す。"
+ ],
+ "绯月的归途": [
+  "Hizuki's Way Home",
+  "緋月の帰り道"
+ ],
+ "用绯月打败魔王。": [
+  "Defeat the Demon Lord as Hizuki.",
+  "緋月で魔王を倒す。"
+ ]
+}

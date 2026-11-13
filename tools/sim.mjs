@@ -12,6 +12,7 @@ let DG = null; /* 诊断计数（只统计熟练机器人） */
 export const W0 = { pow0: 9, pow1: 3, blkN: 8, blk0: 1, atk: 5, atkK: 1, leth: 6, zero: 2, pot: 3, skill: 4, rs: 1, arch: 2, archW: .8, needBlk: 1, needAtk: 1.2, nonAtk: .8, powPen: 1.5, dup: 1.2, skip: 1.5, rest: .55, needMul: 1 };
 /* 强化训练学到的每个角色的权重（tools/weights.json，训练完自动更新）；环境变量 WEIGHTS 优先（训练时用） */
 import { readFileSync } from 'fs';
+import { BLESS_FREE, BLESS_COST } from '../src/meta.js';
 let TW = {}; try { TW = JSON.parse(readFileSync(new URL('./weights.json', import.meta.url), 'utf8')); } catch (e) {}
 const WENV = process.env.WEIGHTS ? JSON.parse(process.env.WEIGHTS) : null;
 let W = { ...W0, ...(WENV || {}) };
@@ -111,7 +112,7 @@ const BE = {
   split(e, key, n) { const i = B.en.indexOf(e), hp = Math.max(1, Math.floor(e.hp / n)), bits = []; for (let k = 0; k < n; k++) { const b = mkE(key); b.hp = b.max = hp; b.move = b.d.ai(b, BE); bits.push(b); } e.dead = true; e.fled = 1; e.hp = 0; B.en.splice(i, 1, ...bits); }, summon(key, hp) { if (alive().length >= 5) return null; const e = mkE(key); if (hp) e.hp = e.max = hp; e.move = e.d.ai(e, BE); const i = B.en.findIndex(x => x.dead && !(x.d.prePhase && !x.revived && !x.fled)); if (i >= 0) B.en[i] = e; else B.en.unshift(e); return e; } /* 召唤物优先填进已经死掉的位置，队伍不会越排越长 */,
 };
 let eid = 1;
-function mkE(key) { const d = ENEMIES[key], hm = 1 + (A_(1) && d.elite ? .15 : 0) + (A_(2) && !d.elite && !d.boss ? .1 : 0) + (A_(6) && d.boss ? .15 : 0) + (A_(15) ? .1 : 0), hp = Math.round(rnd(d.hp[0], d.hp[1]) * hm * (R.act === 2 ? RULES.act2Mul : R.act === 3 ? RULES.act3Hp : 1)); const e = { key, d, hp, max: hp, dmul: (1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0)) * (R.act === 2 ? RULES.act2Mul : R.act === 3 ? RULES.act3Dmg : 1), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++ }; if (A_(10) && d.elite) e.st.str = 1; d.init && d.init(e); return e; }
+function mkE(key) { const d = ENEMIES[key], hm = 1 + (A_(1) && d.elite ? .15 : 0) + (A_(2) && !d.elite && !d.boss ? .1 : 0) + (A_(6) && d.boss ? .15 : 0) + (A_(15) ? .1 : 0) + (A_(18) && d.elite ? .1 : 0), hp = Math.round(rnd(d.hp[0], d.hp[1]) * hm * (R.act === 2 ? RULES.act2Mul : R.act === 3 ? RULES.act3Hp : 1)); const e = { key, d, hp, max: hp, dmul: (1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0) + (A_(17) && !d.elite && !d.boss ? .1 : 0)) * (R.act === 2 ? RULES.act2Mul : R.act === 3 ? RULES.act3Dmg : 1), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++ }; if (A_(10) && d.elite) e.st.str = 1; if (A_(20) && d.boss) e.st.str = (e.st.str || 0) + 2; d.init && d.init(e); return e; }
 const cost0 = c => { const d = CARDS[c.id]; if (c.free) return 0; if (c.rc != null) return c.rc; const k = d.cost[c.up ? 1 : 0]; return c.disc && k !== 'X' ? Math.max(0, k - 1) : k; };
 const cost = c => { const k = cost0(c); return B && typeof k === 'number' ? Math.max(0, k + MECH.costMod(G, CARDS[c.id])) : k; };
 function startTurn(first) {
@@ -311,10 +312,21 @@ function riftRun() { let fights = 0; /* 第三章下半：魔界裂隙 */
     else if (node === 'rest') { if (R.hp < R.maxHp * W.rest && !has('b_core')) heal(Math.floor(R.maxHp * (A_(5) ? .2 : .3)) - (A_(14) ? 5 : 0)); else { const c = R.deck.find(c => !c.up && CARDS[c.id].rar !== 'start') || R.deck.find(c => !c.up); if (c) c.up = 1; } }
     else if (node === 'event') event(); else if (node === 'shop') shop(); }
   return null; }
+/* 开局祝福（和 game.js 一致：两个免费 + 一个有代价；进阶 19 只剩有代价的）。机器人按固定喜好挑 */
+const BPREF = ['b_rm', 'b_up', 'b_card', 'b_relic', 't_rare', 'b_hp', 'b_pot', 't_rm2', 'b_gold', 't_relic', 't_gold'];
+function bless() { const f = shuffle(Object.keys(BLESS_FREE)).slice(0, 2), c = pickOne(Object.keys(BLESS_COST)), opts = A_(19) ? [c] : [...f, c];
+  const k = opts.sort((a, b) => BPREF.indexOf(a) - BPREF.indexOf(b))[0]; R.bless = k;
+  const rmStart = n => { for (let i = 0; i < n; i++) { const j = R.deck.findIndex(x => CARDS[x.id].curse) >= 0 ? R.deck.findIndex(x => CARDS[x.id].curse) : R.deck.findIndex(x => CARDS[x.id].rar === 'start' && !/defend|block/i.test(x.id)); const jj = j >= 0 ? j : R.deck.findIndex(x => CARDS[x.id].rar === 'start'); if (jj >= 0) R.deck.splice(jj, 1); } };
+  if (k === 'b_hp') { R.maxHp += 8; R.hp += 8; } else if (k === 'b_gold') R.gold += 100; else if (k === 'b_rm') rmStart(1);
+  else if (k === 'b_up') { const x = R.deck.find(x => !x.up && CARDS[x.id].rar !== 'start') || R.deck.find(x => !x.up); if (x) x.up = 1; }
+  else if (k === 'b_card') reward(); else if (k === 'b_pot') { for (let i = 0; i < 2 && R.pots.length < (A_(12) ? 2 : 3); i++) R.pots.push(pickOne(POTS)); } else if (k === 'b_relic') relic();
+  else if (k === 't_rare') { R.maxHp -= Math.floor(R.maxHp * .1); R.hp = Math.min(R.hp, R.maxHp); const cs = rollCards(3, 1); const best = SMART ? cs.sort((a, b) => smartScore(b) - smartScore(a))[0] : cs[0]; R.deck.push(mk(best)); }
+  else if (k === 't_relic') { R.gold = 0; relic(); } else if (k === 't_rm2') { R.deck.push(mk('regret')); rmStart(2); } else if (k === 't_gold') { R.maxHp -= 12; R.hp = Math.min(R.hp, R.maxHp); R.gold += 250; } }
 function run(char) {
   TIMEOUT = 0; uid = 1; R = { char, hp: A_(4) ? 72 : 80, maxHp: A_(4) ? 72 : 80, deck: STARTERS[char].map(id => mk(id)), relics: [STARTRELIC[char]], kills: 0, picks: {}, floor: 0, pots: [], act: 1, gold: 99 }; if (A_(9)) R.deck.push(mk('regret'));
+  bless();
   for (const [act, EN] of [[1, ENCOUNTERS], [2, ENCOUNTERS2], [3, ENC3]]) {
-    R.act = act; let fights = 0; if (act >= 2) R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .5));
+    R.act = act; let fights = 0; if (act >= 2) R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * (A_(16) ? .3 : .5)));
     for (const node of ROUTE) {
       R.floor++;
       if (node === 'fight') { const enc = pickOne(fights < 3 ? EN.easy : EN.hard); fights++; if (!battle(enc, 'fight')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: enc.join('+') }; reward(); dropPot('fight'); R.gold += Math.round((10 + Math.floor(Math.random() * 11)) * (A_(7) ? .7 : 1)); }

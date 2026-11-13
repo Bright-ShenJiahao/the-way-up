@@ -1,0 +1,22 @@
+name: players
+# 手动运行：拉取真人对局汇总（/api/runs），写成 data/players.md 提交回 preview
+on:
+  workflow_dispatch:
+    inputs:
+      since: { description: '从哪天开始（YYYYMMDD，留空 = 全部）', default: '' }
+permissions:
+  contents: write
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: preview }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: curl -sf "https://the-way-up.netlify.app/api/runs?since=${{ inputs.since }}" -o /tmp/runs.json
+      - run: node tools/players.mjs /tmp/runs.json | tee -a $GITHUB_STEP_SUMMARY
+      - run: |
+          git config user.name "players-bot"; git config user.email "bot@users.noreply.github.com"
+          git add data/players.md; git commit -m "真人数据汇总 [skip ci]" || true
+          git pull --rebase origin preview && git push origin HEAD:preview

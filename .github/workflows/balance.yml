@@ -4,7 +4,7 @@ on:
     inputs:
       n: { description: '每个角色每档局数（至少 200）', default: '1000' }
       lock: { description: '解锁档 0-4', default: '4' }
-      asc: { description: '进阶难度 0-8', default: '0' }
+      asc: { description: '进阶难度 0-20', default: '0' }
 concurrency: { group: balance-report, cancel-in-progress: false }
 permissions:
   contents: write

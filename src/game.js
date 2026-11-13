@@ -1,8 +1,9 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11132200';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11132200';
-import { createAudio } from './audio.js?v=live2_11132200';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11132200';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11132300';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11132300';
+import { createAudio } from './audio.js?v=live2_11132300';
+import { BLESS_FREE, BLESS_COST, ASC2, MODS, ACH, hashSeed, mulberry, todayKey, dailyOf } from './meta.js?v=live2_11132300';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11132300';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -20,9 +21,9 @@ const bindLang = after => view.querySelectorAll('[data-lang]').forEach(el => el.
 const applyStatic = () => { document.title = tr('通往顶端') + ' The Way Up: Otherworld Deck'; const r = document.querySelector('#rot div:nth-child(2)'); if (r) r.textContent = getLanguage() === 'zh' ? '请把手机横过来玩' : tr('请把手机横过来玩'); const r3 = document.querySelector('#rot div:nth-child(3)'); if (r3) r3.style.display = getLanguage() === 'en' ? 'none' : ''; document.documentElement.lang = getLanguage() === 'zh' ? 'zh-CN' : getLanguage(); };
 onLanguageChange(applyStatic); applyStatic();
 const DEBUG = /[?&]debug/.test(location.search) || location.hash === '#debug';
-if (DEBUG) window.__dbg = { get B() { return B; }, get R() { return R; }, act3Choice: () => act3Choice(), riftChoice: () => riftChoice(), finalPrep: () => finalPrep(), endingChoice: () => endingChoice(), startEndless: () => startEndless(), layerEnd: () => layerEnd(), enterNode: k => enterNode(k), mapScreen: () => mapScreen(), newRun: (...a) => newRun(...a), battle: (...a) => battle(...a), playCard: (...a) => playCard(...a), endTurn: () => endTurn(), mkCard: (...a) => mkCard(...a), chooseCard: (...a) => chooseCard(...a) };
+if (DEBUG) window.__dbg = { get B() { return B; }, get R() { return R; }, bless: () => blessScreen(), daily: () => dailyScreen(), achs: () => achScreen(), pickChar: () => pickChar(), trueGate: () => trueGate(), mapScreen: () => mapScreen(), rest: () => restScreen(), treasure: () => treasureScreen(), endScreen: w => endScreen(w), act3Choice: () => act3Choice(), riftChoice: () => riftChoice(), finalPrep: () => finalPrep(), endingChoice: () => endingChoice(), startEndless: () => startEndless(), layerEnd: () => layerEnd(), enterNode: k => enterNode(k), mapScreen: () => mapScreen(), newRun: (...a) => newRun(...a), battle: (...a) => battle(...a), playCard: (...a) => playCard(...a), endTurn: () => endTurn(), mkCard: (...a) => mkCard(...a), chooseCard: (...a) => chooseCard(...a) };
 const audio = createAudio();
-let SET = { shake: 1, fast: 0, kwtip: 1 }; try { Object.assign(SET, JSON.parse(localStorage.getItem('tw_set') || '{}')); } catch (e) {}
+let SET = { shake: 1, fast: 0, kwtip: 1, tele: 1 }; try { Object.assign(SET, JSON.parse(localStorage.getItem('tw_set') || '{}')); } catch (e) {}
 const saveSet = () => { try { localStorage.setItem('tw_set', JSON.stringify(SET)); } catch (e) {} };
 const sleep = ms => new Promise(r => setTimeout(r, SET.fast ? ms / 2 : ms));
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
@@ -50,11 +51,52 @@ const kwify = s => { if (!TIPS) return s; const names = Object.keys(KW).map(k =>
 let R = null; // 当前一局
 let uidN = 1;
 const mkCard = (id, up = 0) => ({ id, up, uid: uidN++ });
-function newRun(char = 'hero', asc = 0) {
-  R = { char, hp: 80, maxHp: 80, gold: 120, potions: [], asc, deck: STARTERS[char].map(id => mkCard(id)), relics: [STARTRELIC[char]].filter(Boolean), map: genMap(), pos: null,
-    floor: 0, fights: 0, removeCost: 75, boss: pickOne(ENCOUNTERS.boss)[0], feather: 0 };
+function newRun(char = 'hero', asc = 0, opt = {}) {
+  R = { char, hp: 80, maxHp: 80, gold: 120, potions: [], asc, deck: STARTERS[char].map(id => mkCard(id)), relics: [STARTRELIC[char]].filter(Boolean), map: null, pos: null,
+    floor: 0, fights: 0, removeCost: 75, boss: null, feather: 0, keys: {}, mode: opt.mode || 'normal', mods: opt.mods || [], log: { picks: [], hp: [], t0: Date.now() } };
+  if (opt.seed != null && opt.seed !== '') R.seed = String(opt.seed);
+  R.map = genMap(); R.boss = SR(() => pickOne(ENCOUNTERS.boss)[0]);
   if (asc >= 4) { R.maxHp -= 8; R.hp = R.maxHp; }
   if (asc >= 9) R.deck.push(mkCard('regret'));
+  const md = k => R.mods.includes(k);
+  if (md('rich')) R.gold = 400;
+  if (md('big')) SR(() => rollCards(3).forEach(c => R.deck.push(mkCard(c.id))));
+  if (md('cursed')) { R.deck.push(mkCard('regret'), mkCard('regret')); gainRelic(rollRelic(['r'])); }
+  if (md('glass')) { R.maxHp = Math.ceil(R.maxHp / 2); R.hp = R.maxHp; }
+  if (!DEBUG) { const M = metaGet(); M.runs = (M.runs || 0) + 1; metaSet(M); if (M.runs >= 50) ach('a_runs50'); }
+}
+/* 种子随机：有种子的局（每日挑战 / 自定义），地图、遭遇、奖励都按种子来；每次调用按顺序换一个子种子 */
+function SR(f, a = []) { if (!R || R.seed == null) return f(...a); const o = Math.random; R.rc = (R.rc || 0) + 1; Math.random = mulberry(hashSeed(R.seed + ':' + R.rc)); try { return f(...a); } finally { Math.random = o; } }
+const MOD = k => !!(R && R.mods && R.mods.includes(k));
+/* ---------- 成就 ---------- */
+function ach(id) { if (DEBUG) return; const M = metaGet(); M.ach = M.ach || {}; if (M.ach[id]) return; M.ach[id] = Date.now(); metaSet(M); const a = ACH.find(x => x.id === id); if (a) setTimeout(() => tip('🏆 ' + tr('成就解锁') + '：' + tr(a.name)), 300); }
+function achScreen() { const got = metaGet().ach || {}, n = ACH.filter(a => got[a.id]).length;
+  const o = overlay(`<div class="panel achp" style="width:min(900px,94vw);max-height:86vh;overflow:auto"><h2>${tr('成就')} <small>${n} / ${ACH.length}</small></h2><div class="achg">${ACH.map(a => `<div class="ach ${got[a.id] ? 'on' : ''}"><i>${got[a.id] ? '🏆' : '🔒'}</i><b>${tr(a.name)}</b><span>${tr(a.desc)}</span></div>`).join('')}</div><button class="btn" id="ax">${tr('返回')}</button></div>`);
+  o.querySelector('#ax').onclick = () => o.remove(); }
+/* ---------- 开局祝福 ---------- */
+function blessScreen() { SCREEN = 'bless'; B = null; R.wait = 'bless';
+  if (!R.blessOpts) R.blessOpts = SR(() => { const f = shuffle(Object.keys(BLESS_FREE)).slice(0, 2), c = pickOne(Object.keys(BLESS_COST)); return A_(19) ? [c] : [...f, c]; });
+  save(); setMusic('menu');
+  const txt = k => BLESS_FREE[k] || BLESS_COST[k];
+  view.innerHTML = `${bgHTML(false, 'story_road')}${topBar()}<div class="panel" style="width:min(720px,92vw);text-align:center"><h2>${tr('出发前的祝福')}</h2><p>${tr('路边的小神龛亮了起来。选一个带上路吧。')}</p>
+   <div class="col" style="display:flex;flex-direction:column;gap:10px;margin-top:10px">${R.blessOpts.map(k => `<button class="btn ${BLESS_COST[k] ? 'red' : ''}" data-b="${k}">${tr(txt(k))}</button>`).join('')}</div></div>`;
+  bindTop();
+  view.querySelectorAll('[data-b]').forEach(el => el.onclick = () => applyBless(el.dataset.b));
+}
+function applyBless(k) { const fin = () => { delete R.wait; delete R.blessOpts; R.bless = k; save(); mapScreen(); };
+  const rm = (n, d) => { if (n <= 0) return d(); pickDeck('remove', () => rm(n - 1, d)); };
+  if (k === 'b_hp') { R.maxHp += 8; R.hp += 8; return fin(); }
+  if (k === 'b_gold') { R.gold += 100; return fin(); }
+  if (k === 'b_rm') return rm(1, fin);
+  if (k === 'b_up') return pickDeck('upgrade', fin);
+  if (k === 'b_card') return chooseCard(rollCards(3), fin);
+  if (k === 'b_pot') { gainPotion(rollPotion()); gainPotion(rollPotion()); return fin(); }
+  if (k === 'b_relic') { gainRelic(rollRelic(['c'])); return fin(); }
+  if (k === 't_rare') { R.maxHp -= Math.floor(R.maxHp * .1); R.hp = Math.min(R.hp, R.maxHp); return chooseCard(rollCards(3, 0, true), fin); }
+  if (k === 't_relic') { R.gold = 0; gainRelic(rollRelic(['r'])); return fin(); }
+  if (k === 't_rm2') { R.deck.push(mkCard('regret')); return rm(2, fin); }
+  if (k === 't_gold') { R.maxHp -= 12; R.hp = Math.min(R.hp, R.maxHp); R.gold += 250; return fin(); }
+  fin();
 }
 const has = id => R.relics.includes(id);
 const snap = () => { const { snap: _, ...o } = R; R.snap = JSON.stringify(o); }; /* 进入节点前的快照：中途退出后从这里恢复 */
@@ -69,7 +111,8 @@ const ACT = () => (R && R.act) || 1, ENC = () => ACT() === 4 ? ENCX() : ACT() ==
 /* 无尽模式：三章的怪混着出 */
 const ENCX = () => ({ easy: [...ENCOUNTERS.hard, ...ENCOUNTERS2.hard], hard: [...ENCOUNTERS2.hard, ...ENC3.hard, ...ENC3.easy, ...ENC3X.hard, ...RIFT.hard], elite: [...ENCOUNTERS.elite, ...ENCOUNTERS2.elite, ...ENC3.elite, ...ENC3X.elite, ...RIFT.elite], boss: [...ENCOUNTERS.boss, ...ENCOUNTERS2.boss, ...ENC3.boss] });
 const RW = () => (R && R.rows) || ROWS;
-function genMap() { const ROWS = RW();
+function genMap(...a) { return SR(genMap0, a); }
+function genMap0() { const ROWS = RW();
   const g = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
   const node = (r, c) => g[r][c] || (g[r][c] = { r, c, next: [], type: null, x: 140 + c * 120 + rnd(-20, 20), y: 0 });
   const crosses = (r, c, n) => g[r].some(o => o && o.c !== c && o.next.some(n2 => (o.c < c && n2 > n) || (o.c > c && n2 < n)));
@@ -95,6 +138,7 @@ function genMap() { const ROWS = RW();
     }
     nd.type = nd.type || 'fight';
   }
+  if ((!R || !R.act || R.act === 1) && !(R && R.endless)) { const el = g.flat().filter(n => n && n.type === 'elite' && n.r >= 5); if (el.length) pickOne(el).burn = 1; }
   return g;
 }
 
@@ -102,10 +146,13 @@ function genMap() { const ROWS = RW();
 function topBar() {
   return `<div id="top"><span class="hp">❤ ${R.hp}/${R.maxHp}</span><span class="gold">● ${R.gold}</span><span class="fl">第 ${Math.max(1, (R.floor0 || 0) + R.floor)} 层 · ${REGION()}</span>
   <div class="pots">${[0, 1, 2].map(i => { const id = (R.potions || [])[i]; return id ? `<img class="pot ${B && B.potSel === i ? 'sel' : ''}" data-pot="${i}" src="${POTIONS[id].img}" title="${esc(POTIONS[id].name + '：' + POTIONS[id].desc)}">` : '<i class="pot empty"></i>'; }).join('')}</div>
-  <div class="relics">${R.relics.map(id => `<img src="${RELICS[id].img}" data-rel="${id}" title="${esc(RELICS[id].name + '：' + RELICS[id].desc)}">`).join('')}</div>
+  <div class="relics">${keysHTML()}${R.relics.map(id => `<img src="${RELICS[id].img}" data-rel="${id}" title="${esc(RELICS[id].name + '：' + RELICS[id].desc)}">`).join('')}</div>
   <span class="sp"></span><button class="tb" id="tbdeck">牌组 (${R.deck.length})</button><button class="tb" id="tbtips" title="开关规则提示">提示：${TIPS ? '开' : '关'}</button><button class="tb" id="tbfs" title="全屏">⛶</button><button class="tb" id="tbmute">${audio.muted ? '🔇' : '🔊'}</button><button class="tb" id="tbset" title="设置">⚙</button></div>`;
 }
-function bindTop() {
+const KEYC = { g: ['#5fe07a', '翡翠钥匙'], r: ['#ff5a6a', '血月钥匙'], b: ['#6ab8ff', '龙鳞钥匙'] };
+const keysHTML = () => { const k = R.keys || {}; return Object.keys(k).length ? `<i class="rkeys">${['g', 'r', 'b'].map(x => `<b title="${tr(KEYC[x][1])}" style="color:${k[x] ? KEYC[x][0] : '#555'}">◆</b>`).join('')}</i>` : ''; };
+function gotKey(x) { R.keys = R.keys || {}; R.keys[x] = 1; tip(tr('得到了') + tr(KEYC[x][1])); save(); if (R.keys.g && R.keys.r && R.keys.b) ach('a_keys'); }
+function bindTop() { if (R && R.gold >= 600) ach('a_rich');
   $('#tbdeck')?.addEventListener('click', () => showPile('牌组', R.deck));
   $('#tbset')?.addEventListener('click', () => settings(true));
   view.querySelectorAll('[data-pot]').forEach(el => el.onclick = () => potionClick(+el.dataset.pot));
@@ -171,7 +218,8 @@ function mixTypes(out, okFn) {
   for (let k = out.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [out[k], out[j]] = [out[j], out[k]]; }
   return out;
 }
-function rollCards(n, rareBonus = 0, onlyRare = false) {
+function rollCards(...a) { return SR(rollCards0, a); }
+function rollCards0(n, rareBonus = 0, onlyRare = false) {
   const out = [], L = lockedSet(), ok = d => mine(d) && !L.has(d.id) && !out.includes(d.id) && d.rar !== 'start' && d.rar !== 'gen';
   for (let tries = 0; out.length < n && tries < 60; tries++) {
     const x = Math.random(); const rar = onlyRare ? 'r' : x < .04 + rareBonus ? 'r' : x < .36 + rareBonus ? 'u' : 'c'; /* 稀有 4%、罕见 32%、普通 64% */
@@ -185,16 +233,18 @@ function rollCards(n, rareBonus = 0, onlyRare = false) {
   return out.map(id => mkCard(id));
 }
 function chooseCard(cards, done, title = '选择一张牌加入牌组') {
+  const lg = R && R.log ? { f: (R.floor0 || 0) + R.floor, o: cards.map(c => c.id), p: null } : null; if (lg) R.log.picks.push(lg);
   const o = overlay(`<h2>${title}</h2><div class="row">${cards.map(c => cardHTML(c)).join('')}</div><button class="btn">跳过</button>`);
   o.querySelector('.btn').onclick = () => { o.remove(); done(false); };
-  o.querySelectorAll('.card').forEach(el => el.onclick = () => { R.deck.push(cards.find(c => c.uid == el.dataset.uid)); audio.level(); o.remove(); done(true); });
+  o.querySelectorAll('.card').forEach(el => el.onclick = () => { const pc = cards.find(c => c.uid == el.dataset.uid); if (lg) lg.p = pc.id; R.deck.push(pc); audio.level(); o.remove(); done(true); });
 }
-function rollRelic(rars = ['c', 'c', 'c', 'u', 'u', 'r'], crown = false) {
+function rollRelic(...a) { return SR(rollRelic0, a); }
+function rollRelic0(rars = ['c', 'c', 'c', 'u', 'u', 'r'], crown = false) {
   for (let k = 0; k < 30; k++) { const r = pickOne(rars); const pool = Object.values(RELICS).filter(x => x.rar === r && mine(x) && !lockedSet().has(x.id) && !has(x.id) && (crown || x.id !== 'crown')); if (pool.length) return pickOne(pool).id; }
   const pool = Object.values(RELICS).filter(x => x.rar !== 'start' && x.rar !== 'boss' && mine(x) && !lockedSet().has(x.id) && !has(x.id) && (crown || x.id !== 'crown')); return pool.length ? pickOne(pool).id : null;
 }
-function gainRelic(id) { if (!id) return; R.relics.push(id); if (id === 'herb') { R.maxHp += 10; R.hp += 10; } if (id === 'crown') { R.maxHp -= 10; R.hp = Math.min(R.hp, R.maxHp); } if (id === 'grail') { R.maxHp -= 5; R.hp = Math.min(R.hp, R.maxHp); } if (RELICS[id] && RELICS[id].pick) RELICS[id].pick(R); audio.level(); }
-const rollBossRelics = () => shuffle(Object.values(RELICS).filter(x => x.rar === 'boss' && !has(x.id)).map(x => x.id)).slice(0, 3);
+function gainRelic(id) { if (!id) return; R.relics.push(id); if (R.relics.length >= 15) ach('a_relic15'); if (id === 'herb') { R.maxHp += 10; R.hp += 10; } if (id === 'crown') { R.maxHp -= 10; R.hp = Math.min(R.hp, R.maxHp); } if (id === 'grail') { R.maxHp -= 5; R.hp = Math.min(R.hp, R.maxHp); } if (RELICS[id] && RELICS[id].pick) RELICS[id].pick(R); audio.level(); }
+const rollBossRelics = () => SR(() => shuffle(Object.values(RELICS).filter(x => x.rar === 'boss' && !has(x.id)).map(x => x.id)).slice(0, 3));
 function chooseBossRelic(ids, done) { /* Boss 秘宝三选一 */
   const o = overlay(`<div class="panel" style="width:min(760px,92vw);text-align:center"><h2>${tr('Boss 秘宝：选一个')}</h2><p style="opacity:.8">${tr('力量强大，但都有代价。')}</p><div class="row" style="justify-content:center;gap:12px;flex-wrap:nowrap">${ids.map(id => `<div class="reward brel" data-id="${id}" style="width:31%;min-width:0;margin:0;flex-direction:column;text-align:center"><img src="${RELICS[id].img}" style="width:64px;height:64px"><b>${tr(RELICS[id].name)}</b><span style="font-size:14px">${tr(RELICS[id].desc)}</span></div>`).join('')}</div><br><button class="btn" id="bsk">${tr('跳过')}</button></div>`);
   o.querySelectorAll('.brel').forEach(el => el.onclick = () => { gainRelic(el.dataset.id); o.remove(); done(true); });
@@ -214,8 +264,9 @@ const UNLOCKS = [
 ];
 const metaGet = () => { try { return Object.assign({ xp: 0, asc: {} }, JSON.parse(localStorage.getItem('tw_meta') || '{}')); } catch (e) { return { xp: 0, asc: {} }; } };
 const metaSet = m => { try { localStorage.setItem('tw_meta', JSON.stringify(m)); } catch (e) {} };
-const lockedSet = () => { const xp = metaGet().xp, s = new Set(); UNLOCKS.forEach(u => { if (xp < u.xp) [...u.cards, ...u.relics].forEach(x => s.add(x)); }); if (DEBUG) s.clear(); return s; };
+const lockedSet = () => new Set(); const lockedSet0 = () => { const xp = metaGet().xp, s = new Set(); UNLOCKS.forEach(u => { if (xp < u.xp) [...u.cards, ...u.relics].forEach(x => s.add(x)); }); if (DEBUG) s.clear(); return s; };
 const A_ = n => (R && R.asc || 0) >= n;
+ASC.push(...ASC2);
 const ONLINE = !/githack|localhost|127\.0\.0\.1|^file/.test(location.href); /* 试玩链接上没有后台 */
 const API = /netlify\.app$/.test(location.hostname) ? '/api/scores' : 'https://the-way-up.netlify.app/api/scores'; /* itch.io 等外部站点连 Netlify 后台 */
 const CHARINFO = {
@@ -257,15 +308,16 @@ function mainMenu() {
    <div class="mmenu">${nm ? `<p class="who">冒险者：<b data-noi18n>${esc(nm)}</b></p>` : ''}
     ${sv ? `<button class="btn mm" id="cont">继续冒险<small>${CHARS[sv.char || 'hero'].name} · 第 ${sv.floor} 层</small></button>` : ''}
     <button class="btn mm" id="start">新的冒险</button><button class="btn mm" id="book">图鉴</button>
-    <button class="btn mm" id="rank">排行榜</button><button class="btn mm" id="hist">战绩</button><button class="btn mm" id="set">设置</button>
+    <button class="btn mm" id="rank">排行榜</button><button class="btn mm" id="hist">战绩</button><button class="btn mm" id="achb">成就</button><button class="btn mm" id="set">设置</button>
     <button class="btn mm sm2" id="back">返回标题</button>${langBar()}</div>`;
   bindLang(mainMenu); SCREEN = 'menu';
   $('#start').onclick = () => askName(() => { if (!sv) return pickChar();
     const y = overlay(`<h2>开始新的冒险？</h2><p>当前存档（${CHARS[sv.char || 'hero'].name} · 第 ${sv.floor} 层）会被放弃。</p><div class="row"><button class="btn red" id="y1">放弃旧档，重新开始</button><button class="btn" id="y0">取消</button></div>`);
     y.querySelector('#y0').onclick = () => y.remove(); y.querySelector('#y1').onclick = () => { y.remove(); clearSave(); pickChar(); }; });
-  $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending && R.snap && ['fight', 'elite', 'boss', 'final'].includes(R.pending)) { try { const o = JSON.parse(R.snap); R = Object.assign(o, { snap: R.snap }); } catch (e) {} } if (R.act2wait) act2Choice(); else if (R.wait === 'act3') act3Choice(); else if (R.wait === 'rift') riftChoice(); else if (R.wait === 'final') finalPrep(); else if (R.wait === 'ending') endingChoice(); else if (R.wait === 'trial') pickTrial(); else if (R.wait === 'layer') layerEnd(); else if (R.wait === 'trialR') trialReward(R.trialK); else if (R.loot) rewardScreen(); else if (R.pending) enterNode(R.pending); else mapScreen(); });
+  $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending && R.snap && ['fight', 'elite', 'boss', 'final', 'trueb'].includes(R.pending)) { try { const o = JSON.parse(R.snap); R = Object.assign(o, { snap: R.snap }); } catch (e) {} } if (R.wait === 'bless') blessScreen(); else if (R.wait === 'true') trueGate(); else if (R.act2wait) act2Choice(); else if (R.wait === 'act3') act3Choice(); else if (R.wait === 'rift') riftChoice(); else if (R.wait === 'final') finalPrep(); else if (R.wait === 'ending') endingChoice(); else if (R.wait === 'trial') pickTrial(); else if (R.wait === 'layer') layerEnd(); else if (R.wait === 'trialR') trialReward(R.trialK); else if (R.loot) rewardScreen(); else if (R.pending) enterNode(R.pending); else mapScreen(); });
   $('#book').onclick = () => book();
-  $('#hist').onclick = runHistory;
+  $('#hist').onclick = runHistory; $('#achb').onclick = achScreen;
+  if (!LS('tw_teleNote')) { LS('tw_teleNote', '1'); setTimeout(() => tip(tr('为了调整平衡，游戏会匿名上传每局的数据（不含名字），可以在设置里关闭')), 1200); }
   $('#rank').onclick = rankBoard; $('#set').onclick = () => settings(false); $('#back').onclick = title;
 }
 function askName(done) {
@@ -283,7 +335,7 @@ function settings(inRun) {
   const o = overlay(`<div class="setw"><div class="tabs"><b class="on" data-t="g">游戏设置</b><b data-t="k">操作说明</b></div>
    <div class="tp" data-p="g"><div class="sgrid">
     <div class="sbox"><h3>声音</h3>${sl('m', '主音量')}${sl('mu', '音乐音量')}${sl('s', '音效音量')}</div>
-    <div class="sbox"><h3>偏好</h3>${ck('tips', '显示规则提示', TIPS)}${ck('shake', '屏幕震动', SET.shake)}${ck('fast', '加速模式（动画快一倍）', SET.fast)}${ck('kwtip', '卡牌关键词说明框', SET.kwtip)}</div>
+    <div class="sbox"><h3>偏好</h3>${ck('tips', '显示规则提示', TIPS)}${ck('shake', '屏幕震动', SET.shake)}${ck('fast', '加速模式（动画快一倍）', SET.fast)}${ck('kwtip', '卡牌关键词说明框', SET.kwtip)}${ck('tele', '匿名上传对局数据（帮助调平衡）', SET.tele)}</div>
     <div class="sbox"><h3>玩家</h3><label class="sl"><span>名字</span><input id="snm" class="inp sm" maxlength="8" value="${esc(LS('tw_name'))}"></label>
      <label class="sl"><span>口令</span><input id="spin" class="inp sm" maxlength="6" inputmode="numeric" value="${esc(LS('tw_pin'))}" placeholder="可不填"></label></div>
     <div class="sbox"><h3>语言 / Language</h3>${langBar()}</div>
@@ -304,12 +356,12 @@ function settings(inRun) {
     y.querySelector('#y0').onclick = () => y.remove(); y.querySelector('#y1').onclick = () => { if (B && (B.busy || B.anim)) { y.remove(); tip(tr('等这一步结算完再退出')); return; } y.remove(); close(); clearSave(); endScreen(false); }; });
   o.querySelector('#ssq')?.addEventListener('click', () => { if (B && (B.busy || B.anim)) { tip(tr('等这一步结算完再退出')); return; } close(); save(); B = null; mainMenu(); });
 }
-function rankBoard() {
-  const o = overlay(`<h2>排行榜</h2><div id="rk" class="rk">读取中……</div><button class="btn" id="rkx">关闭</button>`);
+function rankBoard(daily) {
+  const o = overlay(`<h2>${daily ? tr('今日排行') : '排行榜'}</h2><div id="rk" class="rk">读取中……</div><button class="btn" id="rkx">关闭</button>`);
   o.querySelector('#rkx').onclick = () => o.remove();
   const box = o.querySelector('#rk');
   if (!ONLINE) { box.innerHTML = '<p>排行榜要在正式网站上才能用（试玩链接没有后台）。</p>'; return; }
-  fetch(API, { cache: 'no-store' }).then(r => r.json()).then(d => {
+  fetch(API + (daily ? '?daily=' + daily : ''), { cache: 'no-store' }).then(r => r.json()).then(d => {
     if (!d.ok || !d.list.length) { box.innerHTML = '<p>还没有人上榜，快来当第一名！</p>'; return; }
     const me = LS('tw_name');
     box.innerHTML = `<table><tr><th>#</th><th>名字</th><th>角色</th><th>到达</th><th>击杀</th><th>积分</th></tr>${d.list.map((r, i) => `<tr class="${r.name === me ? 'me' : ''}"><td>${i + 1}</td><td data-noi18n>${esc(r.name)}</td><td><img src="assets/${CHARS[r.char].dir}/portrait.png"></td><td>${r.win ? '<b class="win">通关</b>' : '第 ' + r.floor + ' 层'}</td><td>${r.kills}</td><td><b>${r.score}</b></td></tr>`).join('')}</table>`;
@@ -318,21 +370,39 @@ function rankBoard() {
 function submitScore(win) {
   const name = LS('tw_name'); if (DEBUG || !ONLINE || !name) return Promise.resolve(null);
   return fetch(API, { method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ name, pin: LS('tw_pin'), char: R.char, asc: R.asc || 0, floor: (R.floor0 || 0) + R.floor, kills: R.kills || 0, elites: R.elites || 0, win, hp: Math.max(0, R.hp) }) })
+    body: JSON.stringify({ name, pin: LS('tw_pin'), char: R.char, asc: R.asc || 0, floor: (R.floor0 || 0) + R.floor, kills: R.kills || 0, elites: R.elites || 0, win, hp: Math.max(0, R.hp), daily: R.daily || '', bosses: R.bosses || 0, endless: R.endless || 0 }) })
     .then(r => r.json()).catch(() => null);
 }
 
+function dailyScreen() { const key = todayKey(), dd = dailyOf(key, ORDER.filter(k => !CHARS[k].temp)); let best = {}; try { best = JSON.parse(LS('tw_daily') || '{}'); } catch (e) {}
+  const o = overlay(`<div class="panel" style="width:min(620px,92vw);text-align:center"><h2>${tr('每日挑战')} <small data-noi18n>${key.slice(0, 4)}-${key.slice(4, 6)}-${key.slice(6)}</small></h2><p>${tr('今天所有人用同一个角色、同一张地图、同样的修正。')}</p>
+   <img src="assets/${CHARS[dd.char].dir}/portrait.png" style="height:120px"><p><b>${tr(CHARS[dd.char].name)}</b></p>
+   ${dd.mods.map(k => `<p><b>${tr(MODS[k][0])}</b>：${tr(MODS[k][1])}</p>`).join('')}
+   ${best[key] ? `<p style="color:#ffd35a">${tr('今天的最好成绩')}：${best[key]}</p>` : ''}
+   <div class="row" style="justify-content:center"><button class="btn gold" id="dgo">${tr('开始挑战')}</button><button class="btn" id="drk">${tr('今日排行')}</button><button class="btn" id="dx">${tr('返回')}</button></div></div>`);
+  o.querySelector('#dx').onclick = () => o.remove(); o.querySelector('#drk').onclick = () => rankBoard(key);
+  o.querySelector('#dgo').onclick = () => { o.remove(); clearSave(); newRun(dd.char, 0, { mode: 'daily', seed: dd.seed, mods: dd.mods }); R.daily = key; save(); blessScreen(); }; }
 function pickChar() {
   view.innerHTML = `${bgHTML()}<div class="panel csel"><h2>选择角色</h2><div class="row">${ORDER.map(k => { const c = CHARS[k], i = CHARINFO[k];
     const lk = c.temp && !DEBUG; return `<div class="reward cc${lk ? ' locked' : ''}" ${lk ? '' : `data-c="${k}"`}>${lk ? `<i class="lockb">${t('即将推出')}</i>` : c.temp ? `<i class="lockb">${t('测试中')}</i>` : ''}<img src="assets/${c.dir}/portrait.png"${c.tint ? ` style="filter:${c.tint}"` : ''}><b>${tr(c.name)}</b><span class="cl">${i.line}</span><span class="cd">${tr(c.desc)}</span>
      <span class="diff">上手难度 <i>${'★'.repeat(i.diff)}${'☆'.repeat(3 - i.diff)}</i> ${['', '简单', '普通', '困难'][i.diff]}</span><span class="ct">${i.tip}</span></div>`; }).join('')}</div>
    <div class="ascbar">进阶难度 <button class="btn" id="am">−</button><b id="av"></b><button class="btn" id="ap">＋</button><span id="ad"></span></div>
+   <div class="modebar"><button class="btn gold" id="daily">${tr('每日挑战')}</button><button class="btn" id="cust">${tr('自定义模式')}</button><span id="mdx"></span></div>
    <button class="btn" id="back">返回</button></div>`;
+  let opt = {};
+  const showOpt = () => { $('#mdx').innerHTML = opt.mode === 'custom' ? `${tr('自定义')}：${opt.seed ? tr('种子') + ' <b data-noi18n>' + esc(opt.seed) + '</b> · ' : ''}${opt.mods.length ? opt.mods.map(k => tr(MODS[k][0])).join('、') : tr('无修正')} <a id="mclr">✕</a>` : ''; $('#mclr')?.addEventListener('click', () => { opt = {}; showOpt(); }); };
+  $('#daily').onclick = () => dailyScreen();
+  $('#cust').onclick = () => { const o = overlay(`<div class="panel" style="width:min(640px,92vw)"><h2>${tr('自定义模式')}</h2><p>${tr('种子相同，地图和奖励就相同。可以和朋友比同一局。')}</p>
+     <label class="sl"><span>${tr('种子')}</span><input id="cseed" class="inp sm" maxlength="16" value="${esc(opt.seed || '')}" placeholder="${tr('留空 = 随机')}"></label>
+     <div class="modl">${Object.entries(MODS).map(([k, m]) => `<label class="ck"><input type="checkbox" data-m="${k}" ${(opt.mods || []).includes(k) ? 'checked' : ''}><span><b>${tr(m[0])}</b>：${tr(m[1])}</span></label>`).join('')}</div>
+     <div class="row"><button class="btn gold" id="cok">${tr('确定，去选角色')}</button><button class="btn" id="cx">${tr('取消')}</button></div></div>`);
+    o.querySelector('#cx').onclick = () => o.remove();
+    o.querySelector('#cok').onclick = () => { opt = { mode: 'custom', seed: o.querySelector('#cseed').value.trim(), mods: [...o.querySelectorAll('[data-m]:checked')].map(x => x.dataset.m) }; o.remove(); showOpt(); }; };
   const M = metaGet(); let asc = 0, cur = 'miko';
-  const mx = k => DEBUG ? 15 : Math.min(15, M.asc[k] || 0);
-  const show = () => { asc = Math.min(asc, mx(cur)); $('#av').textContent = asc; $('#ad').textContent = asc ? ASC.slice(1, asc + 1).join('，') : `标准难度（用这个角色通关可解锁进阶 1，当前最高 ${mx(cur)}）`; };
-  view.querySelectorAll('[data-c]').forEach(el => { el.onmouseenter = () => { cur = el.dataset.c; show(); }; el.onclick = () => { newRun(el.dataset.c, Math.min(asc, mx(el.dataset.c))); save(); story('story_intro', ['放学路上，三个互不相识的少年少女，被一道光卷进了异世界。', '迎接他们的，是本地的小魔女莉泽——她的村民被哥布林抓上了山。', '“回家的方法，也许就在山顶。”四个人，一起出发吧。'], mapScreen, 'introSeen'); }; });
-  $('#am').onclick = () => { asc = Math.max(0, asc - 1); show(); }; $('#ap').onclick = () => { asc = Math.min(mx(cur), asc + 1); if (asc === mx(cur) && asc < 8) tip(`${CHARS[cur].name}：通关进阶 ${asc} 后解锁下一级`); show(); }; show();
+  const mx = k => 20; /* 全部解锁 */
+  const show = () => { asc = Math.min(asc, mx(cur)); $('#av').textContent = asc; $('#ad').textContent = asc ? tr(ASC[asc]) + (asc > 1 ? tr('（并包含之前所有进阶）') : '') : tr('标准难度'); };
+  view.querySelectorAll('[data-c]').forEach(el => { el.onmouseenter = () => { cur = el.dataset.c; show(); }; el.onclick = () => { newRun(el.dataset.c, Math.min(asc, mx(el.dataset.c)), opt); save(); story('story_intro', ['放学路上，三个互不相识的少年少女，被一道光卷进了异世界。', '迎接他们的，是本地的小魔女莉泽——她的村民被哥布林抓上了山。', '“回家的方法，也许就在山顶。”四个人，一起出发吧。'], blessScreen, 'introSeen'); }; });
+  $('#am').onclick = () => { asc = Math.max(0, asc - 1); show(); }; $('#ap').onclick = () => { asc = Math.min(mx(cur), asc + 1); show(); }; show();
   $('#back').onclick = mainMenu;
 }
 // ---------- 地图 ----------
@@ -354,7 +424,7 @@ function mapScreen() { SCREEN = 'map';
   let nodes = '';
   for (const row of R.map) for (const nd of row) if (nd) {
     const isAv = av.includes(nd), done = visited.some(p => p.r === nd.r && p.c === nd.c), cur = R.pos && R.pos.r === nd.r && R.pos.c === nd.c;
-    nodes += `<div class="node ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nd.x}px;top:${nd.y}px" data-r="${nd.r}" data-c="${nd.c}" title="${NODENAME[nd.type]}">${NSET() && ['fight', 'elite'].includes(nd.type) ? `<img src="assets/ui2/${NSET()}_${nd.type}.png">` : NODEICON[nd.type]}</div>`;
+    nodes += `<div class="node ${isAv ? 'av' : ''} ${done ? 'done' : ''} ${cur ? 'cur' : ''}" style="left:${nd.x}px;top:${nd.y}px" data-r="${nd.r}" data-c="${nd.c}" title="${NODENAME[nd.type]}${nd.burn && !(R.keys || {}).g ? ' · ' + tr('燃烧的精英：更强，打赢得到翡翠钥匙') : ''}">${nd.burn && !(R.keys || {}).g ? '<i class="burn">🔥</i>' : ''}${NSET() && ['fight', 'elite'].includes(nd.type) ? `<img src="assets/ui2/${NSET()}_${nd.type}.png">` : NODEICON[nd.type]}</div>`;
   }
   const bk = R.boss;
   nodes += `<div class="node boss ${av[0] === 'boss' ? 'av' : ''}" style="left:500px;top:110px" title="Boss：${ENEMIES[bk].name}"><img src="assets/ui2/${NSET() ? NSET() + '_boss' : 'node_boss'}.png"></div>`;
@@ -373,8 +443,10 @@ function mapScreen() { SCREEN = 'map';
 function enterNode(t) {
   if (t === 'boss') return battle([R.boss], 'boss');
   if (t === 'final') { battle([FINAL3], 'boss'); B.final = 1; return; }
+  if (t === 'trueb') { battle([TRUEB], 'boss'); B.trueB = 1; B.final = 1; for (const e of B.en) { e.hp = e.max = Math.round(e.max * 1.6); e.st.str = (e.st.str || 0) + 3; } render(); return; }
   if (t === 'fight' || t === 'elite') { // 记住这场遭遇，中途退出再进来还是同一批怪
-    if (!R.pendEnc) { R.pendEnc = t === 'elite' ? pickOne(ENC().elite) : pickOne(R.fights < 3 ? ENC().easy : ENC().hard); if (t === 'fight') R.fights++; snap(); save(); }
+    R.log && R.log.hp.push([(R.floor0 || 0) + R.floor, R.hp, t]);
+    if (!R.pendEnc) { R.pendEnc = SR(() => t === 'elite' ? pickOne(ENC().elite) : pickOne(R.fights < 3 ? ENC().easy : ENC().hard)); if (t === 'fight') R.fights++; snap(); save(); }
     return battle(R.pendEnc, t);
   }
   if (t === 'rest') return restScreen();
@@ -386,18 +458,18 @@ function enterNode(t) {
 // ---------- 战斗 ----------
 let B = null, eid = 1;
 function mkEnemy(key) {
-  try { const M = metaGet(); M.seen = M.seen || {}; if (!M.seen[key]) { M.seen[key] = 1; metaSet(M); } } catch (e) {}
+  try { const M = metaGet(); M.seen = M.seen || {}; if (!M.seen[key]) { M.seen[key] = 1; metaSet(M); if (Object.keys(ENEMIES).every(k => M.seen[k] || ENEMIES[k].hide)) ach('a_codex'); } } catch (e) {}
   const d = ENEMIES[key], hp = rnd(d.hp[0], d.hp[1]);
-  const hm = 1 + (A_(1) && d.elite ? .15 : 0) + (A_(2) && !d.elite && !d.boss ? .1 : 0) + (A_(6) && d.boss ? .15 : 0) + (A_(15) ? .1 : 0);
+  const hm = 1 + (A_(1) && d.elite ? .15 : 0) + (A_(2) && !d.elite && !d.boss ? .1 : 0) + (A_(6) && d.boss ? .15 : 0) + (A_(15) ? .1 : 0) + (A_(18) && d.elite ? .1 : 0) + (MOD('heavy') ? .25 : 0);
   const xm = R && R.endless ? endlessMul(R.endless) : { hp: 1, dmg: 1 }, tr2 = R && R.trials || [];
   const hp1 = Math.round(hp * hm * (ACT() === 2 ? RULES.act2Mul : ACT() === 3 ? RULES.act3Hp : 1) * xm.hp * (d.elite && tr2.includes('blood') ? 1.25 : 1));
-  const e = { key, d, name: d.name, hp: hp1, max: hp1, dmul: (1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0)) * (ACT() === 2 ? RULES.act2Mul : ACT() === 3 ? RULES.act3Dmg : 1) * xm.dmg * (d.boss && tr2.includes('tyrant') ? 1.15 : 1), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++, move: null };
-  if (A_(10) && d.elite) e.st.str = 1;
+  const e = { key, d, name: d.name, hp: hp1, max: hp1, dmul: (1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0) + (A_(17) && !d.elite && !d.boss ? .1 : 0)) * (ACT() === 2 ? RULES.act2Mul : ACT() === 3 ? RULES.act3Dmg : 1) * xm.dmg * (d.boss && tr2.includes('tyrant') ? 1.15 : 1), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++, move: null };
+  if (A_(10) && d.elite) e.st.str = 1; if (A_(20) && d.boss) e.st.str = (e.st.str || 0) + 2;
   d.init && d.init(e); return e;
 }
 const alive = () => B.en.filter(e => !e.dead);
 function battle(keys, kind) {
-  preloadExtra(R.char);
+  preloadExtra(R.char); const burnN = kind === 'elite' && R.pos && R.map[R.pos.r] && R.map[R.pos.r][R.pos.c] && R.map[R.pos.r][R.pos.c].burn && !(R.keys || {}).g;
   hst = { n: 'idle', t: performance.now() };
   if (kind === 'fight' && R.trials && R.trials.includes('swarm') && keys.length < 4) keys = [...keys, 'd_egg'];
   const bg = ACT() === 3 && R.rift ? (kind === 'boss' && keys[0] !== FINAL3 ? 'c3_hall' : RIFTBG) : ACT() >= 3 ? (kind === 'boss' ? 'c3_hall' : 'c3_battle') : ACT() === 2 ? (kind === 'boss' ? 'c2_hall' : pickOne(['c2_exterior', 'c2_crypt'])) : kind === 'boss' ? 'battle_castle' : pickOne(BGS);
@@ -410,6 +482,7 @@ function battle(keys, kind) {
   if (has('spikes')) B.p.st.thorns = 3;
   if (has('wardrum')) B.en.forEach(e => e.st.vuln = 1);
   B.en.filter(e => e.key === 'gob_bomb').forEach((e, i) => e.st.fuse = 3 + i); // 多个炸弹兵错开倒计时
+  B.hp0 = R.hp; if (burnN) { B.burn = 1; B.en.forEach(e => { e.hp = e.max = Math.round(e.max * 1.3); e.st.str = (e.st.str || 0) + 2; }); setTimeout(() => say(tr('燃烧的精英：更强了！打赢可以得到翡翠钥匙')), 1600); }
   B.en.forEach(e => e.move = e.d.ai(e, BE));
   CORE3.battleStart(B, has, R);
   MECH.battleStart(G);
@@ -445,6 +518,7 @@ function fx(who, text, cls) { B.fx.push({ who, text, cls }); }
 // 对目标造成伤害（已计算好的数值），返回未被格挡的伤害
 function hurt(tgt, amt, attacker, direct = true) {
   const isP = tgt === B.p;
+  if (!isP && attacker === B.p && MOD('glass')) amt = Math.floor(amt * 1.5); if (!isP && attacker === B.p && amt >= 60) ach('a_hit60');
   if (!isP && tgt.st.aegis) { fx(tgt.id, '免疫', 'blk'); return 0; } if (!isP && tgt.d && tgt.d.undead && has('silvercross')) amt = Math.floor(amt * 1.25); if (!isP && tgt.st.intang) amt = Math.ceil(amt / 2); if (!isP && tgt.st.fly) { amt = Math.ceil(amt / 2); addSt(tgt, 'fly', -1); if (!tgt.st.fly) { tgt.grounded = 1; fx(tgt.id, '坠落！', 'st'); } } if (!isP && attacker === B.p && direct) tgt.hitT = 1; const eAtk = isP && attacker && attacker !== B.p; amt = CORE3.pre(B, tgt, amt, isP, attacker, has); if (eAtk) amt = MECH.preBlock(G, amt, attacker); let blk = !isP && B.p.pierce && attacker === B.p ? 0 : tgt.block, left = amt;
   const used = Math.min(blk, left); tgt.block -= used; left -= used; if (eAtk) left = MECH.postBlock(G, left, attacker);
   const hpLost = isP ? left : Math.min(left, Math.max(0, tgt.hp)); /* 实际打掉的生命（不算溢出） */
@@ -575,9 +649,9 @@ function drawCards(n) {
 }
 function startTurn(first) {
   setTimeout(() => { if (B && !B.over && !alive().length) checkEnd(); }, 0); /* 回合开始的共鸣/中毒/秘宝伤害若打死最后一个敌人，也要结算胜利 */
-  B.turn++; B.hitSet = new Set(); B.forceEnd = 0; [...B.draw, ...B.disc, ...B.hand].forEach(c => delete c.rc);
+  B.turn++; B.tc = 0; B.hitSet = new Set(); B.forceEnd = 0; [...B.draw, ...B.disc, ...B.hand].forEach(c => delete c.rc);
   B.p.block = 0;
-  B.p.energy = 3 + (has('crown') ? 1 : 0) + (first && has('hourglass') ? 1 : 0);
+  B.p.energy = 3 + (has('crown') ? 1 : 0) + (first && has('hourglass') ? 1 : 0) + (first && MOD('swift') ? 1 : 0);
   B.p.noDraw = 0; B.p.disc = 0; B.p.discN = 0; B.p.loopT = 0; B.p.cpt = 0; B.p.lastC = null; B.p.loopU = 0;
   CORE3.pStart(B, { has, loseHp: n => G.loseHp(n), energy: n => G.energy(n) }); pDeath(); if (R.hp <= 0) { setTimeout(checkEnd, 0); return; }
   B.p.pot = 0;
@@ -610,6 +684,7 @@ async function playCard(i, tgt) {
   if (B && B.forceEnd) return;
   if (!B || B.busy || B.over || B.anim) return; const b0 = B;
   const c = B.hand[i], d = CARDS[c.id]; let cost = cardCost(c);
+  setTimeout(() => { if (B && B.hand && !B.hand.includes(c)) { B.tc = (B.tc || 0) + 1; if (B.tc >= 10) ach('a_turn10'); } }, 0);
   if (d.unplay) { tip('这张牌不能打出'); return; }
   if (c.seal) { tip(tr('这张牌被封印了')); return; }
   if (cost === 'X') cost = B.p.energy; if (cost > B.p.energy) { tip('能量不足'); return; }
@@ -741,13 +816,15 @@ async function checkEnd() {
     if (R.relics.some(x => RELICS[x] && RELICS[x].rar === 'start') && !has('crown')) R.hp = Math.min(R.maxHp, R.hp + 4);
     { const m = MECH.victory(G, B.kind); if (m) say(tr(m)); const bo = MECH.boonOpts && MECH.boonOpts(G, B.kind); if (bo) { bo.forEach(o => { o.html = `<button class="btn"><b>${tr(o.name)}</b>：${tr(o.desc)}</button>`; }); const k = await pickOpt(tr('团子的灵魂恩赐：选一个（整局有效）'), bo, true); MECH.boonPick(G, k); } } if (has('grail')) R.hp = Math.min(R.maxHp, R.hp + 5);
     if (B.en.some(e => (e.st.hostage || 0) > 0)) { R.gold += 40; say(tr('（被救下的村民塞给你 40 金币：“谢谢你们！”）')); }
-    if (B.kind === 'elite') R.elites = (R.elites || 0) + 1;
+    if (B.kind === 'elite') R.elites = (R.elites || 0) + 1; if (B.burn) gotKey('g');
+    if (B.kind === 'boss' && R.hp >= (B.hp0 || 0)) ach('a_bossclean'); if (B.en.some(e => e.key === 'dev_boss')) ach('a_dev');
+    if (B.trueB) { B = null; clearSave(); R.trueEnd = 1; ach('a_true'); return story('story_home', ['门的后面，是一间亮着屏幕的小房间。', '开发者摘下眼镜，揉了揉眼睛：“……好吧，你们赢了。”', '屏幕上跳出一行字：「游戏结束——这次是真的。」', '光涌了上来。再睁开眼时，是放学路上的那条街。'], () => endScreen(true)); }
     if (B.kind === 'boss') { R.bosses = (R.bosses || 0) + 1; if (ACT() === 1) { delete R.pending; delete R.pendEnc; delete R.snap; R.after = 'act2'; save(); rewardScreen(); return true; }
       if (ACT() >= 2) { delete R.pending; delete R.pendEnc; delete R.snap;
         if (ACT() === 2) R.after = 'act3';
         else if (ACT() === 3 && !B.final && !R.rift) { R.after = 'rift'; R.deck.push(mkCard('devperm')); }
         else if (ACT() === 3 && !B.final) R.after = 'final';
-        else if (ACT() === 3) { B = null; R.wait = 'ending'; save(); return endingChoice(); }
+        else if (ACT() === 3) { B = null; R.kingDown = 1; R.wait = 'ending'; save(); return endingChoice(); }
         else R.after = 'layer';
         save(); rewardScreen(); return true; }
       clearSave(); B = null; return story('story_end2', [R.boss === 'vamp_count' ? '伯爵化为了灰烬，天终于亮了。被关押的村民们，终于重获自由。' : t('{0}倒下了。古堡的血月熄灭，天终于亮了。被关押的村民们重获自由。', tr((ENEMIES[R.boss] || {}).name || '')), '可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。', '“回家的路……还在更高的地方。”'], () => story('story_party', ['天亮了。大家并肩站在晨光里，笑得满脸是灰。', '“走吧，往上。”'], () => endScreen(true))); }
@@ -917,9 +994,10 @@ addEventListener('pointercancel', () => dragEnd(true));
 view.addEventListener('contextmenu', e => { if (B && B.sel >= 0) { e.preventDefault(); B.sel = -1; render(); } });
 
 // ---------- 战后奖励 ----------
-function rewardScreen() { /* 战利品先存进存档（R.loot），刷新页面也不会丢 */
+function rewardScreen(...a) { return SR(rewardScreen0, a); }
+function rewardScreen0() { /* 战利品先存进存档（R.loot），刷新页面也不会丢 */
   if (B) { const kind = B.kind; B = null; const L = [];
-    L.push({ t: 'gold', n: Math.round((kind === 'boss' ? rnd(90, 110) : kind === 'elite' ? rnd(25, 35) : rnd(10, 20)) * (A_(7) ? .7 : 1)) });
+    L.push({ t: 'gold', n: Math.round((kind === 'boss' ? rnd(90, 110) : kind === 'elite' ? rnd(25, 35) : rnd(10, 20)) * (A_(7) ? .7 : 1) * (MOD('midas') ? 2 : 1)) });
     if (has('clover')) L.push({ t: 'clover' });
     if (kind === 'elite') { const rl = rollRelic(); if (rl) L.push({ t: 'relic', id: rl }); if (has('b_star')) { const r2 = rollRelic(); if (r2 && r2 !== rl) L.push({ t: 'relic', id: r2 }); } }
     if (kind === 'boss' && (R.after === 'act2' || R.after === 'act3')) { /* 打完第一、二章 Boss 各一次 */ const ids = rollBossRelics(); if (ids.length) L.push({ t: 'brelic', ids }); }
@@ -950,16 +1028,16 @@ function rewardScreen() { /* 战利品先存进存档（R.loot），刷新页面
 function restScreen() {
   const heal = Math.floor(R.maxHp * ((A_(5) ? .2 : .3) - (R.trials && R.trials.includes('hunger') ? .15 : 0))) + (has('stove') ? 10 : 0) - (A_(14) ? 5 : 0);
   view.innerHTML = `${bgHTML(false, 'c' + Math.min(3, ACT()) + '_rest')}${topBar()}<div class="panel"><h2>营火</h2><p>篝火噼啪作响，难得的安宁。</p><div class="row">
-   <button class="btn" id="rest" ${has('b_core') ? 'disabled' : ''}>${has('b_core') ? tr('熔火之心：不能休息') : `休息：回复 ${heal} 生命`}</button><button class="btn" id="smith" ${R.deck.some(c => !c.up) ? '' : 'disabled'}>锻造：升级一张牌</button></div></div>`;
-  bindTop();
-  $('#rest').onclick = () => { R.hp = Math.min(R.maxHp, R.hp + heal); audio.holy(); mapScreen(); };
+   <button class="btn" id="rest" ${has('b_core') ? 'disabled' : ''}>${has('b_core') ? tr('熔火之心：不能休息') : `休息：回复 ${heal} 生命`}</button><button class="btn" id="smith" ${R.deck.some(c => !c.up) ? '' : 'disabled'}>锻造：升级一张牌</button>${ACT() === 2 && !(R.keys || {}).r ? `<button class="btn red" id="rkey">${tr('取得血月钥匙（这次不休息也不锻造）')}</button>` : ''}</div></div>`;
+  bindTop(); $('#rkey')?.addEventListener('click', () => { gotKey('r'); mapScreen(); });
+  $('#rest').onclick = () => { R.rested = 1; R.hp = Math.min(R.maxHp, R.hp + heal); audio.holy(); mapScreen(); };
   $('#smith').onclick = () => pickDeck('upgrade', ok => { if (ok) mapScreen(); });
 }
 
 // ---------- 宝箱 ----------
 function treasureScreen() {
-  view.innerHTML = `${bgHTML()}${topBar()}<div class="panel"><h2>宝箱</h2><img src="assets/icons/box.png" style="width:120px;cursor:pointer" id="chest"><p>点击打开</p></div>`;
-  bindTop();
+  view.innerHTML = `${bgHTML()}${topBar()}<div class="panel"><h2>宝箱</h2><img src="assets/icons/box.png" style="width:120px;cursor:pointer" id="chest"><p>点击打开</p>${ACT() === 3 && !R.rift && !(R.keys || {}).b ? `<button class="btn red" id="bkey">${tr('不开宝箱，取走龙鳞钥匙')}</button>` : ''}</div>`;
+  bindTop(); $('#bkey')?.addEventListener('click', () => { gotKey('b'); mapScreen(); });
   $('#chest').onclick = () => { sting('chest', 900);
     const rl = rollRelic(); const g = rnd(20, 40); gainRelic(rl); R.gold += g;
     view.innerHTML = `${bgHTML()}${topBar()}<div class="panel"><h2>宝箱</h2>${rl ? `<img src="${RELICS[rl].img}" style="width:90px"><p><b>${RELICS[rl].name}</b><br>${RELICS[rl].desc}</p>` : ''}<p>以及 ${g} 金币。</p><button class="btn" id="go">继续前进</button></div>`;
@@ -969,7 +1047,7 @@ function treasureScreen() {
 
 // ---------- 商店 ----------
 function shopScreen() {
-  const gm = (R.trials && R.trials.includes('greed') ? 1.5 : 1) * (A_(11) ? 1.2 : 1), PR = { c: 50 * gm, u: 75 * gm, r: 150 * gm }, RP = { c: 150 * gm, u: 200 * gm, r: 280 * gm };
+  const gm = (R.trials && R.trials.includes('greed') ? 1.5 : 1) * (A_(11) ? 1.2 : 1) * (MOD('midas') ? 2 : 1), PR = { c: 50 * gm, u: 75 * gm, r: 150 * gm }, RP = { c: 150 * gm, u: 200 * gm, r: 280 * gm };
   const cards = rollCards(5).map(c => ({ c, p: Math.round(PR[CARDS[c.id].rar] * (0.9 + Math.random() * .2)) }));
   const rels = []; for (let k = 0; k < 2; k++) { const id = rollRelic(['c', 'u', 'u', 'r'], true); if (id && !rels.some(x => x.id === id)) rels.push({ id, p: RP[RELICS[id].rar] + rnd(-10, 10) }); }
   const pots = [rollPotion(), rollPotion()].map(id => ({ id, p: Math.round((id === 'fairy' ? 120 : rnd(45, 60)) * gm) })), rmc = () => Math.round(R.removeCost * gm);
@@ -993,7 +1071,7 @@ ${pots.map((x, i) => `<div class="relicbig" data-pt="${i}" title="${x.id ? esc(P
 
 // ---------- 事件 ----------
 function eventScreen() {
-  const ev = pickOne(ACT() >= 3 ? EV3 : ACT() === 2 ? EVENTS2 : EVENTS);
+  const ev = SR(() => pickOne(ACT() >= 3 ? EV3 : ACT() === 2 ? EVENTS2 : EVENTS));
   const A = {
     heal: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, gold: n => { R.gold += n; }, hurt: n => { R.hp = Math.max(1, R.hp - n); },
     maxHp: n => { R.maxHp += n; R.hp = Math.min(R.hp, R.maxHp); }, relic: () => { const id = rollRelic(); gainRelic(id); return id ? RELICS[id].name : '（空）'; },
@@ -1038,9 +1116,9 @@ setInterval(() => { if (bgmNow) { const V = audio.vol || {}; BGM[bgmNow].volume 
 function act2Choice() { sting('act2', 2600);
   B = null; delete R.pending; delete R.pendEnc; delete R.snap; R.act2wait = 1; save(); setMusic('menu'); const bn = tr((ENEMIES[R.boss] || {}).name || '哥布林大王');
   view.innerHTML = `${bgHTML(false, 'story_road')}<div class="panel" style="width:760px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('{0}倒下了', bn)}</h2>
-   <p>${t('远处山顶的古堡亮起了血红的光。被抓走的村民，就关在那里。')}</p><p style="color:#ffb0b0">${t('进入第二章：血月古堡（回复 {0}% 生命）', 50)}</p>
+   <p>${t('远处山顶的古堡亮起了血红的光。被抓走的村民，就关在那里。')}</p><p style="color:#ffb0b0">${t('进入第二章：血月古堡（回复 {0}% 生命）', A_(16) ? 30 : 50)}</p>
    <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="go2">${t('前往古堡')}</button><button class="btn" id="end1">${t('到此为止')}</button></div></div>`;
-  $('#go2').onclick = () => { delete R.act2wait; R.floor0 = R.floor; R.floor = 0; R.act = 2; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .5)); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = pickOne(ENCOUNTERS2.boss)[0];
+  $('#go2').onclick = () => { delete R.act2wait; R.floor0 = R.floor; R.floor = 0; R.act = 2; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * (A_(16) ? .3 : .5))); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = pickOne(ENCOUNTERS2.boss)[0];
     delete R.pending; delete R.pendEnc; delete R.snap; save(); mapScreen(); };
   $('#end1').onclick = () => { delete R.act2wait; clearSave(); endScreen(true); };
   /* 第二章通关结局：先看结局插图 */
@@ -1051,9 +1129,9 @@ const END2 = () => [R.boss === 'vamp_count' ? '伯爵化为了灰烬，天终于
 function act3Choice() { sting('act2', 2600);
   B = null; delete R.pending; delete R.pendEnc; delete R.snap; R.wait = 'act3'; save(); setMusic('menu');
   view.innerHTML = `${bgHTML(false, 'story_end2')}<div class="panel" style="width:780px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('{0}倒下了', tr((ENEMIES[R.boss] || {}).name || ''))}</h2>
-   <p>${t('古堡的血月熄灭了，被关押的村民们重获自由。')}</p><p>${t('可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。')}</p><p style="color:#a8dcff">${t('进入第三章：永冬之巅（回复 50% 生命）')}</p>
+   <p>${t('古堡的血月熄灭了，被关押的村民们重获自由。')}</p><p>${t('可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。')}</p><p style="color:#a8dcff">${t('进入第三章：永冬之巅（回复 {0}% 生命）', A_(16) ? 30 : 50)}</p>
    <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="go3">${t('前往雪山')}</button><button class="btn" id="end2">${t('到此为止')}</button></div></div>`;
-  $('#go3').onclick = () => { delete R.wait; delete R.rift; delete R.rows; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; R.act = 3; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .5)); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = ENC3.boss[0][0];
+  $('#go3').onclick = () => { delete R.wait; delete R.rift; delete R.rows; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; R.act = 3; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * (A_(16) ? .3 : .5))); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = ENC3.boss[0][0];
     save(); story('story_snow', ['古堡后面的山路，一直通向终年不化的雪峰。', '风里传来龙的长啸，一声接着一声。', '“那双紫色的眼睛……就在山顶。”'], mapScreen); };
   $('#end2').onclick = () => { delete R.wait; clearSave(); story('story_end2', END2(), () => story('story_party', ['天亮了。大家并肩站在晨光里，笑得满脸是灰。', '“走吧，往上。”'], () => endScreen(true))); };
 }
@@ -1078,10 +1156,15 @@ function endingChoice() {
   B = null; R.wait = 'ending'; save(); setMusic('menu'); sting('act2', 2600);
   view.innerHTML = `${bgHTML(false, 'story_gate')}<div class="panel" style="width:780px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('门亮了起来')}</h2>
    <p>${t('深渊之主化成了黑烟。门的对面，是放学路上的那条街。')}</p><p>${t('门的上方，还有一节台阶。')}</p>
-   <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="home">${t('回家')}</button><button class="btn" id="up">${t('继续往上（无尽模式）')}</button></div></div>`;
+   <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="home">${t('回家')}</button><button class="btn" id="up">${t('继续往上（无尽模式）')}</button>${R.keys && R.keys.g && R.keys.r && R.keys.b ? `<button class="btn red" id="tru">${t('用三把钥匙打开更上面的门')}</button>` : ''}</div></div>`;
+  $('#tru')?.addEventListener('click', trueGate);
   $('#home').onclick = () => { delete R.wait; R.home = 1; clearSave(); story('story_home', ['门对面，是放学路上的那条街。', '大家互相看了一眼，谁也没先迈步。', '“……走吧，回家。”'], () => endScreen(true)); };
   $('#up').onclick = () => { delete R.wait; startEndless(); };
 }
+/* 真结局：三把钥匙打开「源代码之间」（真 Boss 待定，先用加强版开发者占位） */
+const TRUEB = 'dev_boss';
+function trueGate() { delete R.wait; R.wait = 'true'; save();
+  story('story_gate', ['三把钥匙同时亮了起来，门的上方又裂开了一道缝。', '缝里传来敲键盘的声音。', '“……你们怎么找到这里的？”'], () => { delete R.wait; R.hp = R.maxHp; R.floor++; R.pending = 'trueb'; snap(); save(); enterNode('trueb'); }); }
 function startEndless() { delete R.rift; R.act = 4; R.endless = 1; R.rows = 8; R.trials = []; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; newLayer(); }
 function newLayer() { R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = R.endless % 5 === 0 ? FINAL3 : pickOne(ENCX().boss)[0]; R.wait = 'trial'; save(); pickTrial(); }
 function pickTrial() { B = null; R.wait = 'trial'; save(); setMusic('menu');
@@ -1110,10 +1193,30 @@ function layerEnd() { B = null; if (R.layerHeal !== R.endless) { R.layerHeal = R
   const next = () => { delete R.wait; R.endless++; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; newLayer(); };
   $('#lu').onclick = () => pickDeck('upgrade', () => next()); $('#lr').onclick = () => pickDeck('remove', () => next());
 }
+function endAch(win) { if (!R || R.achDone) return; R.achDone = 1;
+  const a1 = win || ACT() >= 2, a2 = (win && ACT() >= 2) || ACT() >= 3, king = !!(R.kingDown || R.trueEnd || ACT() === 4);
+  if (a1) ach('a_act1'); if (a2) ach('a_act2');
+  if (R.mode === 'daily' && a1) ach('a_daily');
+  if (R.endless >= 3) ach('a_endless3'); if (R.endless >= 10) ach('a_endless10');
+  if (!king) return;
+  ach('a_act3'); ach('a_win_' + R.char);
+  const M = metaGet(); M.kings = M.kings || {}; M.kings[R.char] = 1; metaSet(M); if (Object.keys(CHARS).filter(c => c !== 'dev' && !CHARS[c].temp).every(c => M.kings[c])) ach('a_all9');
+  if ((R.asc || 0) >= 5) ach('a_asc5'); if ((R.asc || 0) >= 10) ach('a_asc10'); if ((R.asc || 0) >= 20) ach('a_asc20');
+  if (R.deck.length <= 15) ach('a_thin'); if (R.deck.length >= 40) ach('a_fat');
+  if (!R.potUsed) ach('a_nopot'); if (!R.rested) ach('a_norest');
+}
+/* 真人数据：每局结束匿名上传一条（设置里可关）。只有正式网站会发。 */
+const VER = (import.meta.url.match(/v=([\w]+)/) || [])[1] || 'dev';
+function devId() { let d = LS('tw_dev'); if (!d) { d = Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); LS('tw_dev', d); } return d; }
+function sendRun(win, killer) { try { if (DEBUG || !ONLINE || SET.tele === 0 || !R || R.sent) return; R.sent = 1;
+  const body = { v: VER, dev: devId(), char: R.char, asc: R.asc || 0, mode: R.mode || 'normal', mods: R.mods || [], bless: R.bless || '', win: !!win, act: ACT(), king: !!(R.kingDown || ACT() === 4), trueEnd: !!R.trueEnd, endless: R.endless || 0,
+    floor: (R.floor0 || 0) + R.floor, by: killer || [], deck: R.deck.map(c => c.id + (c.up ? '+' : '')), relics: R.relics, picks: (R.log && R.log.picks || []).slice(-80), hp: (R.log && R.log.hp || []).slice(-80), dur: R.log ? Math.round((Date.now() - R.log.t0) / 1000) : 0, keys: Object.keys(R.keys || {}) };
+  fetch(API.replace('/scores', '/runs'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), keepalive: true }).catch(() => {}); } catch (e) {} }
 function endScreen(win) {
   stage.querySelectorAll('.say').forEach(x => x.remove());
   if (!DEBUG && !R.histed) { R.histed = 1; try { const H = JSON.parse(localStorage.getItem('tw_hist') || '[]'); H.unshift({ c: R.char, w: (win || ACT() === 4) ? 1 : 0, a: ACT(), f: (R.floor0 || 0) + R.floor, asc: R.asc || 0, by: !win && B ? B.en.filter(e => !e.dead).map(e => e.d.name).join(' + ') : '', t: Date.now() }); localStorage.setItem('tw_hist', JSON.stringify(H.slice(0, 50))); } catch (e) {} }
-  B = null; setMusic('menu');
+  const killer = !win && B ? B.en.filter(e => !e.dead).map(e => e.key) : [];
+  B = null; setMusic('menu'); endAch(win); sendRun(win, killer);
   const k = R.kills || 0, el = R.elites || 0, hp = Math.max(0, R.hp);
   if (ACT() === 4) win = true;
   const tf = (R.floor0 || 0) + R.floor; const rows = [[`攀登的层数 (${tf})`, tf * 20], [`击杀的敌人 (${k})`, k * 3], [`击败的精英 (${el})`, el * 25], [`打败 Boss (${R.bosses || 0})`, (R.bosses || 0) * 300], [`通关时剩余生命 (${win ? hp : 0})`, win ? hp * 2 : 0]];
@@ -1121,14 +1224,13 @@ function endScreen(win) {
   if (R.asc) rows.push([`进阶难度 ${R.asc}（×${(1 + R.asc * .1).toFixed(1)}）`, Math.round(rows.reduce((a, r) => a + r[1], 0) * R.asc * .1)]);
   const total = rows.reduce((a, r) => a + r[1], 0);
   const M = metaGet(), before = M.xp; let news = [];
-  if (!DEBUG) { M.xp += total; if (win && ACT() >= 2 && (R.asc || 0) >= (M.asc[R.char] || 0) && (M.asc[R.char] || 0) < 15) { M.asc[R.char] = (R.asc || 0) + 1; news.push(`${CHARS[R.char].name} 解锁进阶 ${M.asc[R.char]}`); } metaSet(M); }
-  UNLOCKS.forEach(u => { if (before < u.xp && M.xp >= u.xp) news.push('解锁：' + [...u.cards.map(c => CARDS[c].name), ...u.relics.map(x => RELICS[x].name)].join('、')); });
+  if (R.daily && !DEBUG) { try { const bs = JSON.parse(LS('tw_daily') || '{}'); if (!(bs[R.daily] >= total)) { bs[R.daily] = total; LS('tw_daily', JSON.stringify(bs)); } } catch (e) {} }
+  if (!DEBUG) { M.xp += total; if (win && ACT() >= 2 && (R.asc || 0) >= (M.asc[R.char] || 0) && (M.asc[R.char] || 0) < 15) { M.asc[R.char] = (R.asc || 0) + 1; } metaSet(M); }
   const nx = UNLOCKS.find(u => M.xp < u.xp), left = UNLOCKS.filter(u => M.xp < u.xp).length;
   view.innerHTML = `${win && ACT() === 3 ? bgHTML(true, 'story_home') : win && ACT() === 2 ? bgHTML(true, 'story_end2') : bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
    <p class="endsub" data-noi18n>${ACT() === 4 ? `${t('在天外之塔爬到了第 {0} 轮。', R.endless || 1)}<br><b style="color:#ffe08a">${t('感谢游玩！')}</b>` : win && ACT() === 3 ? `${t('深渊之主倒下了，回家的门打开了。')}<br><b style="color:#ffe08a">${t('全部通关 · 感谢游玩！')}</b>` : win && ACT() === 2 ? `${t('{0}化为了灰烬，古堡的血月熄灭了。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第二章完 · 感谢游玩！')}</b>${t('山顶上，还有更深的黑暗在等待……')}` : win ? `${t('{0}倒下了，翠绿之地恢复了平静。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第一章完 · 感谢游玩！')}</b>${t('远处山顶的古堡，亮起了血红的光……')}<br><b style="color:#ff8a8a">${t('第二章：血月古堡（制作中）')}</b>` : t(ACT() === 3 ? '{0}倒在了永冬之巅第 {1} 层。' : ACT() === 2 ? '{0}倒在了血月古堡第 {1} 层。' : '{0}倒在了翠绿之地第 {1} 层。', tr(CHARS[R.char || 'hero'].name), R.floor)}</p>
    ${win && ACT() === 3 && CH3END[R.char] ? `<p class="endsub endq"><b>${CHARS[R.char].name}</b>：“<span>${tr(CH3END[R.char])}</span>”</p>` : ''}${win && ACT() === 2 && CHARINFO[R.char] && CHARINFO[R.char].end ? `<p class="endsub endq"><b>${CHARS[R.char].name}</b>：“<span>${CHARINFO[R.char].end}</span>”</p>` : ''}
    <table class="score">${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}<tr class="tot"><td>分数</td><td>${total}</td></tr></table>
-   <div class="xpw"><div class="xpb"><i style="width:${nx ? Math.min(100, M.xp / nx.xp * 100) : 100}%"></i></div><span>${nx ? `[${M.xp}/${nx.xp}]` : `[${M.xp}] 全部解锁`}</span><span>剩余解锁：${left}</span></div>
    ${news.map(t => `<p class="endsub" style="color:#7fe07f">★ ${t}</p>`).join('')}
    <p id="sc" class="endsub" style="color:#ffd35a">${DEBUG ? '调试模式，成绩不记录' : !ONLINE ? '试玩链接不记录成绩' : LS('tw_name') ? '正在提交成绩……' : ''}</p>
    <div class="row"><button class="btn big" id="again">主菜单</button><button class="btn" id="rk2">排行榜</button></div></div>`;
@@ -1161,8 +1263,9 @@ stage.addEventListener('touchend', e => { if (e.target.closest && e.target.close
 stage.addEventListener('click', e => { if (!(TOUCH && e.target.closest && e.target.closest('.sts b[title], .intent[title]'))) kwHide(); }, true);
 
 // ---------- 药水 ----------
-function gainPotion(id) { R.potions = R.potions || []; if (R.potions.length >= (A_(12) ? 2 : 3)) { tip('药水栏满了'); return false; } R.potions.push(id); audio.gem(); return true; }
-function rollPotion() { return Math.random() < .08 ? 'fairy' : pickOne(Object.keys(POTIONS).filter(k => k !== 'fairy')); }
+function gainPotion(id) { R.potions = R.potions || []; if (MOD('nopot')) { tip(tr('禁药令：这一局拿不到药水')); return false; } if (R.potions.length >= (A_(12) ? 2 : 3)) { tip('药水栏满了'); return false; } R.potions.push(id); audio.gem(); return true; }
+function rollPotion(...a) { return SR(rollPotion0, a); }
+function rollPotion0() { return Math.random() < .08 ? 'fairy' : pickOne(Object.keys(POTIONS).filter(k => k !== 'fairy')); }
 function potionClick(i) {
   const id = R.potions[i], P = POTIONS[id]; if (!P) return;
   if (!B || B.over || B.busy || B.anim) { const o = overlay(`<h2>${P.name}</h2><img src="${P.img}" style="width:80px"><p>${P.desc}</p><div class="row"><button class="btn red" id="pd">丢掉</button><button class="btn" id="px">关闭</button></div>`);
@@ -1186,7 +1289,7 @@ function potPop(i) { /* 药水说明小框：贴着药水栏，点框外关闭 *
     usePotion(i, alive()[0]); };
 }
 async function usePotion(i, t) {
-  const id = R.potions[i]; B.potSel = null; R.potions.splice(i, 1); B.hitSet = new Set();
+  const id = R.potions[i]; B.potSel = null; R.potions.splice(i, 1); B.hitSet = new Set(); R.potUsed = 1;
   POTIONS[id].use(G, t); audio.holy(); render(); await checkEnd();
 }
 
