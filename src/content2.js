@@ -1,7 +1,7 @@
 // 内容扩充：新秘宝（含 Boss 秘宝）、新药水、新事件。
 // 秘宝效果都写成钩子，挂在 MECH / CORE3 上，游戏和平衡模拟器共用同一份逻辑。
-import { MECH, PW } from './chars.js?v=live2_11132500';
-import { CORE3 } from './act3.js?v=live2_11132500';
+import { MECH, PW } from './chars.js?v=live2_11140300';
+import { CORE3 } from './act3.js?v=live2_11140300';
 
 let CB = null; /* 当前战斗 */
 const has = id => !!(CB && CB.rel && CB.rel.includes(id));
@@ -25,12 +25,12 @@ export const R2 = {
   r_drum: { name: '小战鼓', icon: 'ic_drum', rar: 'c', desc: '每回合打出第 3 张攻击牌时，抽 1 张牌。', pp: (G, B, d) => { if (d.type !== 'atk') return; if (S().drT !== B.turn) { S().drT = B.turn; S().drN = 0; } if (++S().drN === 3) G.draw(1); } },
   r_icepack: { name: '冰袋', icon: 'ic_water', rar: 'c', desc: '战斗开始时，给予所有敌人 1 层虚弱。', bs: B => B.en.forEach(e => { e.st.weak = (e.st.weak || 0) + 1; }) },
   r_caltrop: { name: '铁蒺藜', icon: 'ic_mine', rar: 'c', desc: '战斗开始时，给予所有敌人 1 层易伤。', bs: B => B.en.forEach(e => { e.st.vuln = (e.st.vuln || 0) + 1; }) },
-  r_teapot: { name: '旧茶壶', icon: 'pot', rar: 'c', desc: '回合结束时如果你没有格挡，获得 4 点格挡。', te: (G, B) => { if (!B.p.block) G.block(4, true); } },
-  r_bread: { name: '黑面包', icon: 'meat', rar: 'c', desc: '拾取时回复 15 点生命，最大生命 +3。', pick: R => { R.maxHp += 3; R.hp = Math.min(R.maxHp, R.hp + 18); } },
+  r_teapot: { name: '旧茶壶', icon: 'pot', rar: 'c', desc: '回合结束时如果你没有格挡，获得 4 点格挡。', te: (G, B, b0) => { if (!b0) G.block(4, true); } }, /* b0：本回合结束结算前的格挡（结界/飞剑的回合末格挡不算） */
+  r_bread: { name: '黑面包', icon: 'meat', rar: 'c', desc: '拾取时最大生命 +3，回复 15 点生命。', pick: R => { R.maxHp += 3; R.hp = Math.min(R.maxHp, R.hp + 15); } },
   r_lamp: { name: '矿工灯', icon: 'ic_flame', rar: 'c', desc: '战斗开始时，你的第一回合多抽 1 张牌。', ts: (G, B, first) => { if (first) G.draw(1); } },
   /* 罕见 */
   r_shard: { name: '锋利石片', icon: 'ic_rapier', rar: 'u', desc: '你的每次攻击伤害 +1。', atk: a => a + 1 },
-  r_opal: { name: '猫眼石', icon: 'ic_crystal', rar: 'u', desc: '每回合打出的第一张 0 费牌，抽 1 张牌。', pp: (G, B, d) => { if (d.cost && d.cost[0] === 0 && S().opT !== B.turn) { S().opT = B.turn; G.draw(1); } } },
+  r_opal: { name: '猫眼石', icon: 'ic_crystal', rar: 'u', desc: '每回合打出的第一张实际花费 0 能量的牌，抽 1 张牌。', pp: (G, B, d) => { if (G.x === 0 && S().opT !== B.turn) { S().opT = B.turn; G.draw(1); } } },
   r_banner: { name: '战旗', icon: 'ic_gods', rar: 'u', desc: '精英和 Boss 战的第一回合，多 2 点能量、获得 10 点格挡。', ts: (G, B, first) => { if (first && (B.kind === 'elite' || B.kind === 'boss')) { G.energy(2); G.block(10, true); } } },
   r_soulgem: { name: '灵魂宝石', icon: 'ic_necro', rar: 'u', desc: '打倒敌人时得到 1 点能量（每回合 1 次）。', kill: B => { if (S().sgT !== B.turn) { S().sgT = B.turn; B.p.energy++; } } },
   r_rune: { name: '守护符文', icon: 'ic_rune', rar: 'u', desc: '回合结束时，最多 5 点格挡留到下回合。', te: (G, B) => { S().keep = Math.min(5, B.p.block || 0); }, ts: (G, B, first) => { if (!first && S().keep) { G.block(S().keep, true); S().keep = 0; } } },
@@ -40,7 +40,7 @@ export const R2 = {
   r_shoes: { name: '弹簧鞋', icon: 'ic_stride', rar: 'u', desc: '每回合你的第一次攻击伤害 +3。', atk: (a, t, B) => { if (S().shT !== B.turn) { S().shT = B.turn; return a + 3; } return a; } },
   r_alch: { name: '炼金石', icon: 'ic_hexa', rar: 'u', desc: '战斗胜利时有 25% 几率得到一瓶药水。', vic: G => { if (Math.random() < .25) give(G.R); } },
   r_sand: { name: '时之沙', icon: 'ic_vortex', rar: 'u', desc: '每场战斗第 3 回合开始时，得到 2 点能量。', ts: (G, B) => { if (B.turn === 3) G.energy(2); } },
-  r_star: { name: '星图', icon: 'ic_aura', rar: 'u', desc: '每场战斗你的生命第一次降到一半以下时，获得 12 点格挡和 1 点能量。', hurt: (B, R) => { if (!S().star && R.hp > 0 && R.hp < R.maxHp / 2) { S().star = 1; B.p.block += 12; S().starE = 1; } }, ts: G => { if (S().starE) { S().starE = 0; G.energy(1); } } },
+  r_star: { name: '星图', icon: 'ic_aura', rar: 'u', desc: '每场战斗你的生命第一次降到一半以下时，立刻获得 12 点格挡，下个回合多 1 点能量。', hurt: (B, R) => { if (!S().star && R.hp > 0 && R.hp < R.maxHp / 2) { S().star = 1; B.p.block += 12; S().starE = 1; } }, ts: G => { if (S().starE) { S().starE = 0; G.energy(1); } } },
   r_bell: { name: '银铃', icon: 'ic_bell', rar: 'u', desc: '每回合打出第 4 张牌时，得到 1 点能量。', pp: (G, B) => { if (S().blT !== B.turn) { S().blT = B.turn; S().blN = 0; } if (++S().blN === 4) G.energy(1); } },
   r_needle: { name: '毒针', icon: 'ic_stake', rar: 'u', desc: '战斗开始时，给予所有敌人 3 层中毒。', bs: B => B.en.forEach(e => { e.st.poison = (e.st.poison || 0) + 3; }) },
   r_medal: { name: '老兵勋章', icon: 'ic_gods', rar: 'u', desc: '精英和 Boss 战中，你的每次攻击伤害 +2。', atk: (a, t, B) => B.kind === 'elite' || B.kind === 'boss' ? a + 2 : a },
@@ -57,8 +57,8 @@ export const R2 = {
   r_mithril: { name: '秘银甲', icon: 'sk_hshield', rar: 'r', desc: '你受到的每次攻击伤害 -1。', def: a => Math.max(0, a - 1) },
   /* Boss 秘宝：打完前两章 Boss 和开发者后三选一，强但有代价 */
   b_core: { name: '熔火之心', icon: 'ic_flame', rar: 'boss', desc: '每回合多 1 点能量。营火不能再休息回血。', ts: G => G.energy(1) },
-  b_bell: { name: '沉默之钟', icon: 'ic_bell', rar: 'boss', desc: '每回合多 1 点能量。每场战斗开始时，一张「懊悔」混进你的抽牌堆。', ts: (G, B, first) => { G.energy(1); if (first) G.addCard('regret', 0, 'draw'); } },
-  b_scale: { name: '命运天平', icon: 'ic_hexa', rar: 'boss', desc: '每回合多 1 点能量。每回合开始时随机弃掉 1 张手牌。', ts: (G, B) => { G.energy(1); if (B.hand.length) { const c = B.hand.splice(rint(B.hand.length), 1)[0]; B.disc.push(c); } } },
+  b_bell: { name: '沉默之钟', icon: 'ic_bell', rar: 'boss', desc: '每回合多 1 点能量。每场战斗开始时，一张「悔意」混进你的抽牌堆。', ts: (G, B, first) => { G.energy(1); if (first) G.addCard('regret', 0, 'draw'); } },
+  b_scale: { name: '命运天平', icon: 'ic_hexa', rar: 'boss', desc: '每回合多 1 点能量。每回合开始时随机弃掉 1 张手牌。', ts: (G, B) => { G.energy(1); if (B.hand.length) G.discard(1); } },
   b_mask: { name: '狂战面具', icon: 'p_berserk', rar: 'boss', desc: '你的每次攻击伤害 +3。每回合开始时失去 1 点生命。', atk: a => a + 3, ts: G => G.loseHp(1) },
   b_frozen: { name: '冰封之心', icon: 'ic_water', rar: 'boss', desc: '每回合多 1 点能量。敌人生命 +10%。', ts: G => G.energy(1), bs: B => B.en.forEach(e => { e.max = Math.round(e.max * 1.1); e.hp = Math.round(e.hp * 1.1); }) },
   b_star: { name: '黑星', icon: 'ic_aura', rar: 'boss', desc: '精英战胜利后额外掉落一个秘宝。' },
@@ -69,7 +69,7 @@ export const R2 = {
 };
 let POOL = ['heal'];
 export const setPotPool = ks => { POOL = ks; };
-function give(R) { const L = R.potions || R.pots; if (L && L.length < 3) L.push(POOL[rint(POOL.length)]); }
+function give(R) { const L = R.potions || R.pots; if ((R.mods || []).includes('nopot')) return; if (L && L.length < ((R.asc || 0) >= 12 ? 2 : 3)) L.push(POOL[rint(POOL.length)]); }
 
 const each = (k, ...a) => { if (!CB || !CB.rel) return; for (const id of CB.rel) { const r = R2[id]; if (r && r[k]) r[k](...a); } };
 const fold = (k, v, ...a) => { if (!CB || !CB.rel) return v; for (const id of CB.rel) { const r = R2[id]; if (r && r[k]) v = r[k](v, ...a); } return v; };
@@ -78,17 +78,17 @@ const fold = (k, v, ...a) => { if (!CB || !CB.rel) return v; for (const id of CB
 { const o = CORE3.battleStart; CORE3.battleStart = (B, h, R) => { o(B, h, R); CB = B; B.rel = R.relics; B.rr = R; B.r2 = { inkN: 0 }; each('bs', B, R); }; }
 { const o = CORE3.pre; CORE3.pre = (B, tgt, amt, isP, attacker, hs) => { amt = o(B, tgt, amt, isP, attacker, hs); if (amt <= 0 || !B.r2) return amt;
   if (!isP && attacker === B.p) amt = fold('atk', amt, tgt, B); else if (isP && attacker && attacker !== B.p) amt = fold('def', amt, B, B.rr); return amt; }; }
-{ const o = CORE3.after; CORE3.after = (tgt, left, isP, attacker, B) => { o(tgt, left, isP, attacker, B); if (!B.r2) return; if (isP) each('hurt', B, B.rr); else if (tgt.hp <= 0) each('kill', B); }; }
+{ const o = CORE3.after; CORE3.after = (tgt, left, isP, attacker, B) => { o(tgt, left, isP, attacker, B); if (!B.r2) return; if (isP) each('hurt', B, B.rr); else if (tgt.hp <= 0 && !tgt.r2k) { tgt.r2k = 1; each('kill', B); } }; }
 const pw = (k, G, ...a) => { if (!CB) return; const st = CB.p.st; for (const id of Object.keys(st)) { const h = PW[id]; if (h && h[k] && st[id]) h[k](G, st[id], ...a); } };
 { const o = MECH.turnStart; MECH.turnStart = (G, first) => { o(G, first); if (CB) { CB.p.shotN = 0; CB.p.kotoB = 0; CB.p.kotoS = 0; } each('ts', G, CB, first); pw('ts', G); }; }
-{ const o = MECH.turnEnd; MECH.turnEnd = G => { o(G); each('te', G, CB); pw('te', G); }; }
+{ const o = MECH.turnEnd; MECH.turnEnd = G => { const b0 = CB ? CB.p.block : 0; o(G); each('te', G, CB, b0); pw('te', G); }; }
 { const o = MECH.postPlay; MECH.postPlay = (G, d) => { o(G, d); each('pp', G, CB, d); pw('pp', G, d); if (CB && CB.p.kotoB && d.type === 'skill') { if (CB.p.kotoS) CB.p.kotoS = 0; else G.block(CB.p.kotoB, true); } }; }
 { const o = MECH.victory; MECH.victory = (G, kind) => { const m = o(G, kind); each('vic', G); return m; }; }
 
 /* ---------- 药水 ---------- */
 export const P2 = {
   bigheal: { name: '大治疗药水', icon: 'pot', rar: 'u', tgt: 'self', desc: '回复 30% 最大生命。', use: g => g.heal(Math.floor(g.R.maxHp * .3)) },
-  toxin: { name: '毒雾药水', icon: 'ic_stake', rar: 'c', tgt: 'all', desc: '给予所有敌人 6 层中毒。', use: g => g.applyAll('poison', 6) },
+  toxin: { name: '毒雾药水', icon: 'ic_stake', rar: 'c', tgt: 'all', desc: '给予所有敌人 6 层中毒。', use: g => g.eachEnemy(e => g.poison(e, 6)) },
   vulnp: { name: '破甲药水', icon: 'ic_mine', rar: 'c', tgt: 'all', desc: '给予所有敌人 3 层易伤。', use: g => g.applyAll('vuln', 3) },
   metalp: { name: '铁皮药水', icon: 'b_armor', rar: 'c', tgt: 'self', desc: '本场战斗每回合结束获得 4 点格挡。', use: g => g.self('metal', 4) },
   bolt: { name: '闪电药水', icon: 'ic_thunder', rar: 'c', tgt: 'all', desc: '对随机敌人造成 3 次 8 点伤害。', use: g => { for (let k = 0; k < 3; k++) { const a = g.alive(); if (a.length) g.hit(a[rint(a.length)], 8); } } },
@@ -126,7 +126,7 @@ export const EV1B = [
       { t: '拒绝', go: () => '赌徒耸耸肩，消失在人群里。' }] },
   { title: '遗弃的营地', pic: 'wagon', img: 'box', text: '一处被匆忙遗弃的营地，篝火还冒着烟。',
     opts: [
-      { t: '翻找物资：得到一个秘宝，但混进一张「懊悔」', go: (R, A) => { const n = A.relic(); A.curse('regret'); return `你找到了：${n}。可心里总觉得不踏实。`; } },
+      { t: '翻找物资：得到一个秘宝，但混进一张「悔意」', go: (R, A) => { const n = A.relic(); A.curse('regret'); return `你找到了：${n}。可心里总觉得不踏实。`; } },
       { t: '在火边休息：回复 12 生命', go: (R, A) => { A.heal(12); return '你在温暖的火边打了个盹。'; } }] },
   { title: '流浪画师', pic: 'den', img: 'p_arc', text: '一个流浪画师在路边作画：「给我讲讲你的故事，我送你一幅画。」',
     opts: [
@@ -145,7 +145,7 @@ export const EV2B = [
       { t: '撕掉一页诅咒：删除 1 张牌，失去 5 生命', go: (R, A) => { A.hurt(5); A.pick('remove', 1); return '纸页在你手中燃成了灰。'; } }] },
   { title: '吸血鬼的晚宴', pic: 'dinner', img: 'meat', text: '一张长桌摆满了佳肴，主位上的座位空着。',
     opts: [
-      { t: '大吃一顿：回复全部生命，混进一张「懊悔」', go: (R, A) => { A.heal(999); A.curse('regret'); return '你吃得心满意足，却总觉得有人在看着你。'; } },
+      { t: '大吃一顿：回复全部生命，混进一张「悔意」', go: (R, A) => { A.heal(999); A.curse('regret'); return '你吃得心满意足，却总觉得有人在看着你。'; } },
       { t: '只拿一瓶酒：得到一瓶药水', go: (R, A) => `你顺走了一瓶：${A.potion()}。` },
       { t: '离开', go: () => '你没有碰任何东西。' }] },
   { title: '镜中的自己', pic: 'c2_mirror', img: 'ic_crystal', text: '镜子里的你在微笑，可你并没有笑。',

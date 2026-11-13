@@ -14,7 +14,7 @@ export const BLESS_FREE = {
 export const BLESS_COST = {
   t_rare: '失去 10% 最大生命：从 3 张稀有牌里选 1 张',
   t_relic: '失去所有金币：获得 1 个随机稀有秘宝',
-  t_rm2: '牌组混进 1 张「懊悔」：删除 2 张牌',
+  t_rm2: '牌组混进 1 张「悔意」：删除 2 张牌',
   t_gold: '失去 12 点最大生命：获得 250 金币',
 };
 
@@ -25,7 +25,7 @@ export const ASC2 = ['每章开始回复的生命减少（50% → 30%）', '普�
 export const MODS = {
   rich: ['富翁', '开局获得 400 金币。'],
   big: ['豪华开局', '开局牌组多 3 张随机本角色牌。'],
-  cursed: ['诅咒宝藏', '开局带 2 张「懊悔」，同时获得 1 个随机稀有秘宝。'],
+  cursed: ['诅咒宝藏', '开局带 2 张「悔意」，同时获得 1 个随机稀有秘宝。'],
   nopot: ['禁药令', '这一局得不到任何药水。'],
   heavy: ['巨躯', '所有敌人血量 +25%。'],
   swift: ['先手', '每场战斗第一回合多 1 点能量。'],
@@ -66,34 +66,34 @@ export const ACH = [
 /* ---------- 种子随机：同一个种子 → 同样的地图和奖励 ---------- */
 export const hashSeed = s => { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
 export const mulberry = st => () => { st = st + 0x6D2B79F5 | 0; let t = Math.imul(st ^ st >>> 15, 1 | st); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
-export const todayKey = () => { const d = new Date(); return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`; };
+export const todayKey = () => { const d = new Date(Date.now() + 9 * 3600e3); /* 统一按日本时间（UTC+9）算“今天” */ return `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, '0')}${String(d.getUTCDate()).padStart(2, '0')}`; };
 /* 每日挑战：按日期定角色和两个修正 */
-export const dailyOf = (key, chars) => { const r = mulberry(hashSeed('daily' + key)); const ch = chars[Math.floor(r() * chars.length)]; const ks = Object.keys(MODS).sort(() => r() - .5).slice(0, 2); return { seed: 'D' + key, char: ch, mods: ks }; };
+export const dailyOf = (key, chars) => { const r = mulberry(hashSeed('daily' + key)); const ch = chars[Math.floor(r() * chars.length)]; const ks = Object.keys(MODS); for (let i = ks.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [ks[i], ks[j]] = [ks[j], ks[i]]; } ks.length = 2; return { seed: 'D' + key, char: ch, mods: ks }; };
 
 /* ---------- 新事件：第一章 1 个、第二章 7 个、第三章 8 个 ---------- */
 export const EV1C = [
   { title: '迷路的小狗', pic: 'e_dog', text: '一只脏兮兮的小狗跟在你身后，肚子咕咕直叫。',
     opts: [
-      { t: '喂它：失去 20 金币，回复 8 生命，得到 1 瓶药水', ok: R => R.gold >= 20, go: (R, A) => { A.gold(-20); A.heal(8); const p = A.potion(); return `小狗叼来了一个瓶子：${p}。`; } },
+      { t: '喂它：失去 20 金币，回复 8 生命，得到 1 瓶药水', ok: R => R.gold >= 20, go: (R, A) => { A.gold(-20); A.heal(8); const p = A.potion(); return `小狗叼来了一个瓶子：「${p}」。`; } },
       { t: '摸摸它的头', go: (R, A) => { A.heal(4); return '它摇着尾巴跑远了，你的心情好了一点。'; } }] },
 ];
 export const EV2C = [
   { title: '棺材里的敲门声', pic: 'e_coffin', text: '一口黑棺材里传出「咚、咚」的声音。',
     opts: [
-      { t: '打开它：可能是宝物，也可能是麻烦', go: (R, A) => { if (Math.random() < .5) return `里面躺着一具枯骨，手里握着：${A.relic()}。`; A.hurt(10); A.curse('regret'); return '一只吸血蝠扑了出来，咬了你一口才飞走。'; } },
+      { t: '打开它：可能是宝物，也可能是麻烦', go: (R, A) => { if (Math.random() < .5) return `里面躺着一具枯骨，手里握着：「${A.relic()}」。`; A.hurt(10); A.curse('regret'); return '一只吸血蝠扑了出来，咬了你一口才飞走。'; } },
       { t: '把它钉死：获得 30 金币', go: (R, A) => { A.gold(30); return '敲门声停了。棺材缝里滚出几枚金币。'; } }] },
   { title: '地牢的囚徒', pic: 'e_prisoner', text: '铁栏后面，一个瘦弱的人朝你伸出手。',
     opts: [
       { t: '救他出来：失去 8 生命，得到一张牌', go: (R, A) => { A.hurt(8); A.card(); return '他塞给你一张卡片，消失在走廊尽头。'; } },
-      { t: '拿走看守的钥匙串：获得 60 金币，混进一张「懊悔」', go: (R, A) => { A.gold(60); A.curse('regret'); return '钥匙能卖钱。只是那双眼睛一直跟着你。'; } }] },
+      { t: '拿走看守的钥匙串：获得 60 金币，混进一张「悔意」', go: (R, A) => { A.gold(60); A.curse('regret'); return '钥匙能卖钱。只是那双眼睛一直跟着你。'; } }] },
   { title: '血色喷泉', pic: 'e_bloodfount', text: '喷泉里流的不是水，是温热的红色液体。',
     opts: [
       { t: '喝一口：最大生命 +6，失去 6 生命', go: (R, A) => { A.maxHp(6); A.hurt(6); return '一股热流冲遍全身，你的身体变结实了。'; } },
       { t: '用它洗掉污秽：删除 1 张牌', go: (R, A) => { A.pick('remove', 1); return '有什么东西从你身上被洗掉了。'; } }] },
   { title: '骷髅商人', pic: 'e_skelshop', text: '「新鲜货，不新鲜不要钱。」骷髅咔哒咔哒地笑。',
     opts: [
-      { t: '买神秘包裹：失去 100 金币，得到秘宝和药水', ok: R => R.gold >= 100, go: (R, A) => { A.gold(-100); const r = A.relic(); const p = A.potion(); return `包裹里是：${r}，还有${p}。`; } },
-      { t: '只买一瓶药：失去 30 金币', ok: R => R.gold >= 30, go: (R, A) => { A.gold(-30); return `你买到了：${A.potion()}。`; } },
+      { t: '买神秘包裹：失去 100 金币，得到秘宝和药水', ok: R => R.gold >= 100, go: (R, A) => { A.gold(-100); const r = A.relic(); const p = A.potion(); return `包裹里是：「${r}」，还有「${p}」。`; } },
+      { t: '只买一瓶药：失去 30 金币', ok: R => R.gold >= 30, go: (R, A) => { A.gold(-30); return `你买到了：「${A.potion()}」。`; } },
       { t: '离开', go: () => '骷髅耸了耸肩。骨头掉了一块。' }] },
   { title: '照不出人的镜子', pic: 'e_mirror', text: '镜子里映着整个房间，唯独没有你。',
     opts: [
@@ -111,7 +111,7 @@ export const EV2C = [
 export const EV3C = [
   { title: '冰封的勇者', pic: 'e_frozenhero', text: '一个勇者被冻在冰里，手里还紧握着什么。',
     opts: [
-      { t: '凿开冰层：失去 10 生命，得到一个秘宝', go: (R, A) => { A.hurt(10); return `冰碎了，你拿到了：${A.relic()}。`; } },
+      { t: '凿开冰层：失去 10 生命，得到一个秘宝', go: (R, A) => { A.hurt(10); return `冰碎了，你拿到了：「${A.relic()}」。`; } },
       { t: '为他默哀：回复 12 生命', go: (R, A) => { A.heal(12); return '风停了一会儿。你觉得他在冰里笑了。'; } }] },
   { title: '金币山', pic: 'e_goldhill', text: '龙不在家，金币堆得像小山。',
     opts: [
@@ -124,7 +124,7 @@ export const EV3C = [
   { title: '雏龙的巢', pic: 'e_hatchling', text: '巢里有一只刚出壳的小龙，还有一颗没孵化的蛋。',
     opts: [
       { t: '照顾小龙：最大生命 +8', go: (R, A) => { A.maxHp(8); return '小龙蹭了蹭你，一股暖意留在了身体里。'; } },
-      { t: '拿走龙蛋：得到一个秘宝，混进一张「懊悔」', go: (R, A) => { const r = A.relic(); A.curse('regret'); return `你拿到了：${r}。小龙一直望着你的背影。`; } }] },
+      { t: '拿走龙蛋：得到一个秘宝，混进一张「悔意」', go: (R, A) => { const r = A.relic(); A.curse('regret'); return `你拿到了：「${r}」。小龙一直望着你的背影。`; } }] },
   { title: '雪山温泉', pic: 'e_hotspring', text: '冰天雪地里，一汪温泉冒着白气。',
     opts: [
       { t: '泡一会儿：回复 30% 生命', go: (R, A) => { A.heal(Math.floor(R.maxHp * .3)); return '冻僵的手脚终于暖和过来了。'; } },
@@ -139,6 +139,6 @@ export const EV3C = [
       { t: '拔掉电源：获得 40 金币', go: (R, A) => { A.gold(40); return '机箱里掉出几枚硬币。屏幕最后显示：「……下个版本见。」'; } }] },
   { title: '裂隙的信号', pic: 'e_riftsignal', text: '空气里传来断断续续的声音，像有人在呼叫。',
     opts: [
-      { t: '回应它：得到 2 瓶药水', go: (R, A) => { const a = A.potion(), b = A.potion(); return `裂缝里递出了两个瓶子：${a}、${b}。`; } },
+      { t: '回应它：得到 2 瓶药水', go: (R, A) => { const a = A.potion(), b = A.potion(); return `裂缝里递出了两个瓶子：「${a}」、「${b}」。`; } },
       { t: '切断它：失去 5 生命，删除 1 张牌', go: (R, A) => { A.hurt(5); A.pick('remove', 1); return '声音消失了，连同你的一点杂念。'; } }] },
 ];

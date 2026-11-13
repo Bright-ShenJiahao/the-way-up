@@ -315,9 +315,9 @@
   "Feed it: lose {0} gold, heal {1} HP, gain {2} potion",
   "餌をやる：{0}ゴールドを失い、HPを{1}回復、ポーションを{2}つ得る"
  ],
- "小狗叼来了一个瓶子：{{0}}。": [
-  "The puppy brings you a bottle: {{0}}.",
-  "子犬が瓶をくわえてきた：{{0}}。"
+ "小狗叼来了一个瓶子：「{0}」。": [
+  "The puppy brings you a bottle: 「{0}」.",
+  "子犬が瓶をくわえてきた：「{0}」。"
  ],
  "摸摸它的头": [
   "Pat its head",
@@ -339,9 +339,9 @@
   "Open it: could be treasure, could be trouble",
   "開ける：宝かもしれないし、厄介ごとかもしれない"
  ],
- "里面躺着一具枯骨，手里握着：{{0}}。": [
-  "Inside lies a skeleton, clutching: {{0}}.",
-  "中には骸骨が横たわり、手に握っていたのは：{{0}}。"
+ "里面躺着一具枯骨，手里握着：「{0}」。": [
+  "Inside lies a skeleton, clutching: 「{0}」.",
+  "中には骸骨が横たわり、手に握っていたのは：「{0}」。"
  ],
  "一只吸血蝠扑了出来，咬了你一口才飞走。": [
   "A vampire bat bursts out, bites you, and flies away.",
@@ -415,17 +415,17 @@
   "Buy the mystery package: lose {0} gold, gain a treasure and a potion",
   "謎の包みを買う：{0}ゴールドを失い、秘宝とポーションを得る"
  ],
- "包裹里是：{{0}}，还有{{1}}。": [
-  "Inside: {{0}}, and {{1}}.",
-  "包みの中身：{{0}}、それに{{1}}。"
+ "包裹里是：「{0}」，还有「{1}」。": [
+  "Inside: 「{0}」, and 「{1}」.",
+  "包みの中身：「{0}」、それに「{1}」。"
  ],
  "只买一瓶药：失去 {0} 金币": [
   "Just buy a potion: lose {0} gold",
   "薬だけ買う：{0}ゴールドを失う"
  ],
- "你买到了：{{0}}。": [
-  "You bought: {{0}}.",
-  "買ったもの：{{0}}。"
+ "你买到了：「{0}」。": [
+  "You bought: 「{0}」.",
+  "買ったもの：「{0}」。"
  ],
  "骷髅耸了耸肩。骨头掉了一块。": [
   "The skeleton shrugs. A bone falls off.",
@@ -515,9 +515,9 @@
   "Chip the ice: lose {0} HP, gain a treasure",
   "氷を砕く：HPを{0}失い、秘宝を1つ得る"
  ],
- "冰碎了，你拿到了：{{0}}。": [
-  "The ice breaks. You obtain: {{0}}.",
-  "氷が割れ、手に入れた：{{0}}。"
+ "冰碎了，你拿到了：「{0}」。": [
+  "The ice breaks. You obtain: 「{0}」.",
+  "氷が割れ、手に入れた：「{0}」。"
  ],
  "为他默哀：回复 {0} 生命": [
   "Pay your respects: heal {0} HP",
@@ -595,9 +595,9 @@
   "Take the egg: gain a treasure, add a 「{0}」",
   "卵を持ち去る：秘宝を1つ得て、「{0}」を1枚加える"
  ],
- "你拿到了：{{0}}。小龙一直望着你的背影。": [
-  "You obtain: {{0}}. The hatchling watches you leave.",
-  "手に入れた：{{0}}。小竜はずっとあなたの背中を見ていた。"
+ "你拿到了：「{0}」。小龙一直望着你的背影。": [
+  "You obtain: 「{0}」. The hatchling watches you leave.",
+  "手に入れた：「{0}」。小竜はずっとあなたの背中を見ていた。"
  ],
  "雪山温泉": [
   "Snowy Hot Spring",
@@ -683,9 +683,9 @@
   "Answer it: gain {0} potions",
   "応える：ポーションを{0}つ得る"
  ],
- "裂缝里递出了两个瓶子：{{0}}、{{1}}。": [
-  "Two bottles are passed out of the rift: {{0}}, {{1}}.",
-  "裂け目から瓶が2つ差し出された：{{0}}、{{1}}。"
+ "裂缝里递出了两个瓶子：「{0}」、「{1}」。": [
+  "Two bottles are passed out of the rift: 「{0}」, 「{1}」.",
+  "裂け目から瓶が2つ差し出された：「{0}」、「{1}」。"
  ],
  "切断它：失去 {0} 生命，删除 {1} 张牌": [
   "Cut it off: lose {0} HP, remove {1} card",
@@ -843,9 +843,9 @@
   "Upload anonymous run data (helps balancing)",
   "匿名でランのデータを送信（バランス調整に協力）"
  ],
- "进入第三章：永冬之巅（回复 {{0}}% 生命）": [
-  "Enter Chapter 3: Everwinter Peak (heal {{0}}% HP)",
-  "第3章へ：永冬の頂（HPを{{0}}%回復）"
+ "进入第三章：永冬之巅（回复 {0}% 生命）": [
+  "Enter Chapter 3: Everwinter Peak (heal {0}% HP)",
+  "第3章へ：永冬の頂（HPを{0}%回復）"
  ],
  "林拓的归途": [
   "Lin's Way Home",
@@ -1138,5 +1138,89 @@
  "真结局": [
   "True Ending",
   "真エンディング"
+ ],
+ "消耗手里 {0} 个炼金瓶（没有就先随机获得 {1} 个），获得 {2} 点能量。再随机获得 {3} 个炼金瓶。": [
+  "Use up {0} flask in hand (gain {1} random one first if you have none), gain {2} Energy. Then gain {3} random flask.",
+  "手札の錬金瓶を{0}つ消費し（なければ先にランダムに{1}つ得る）、エネルギーを{2}得る。さらにランダムな錬金瓶を{3}つ得る。"
+ ],
+ "抽 {0} 张牌；团子生命不少于一半时得到 {1} 点能量（每回合一次）。": [
+  "Draw {0} cards. If Dango has at least half HP, gain {1} Energy (once per turn).",
+  "カードを{0}枚引く。団子のHPが半分以上ならエネルギーを{1}得る（1ターンに1回）。"
+ ],
+ "拾取时最大生命 {0}，回复 {1} 点生命。": [
+  "Upon pickup, Max HP {0} and heal {1} HP.",
+  "入手時、最大HP{0}、HPを{1}回復。"
+ ],
+ "每回合打出的第一张实际花费 {0} 能量的牌，抽 {1} 张牌。": [
+  "The first card each turn that actually costs {0} Energy to play draws {1} card.",
+  "毎ターン、実際に{0}エネルギーで使った最初のカードでカードを{1}枚引く。"
+ ],
+ "每场战斗你的生命第一次降到一半以下时，立刻获得 {0} 点格挡，下个回合多 {1} 点能量。": [
+  "The first time each combat your HP falls below half, immediately gain {0} Block and gain {1} extra Energy next turn.",
+  "各戦闘で初めてHPが半分を下回った時、すぐにブロックを{0}得て、次のターンのエネルギー+{1}。"
+ ],
+ "三个元素位，写入火、水、风；「{0}」按组合把 {1} 种法术之一放进手牌。": [
+  "Three element slots: write Fire, Water, Wind; 「{0}」 turns the combination into one of {1} spells in your hand.",
+  "3つの元素枠に火・水・風を書き込む。「{0}」で組み合わせに応じた{1}種の魔法のひとつを手札に加える。"
+ ],
+ "攒满 {0} 点龙血点「{1}」，霜龙形态的三回合打得最狠；也可以不变身，把龙血留着吃加成。": [
+  "Fill {0} Dragon Blood and press 「{1}」: the three Frost Dragon turns hit hardest. Or skip transforming and keep the blood for bonuses.",
+  "竜血を{0}貯めて「{1}」：霜竜形態の3ターンが最も強い。変身せずに竜血を残してボーナスに使うのもあり。"
+ ],
+ "分离时给团子下护卫或扑击指令；点「{0}」让团子融进米娅身上，【猫】牌合体时更强。驯养牌和灵魂恩赐能把团子养强。": [
+  "While apart, order Dango to Guard or Pounce; press 「{0}」 to merge Dango into Mia—【Cat】 cards get stronger when fused. Taming cards and Soul Boons make Dango stronger.",
+  "分離中は団子に護衛か飛びかかりを指示。「{0}」で団子がミアに融合し、【猫】カードが強くなる。飼育カードと魂の恩恵で団子を育てられる。"
+ ],
+ "花自己的生命换高伤害和召唤血蝠、血骑士；所有伤害都会吸一点血回来。": [
+  "Spend your own HP for big damage and to summon Blood Bats and a Blood Knight; all your damage drains a little HP back.",
+  "自分のHPを払って大ダメージや血蝙蝠・血騎士の召喚を行う。与えたダメージは少し吸血して戻る。"
+ ],
+ "你出完牌按「{0}」，敌人按头上的意图行动。": [
+  "When you're done playing cards, press 「{0}」; enemies then act on the intents shown above their heads.",
+  "カードを使い終えたら「{0}」を押す。敵は頭上の意図どおりに行動する。"
+ ],
+ "战斗拖得太久，你筋疲力尽了……": [
+  "The battle dragged on too long. You're exhausted...",
+  "戦いが長引きすぎて、力尽きてしまった……"
+ ],
+ "共鸣满 {0} 层时，对该敌人造成 {1} 点伤害，之后保留 {2} 层（多出的层数也保留）。每个敌人第一次被爆音时还会眩晕（跳过下一次行动）。": [
+  "When Resonance reaches {0}, deal {1} damage to that enemy, then keep {2} stacks (excess stacks are kept too). The first Burst on each enemy also stuns it (skips its next action).",
+  "共鳴が{0}層になると、その敵に{1}ダメージを与え、その後{2}層を残す（超過分も残る）。各敵が初めて爆音を受けた時はスタンもする（次の行動をスキップ）。"
+ ],
+ "打开了调试模式的开发者。会给一种牌下「{0}」（你手里那种牌有一张这回合打不出），「{1}」会把你一张手牌删到本场战斗结束，「{2}」一回合后打出 {3} 点——编译那回合打他 {4} 点以上就能打断。半血进入蓝屏：力量 {5}，每回合往你弃牌堆塞「{6}」。弱点不变：一回合打出 {7} 张 {8} 费牌或 {9} 张牌，他会程序崩溃晕一回合。": [
+  "The Developer with debug mode on. He sets a 「{0}」 on a card type (one such card in your hand can't be played this turn), 「{1}」 removes a card from your hand for the rest of the combat, and 「{2}」 hits for {3} a turn later—deal {4}+ damage during the compile turn to interrupt it. At half HP he bluescreens: {5} Strength, and adds an 「{6}」 to your discard pile every turn. Same weakness: play {7} cards costing {8} or {9} cards in one turn and he crashes, stunned for a turn.",
+  "デバッグモードを開いた開発者。カードの種類に「{0}」を置き（手札のその種類のカード1枚がこのターン使えない）、「{1}」で手札を1枚この戦闘中削除し、「{2}」の1ターン後に{3}ダメージ——コンパイル中に{4}以上与えれば中断できる。HP半分でブルースクリーン：筋力{5}、毎ターン捨て札に「{6}」を加える。弱点は同じ：1ターンに{8}コスト{7}枚か{9}枚使うとクラッシュして1ターン気絶。"
+ ],
+ "这回合出的牌太多了（上限 {0} 张），结束回合吧": [
+  "You've played too many cards this turn (limit {0}). End your turn.",
+  "このターンはカードを使いすぎた（上限{0}枚）。ターンを終了しよう。"
+ ],
+ "血蝠": [
+  "Blood Bats",
+  "血蝙蝠"
+ ],
+ "每只回合结束打随机敌人 {0} 点；敌人每次行动会打掉 {1} 只": [
+  "Each deals {0} damage to a random enemy at end of turn; each enemy action knocks out {1}",
+  "1匹ごとにターン終了時ランダムな敵に{0}ダメージ。敵が行動するたびに{1}匹倒される"
+ ],
+ "弱点：一回合打出 {0} 张 {1} 费牌，或者打出 {2} 张牌，他会程序崩溃，晕一回合": [
+  "Weakness: play {0} cards costing {1}, or {2} cards, in one turn and he crashes, stunned for a turn",
+  "弱点：1ターンにコスト{1}のカードを{0}枚、またはカードを{2}枚使うと、クラッシュして1ターン気絶する"
+ ],
+ "门的更上方还有一道锁。还差：": [
+  "There is another lock above the door. Still missing: ",
+  "扉のさらに上にもう一つ錠がある。足りないもの："
+ ],
+ "翡翠钥匙（第一章燃烧的精英）": [
+  "Emerald Key (Chapter 1 burning elite)",
+  "翡翠の鍵（第1章の燃えるエリート）"
+ ],
+ "血月钥匙（第二章营火放弃休息）": [
+  "Blood Moon Key (give up a Chapter 2 campfire)",
+  "血月の鍵（第2章の焚き火を諦める）"
+ ],
+ "龙鳞钥匙（第三章宝箱放弃秘宝）": [
+  "Dragonscale Key (give up a Chapter 3 chest)",
+  "竜鱗の鍵（第3章の宝箱を諦める）"
  ]
 }

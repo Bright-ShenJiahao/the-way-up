@@ -107,7 +107,7 @@ export const E3 = {
     ai: (e, B) => { const m = cycle(e, ['peek', 'keys', 'swap', 'del', 'patch', 'flip', 'debug']); return m === 'debug' && B.alive().some(a => a.mini) ? 'demand' : m; } },
   /* ---------- 真结局 Boss：开发者 · debug 状态（三把钥匙才会遇到） ---------- */
   dev_debug: { name: '开发者 · debug 状态', hd: 300, hp: [320, 320], sc: 2.7, boss: 1, brk: 30, art: 'dev_debug', poses: ['cast', 'charge', 'stun'],
-    lore: '打开了调试模式的开发者。会给一种牌下「断点」（你手里那种牌有一张这回合打不出），「rm -rf」会永久删掉你一张手牌，「编译」一回合后打出 38 点——编译那回合打他 30 点以上就能打断。半血进入蓝屏：力量 +3，每回合往你弃牌堆塞「报错」。弱点不变：一回合打出 3 张 0 费牌或 6 张牌，他会程序崩溃晕一回合。',
+    lore: '打开了调试模式的开发者。会给一种牌下「断点」（你手里那种牌有一张这回合打不出），「rm -rf」会把你一张手牌删到本场战斗结束，「编译」一回合后打出 38 点——编译那回合打他 30 点以上就能打断。半血进入蓝屏：力量 +3，每回合往你弃牌堆塞「报错」。弱点不变：一回合打出 3 张 0 费牌或 6 张牌，他会程序崩溃晕一回合。',
     intro: '「debug 模式已开启。这次，我用管理员权限跟你们打。」',
     moves: { bpA: { n: '断点：攻击', i: 'defdebuff', f: (e, B) => { B.eBlock(e, 15); e.pend = 'bp'; e.bpT = 'atk'; e.pose = 'cast'; } },
       bpS: { n: '断点：技能', i: 'defdebuff', f: (e, B) => { B.eBlock(e, 15); e.pend = 'bp'; e.bpT = 'skill'; e.pose = 'cast'; } },
@@ -161,7 +161,7 @@ export const E3 = {
       judge: { n: '审判', i: 'atk', d: 4, x: 1 }, heal: { n: '圣愈', i: 'buff', f: (e, B) => { e.pose = 'cast'; B.alive().forEach(a => { B.healE(a, a === e ? 16 : 10); if (a !== e) B.eBlock(a, 8); }); } } },
     onTurn: e => { if (e.pose === 'cast' || !e.st.hshield) e.pose = null; },
     onPTurn: e => { e.cc = 0; e.xb = e.move === 'judge' ? -1 : 0; },
-    onCard: e => { e.cc = (e.cc || 0) + 1; if (e.move === 'judge') e.xb = e.cc - 1; },
+    onCard: e => { e.cc = (e.cc || 0) + 1; if (e.move === 'judge') e.xb = e.cc; },
     ai: e => cycle(e, ['shield', 'claw', 'judge', 'heal']) },
   d_arch: { name: '大法师龙', hp: [136, 142], sc: 2.8, hd: 320, elite: 1, dragon: 1, rage: 1, poses: ['cast', 'meteor', 'mirror'],
     lore: '披着法袍的老龙。你每打出一张技能牌，它就积 1 点法力；攒满 4 点会立刻改念大魔法：陨石、镜像或奥术飞弹（意图会变）。',

@@ -1,6 +1,6 @@
 /* 多语言：中文原文就是 key（数字和「」里的名字会自动变成 {0}{1} 占位符），英文 / 日文词表在 src/lang/ */
-import EN from './lang/en.js?v=live2_11132500';
-import JA from './lang/ja.js?v=live2_11132500';
+import EN from './lang/en.js?v=live2_11140300';
+import JA from './lang/ja.js?v=live2_11140300';
 const DICT = { en: EN, ja: JA };
 const CJK = /[㐀-鿿]/;
 let lang = 'zh';
@@ -13,7 +13,7 @@ export function setLanguage(l) { if (!DICT[l] && l !== 'zh') return; lang = l; c
 export const onLanguageChange = f => cbs.push(f);
 export const missing = () => [...miss];
 /* 把一句中文拆成「模板 + 变量」 */
-function split(s) { const vals = []; const key = s.replace(/「([^」]*)」|[+-]?\d+(?:\.\d+)?%?/g, (m, q) => { const i = vals.length; vals.push(q != null ? q : m); return q != null ? `「{${i}}」` : `{${i}}`; }); return [key, vals]; }
+function split(s) { const vals = []; const key = s.replace(/「([^」]*)」|[+-]?\d+(?:\.\d+)?%?/g, (m, q) => { const i = vals.length; vals.push(q != null ? { q } : m); return q != null ? `「{${i}}」` : `{${i}}`; }); return [key, vals.map(v => typeof v === 'object' ? (CJK.test(v.q) && !OUT[lang]?.has(v.q) ? tr(v.q) : v.q) : v)]; } /* 「」里的名字也翻译 */
 const fill = (t, vals) => t.replace(/\{(\d+)\}/g, (m, i) => vals[+i] != null ? vals[+i] : m);
 /* t('中文 {0}', 值...)：显式变量；tr(任意中文)：自动拆变量 */
 export function t(key, ...vals) { if (lang === 'zh') return fill(key, vals); const d = DICT[lang]; const v = d[key]; if (v == null) { miss.add(key); return fill(key, vals); } return fill(v, vals); }

@@ -1,6 +1,6 @@
 // 平衡测试：机器人用每个角色跑很多局，统计胜率和死在哪里。只在 GitHub Actions 上跑。
 // 规则照抄 src/game.js 的战斗逻辑（简化了地图：固定 15 层路线 + Boss）
-import { MECH, NEWKEYW, OLDKEYW, STARTRELIC, RULES, isFury, CARDS, STARTERS, RELICS, ENEMIES, ENCOUNTERS, ENCOUNTERS2, ENC3, FINAL3, CORE3, RIFT, GATE3 } from '../src/data.js';
+import { MECH, NEWKEYW, OLDKEYW, STARTRELIC, RULES, isFury, CARDS, STARTERS, RELICS, POTIONS, ENEMIES, ENCOUNTERS, ENCOUNTERS2, ENC3, FINAL3, CORE3, RIFT, GATE3 } from '../src/data.js';
 const N = +process.argv[2] || 1000, LOCKLV = process.argv[3] == null ? 4 : +process.argv[3], ONLY = process.argv[4], ASC = +(process.argv[5] || 0), SEED0 = +(process.env.SEED || 1);
 /* 固定随机种子：第 i 局用种子 SEED0+i，失败的局可以单独重放（SEED=… node tools/sim.mjs 1 4 miko） */
 let seedS = 1; const rng = () => { seedS |= 0; seedS = seedS + 0x6D2B79F5 | 0; let t = Math.imul(seedS ^ seedS >>> 15, 1 | seedS); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -18,7 +18,7 @@ const WENV = process.env.WEIGHTS ? JSON.parse(process.env.WEIGHTS) : null;
 let W = { ...W0, ...(WENV || {}) };
 const useW = ch => { W = WENV ? { ...W0, ...WENV } : { ...W0, ...(TW[ch] || {}) }; };
 let SMART = false; /* false=新手机器人；true=熟练机器人（会用药水、按流派选牌） */
-const POTS = ['heal', 'str', 'dex', 'block', 'energy', 'fire', 'bomb', 'weak', 'draw', 'fairy'];
+const POTS0 = ['heal', 'str', 'dex', 'block', 'energy', 'fire', 'bomb', 'weak', 'draw', 'fairy']; let POTS = POTS0; /* 跑之前换成游戏里的全部药水 */
 const KEYW = { ...OLDKEYW, ...NEWKEYW };
 const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const pickOne = a => a[Math.floor(Math.random() * a.length)];
@@ -104,13 +104,13 @@ const BE = {
   flipRand() { const cs = B.hand.filter(c => !CARDS[c.id].unplay); if (cs.length) pickOne(cs).flip = 1; },
   nerfTop(n) { const pc = B.pc || {}, id = Object.keys(pc).sort((a, b) => pc[b] - pc[a])[0]; if (!id || CARDS[id].unplay) return null; [...B.draw, ...B.disc, ...B.hand, ...B.exh].filter(c => c.id === id).forEach(c => { c.pt = (c.pt || 0) - n; }); return 'x'; },
   sealType(e, ty) { const cs = B.hand.filter(c => !c.seal && !CARDS[c.id].unplay && (ty === 'atk' ? CARDS[c.id].type === 'atk' : CARDS[c.id].type !== 'atk')); if (!cs.length) return null; const c = pickOne(cs); c.seal = e.id; return CARDS[c.id].name; },
-  exhRand(n) { let nm = null; for (let k = 0; k < n; k++) { const cs = B.hand.filter(c => !CARDS[c.id].unplay); if (!cs.length) break; const c = pickOne(cs); B.hand.splice(B.hand.indexOf(c), 1); B.exh.push(c); nm = CARDS[c.id].name; } return nm; },
+  exhRand(n) { let nm = null; for (let k = 0; k < n; k++) { const atkLeft = [...B.draw, ...B.disc, ...B.hand].filter(c => CARDS[c.id].type === 'atk').length; const all = B.hand.filter(c => !CARDS[c.id].unplay); const cs = all.filter(c => CARDS[c.id].type !== 'atk' || atkLeft > 2); if (!cs.length) break; const c = pickOne(cs); /* 不会删到只剩 2 张攻击牌以下：防止打不赢的死局 */ B.hand.splice(B.hand.indexOf(c), 1); B.exh.push(c); nm = CARDS[c.id].name; } return nm; },
   seal(e, perm) { const cs = B.hand.filter(c => !c.seal && !CARDS[c.id].unplay); if (!cs.length) return null; pickOne(cs).seal = perm ? 'perm' : e.id; return 'x'; },
   unseal(e) { [...B.draw, ...B.disc, ...B.hand, ...B.exh].forEach(c => { if (c.seal === e.id) delete c.seal; }); },
   zc: () => B.p.zc || 0, handTypes() { return { atk: B.hand.filter(c => CARDS[c.id].type === 'atk').length, skill: B.hand.filter(c => CARDS[c.id].type !== 'atk').length }; },
   applyP(k, n) { addSt(B.p, k, n); }, addSt(e, k, n) { addSt(e, k, n); }, eBlock(e, n) { e.block += n; },
   allies: e => alive().filter(a => a !== e), alive: () => alive(), healE(e, n) { e.hp = Math.min(e.max, e.hp + n); }, addCard(id, n = 1) { for (let k = 0; k < n; k++) B.disc.push(mk(id)); }, revive(e, f) { e.revived = 1; e.dead = false; for (const k of ['poison', 'weak', 'vuln', 'res']) delete e.st[k]; e.hp = Math.max(1, Math.floor(e.max * f)); R.kills--; }, flee(e) { if (!e.dead) { e.fled = 1; e.dead = true; e.hp = 0; } }, say() {},
-  kill(e) { killE(e); }, steal(e) { e.stoleT = e.turn; }, endPlayerTurn() { B.forceEnd = 1; },
+  kill(e) { killE(e); }, steal(e, n) { const k = Math.min(n || 0, R.gold); R.gold -= k; e.stoleT = e.turn; }, endPlayerTurn() { B.forceEnd = 1; },
   split(e, key, n) { const i = B.en.indexOf(e), hp = Math.max(1, Math.floor(e.hp / n)), bits = []; for (let k = 0; k < n; k++) { const b = mkE(key); b.hp = b.max = hp; b.move = b.d.ai(b, BE); bits.push(b); } e.dead = true; e.fled = 1; e.hp = 0; B.en.splice(i, 1, ...bits); }, summon(key, hp) { if (alive().length >= 5) return null; const e = mkE(key); if (hp) e.hp = e.max = hp; e.move = e.d.ai(e, BE); const i = B.en.findIndex(x => x.dead && !(x.d.prePhase && !x.revived && !x.fled)); if (i >= 0) B.en[i] = e; else B.en.unshift(e); return e; } /* 召唤物优先填进已经死掉的位置，队伍不会越排越长 */,
 };
 let eid = 1;
@@ -167,9 +167,10 @@ function usePots() {
   const big = B.kind !== 'fight', use = id => { const i = R.pots.indexOf(id); if (i < 0) return false; R.pots.splice(i, 1);
     if (id === 'heal') heal(15); else if (id === 'block') G.block(12, true); else if (id === 'str') addSt(B.p, 'str', 2); else if (id === 'dex') addSt(B.p, 'dex', 2);
     else if (id === 'energy') B.p.energy += 2; else if (id === 'draw') G.draw(3); else if (id === 'weak') alive().forEach(e => addSt(e, 'weak', 3));
-    else if (id === 'fire') { const t = alive().sort((a, b) => a.hp - b.hp)[0]; if (t) hurt(t, 20, B.p); } else if (id === 'bomb') alive().forEach(e => hurt(e, 10, B.p)); return true; };
-  if (R.hp < R.maxHp * .35) { use('heal') || use('block'); }
-  if (big && B.turn <= 1) for (const id of ['str', 'dex', 'weak', 'energy', 'draw', 'bomb', 'fire']) use(id);
+    else if (id === 'fire') { const t = alive().sort((a, b) => a.hp - b.hp)[0]; if (t) hurt(t, 20, B.p); } else if (id === 'bomb') alive().forEach(e => hurt(e, 10, B.p));
+    else if (POTIONS[id] && POTIONS[id].use) { const t = alive().sort((a, b) => a.hp - b.hp)[0]; try { POTIONS[id].use(G, t); } catch (e) {} } return true; };
+  if (R.hp < R.maxHp * .35) { use('heal') || use('bigheal') || use('snake') || use('block') || use('guard') || use('metalp'); }
+  if (big && B.turn <= 1) for (const id of ['str', 'dex', 'weak', 'energy', 'draw', 'bomb', 'fire', 'rage', 'fear', 'vulnp', 'toxin', 'time', 'essence', 'swift', 'holy', 'bolt', 'steam']) use(id);
 }
 function botTurn() { usePots(); if (!alive().length) return; MECH.bot(G, incoming() - B.p.block);
   for (let guard = 0; guard < 30 && alive().length; guard++) {
@@ -293,24 +294,25 @@ function smartScore(id) { const d = CARDS[id], t = dtxt(id), { A, b, n } = archO
   if (isBlock(d) && blocks < R.deck.length * .3) v += W.needBlk; if (d.type === 'atk' && atks < R.deck.length * .4) v += W.needAtk; if (d.type !== 'atk' && !isBlock(d) && atks < R.deck.length * .35) v -= W.nonAtk;
   if (d.type === 'power' && R.deck.filter(c => CARDS[c.id].type === 'power').length >= 3) v -= W.powPen;
   v -= (R.picks[id] || 0) * (d.type === 'power' ? 3 : W.dup); return v; }
-function reward(kind) { const cs = rollCards(3 + (has('b_cards') ? 1 : 0), kind === 'elite' ? .07 : 0);
+function reward(kind) { const cs = rollCards(3 + (has('b_cards') ? 1 : 0), kind === 'boss' ? 1 : kind === 'elite' ? .07 : 0);
   if (SMART) { const sc = smartScore;
     const best = cs.sort((a, b) => sc(b) - sc(a))[0]; if (sc(best) < W.skip && R.deck.length > 18) return; R.deck.push(mk(best)); R.picks[best] = (R.picks[best] || 0) + 1; return; } if (R.deck.length > 26 && Math.random() < .5) return; const best = cs.sort((a, b) => TIER[CARDS[b].rar] - TIER[CARDS[a].rar] + (CARDS[b].ch ? .5 : 0) - (CARDS[a].ch ? .5 : 0))[0]; R.deck.push(mk(best)); R.picks[best] = (R.picks[best] || 0) + 1; }
 function bossRelic() { const ps = Object.values(RELICS).filter(r => r.rar === 'boss' && !has(r.id)); if (!ps.length) return; const r = pickOne(ps); R.relics.push(r.id); if (r.pick) r.pick(R); }
-function relic() { let pool = []; for (let k = 0; k < 30 && !pool.length; k++) { const rr = pickOne(['c', 'c', 'c', 'u', 'u', 'r']); pool = Object.values(RELICS).filter(r => r.rar === rr && mine(r) && !has(r.id) && r.id !== 'crown'); } if (!pool.length) pool = Object.values(RELICS).filter(r => r.rar !== 'start' && r.rar !== 'boss' && mine(r) && !has(r.id)); if (!pool.length) return; const r = pickOne(pool); R.relics.push(r.id); if (r.pick) r.pick(R); if (r.id === 'herb') { R.maxHp += 10; R.hp += 10; } if (r.id === 'crown') { R.maxHp -= 10; R.hp = Math.min(R.hp, R.maxHp); } if (r.id === 'grail') { R.maxHp -= 5; R.hp = Math.min(R.hp, R.maxHp); } }
+function relic(rars = ['c', 'c', 'c', 'u', 'u', 'r']) { let pool = []; for (let k = 0; k < 30 && !pool.length; k++) { const rr = pickOne(rars); pool = Object.values(RELICS).filter(r => r.rar === rr && mine(r) && !has(r.id) && r.id !== 'crown'); } if (!pool.length) pool = Object.values(RELICS).filter(r => r.rar !== 'start' && r.rar !== 'boss' && mine(r) && !has(r.id)); if (!pool.length) return; const r = pickOne(pool); R.relics.push(r.id); if (r.pick) r.pick(R); if (r.id === 'herb') { R.maxHp += 10; R.hp += 10; } if (r.id === 'crown') { R.maxHp -= 10; R.hp = Math.min(R.hp, R.maxHp); } if (r.id === 'grail') { R.maxHp -= 5; R.hp = Math.min(R.hp, R.maxHp); } }
 const UNLOCKS = [{ cards: ['dual', 'concert'], relics: [] }, { cards: ['shinboku', 'sage'], relics: ['mic'] }, { cards: ['screen', 'distort', 'deadly'], relics: ['pad'] }, { cards: ['thunder'], relics: ['crown', 'feather'] }];
 const LOCK = new Set(UNLOCKS.slice(LOCKLV).flatMap(u => [...u.cards, ...u.relics]));
 function shop() { if (!SMART) { const i = R.deck.findIndex(c => c.id === 'defend'); if (i >= 0) R.deck.splice(i, 1); return; }
-  if (R.gold >= 75) { const i = R.deck.findIndex(c => c.id === 'strike' || c.id === 'defend' || c.id === 'tstrike'); if (i >= 0) { R.deck.splice(i, 1); R.gold -= 75; } }
-  if (R.gold >= 70) { const cs = rollCards(3); const d = cs.map(id => CARDS[id]).sort((a, b) => smartScore(b.id) - smartScore(a.id))[0]; if (smartScore(d.id) >= 3) { R.deck.push(mk(d.id)); R.gold -= d.rar === 'r' ? 150 : 70; } }
-  if (R.gold >= 55 && R.pots.length < 3) { R.pots.push(pickOne(POTS)); R.gold -= 55; }
-  if (R.gold >= 150) { relic(); R.gold -= 150; } }
+  const gm = A_(11) ? 1.2 : 1, rc = Math.round(R.removeCost * gm); /* 价格和游戏一致：卡 50/75/150、删牌 75 起每次 +25、秘宝 150/200/280 */
+  if (R.gold >= rc) { const i = R.deck.findIndex(c => CARDS[c.id].curse) >= 0 ? R.deck.findIndex(c => CARDS[c.id].curse) : R.deck.findIndex(c => c.id === 'strike' || c.id === 'defend' || c.id === 'tstrike'); if (i >= 0) { R.deck.splice(i, 1); R.gold -= rc; R.removeCost += 25; } }
+  { const cs = rollCards(5); const d = cs.map(id => CARDS[id]).sort((a, b) => smartScore(b.id) - smartScore(a.id))[0], pr = Math.round(({ c: 50, u: 75, r: 150 }[d.rar] || 75) * gm); if (R.gold >= pr && smartScore(d.id) >= 3) { R.deck.push(mk(d.id)); R.gold -= pr; } }
+  if (R.gold >= 55 * gm && R.pots.length < (A_(12) ? 2 : 3)) { R.pots.push(pickOne(POTS)); R.gold -= Math.round(55 * gm); }
+  { const rp = Math.round(175 * gm); if (R.gold >= rp) { relic(['c', 'u', 'u', 'r']); R.gold -= rp; } } }
 function event() { const x = Math.random(); if (x < .3) heal(10); else if (x < .5) { R.gold += 60; } else if (x < .7) { if (Math.random() < .5) { R.hp = Math.max(1, R.hp - 8); } else R.deck.push(mk(Math.random() < .5 ? 'regret' : 'doubt')); relic(); } else if (x < .85) { const c = R.deck.find(c => !c.up); if (c) c.up = 1; } else { const i = R.deck.findIndex(c => CARDS[c.id].rar === 'start'); if (i >= 0) R.deck.splice(i, 1); } }
 function riftRun() { let fights = 0; /* 第三章下半：魔界裂隙 */
   for (const node of ROUTE_R) { R.floor++;
     if (node === 'fight') { const enc = pickOne(fights < 2 ? RIFT.easy : RIFT.hard); fights++; if (!battle(enc, 'fight')) return { win: false, to: TIMEOUT, act: 3, floor: R.floor, at: '裂隙·' + enc.join('+') }; reward(); dropPot('fight'); R.gold += 15; }
     else if (node === 'elite') { const enc = pickOne(RIFT.elite); if (!battle(enc, 'elite')) return { win: false, to: TIMEOUT, act: 3, floor: R.floor, at: '裂隙精英:' + enc.join('+') }; reward('elite'); relic(); if (has('b_star')) relic(); dropPot('elite'); R.gold += 30; }
-    else if (node === 'boss') { if (!battle([GATE3], 'boss')) return { win: false, to: TIMEOUT, act: 3, floor: R.floor, at: 'Boss:' + GATE3 }; }
+    else if (node === 'boss') { if (!battle([GATE3], 'boss')) return { win: false, to: TIMEOUT, act: 3, floor: R.floor, at: 'Boss:' + GATE3 }; bossLoot(); }
     else if (node === 'rest') { if (R.hp < R.maxHp * W.rest && !has('b_core')) heal(Math.floor(R.maxHp * (A_(5) ? .2 : .3)) - (A_(14) ? 5 : 0)); else { const c = R.deck.find(c => !c.up && CARDS[c.id].rar !== 'start') || R.deck.find(c => !c.up); if (c) c.up = 1; } }
     else if (node === 'event') event(); else if (node === 'shop') shop(); }
   return null; }
@@ -321,11 +323,13 @@ function bless() { const f = shuffle(Object.keys(BLESS_FREE)).slice(0, 2), c = p
   const rmStart = n => { for (let i = 0; i < n; i++) { const j = R.deck.findIndex(x => CARDS[x.id].curse) >= 0 ? R.deck.findIndex(x => CARDS[x.id].curse) : R.deck.findIndex(x => CARDS[x.id].rar === 'start' && !/defend|block/i.test(x.id)); const jj = j >= 0 ? j : R.deck.findIndex(x => CARDS[x.id].rar === 'start'); if (jj >= 0) R.deck.splice(jj, 1); } };
   if (k === 'b_hp') { R.maxHp += 8; R.hp += 8; } else if (k === 'b_gold') R.gold += 100; else if (k === 'b_rm') rmStart(1);
   else if (k === 'b_up') { const x = R.deck.find(x => !x.up && CARDS[x.id].rar !== 'start') || R.deck.find(x => !x.up); if (x) x.up = 1; }
-  else if (k === 'b_card') reward(); else if (k === 'b_pot') { for (let i = 0; i < 2 && R.pots.length < (A_(12) ? 2 : 3); i++) R.pots.push(pickOne(POTS)); } else if (k === 'b_relic') relic();
+  else if (k === 'b_card') reward(); else if (k === 'b_pot') { for (let i = 0; i < 2 && R.pots.length < (A_(12) ? 2 : 3); i++) R.pots.push(pickOne(POTS)); } else if (k === 'b_relic') relic(['c']);
   else if (k === 't_rare') { R.maxHp -= Math.floor(R.maxHp * .1); R.hp = Math.min(R.hp, R.maxHp); const cs = rollCards(3, 1); const best = SMART ? cs.sort((a, b) => smartScore(b) - smartScore(a))[0] : cs[0]; R.deck.push(mk(best)); }
-  else if (k === 't_relic') { R.gold = 0; relic(); } else if (k === 't_rm2') { R.deck.push(mk('regret')); rmStart(2); } else if (k === 't_gold') { R.maxHp -= 12; R.hp = Math.min(R.hp, R.maxHp); R.gold += 250; } }
+  else if (k === 't_relic') { R.gold = 0; relic(['r']); } else if (k === 't_rm2') { rmStart(2); R.deck.push(mk('regret')); } else if (k === 't_gold') { R.maxHp -= 12; R.hp = Math.min(R.hp, R.maxHp); R.gold += 250; } }
+/* Boss 战利品（和游戏一致）：金币 90~110、稀有秘宝、三选一稀有牌、药水 */
+function bossLoot() { R.gold += Math.round((90 + Math.floor(Math.random() * 21)) * (A_(7) ? .7 : 1)); relic(['r']); reward('boss'); dropPot('boss'); }
 function run(char) {
-  TIMEOUT = 0; uid = 1; R = { char, hp: A_(4) ? 72 : 80, maxHp: A_(4) ? 72 : 80, deck: STARTERS[char].map(id => mk(id)), relics: [STARTRELIC[char]], kills: 0, picks: {}, floor: 0, pots: [], act: 1, gold: 99 }; if (A_(9)) R.deck.push(mk('regret'));
+  TIMEOUT = 0; uid = 1; R = { char, hp: A_(4) ? 72 : 80, maxHp: A_(4) ? 72 : 80, deck: STARTERS[char].map(id => mk(id)), relics: [STARTRELIC[char]], kills: 0, picks: {}, floor: 0, pots: [], act: 1, gold: 120, removeCost: 75, asc: ASC }; POTS = Object.keys(POTIONS); if (A_(9)) R.deck.push(mk('regret'));
   bless();
   for (const [act, EN] of [[1, ENCOUNTERS], [2, ENCOUNTERS2], [3, ENC3]]) {
     R.act = act; let fights = 0; if (act >= 2) R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * (A_(16) ? .3 : .5)));
@@ -333,8 +337,8 @@ function run(char) {
       R.floor++;
       if (node === 'fight') { const enc = pickOne(fights < 3 ? EN.easy : EN.hard); fights++; if (!battle(enc, 'fight')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: enc.join('+') }; reward(); dropPot('fight'); R.gold += Math.round((10 + Math.floor(Math.random() * 11)) * (A_(7) ? .7 : 1)); }
       else if (node === 'elite') { const enc = pickOne(EN.elite); if (!battle(enc, 'elite')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: '精英:' + enc.join('+') }; reward('elite'); relic(); if (has('b_star')) relic(); dropPot('elite'); R.gold += Math.round((25 + Math.floor(Math.random() * 11)) * (A_(7) ? .7 : 1)); }
-      else if (node === 'boss') { if (DG) DG.bosses++; const bk = pickOne(EN.boss)[0]; if (!battle([bk], 'boss')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: 'Boss:' + bk }; if (act < 3) bossRelic();
-        if (act === 3) { relic(); R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .3)); const r = riftRun(); if (r) return r;
+      else if (node === 'boss') { if (DG) DG.bosses++; const bk = pickOne(EN.boss)[0]; if (!battle([bk], 'boss')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: 'Boss:' + bk }; bossLoot(); if (act < 3) bossRelic();
+        if (act === 3) { R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .3)); const r = riftRun(); if (r) return r;
           R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .3)); if (!battle([FINAL3], 'boss')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: 'Boss:' + FINAL3 }; } }
       else if (node === 'rest') { if (R.hp < R.maxHp * W.rest && !has('b_core')) heal(Math.floor(R.maxHp * (A_(5) ? .2 : .3)) - (A_(14) ? 5 : 0)); else { const c = R.deck.find(c => !c.up && CARDS[c.id].rar !== 'start') || R.deck.find(c => !c.up); if (c) c.up = 1; } }
       else if (node === 'event') event();
