@@ -167,8 +167,8 @@ function usePots() {
   const big = B.kind !== 'fight', use = id => { const i = R.pots.indexOf(id); if (i < 0) return false; R.pots.splice(i, 1);
     if (id === 'heal') heal(15); else if (id === 'block') G.block(12, true); else if (id === 'str') addSt(B.p, 'str', 2); else if (id === 'dex') addSt(B.p, 'dex', 2);
     else if (id === 'energy') B.p.energy += 2; else if (id === 'draw') G.draw(3); else if (id === 'weak') alive().forEach(e => addSt(e, 'weak', 3));
-    else if (id === 'fire') { const t = alive().sort((a, b) => a.hp - b.hp)[0]; if (t) hurt(t, 20, B.p); } else if (id === 'bomb') alive().forEach(e => hurt(e, 10, B.p));
-    else if (POTIONS[id] && POTIONS[id].use) { const t = alive().sort((a, b) => a.hp - b.hp)[0]; try { POTIONS[id].use(G, t); } catch (e) {} } return true; };
+    else if (id === 'fire') { const t = alive().sort((a, b) => a.hp - b.hp)[0]; if (t) { B.potUse = 1; hurt(t, 20, B.p); B.potUse = 0; } } else if (id === 'bomb') { B.potUse = 1; alive().forEach(e => hurt(e, 10, B.p)); B.potUse = 0; }
+    else if (POTIONS[id] && POTIONS[id].use) { const t = alive().sort((a, b) => a.hp - b.hp)[0]; B.potUse = 1; try { POTIONS[id].use(G, t); } catch (e) {} B.potUse = 0; } return true; };
   if (R.hp < R.maxHp * .35) { use('heal') || use('bigheal') || use('snake') || use('block') || use('guard') || use('metalp'); }
   if (big && B.turn <= 1) for (const id of ['str', 'dex', 'weak', 'energy', 'draw', 'bomb', 'fire', 'rage', 'fear', 'vulnp', 'toxin', 'time', 'essence', 'swift', 'holy', 'bolt', 'steam']) use(id);
 }

@@ -227,8 +227,8 @@ const FEI = {
   f_wing: { ch: 'feiyue', name: '翼刃', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_f_wing', tgt: 'one', desc: u => `造成 ${v(u, 5, 7)} 点伤害 2 次；有血蝠时打 3 次。`, play: (g, u, t) => fa(g, t, v(u, 5, 7), bats(g) ? 3 : 2) },
   f_repay: { ch: 'feiyue', name: '借血还血', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_f_repay', tgt: 'one', desc: u => `造成 ${v(u, 9, 12)} 点伤害；本回合失去过生命时，这一击伤害的一半回成生命。`, play: (g, u, t) => { const d = g.attack(t, v(u, 9, 12)); if (P(g).lostT) bite(g, d, .5); else lsHeal(g, d); } },
   f_fold: { ch: 'feiyue', name: '血月号令', type: 'skill', rar: 'u', cost: [1, 0], icon: 'icons2/n_f_fold', tgt: 'self', desc: u => `所有召唤物立刻额外攻击一次。`, play: g => summonsAttack(g) },
-  f_pulse: { ch: 'feiyue', name: '嗜血', type: 'power', rar: 'u', cost: [1, 1], icon: 'icons2/n_f_pulse', tgt: 'self', desc: u => `本场每失去 10 点生命，攻击牌伤害 +1${v(u, '', '；现在获得 5 点格挡')}。`, play: (g, u) => { P(g).st.bloodlust = 1; if (u) g.block(5); } },
-  f_vow: { ch: 'feiyue', name: '血契', type: 'power', rar: 'r', cost: [2, 1], icon: 'icons2/n_f_vow', tgt: 'self', desc: u => `召唤物造成伤害的一半回成生命（算进每场吸血上限）。`, play: g => { P(g).st.bpact = 1; } },
+  f_pulse: { ch: 'feiyue', name: '嗜血', type: 'power', rar: 'u', cost: [1, 1], icon: 'icons2/n_f_pulse', tgt: 'self', desc: u => `本场每失去 10 点生命，攻击牌的第一击伤害 +1${v(u, '', '；现在获得 5 点格挡')}。`, play: (g, u) => { P(g).st.bloodlust = 1; if (u) g.block(5); } },
+  f_vow: { ch: 'feiyue', name: '血契', type: 'power', rar: 'r', cost: [2, 1], icon: 'icons2/n_f_vow', tgt: 'self', desc: u => `召唤物造成伤害的一半额外回成生命（和原本的吸血叠加，算进每场吸血上限）。`, play: g => { P(g).st.bpact = 1; } },
   f_swarm: { ch: 'feiyue', name: '万蝠降临', type: 'skill', rar: 'r', cost: [2, 1], icon: 'icons2/n_f_swarm', tgt: 'self', exhaust: 1, desc: u => `召唤血蝠到 8 只；本回合每只血蝠伤害 +2。消耗。`, play: g => { addBats(g, 8); P(g).batB = 2; } },
   f_dawn: { ch: 'feiyue', name: '血尽天明', type: 'power', rar: 'r', cost: [1, 0], icon: 'icons2/n_f_dawn', tgt: 'self', desc: u => `每回合第一次因为自己的牌失去生命时，得到 1 点能量。`, play: g => { P(g).st.vdawn = 1; } },
 };
@@ -305,7 +305,7 @@ const NEW2 = {
   e_mist: { ch: 'erin', name: '雾帘', type: 'skill', rar: 'c', cost: [0, 0], icon: 'icons2/n_e_mist', tgt: 'self', desc: u => `写入水，获得 ${v(u, 4, 6)} 点格挡。`, play: (g, u) => { writeEl(g, '水'); g.block(v(u, 4, 6)); } },
   e_gust: { ch: 'erin', name: '疾风', type: 'skill', rar: 'c', cost: [1, 1], icon: 'icons2/n_e_gust', tgt: 'self', desc: u => `写入风，抽 2 张牌。${v(u, '', '获得 3 点格挡。')}`, play: (g, u) => { writeEl(g, '风'); g.draw(2); if (u) g.block(3); } },
   e_prismshot: { ch: 'erin', name: '三棱射线', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_e_prismshot', tgt: 'all', desc: u => `对所有敌人造成 ${v(u, 5, 7)} 点伤害；三种元素齐全时抽 1 张牌。`, play: (g, u) => { g.attackAll(v(u, 5, 7)); if (kinds(g) === 3) g.draw(1); } },
-  e_resonate: { ch: 'erin', invoke: 1, name: '元素共振', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_e_resonate', tgt: 'self', desc: u => `祈唤；三格元素相同时再抽 1 张牌。${v(u, '', '获得 4 点格挡。')}`, play: (g, u) => { if (u) g.block(4); const same = kinds(g) === 1; invoke(g); if (same) g.draw(1); } },
+  e_resonate: { ch: 'erin', invoke: 1, name: '元素共振', type: 'skill', rar: 'u', cost: [1, 1], icon: 'icons2/n_e_resonate', tgt: 'self', desc: u => `祈唤；三格元素相同时再抽 1 张牌。${v(u, '', '获得 4 点格挡。')}`, play: (g, u) => { if (u) g.block(4); const same = kinds(g) === 1; if (invoke(g) !== false && same) g.draw(1); } },
   e_focus: { ch: 'erin', name: '专注', type: 'power', rar: 'u', cost: [1, 1], icon: 'icons2/n_e_focus', tgt: 'self', desc: u => `每回合开始时，再写入一次最新一格的元素${v(u, '', '，获得 3 点格挡')}。战斗结束时回复 5 点生命。`, play: (g, u) => { P(g).st.efocus = Math.max(P(g).st.efocus || 0, u ? 2 : 1); g.self('mend', 5); } },
   e_mix: { ch: 'erin', name: '混合咒', type: 'atk', rar: 'u', cost: [1, 1], icon: 'icons2/n_e_mix', tgt: 'one', desc: u => `造成 ${v(u, 6, 8)} 点伤害；元素位里每有 1 种不同元素，再 +${v(u, 3, 4)}。`, play: (g, u, t) => g.attack(t, v(u, 6, 8) + kinds(g) * v(u, 3, 4)) },
   e_overload: { ch: 'erin', name: '元素过载', type: 'atk', rar: 'r', cost: [2, 2], icon: 'icons2/n_e_overload', tgt: 'one', desc: u => `造成 ${v(u, 8, 12)} 点伤害；本回合每打出过 1 张法术，再 +7。`, play: (g, u, t) => g.attack(t, v(u, 8, 12) + 7 * ((P(g).spells || []).length)) },
@@ -426,9 +426,9 @@ const NEW4 = {
   s_lullaby: NC('heroine', 's_lullaby', '摇篮曲', 'skill', 'c', [1, 1], 'n_s_surround', 'one', u => `给予 2 层虚弱和 ${v(u, 2, 3)} 层共鸣。`, (g, u, t) => { g.apply(t, 'weak', 2); g.res(t, v(u, 2, 3)); }),
   s_acap: NC('heroine', 's_acap', '清唱', 'skill', 'u', [1, 1], 'n_s_loop', 'self', u => `回复 ${v(u, 4, 6)} 点生命，给予所有敌人 1 层共鸣。消耗。`, (g, u) => { g.heal(v(u, 4, 6)); g.resAll(1); }, { exhaust: 1 }),
   s_amp: NC('heroine', 's_amp', '功放', 'power', 'u', [1, 1], 'n_s_sub', 'self', u => `每回合开始时，如果有敌人共鸣不少于 7 层，获得 ${v(u, 6, 8)} 点格挡。`, (g, u) => { P(g).st.amp = Math.max(P(g).st.amp || 0, v(u, 6, 8)); }),
-  s_cresc: NC('heroine', 's_cresc', '渐强', 'atk', 'u', [1, 1], 'n_s_encore', 'one', u => `造成 ${v(u, 4, 5)} 点伤害 3 次，每次给予 1 层共鸣。`, (g, u, t) => { for (let i = 0; i < 3; i++) { const e = live(g, t); if (!e) break; g.attack(e, v(u, 4, 5)); if (!e.dead) g.res(e, 1); } }),
+  s_cresc: NC('heroine', 's_cresc', '渐强', 'atk', 'u', [1, 1], 'n_s_encore', 'one', u => `造成 ${v(u, 4, 5)} 点伤害 3 次，每次给予 1 层共鸣（叠满会当场爆音）。`, (g, u, t) => { for (let i = 0; i < 3; i++) { const e = live(g, t); if (!e) break; g.attack(e, v(u, 4, 5)); if (!e.dead) g.res(e, 1); } }),
   s_rest: NC('heroine', 's_rest', '休止符', 'skill', 'u', [1, 1], 'n_s_sample', 'self', u => `获得 ${v(u, 9, 12)} 点格挡，随机弃 1 张牌。`, (g, u) => { g.block(v(u, 9, 12)); g.discard(1); }),
-  s_mosh: NC('heroine', 's_mosh', '狂欢', 'atk', 'u', [2, 2], 'n_s_crowd', 'all', u => `对所有敌人造成 ${v(u, 8, 11)} 点伤害；共鸣不少于 5 层的敌人再给予 3 层。`, (g, u) => { const hi = g.alive().filter(e => (e.st.res || 0) >= 5); g.attackAll(v(u, 8, 11)); hi.forEach(e => { if (!e.dead) g.res(e, 3); }); }),
+  s_mosh: NC('heroine', 's_mosh', '狂欢', 'atk', 'u', [2, 2], 'n_s_crowd', 'all', u => `对所有敌人造成 ${v(u, 8, 11)} 点伤害；原本共鸣不少于 5 层且还活着的敌人再给予 3 层。`, (g, u) => { const hi = g.alive().filter(e => (e.st.res || 0) >= 5); g.attackAll(v(u, 8, 11)); hi.forEach(e => { if (!e.dead) g.res(e, 3); }); }),
   s_playlist: NC('heroine', 's_playlist', '歌单', 'power', 'u', [1, 0], 'n_remix', 'self', u => `每回合开始时，抽 1 张牌，再随机弃 1 张牌。`, g => { P(g).st.plist = 1; }),
   s_climax: NC('heroine', 's_climax', '高潮', 'atk', 'r', [2, 2], 'n_finale', 'all', u => `对每个敌人造成它共鸣层数 ×${v(u, 2, 3)} 的伤害（共鸣不减）。`, (g, u) => g.alive().forEach(e => { const r = e.st.res || 0; if (r) g.attack(e, r * v(u, 2, 3)); })),
   s_chamber: NC('heroine', 's_chamber', '共振腔', 'power', 'r', [2, 1], 'n_s_crowd', 'self', u => `每回合结束时，共鸣最多的敌人 +3 层共鸣。`, g => { P(g).st.chamber = 3; }),
@@ -502,7 +502,7 @@ const NEW4 = {
   m_purr: NC('mia', 'm_purr', '呼噜', 'power', 'u', [1, 1], 'n_m_bond', 'self', u => `每回合开始时，米娅和团子各回复 ${v(u, 1, 2)} 点生命（米娅每场最多 10 点）。`, (g, u) => { P(g).st.purr = Math.max(P(g).st.purr || 0, v(u, 1, 2)); }),
   m_flurry: NC('mia', 'm_flurry', '猫猫拳连打', 'atk', 'u', [1, 1], 'n_m_yarn', 'one', u => `造成 ${v(u, 3, 4)} 点伤害 3 次；目标是团子的扑击目标时每下 +1。`, (g, u, t) => g.attack(t, v(u, 3, 4) + (isPT(g, t) ? 1 : 0), 3)),
   m_cover: NC('mia', 'm_cover', '掩护撤退', 'skill', 'u', [1, 1], 'n_m_mount', 'self', u => `获得 ${v(u, 10, 13)} 点格挡；团子本轮护卫多挡 5 点。`, (g, u) => { g.block(v(u, 10, 13)); const c = cat(g); if (c) c.gB = (c.gB || 0) + 5; }),
-  m_lick: NC('mia', 'm_lick', '舔毛', 'skill', 'c', [1, 1], 'n_m_pat', 'self', u => `团子回复 ${v(u, 6, 9)} 生命；团子满血时米娅获得 ${v(u, 6, 9)} 点格挡。`, (g, u) => { const got = healCat(g, v(u, 6, 9)); const c = cat(g); if (c && !c.down && c.hp >= c.max && !got) g.block(v(u, 6, 9)); else if (c && !c.down && c.hp >= c.max) g.block(Math.floor(v(u, 6, 9) / 2)); }),
+  m_lick: NC('mia', 'm_lick', '舔毛', 'skill', 'c', [1, 1], 'n_m_pat', 'self', u => `团子回复 ${v(u, 6, 9)} 生命；团子原本就满血时米娅获得 ${v(u, 6, 9)} 点格挡（被这张牌奶满时获得一半）。`, (g, u) => { const got = healCat(g, v(u, 6, 9)); const c = cat(g); if (c && !c.down && c.hp >= c.max && !got) g.block(v(u, 6, 9)); else if (c && !c.down && c.hp >= c.max) g.block(Math.floor(v(u, 6, 9) / 2)); }),
   m_moon: NC('mia', 'm_moon', '月下猫影', 'atk', 'r', [2, 2], 'n_m_sac', 'all', u => `对所有敌人造成 ${v(u, 8, 11)} 点伤害；本回合团子扑击多打 1 次。`, (g, u) => { g.attackAll(v(u, 8, 11)); const c = cat(g); if (c) c.twice = 1; }),
   m_tag: NC('mia', 'm_tag', '猫的标记', 'skill', 'c', [0, 0], 'n_m_leap', 'one', u => `给予 ${v(u, 1, 2)} 层易伤；团子的扑击目标改成这个敌人。`, (g, u, t) => { g.apply(t, 'vuln', v(u, 1, 2)); const c = cat(g); if (c && !c.down && t && !t.dead) { c.cmd = 'pounce'; c.pt = t.id; } }),
   m_king: NC('mia', 'm_king', '猫王', 'power', 'r', [2, 1], 'n_m_herd', 'self', u => `驯养：每回合开始时团子攻击 +1（本场最多 +5）。`, g => { P(g).st.catking = 1; }),
@@ -545,7 +545,7 @@ export const PW = {
   dbN: { ts: (g, n) => { gainDB(g, n); delete P(g).st.dbN; } },
   ancient: { ts: g => { if (dr(g)) g.energy(1); } },
   dregen: { te: (g, n) => { const p = P(g); if ((p.dregT || 0) < 12 && spendDB(g, 1)) { const k = Math.min(n, 12 - (p.dregT || 0)); p.dregT = (p.dregT || 0) + k; g.heal(k); } } },
-  purr: { ts: (g, n) => { const p = P(g); healCat(g, n); if ((p.purrT || 0) < 10) { p.purrT = (p.purrT || 0) + n; g.heal(n); } } },
+  purr: { ts: (g, n) => { const p = P(g); healCat(g, n); if ((p.purrT || 0) < 10) { const k = Math.min(n, 10 - (p.purrT || 0), g.R.maxHp - g.R.hp); if (k > 0) { p.purrT = (p.purrT || 0) + k; g.heal(k); } } } },
   catking: { ts: g => { const p = P(g), c = cat(g); if (c && (p.ckN || 0) < 5) { p.ckN = (p.ckN || 0) + 1; c.atk += 1; } } },
   batking: { ts: (g, n) => { if (bats(g) >= 4) g.block(n, true); } },
   vball: { ts: g => { P(g).vballT = 0; } },
@@ -619,7 +619,7 @@ export const NEWSTATUS = {
   quick: ['快枪手', '每回合第 3 张攻击牌后得到能量', '#ffd060'], mheart: ['巫女之心', '每回合第 3 张技能牌后得到能量', '#ffd060'], torii: ['鸟居', '回合结束时结界不少于 3 层就获得格挡', '#ffd060'],
   loop: ['循环播放', '每回合第一次弃牌后抽牌', '#ffd060'], wnotes: ['学徒笔记', '每回合第一次用掉炼金瓶后抽牌', '#ffd060'], nshade: ['颠茄', '每回合开始给中毒最多的敌人加中毒', '#ffd060'], inferno: ['业火', '火焰瓶伤害增加', '#ff9050'],
   kaura: ['杀气诀', '攻击牌命中后，对另一个随机敌人造成等于飞剑加成的伤害。数字是剩余回合', '#ff8080'],
-  permaf: ['永冻', '身上有霜灼的敌人攻击伤害 -2', '#a8e8ff'],
+  permaf: ['冻土', '身上有霜灼的敌人攻击伤害 -2', '#a8e8ff'],
   fburn: ['霜灼', '每次行动前受到等于层数的伤害，然后层数减半', '#7fd4ff', 'icons2/st_fburn'],
   frozen: ['冰冻', '跳过下一次行动', '#bfefff', 'icons2/st_frozen'],
   stun: ['眩晕', '跳过下一次行动', '#ffe070', 'icons2/st_stun'],
@@ -668,7 +668,7 @@ export const MECH = {
   /* 玩家回合结束、敌人行动前 */
   turnEnd(g) { const p = P(g), c = p.cat;
     if (c && !c.down && !c.merged) { const did = k => catDid(g, k); const both = p.st.mtwin; if (both) c.guardOn = 1; const extra = hasBoon(g, 'agile') && !p.agU ? (p.agU = 1) : 0; if (extra) c.twice = 1;
-      if (c.cmd === 'pounce' || both) { const a = g.alive(), t = a.find(e => e.id === c.pt) || a[0]; if (t) { c.fx = { k: 'atk', t: Date.now() }; p.fh = 0; for (let n = 0; n < (c.twice && !c.big ? 2 : 1); n++) { const a2 = g.alive(), t2 = t.dead ? a2[0] : t; if (!t2) break; if (c.big) g.attack(t2, c.big + (c.pB || 0), 2); else g.attack(t2, (c.atk + (c.pB || 0)) * (p.rage ? 2 : 1)); } if (hasBoon(g, 'hunt') && !t.dead) g.apply(t, 'weak', 1); } did('pounce'); }
+      if (c.cmd === 'pounce' || both) { const a = g.alive(), t = a.find(e => e.id === c.pt) || a[0]; if (t) { c.fx = { k: 'atk', t: Date.now() }; p.fh = 0; for (let n = 0; n < (c.twice ? 2 : 1); n++) { const a2 = g.alive(), t2 = t.dead ? a2[0] : t; if (!t2) break; if (c.big && n === 0) g.attack(t2, (c.big + (c.pB || 0)) * (p.rage ? 2 : 1), 2); else g.attack(t2, (c.atk + (c.pB || 0)) * (p.rage ? 2 : 1)); } /* 大猫扑杀 + 二连扑 / 狂暴可以叠加 */ if (hasBoon(g, 'hunt') && !t.dead) g.apply(t, 'weak', 1); } did('pounce'); }
       if (c.cmd === 'guard') c.guardOn = 1; }
     if (p.st.torii && (p.st.kek || 0) >= 3) g.block(p.st.torii, true);
     if (p.boomer) { addSword(g, p.boomer); p.boomer = 0; }
@@ -677,6 +677,12 @@ export const MECH = {
     p.ePhase = 1;
   },
   /* 敌人攻击打到玩家：格挡之前（团子护卫） */
+  /* 只读估算：下回合敌人攻击扣掉护卫、式神、血骑士、减伤之后还剩多少（不改任何状态，给血条提示用） */
+  estimate(g, hits) { const p = P(g), c = p.cat; let shiki = p.st.shiki || 0, knight = p.big && p.big.kind === 'knight' && !p.bigG ? p.big.hp : 0, guard = c && !c.down && !c.merged && (c.cmd === 'guard' || p.st.mtwin) && c.guardOn ? Math.min(5 + (c.gB || 0) + (c.gP || 0) + (p.st.mgate ? 3 : 0) + (p.mount ? p.mountB || 8 : 0), c.hp) : 0, t = 0;
+    for (const { amt: a0, e } of hits) { let amt = a0; if (p.rage && amt > 0) amt = Math.ceil(amt * 1.5); if (shiki > 0 && amt > 0) { shiki--; continue; }
+      if (e) { if (e.cutH) amt = Math.floor(amt / 2); if (e.cutS) amt = Math.max(0, amt - e.cutS); if (p.st.permaf && e.st && e.st.fburn) amt = Math.max(0, amt - p.st.permaf); }
+      if (p.flhsD) amt = Math.floor(amt * .8); if (knight > 0 && amt > 0) { knight = 0; continue; } if (guard > 0 && amt > 0) { const k = Math.min(amt, guard); amt -= k; guard = 0; } t += amt; }
+    if (p.st.dragon && !p.drHit && t > 0) t = Math.max(0, t - 4); return t; },
   preBlock(g, amt, e) { const p = P(g), c = p.cat;
     if (p.rage && amt > 0) amt = Math.ceil(amt * 1.5);
     if (e && amt > 0 && p.st.shiki) { p.st.shiki--; if (!p.st.shiki) delete p.st.shiki; g.note(`式神挡下了 ${amt}`); if (p.st.shikiR) g.kek(2); return 0; }
@@ -715,7 +721,7 @@ export const MECH = {
     if (d.type === 'skill' && !d.potion) { p.skillN = (p.skillN || 0) + 1; if (p.skillN === 3 && p.st.mheart) { g.energy(1); if (p.st.mheart > 1) g.draw(1); } }
     if (d.id === 'p_fire') p.fireN = (p.fireN || 0) + 1;
     if (d.potion && p.st.wnotes && !p.wnT) { p.wnT = 1; g.draw(p.st.wnotes); }
-    if (d.type === 'atk' && p.st.kaura && sw(g)) { const a = g.alive(); if (a.length) g.hitE(a[Math.floor(Math.random() * a.length)], sw(g) * (p.st.zen ? 2 : 1)); }
+    if (d.type === 'atk' && p.st.kaura && sw(g)) { const a = g.alive().filter(e => e !== p.lastT), b = a.length ? a : g.alive(); if (b.length) g.hitE(b[Math.floor(Math.random() * b.length)], Math.floor(sw(g) * (p.st.zen ? 2.5 : 1.5))); }
     if (d.type === 'atk') { p.combo = (p.combo || 0) + 1; if (p.combo === 3 && p.st.quick) { g.energy(1); if (p.st.quick > 1) g.draw(1); } if (p.combo >= 3 && g.has('manual') && !p.manU) { p.manU = 1; p.manualD = 1; } }
   },
   /* 胜利后 */

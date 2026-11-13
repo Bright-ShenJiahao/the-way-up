@@ -1,9 +1,9 @@
-import { tr } from './i18n.js?v=live2_11140300';
-import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11140300';
+import { tr } from './i18n.js?v=live2_11140430';
+import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11140430';
 export { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 };
-import { R2, P2, EV1B, EV2B, EV3B, setPotPool } from './content2.js?v=live2_11140300';
-import { EV1C, EV2C, EV3C } from './meta.js?v=live2_11140300';
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11140300';
+import { R2, P2, EV1B, EV2B, EV3B, setPotPool } from './content2.js?v=live2_11140430';
+import { EV1C, EV2C, EV3C } from './meta.js?v=live2_11140430';
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11140430';
 export { MECH, NEWKEYW, OLDKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
@@ -344,7 +344,7 @@ export const STATUS = {
   kek: ['结界', '回合开始时按层数获得格挡', '#ffd060'], kagura: ['神乐舞', '回合开始结界 +1', '#ffd060'], shinboku: ['御神木', '结界格挡翻倍', '#ffd060'],
   poison: ['中毒', '回合开始时受到等同层数的伤害（无视格挡），然后减 1 层', '#70d040'], plague: ['疫病', '回合开始给所有敌人中毒', '#70d040'],
   satchel: ['药剂腰包', '回合开始获得炼金瓶', '#c090ff'], sage: ['贤者之石', '炼金瓶的伤害翻倍、中毒 ×1.5', '#c090ff'],
-  aegis: ['圣盾', '免疫所有伤害', '#ffe070'],
+  aegis: ['无敌', '免疫所有伤害', '#ffe070'],
 };
 
 Object.assign(STATUS, NEWSTATUS, S3);

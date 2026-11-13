@@ -1,7 +1,7 @@
 // 内容扩充：新秘宝（含 Boss 秘宝）、新药水、新事件。
 // 秘宝效果都写成钩子，挂在 MECH / CORE3 上，游戏和平衡模拟器共用同一份逻辑。
-import { MECH, PW } from './chars.js?v=live2_11140300';
-import { CORE3 } from './act3.js?v=live2_11140300';
+import { MECH, PW } from './chars.js?v=live2_11140430';
+import { CORE3 } from './act3.js?v=live2_11140430';
 
 let CB = null; /* 当前战斗 */
 const has = id => !!(CB && CB.rel && CB.rel.includes(id));
@@ -77,7 +77,7 @@ const fold = (k, v, ...a) => { if (!CB || !CB.rel) return v; for (const id of CB
 /* 挂钩子 */
 { const o = CORE3.battleStart; CORE3.battleStart = (B, h, R) => { o(B, h, R); CB = B; B.rel = R.relics; B.rr = R; B.r2 = { inkN: 0 }; each('bs', B, R); }; }
 { const o = CORE3.pre; CORE3.pre = (B, tgt, amt, isP, attacker, hs) => { amt = o(B, tgt, amt, isP, attacker, hs); if (amt <= 0 || !B.r2) return amt;
-  if (!isP && attacker === B.p) amt = fold('atk', amt, tgt, B); else if (isP && attacker && attacker !== B.p) amt = fold('def', amt, B, B.rr); return amt; }; }
+  if (!isP && attacker === B.p && !B.potUse) amt = fold('atk', amt, tgt, B); /* 药水伤害不吃攻击类秘宝 */ else if (isP && attacker && attacker !== B.p) amt = fold('def', amt, B, B.rr); return amt; }; }
 { const o = CORE3.after; CORE3.after = (tgt, left, isP, attacker, B) => { o(tgt, left, isP, attacker, B); if (!B.r2) return; if (isP) each('hurt', B, B.rr); else if (tgt.hp <= 0 && !tgt.r2k) { tgt.r2k = 1; each('kill', B); } }; }
 const pw = (k, G, ...a) => { if (!CB) return; const st = CB.p.st; for (const id of Object.keys(st)) { const h = PW[id]; if (h && h[k] && st[id]) h[k](G, st[id], ...a); } };
 { const o = MECH.turnStart; MECH.turnStart = (G, first) => { o(G, first); if (CB) { CB.p.shotN = 0; CB.p.kotoB = 0; CB.p.kotoS = 0; } each('ts', G, CB, first); pw('ts', G); }; }

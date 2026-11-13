@@ -1,9 +1,9 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11140300';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11140300';
-import { createAudio } from './audio.js?v=live2_11140300';
-import { BLESS_FREE, BLESS_COST, ASC2, MODS, ACH, hashSeed, mulberry, todayKey, dailyOf } from './meta.js?v=live2_11140300';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11140300';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11140430';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11140430';
+import { createAudio } from './audio.js?v=live2_11140430';
+import { BLESS_FREE, BLESS_COST, ASC2, MODS, ACH, hashSeed, mulberry, todayKey, dailyOf } from './meta.js?v=live2_11140430';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11140430';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -43,7 +43,7 @@ stage.addEventListener('scroll', () => { stage.scrollTop = 0; stage.scrollLeft =
 
 // ---------- 局 ----------
 let TIPS = true; try { TIPS = localStorage.getItem('tipsOff') !== '1'; } catch (e) {}
-const KW = { '鳞甲': '敌人受到的每次攻击伤害减少等同层数（最多减一半）；一次受到 10 点以上的攻击会打碎 1 层。', '冻伤': '回合结束时，手里每剩 1 张牌失去 1 生命（最多按层数算），然后减 1 层。', '灼烧': '回合结束时失去等同层数的生命，然后减 1 层。', '麻痹': '回合开始时少 1 点能量，然后减 1 层。', '蓄力': '龙下回合要放龙息。蓄力的那个回合里打它足够多的伤害，就能打断。', '补丁': '这张牌本场伤害或格挡增加，牌面显示版本号。', '狡诈': '这张牌被弃掉时，会自动免费打出。', '格挡': '抵挡受到的伤害。你的回合开始时清零。', '易伤': '受到的攻击伤害 +50%，每回合减 1 层。', '虚弱': '造成的攻击伤害 -25%，每回合减 1 层。',
+const KW = { '鳞甲': '敌人受到的每次攻击伤害减少等同层数（最多减一半）；一次受到 10 点以上的攻击会打碎 1 层。', '冻伤': '回合结束时，手里每剩 1 张牌失去 1 生命（最多按层数算），然后减 1 层。', '灼烧': '回合结束时失去等同层数的生命，然后减 1 层。', '麻痹': '敌人下一次攻击伤害减半。冰冻、眩晕对精英和 Boss 会改成麻痹。', '电麻': '回合开始时少 1 点能量，然后减 1 层。', '飞剑': '顾清寒身上的飞剑，最多 6 把。每把让攻击牌第一击 +1（每 2 把再 +1），回合结束每 2 把给 1 点格挡；也可以射出去造成伤害。', '龙血': '希尔薇的资源，最多 8 点。攒满可以变身霜龙三回合，也能花掉换取各种效果。', '霜灼': '叠在敌人身上，敌人行动前受到等同层数的伤害，然后层数减半。', '团子': '米娅的云猫伙伴，有自己的生命。每回合可以下护卫或扑击指令。', '血蝠': '绯月召唤的蝙蝠，回合结束时各自攻击随机敌人；敌人每次行动会打掉 1 只。', '蓄力': '龙下回合要放龙息。蓄力的那个回合里打它足够多的伤害，就能打断。', '补丁': '这张牌本场伤害或格挡增加，牌面显示版本号。', '狡诈': '这张牌被弃掉时，会自动免费打出。', '格挡': '抵挡受到的伤害。你的回合开始时清零。', '易伤': '受到的攻击伤害 +50%，每回合减 1 层。', '虚弱': '造成的攻击伤害 -25%，每回合减 1 层。',
   '力量': '每次攻击伤害增加等同于力量的数值。', '敏捷': '每次获得格挡时额外增加等同于敏捷的数值。', '消耗': '打出后移出本场战斗，不进弃牌堆。',
   '荆棘': '被攻击时，对攻击者造成等同于层数的伤害。', '能量': '出牌要花能量，每回合开始恢复为 3 点。',
   '光弹': '林拓的掌机子弹。回合结束时自动射出，每发对随机敌人造成 4 点伤害（第 1、3、5… 发为 5 点），然后清零。最多 8 发。', '共鸣': '叠在敌人身上，到 10 层自动爆音。', '中毒': '敌人行动前受到等同层数的伤害（无视格挡），然后减 1 层。', '炼金瓶': '魔女的 0 费一次性牌，由其他牌生成，用完消耗。', '药水': '所有角色通用的一次性道具，最多带 3 瓶，战斗中点左上角的药水就能用，不花能量。', '结界': '叠在自己身上，每回合开始按层数获得格挡，整场战斗保留。', '爆音': '共鸣满 10 层时，对该敌人造成 18 点伤害，之后保留 3 层（多出的层数也保留）。每个敌人第一次被爆音时还会眩晕（跳过下一次行动）。' };
@@ -75,7 +75,14 @@ function achScreen() { const got = metaGet().ach || {}, n = ACH.filter(a => got[
   const o = overlay(`<div class="panel achp" style="width:min(900px,94vw);max-height:86vh;overflow:auto"><h2>${tr('成就')} <small>${n} / ${ACH.length}</small></h2><div class="achg">${ACH.map(a => `<div class="ach ${got[a.id] ? 'on' : ''}"><i>${got[a.id] ? '🏆' : '🔒'}</i><b>${tr(a.name)}</b><span>${tr(a.desc)}</span></div>`).join('')}</div><button class="btn" id="ax">${tr('返回')}</button></div>`);
   o.querySelector('#ax').onclick = () => o.remove(); }
 /* ---------- 开局祝福 ---------- */
-function blessScreen() { SCREEN = 'bless'; B = null; R.wait = 'bless';
+const CHARKW = { hero: ['光弹'], heroine: ['共鸣', '爆音'], miko: ['结界'], witch: ['炼金瓶', '中毒'], erin: [], gu: ['飞剑'], sylvie: ['龙血', '霜灼'], mia: ['团子'], feiyue: ['血蝠'] };
+/* 每个角色第一次出发时弹一页机制说明（之后可以在图鉴里看） */
+function charIntro(done) { const M = metaGet(); M.cintro = M.cintro || {}; if (M.cintro[R.char] || !CHARINFO[R.char]) return done(); M.cintro[R.char] = 1; metaSet(M);
+  const i = CHARINFO[R.char], kws = (CHARKW[R.char] || []).filter(k => KW[k]);
+  const o = overlay(`<div class="panel" style="width:min(680px,92vw);max-height:92vh;overflow-y:auto;text-align:left"><h2 style="text-align:center">${tr(CHARS[R.char].name)}</h2><p>${tr(i.tip)}</p>${kws.map(k => `<p><b style="color:#ffd35a">${tr(k)}</b>：${tr(KW[k])}</p>`).join('')}
+   ${i.builds ? `<p style="margin-top:8px"><b>${tr('推荐流派')}</b></p>${i.builds.map(b => `<p>· <b>${tr(b[0])}</b>：${tr(b[1])}</p>`).join('')}` : ''}<div class="row" style="justify-content:center"><button class="btn gold" id="cix">${tr('明白了')}</button></div></div>`);
+  o.querySelector('#cix').onclick = () => { o.remove(); done(); }; }
+function blessScreen() { if (!R.ciShown) { R.ciShown = 1; return charIntro(blessScreen); } SCREEN = 'bless'; B = null; R.wait = 'bless';
   if (!R.blessOpts) R.blessOpts = SR(() => { const f = shuffle(Object.keys(BLESS_FREE)).slice(0, 2), c = pickOne(Object.keys(BLESS_COST)); return A_(19) ? [c] : [...f, c]; });
   save(); setMusic('menu');
   const txt = k => BLESS_FREE[k] || BLESS_COST[k];
@@ -102,6 +109,7 @@ function applyBless(k) { const fin = () => { delete R.wait; delete R.blessOpts; 
 const has = id => R.relics.includes(id);
 const snap = () => { const { snap: _, ...o } = R; R.snap = JSON.stringify(o); }; /* 进入节点前的快照：中途退出后从这里恢复 */
 const mine = d => (!d.ch || d.ch === (R.char || 'hero')) && (!d.act2 || (R && R.act === 2)) && (!d.act3 || (R && R.act >= 3));
+addEventListener('storage', e => { if (e.key === 'theway_run_v2' && R && SCREEN !== 'menu' && SCREEN !== 'title') { tip(tr('存档在另一个标签页里被改动了，这里先回到主菜单')); B = null; R = null; mainMenu(); } }); /* 同一存档开两个标签页时不互相覆盖 */
 function save() { try { localStorage.setItem('theway_run_v2', JSON.stringify(R)); } catch (e) {} }
 function clearSave() { try { localStorage.removeItem('theway_run_v2'); } catch (e) {} }
 function load() { try { const s = JSON.parse(localStorage.getItem('theway_run_v2')); if (s) { if (!CHARS[s.char] || !Array.isArray(s.deck) || !Array.isArray(s.map)) return null; s.potions = (s.potions || []).filter(p => POTIONS[p]); s.deck = s.deck.filter(c => CARDS[c.id]); s.relics = (s.relics || []).filter(r => RELICS[r]); uidN = 1 + Math.max(0, ...s.deck.map(c => c.uid)); s.act = [1, 2, 3, 4].includes(s.act) ? s.act : 1; if (!ENEMIES[s.boss] || !ENEMIES[s.boss].boss) { const bl = (s.act === 4 ? ENCX() : s.act === 3 ? (s.rift ? RIFT : ENC3) : s.act === 2 ? ENCOUNTERS2 : ENCOUNTERS).boss.map(b => b[0]); s.boss = pickOne(bl); } s.floor = Math.max(0, Math.min((s.rows || ROWS) + 1, s.floor | 0)); } return s; } catch (e) { return null; } }
@@ -175,7 +183,7 @@ function cardHTML(c, extra = '', energy = 99) {
   const rr = d.rar === 'start' || d.rar === 'gen' ? 'c' : d.rar;
   return `<div class="card t-${d.type} r-${d.rar} ${c.up ? 'up' : ''} ${extra}" data-uid="${c.uid}" data-cid="${c.id}" data-up="${c.up ? 1 : 0}">
    <div class="art"><img src="${d.img}"></div><div class="cdesc" data-noi18n><span>${kwify(d.desc(c.up))}</span></div><img class="frame" src="assets/ui2/frame_${d.type}_${rr}.png">
-   <div class="cost ${no ? 'no' : ''}"${d.unplay ? ' style="visibility:hidden"' : ''}>${cost}</div><div class="cname">${d.name}${c.up ? '+' : ''}</div>${c.pt ? `<i class="ver ${c.pt < 0 ? 'neg' : ''}">v1.${c.pv || 1} ${c.pt > 0 ? '+' : ''}${c.pt}</i>` : ''}${c.flip ? `<i class="flipb">${tr('反转')}</i>` : ''}${c.seal ? `<i class="sealb"><img src="assets/icons2/st_seal.png" alt="">${tr(c.seal === 'perm' ? '封印到战斗结束' : '封印')}</i>` : ''}</div>`;
+   <div class="cost ${no ? 'no' : ''}"${d.unplay ? ' style="visibility:hidden"' : ''}>${cost}</div><div class="cname">${d.name}${c.up ? '+' : ''}</div>${c.pt ? `<i class="ver ${c.pt < 0 ? 'neg' : ''}" title="${tr('补丁：开发者改过这张牌的数值（本场有效）')}">v1.${c.pv || 1} ${c.pt > 0 ? '+' : ''}${c.pt}</i>` : ''}${c.flip ? `<i class="flipb" title="${tr('反转：打出时效果变成反的（攻击牌改为给敌人回血，技能牌改为自己掉血）')}">${tr('反转')}</i>` : ''}${c.seal ? `<i class="sealb" title="${tr('封印：这张牌暂时不能打出')}"><img src="assets/icons2/st_seal.png" alt="">${tr(c.seal === 'perm' ? '封印到战斗结束' : '封印')}</i>` : ''}</div>`;
 }
 function overlay(html) { const o = document.createElement('div'); o.className = 'overlay'; o.innerHTML = html; stage.appendChild(o); return o; }
 function pickOpt(title, opts, noCancel) { /* 出牌时的选择：返回所选 val，点取消返回 undefined */
@@ -852,7 +860,7 @@ function intentHTML(e) {
 }
 const stsLabel = (k, n, st) => k === 'res' ? `共鸣${n}/10${n >= 9 ? '⚠' : ''}` : k === 'kek' ? `结界${n}（下回合+${st.shinboku ? n + Math.min(n, 8) : n}挡）` : k === 'poison' ? `中毒${n}（下回合-${n}）` : k === 'ammo' ? `光弹${n}（回合末${n}发）` : STATUS[k][0] + n;
 const stsHTML = st => `<div class="sts">${Object.entries(st).filter(([k, n]) => n && STATUS[k]).map(([k, n]) => `<b style="border-color:${STATUS[k][2]};color:${STATUS[k][2]}" title="${esc(STATUS[k][0] + '：' + STATUS[k][1])}">${STATUS[k][3] ? `<img class="sti" src="assets/${STATUS[k][3]}.png" alt="">` : ''}${stsLabel(k, n, st)}</b>`).join('')}</div>`;
-function incoming() { let t = 0; for (const e of alive()) { const mv = e.d.moves[e.move]; if (mv.d && mv.i.startsWith('atk')) t += atkVal(e, B.p, mv.d) * hitsOf(e, mv); } return t; }
+function incoming() { const hits = []; for (const e of alive()) { const mv = e.d.moves[e.move]; if (mv.d && mv.i.startsWith('atk')) { const a = atkVal(e, B.p, mv.d); for (let k = 0; k < hitsOf(e, mv); k++) hits.push({ amt: a, e }); } } try { return MECH.estimate ? MECH.estimate(G, hits) : hits.reduce((s, h) => s + h.amt, 0); } catch (err) { return hits.reduce((s, h) => s + h.amt, 0); } }
 function hitsOf(e, mv) { return mv.x ? mv.x + (e.xb || 0) : 1; }
 function barHTML(hp, max, blk, me) {
   let cls = '', tip = '';
@@ -870,7 +878,7 @@ function render() {
     return `<div class="unit enemy ${hd ? 'hd' : ''} ${tg ? 'tg' : ''} ${hs.has(e.id) ? 'hit' : ''} ${B.lunge === e.id ? 'lunge' : ''} ${e.dead ? 'dead' : ''}" data-id="${e.id}" data-eid="${e.id}">
       ${e.dead ? '<div class="intent"></div>' : intentHTML(e)}
       <div class="sprw" ${ENEMIES[e.key].hdw ? `style="width:${ENEMIES[e.key].hdw}px"` : ''}>${hd ? `<img class="spr" decoding="async" data-eid="${e.id}" src="${eFrame(e)}" style="height:${hd}px${tint ? ';filter:' + tint : ''}">` : `<img class="spr px" data-k="${e.key}" src="assets/enemies/${e.key}/${img}.png" style="zoom:${h}">`}<i class="shd"></i></div>
-      ${barHTML(e.hp, e.max, e.block)}${stsHTML(e.st)}<div class="uname">${e.d.name}</div></div>`;
+      ${barHTML(e.hp, e.max, e.block)}${stsHTML(e.st)}<div class="uname">${e.d.name}</div>${(e.key === 'dev_boss' || e.key === 'dev_debug') && !e.dead && !e.bugT ? `<div class="crashc">${tr('离崩溃：出牌')} ${e.cc || 0}/6 · ${tr('0 费牌')} ${Math.min(3, B.p.zc || 0)}/3</div>` : ''}</div>`;
   }).join('');
   const HZ = TOUCH ? 1.45 : 1, energy = B.p.energy, n = B.hand.length, W = TOUCH ? (SW - 560) / HZ : SW - 300, cw = 150, gap = Math.min(cw + 6, (W - cw) / Math.max(1, n - 1));
   const x0 = TOUCH ? (SW / HZ - (gap * (n - 1) + cw)) / 2 : (W - (gap * (n - 1) + cw)) / 2;
@@ -1323,7 +1331,7 @@ function potPop(i) { /* 药水说明小框：贴着药水栏，点框外关闭 *
 }
 async function usePotion(i, t) {
   const id = R.potions[i]; B.potSel = null; R.potions.splice(i, 1); B.hitSet = new Set(); R.potUsed = 1;
-  POTIONS[id].use(G, t); audio.holy(); render(); await checkEnd();
+  B.potUse = 1; try { POTIONS[id].use(G, t); } finally { B.potUse = 0; } audio.holy(); render(); await checkEnd();
 }
 
 // ---------- 图鉴 ----------
