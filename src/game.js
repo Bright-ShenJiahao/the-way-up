@@ -820,7 +820,7 @@ async function checkEnd() {
     if (B.en.some(e => (e.st.hostage || 0) > 0)) { R.gold += 40; say(tr('（被救下的村民塞给你 40 金币：“谢谢你们！”）')); }
     if (B.kind === 'elite') R.elites = (R.elites || 0) + 1; if (B.burn) gotKey('g');
     if (B.kind === 'boss' && R.hp >= (B.hp0 || 0)) ach('a_bossclean'); if (B.en.some(e => e.key === 'dev_boss')) ach('a_dev');
-    if (B.trueB) { B = null; clearSave(); R.trueEnd = 1; ach('a_true'); return story('story_home', ['门的后面，是一间亮着屏幕的小房间。', '开发者摘下眼镜，揉了揉眼睛：“……好吧，你们赢了。”', '屏幕上跳出一行字：「游戏结束——这次是真的。」', '光涌了上来。再睁开眼时，是放学路上的那条街。'], () => story(trueArt(), [...(TRUEEND[R.char] || []), '开发者在屏幕前敲下最后一行注释：// 谢谢你们，陪我把这个游戏打通。'], () => endScreen(true))); }
+    if (B.trueB) { B = null; clearSave(); R.trueEnd = 1; ach('a_true'); return story('story_gate', ['门的后面，是一间亮着屏幕的小房间。', '开发者摘下眼镜，揉了揉眼睛：“……好吧，你们赢了。”', '屏幕上跳出一行字：「游戏结束——这次是真的。」', '光涌了上来。再睁开眼时，是放学路上的那条街。'], () => story(trueArt(), [...(TRUEEND[R.char] || []), '开发者在屏幕前敲下最后一行注释：// 谢谢你们，陪我把这个游戏打通。'], () => endScreen(true))); }
     if (B.kind === 'boss') { R.bosses = (R.bosses || 0) + 1; if (ACT() === 1) { delete R.pending; delete R.pendEnc; delete R.snap; R.after = 'act2'; save(); rewardScreen(); return true; }
       if (ACT() >= 2) { delete R.pending; delete R.pendEnc; delete R.snap;
         if (ACT() === 2) R.after = 'act3';
@@ -1160,12 +1160,15 @@ function endingChoice() {
    <p>${t('深渊之主化成了黑烟。门的对面，是放学路上的那条街。')}</p><p>${t('门的上方，还有一节台阶。')}</p>
    <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="home">${t('回家')}</button><button class="btn" id="up">${t('继续往上（无尽模式）')}</button>${R.keys && R.keys.g && R.keys.r && R.keys.b ? `<button class="btn red" id="tru">${t('用三把钥匙打开更上面的门')}</button>` : ''}</div></div>`;
   $('#tru')?.addEventListener('click', trueGate);
-  $('#home').onclick = () => { delete R.wait; R.home = 1; clearSave(); story('story_home', ['门对面，是放学路上的那条街。', '大家互相看了一眼，谁也没先迈步。', '“……走吧，回家。”'], () => endScreen(true)); };
+  $('#home').onclick = () => { delete R.wait; R.home = 1; clearSave(); story(homeArt(), ['门对面，是放学路上的那条街。', '大家互相看了一眼，谁也没先迈步。', '“……走吧，回家。”'], () => endScreen(true)); };
   $('#up').onclick = () => { delete R.wait; startEndless(); };
 }
 /* 真结局：三把钥匙打开「源代码之间」（真 Boss 待定，先用加强版开发者占位） */
 const TRUEB = 'dev_debug'; /* 真结局插图：千早回日本的街道；其他人回中国小镇（图到了改成 story_true_cn） */
-const trueArt = () => R && R.char === 'miko' ? 'story_true_jp' : 'story_true_jp';
+const CN_ART = false; /* 中国小镇两张图到了改成 true（story_home_cn / story_true_cn） */
+const HOMEART = { miko: 'story_home', hero: 'story_home_cn', heroine: 'story_home_cn', witch: 'story_party', mia: 'story_party', erin: 'story_gate', gu: 'story_snow', sylvie: 'story_snow', feiyue: 'story_end2' };
+const homeArt = () => { const a = HOMEART[R && R.char] || 'story_home'; return a.endsWith('_cn') && !CN_ART ? 'story_home' : a; };
+const trueArt = () => { const c = R && R.char; if (c === 'miko') return 'story_true_jp'; if (c === 'hero' || c === 'heroine') return CN_ART ? 'story_true_cn' : 'story_true_jp'; return homeArt(); };
 const TRUEEND = {
   hero: ['林拓回到了街口。掌机屏幕上，跳出了从没见过的两个字：「通关」。', '他把存档拷了好几份。“……下次，换我来做一个游戏。”'],
   heroine: ['苏音摘下耳机，异世界的声音还在耳朵里回响。', '那天晚上，她录下了自己的第一首歌，歌名叫《通往顶端》。'],
@@ -1242,7 +1245,7 @@ function endScreen(win) {
   if (R.daily && !DEBUG) { try { const bs = JSON.parse(LS('tw_daily') || '{}'); if (!(bs[R.daily] >= total)) { bs[R.daily] = total; LS('tw_daily', JSON.stringify(bs)); } } catch (e) {} }
   if (!DEBUG) { M.xp += total; if (win && ACT() >= 2 && (R.asc || 0) >= (M.asc[R.char] || 0) && (M.asc[R.char] || 0) < 15) { M.asc[R.char] = (R.asc || 0) + 1; } metaSet(M); }
   const nx = UNLOCKS.find(u => M.xp < u.xp), left = UNLOCKS.filter(u => M.xp < u.xp).length;
-  view.innerHTML = `${win && ACT() === 3 ? bgHTML(true, 'story_home') : win && ACT() === 2 ? bgHTML(true, 'story_end2') : bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
+  view.innerHTML = `${win && ACT() === 3 ? bgHTML(true, R.trueEnd ? trueArt() : homeArt()) : win && ACT() === 2 ? bgHTML(true, 'story_end2') : bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
    <p class="endsub" data-noi18n>${R.trueEnd ? `${t('开发者合上了电脑。这一次，是真的回家了。')}<br><b style="color:#ffe08a">${t('真结局 · 感谢游玩！')}</b>` : ACT() === 4 ? `${t('在天外之塔爬到了第 {0} 轮。', R.endless || 1)}<br><b style="color:#ffe08a">${t('感谢游玩！')}</b>` : win && ACT() === 3 ? `${t('深渊之主倒下了，回家的门打开了。')}<br><b style="color:#ffe08a">${t('全部通关 · 感谢游玩！')}</b>` : win && ACT() === 2 ? `${t('{0}化为了灰烬，古堡的血月熄灭了。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第二章完 · 感谢游玩！')}</b>${t('山顶上，还有更深的黑暗在等待……')}` : win ? `${t('{0}倒下了，翠绿之地恢复了平静。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第一章完 · 感谢游玩！')}</b>${t('远处山顶的古堡，亮起了血红的光……')}<br><b style="color:#ff8a8a">${t('第二章：血月古堡（制作中）')}</b>` : t(ACT() === 3 ? '{0}倒在了永冬之巅第 {1} 层。' : ACT() === 2 ? '{0}倒在了血月古堡第 {1} 层。' : '{0}倒在了翠绿之地第 {1} 层。', tr(CHARS[R.char || 'hero'].name), R.floor)}</p>
    ${win && ACT() === 3 && CH3END[R.char] ? `<p class="endsub endq"><b>${CHARS[R.char].name}</b>：“<span>${tr(CH3END[R.char])}</span>”</p>` : ''}${win && ACT() === 2 && CHARINFO[R.char] && CHARINFO[R.char].end ? `<p class="endsub endq"><b>${CHARS[R.char].name}</b>：“<span>${CHARINFO[R.char].end}</span>”</p>` : ''}
    <table class="score">${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}<tr class="tot"><td>分数</td><td>${total}</td></tr></table>
