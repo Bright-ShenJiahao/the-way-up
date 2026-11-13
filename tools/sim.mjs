@@ -1,6 +1,6 @@
 // 平衡测试：机器人用每个角色跑很多局，统计胜率和死在哪里。只在 GitHub Actions 上跑。
 // 规则照抄 src/game.js 的战斗逻辑（简化了地图：固定 15 层路线 + Boss）
-import { MECH, NEWKEYW, OLDKEYW, STARTRELIC, WEAKCH, RULES, isFury, CARDS, STARTERS, RELICS, ENEMIES, ENCOUNTERS, ENCOUNTERS2, ENC3, FINAL3, CORE3, RIFT, GATE3 } from '../src/data.js';
+import { MECH, NEWKEYW, OLDKEYW, STARTRELIC, RULES, isFury, CARDS, STARTERS, RELICS, ENEMIES, ENCOUNTERS, ENCOUNTERS2, ENC3, FINAL3, CORE3, RIFT, GATE3 } from '../src/data.js';
 const N = +process.argv[2] || 1000, LOCKLV = process.argv[3] == null ? 4 : +process.argv[3], ONLY = process.argv[4], ASC = +(process.argv[5] || 0), SEED0 = +(process.env.SEED || 1);
 /* 固定随机种子：第 i 局用种子 SEED0+i，失败的局可以单独重放（SEED=… node tools/sim.mjs 1 4 miko） */
 let seedS = 1; const rng = () => { seedS |= 0; seedS = seedS + 0x6D2B79F5 | 0; let t = Math.imul(seedS ^ seedS >>> 15, 1 | seedS); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -257,7 +257,7 @@ function battle(keys, kind) {
     startTurn(false);
   }
   if (alive().length) { TIMEOUT = 1; return false; }
-  if (R.relics.some(x => RELICS[x] && RELICS[x].rar === 'start') && !has('crown')) heal(WEAKCH[R.char] ? 8 : 4); if (has('grail')) heal(5); MECH.victory(G, kind); { const bo = MECH.boonOpts && MECH.boonOpts(G, kind); if (bo) MECH.boonPick(G, bo[0].val); }
+  if (R.relics.some(x => RELICS[x] && RELICS[x].rar === 'start') && !has('crown')) heal(4); if (has('grail')) heal(5); MECH.victory(G, kind); { const bo = MECH.boonOpts && MECH.boonOpts(G, kind); if (bo) MECH.boonPick(G, bo[0].val); }
   return true;
 }
 function revive() { pDeath(); return R.hp > 0; }
@@ -311,7 +311,7 @@ function riftRun() { let fights = 0; /* 第三章下半：魔界裂隙 */
     else if (node === 'event') event(); else if (node === 'shop') shop(); }
   return null; }
 function run(char) {
-  TIMEOUT = 0; uid = 1; R = { char, hp: (A_(4) ? 72 : 80) + (WEAKCH[char] ? 10 : 0), maxHp: (A_(4) ? 72 : 80) + (WEAKCH[char] ? 10 : 0), deck: STARTERS[char].map(id => mk(id)), relics: [STARTRELIC[char]], kills: 0, picks: {}, floor: 0, pots: [], act: 1, gold: 99 };
+  TIMEOUT = 0; uid = 1; R = { char, hp: A_(4) ? 72 : 80, maxHp: A_(4) ? 72 : 80, deck: STARTERS[char].map(id => mk(id)), relics: [STARTRELIC[char]], kills: 0, picks: {}, floor: 0, pots: [], act: 1, gold: 99 };
   for (const [act, EN] of [[1, ENCOUNTERS], [2, ENCOUNTERS2], [3, ENC3]]) {
     R.act = act; let fights = 0; if (act >= 2) R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .5));
     for (const node of ROUTE) {
