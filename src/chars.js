@@ -401,7 +401,7 @@ const NEW3 = {
 };
 /* ======================= 第四批：每个角色补到 50 张左右 ======================= */
 const rand = a => a[Math.floor(Math.random() * a.length)];
-const NC = (ch, id, name, type, rar, cost, icon, tgt, desc, play, x = {}) => ({ ch, name, type, rar, cost, noart: 1, icon: 'icons2/' + icon, tgt, desc, play, ...x });
+const NC = (ch, id, name, type, rar, cost, icon, tgt, desc, play, x = {}) => ({ ch, name, type, rar, cost, icon: 'icons2/' + icon, tgt, desc, play, ...x });
 const NEW4 = {
   /* —— 林拓：光弹 / 连击 / 防守 —— */
   h_ricochet: NC('hero', 'h_ricochet', '跳弹', 'atk', 'c', [1, 1], 'n_h_double', 'one', u => `造成 ${v(u, 6, 8)} 点伤害；光弹不少于 3 发时再打 1 次。`, (g, u, t) => g.attack(t, v(u, 6, 8), (P(g).st.ammo || 0) >= 3 ? 2 : 1)),

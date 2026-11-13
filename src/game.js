@@ -1,9 +1,9 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11132300';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11132300';
-import { createAudio } from './audio.js?v=live2_11132300';
-import { BLESS_FREE, BLESS_COST, ASC2, MODS, ACH, hashSeed, mulberry, todayKey, dailyOf } from './meta.js?v=live2_11132300';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11132300';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11132400';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11132400';
+import { createAudio } from './audio.js?v=live2_11132400';
+import { BLESS_FREE, BLESS_COST, ASC2, MODS, ACH, hashSeed, mulberry, todayKey, dailyOf } from './meta.js?v=live2_11132400';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11132400';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -443,7 +443,7 @@ function mapScreen() { SCREEN = 'map';
 function enterNode(t) {
   if (t === 'boss') return battle([R.boss], 'boss');
   if (t === 'final') { battle([FINAL3], 'boss'); B.final = 1; return; }
-  if (t === 'trueb') { battle([TRUEB], 'boss'); B.trueB = 1; B.final = 1; for (const e of B.en) { e.hp = e.max = Math.round(e.max * 1.6); e.st.str = (e.st.str || 0) + 3; } render(); return; }
+  if (t === 'trueb') { battle([TRUEB], 'boss'); B.trueB = 1; B.final = 1; return; }
   if (t === 'fight' || t === 'elite') { // 记住这场遭遇，中途退出再进来还是同一批怪
     R.log && R.log.hp.push([(R.floor0 || 0) + R.floor, R.hp, t]);
     if (!R.pendEnc) { R.pendEnc = SR(() => t === 'elite' ? pickOne(ENC().elite) : pickOne(R.fights < 3 ? ENC().easy : ENC().hard)); if (t === 'fight') R.fights++; snap(); save(); }
@@ -622,6 +622,8 @@ const BE = {
   swapHigh() { const cs = B.hand.filter(c => typeof cardCost(c) === 'number' && !CARDS[c.id].unplay).sort((a, b) => cardCost(b) - cardCost(a)); if (!cs.length) return null; const c = cs[0]; B.hand.splice(B.hand.indexOf(c), 1); B.hand.push(mkCard('draft')); return CARDS[c.id].name; },
   flipRand() { const cs = B.hand.filter(c => !CARDS[c.id].unplay); if (cs.length) pickOne(cs).flip = 1; },
   nerfTop(n) { const pc = B.pc || {}, id = Object.keys(pc).sort((a, b) => pc[b] - pc[a])[0]; if (!id || CARDS[id].unplay) return null; [...B.draw, ...B.disc, ...B.hand, ...B.exh].filter(c => c.id === id).forEach(c => { c.pt = (c.pt || 0) - n; }); return CARDS[id].name; },
+  sealType(e, ty) { const cs = B.hand.filter(c => !c.seal && !CARDS[c.id].unplay && (ty === 'atk' ? CARDS[c.id].type === 'atk' : CARDS[c.id].type !== 'atk')); if (!cs.length) return null; const c = pickOne(cs); c.seal = e.id; fx('hero', tr('断点'), 'dmg'); return CARDS[c.id].name; },
+  exhRand(n) { let nm = null; for (let k = 0; k < n; k++) { const cs = B.hand.filter(c => !CARDS[c.id].unplay); if (!cs.length) break; const c = pickOne(cs); B.hand.splice(B.hand.indexOf(c), 1); B.exh.push(c); nm = CARDS[c.id].name; } if (nm) fx('hero', tr('被删除'), 'dmg'); return nm; },
   seal(e, perm) { const cs = B.hand.filter(c => !c.seal && !CARDS[c.id].unplay); if (!cs.length) return null; const c = pickOne(cs); c.seal = perm ? 'perm' : e.id; fx('hero', tr('封印'), 'dmg'); return CARDS[c.id].name; },
   unseal(e) { [...B.draw, ...B.disc, ...B.hand, ...B.exh].forEach(c => { if (c.seal === e.id) delete c.seal; }); },
   zc: () => B.p.zc || 0, handTypes() { return { atk: B.hand.filter(c => CARDS[c.id].type === 'atk').length, skill: B.hand.filter(c => CARDS[c.id].type !== 'atk').length }; },
@@ -1162,7 +1164,7 @@ function endingChoice() {
   $('#up').onclick = () => { delete R.wait; startEndless(); };
 }
 /* 真结局：三把钥匙打开「源代码之间」（真 Boss 待定，先用加强版开发者占位） */
-const TRUEB = 'dev_boss';
+const TRUEB = 'dev_debug';
 function trueGate() { delete R.wait; R.wait = 'true'; save();
   story('story_gate', ['三把钥匙同时亮了起来，门的上方又裂开了一道缝。', '缝里传来敲键盘的声音。', '“……你们怎么找到这里的？”'], () => { delete R.wait; R.hp = R.maxHp; R.floor++; R.pending = 'trueb'; snap(); save(); enterNode('trueb'); }); }
 function startEndless() { delete R.rift; R.act = 4; R.endless = 1; R.rows = 8; R.trials = []; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; newLayer(); }

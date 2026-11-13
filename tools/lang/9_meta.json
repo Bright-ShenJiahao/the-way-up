@@ -918,5 +918,89 @@
  "用绯月打败魔王。": [
   "Defeat the Demon Lord as Hizuki.",
   "緋月で魔王を倒す。"
+ ],
+ "开发者 · debug 状态": [
+  "Developer · Debug Mode",
+  "開発者・デバッグモード"
+ ],
+ "断点：攻击": [
+  "Breakpoint: Attack",
+  "ブレークポイント：攻撃"
+ ],
+ "断点：技能": [
+  "Breakpoint: Skill",
+  "ブレークポイント：スキル"
+ ],
+ "编译中": [
+  "Compiling",
+  "コンパイル中"
+ ],
+ "部署": [
+  "Deploy",
+  "デプロイ"
+ ],
+ "编译失败": [
+  "Build Failed",
+  "ビルド失敗"
+ ],
+ "召唤测试用例": [
+  "Summon Test Cases",
+  "テストケース召喚"
+ ],
+ "热修复": [
+  "Hotfix",
+  "ホットフィックス"
+ ],
+ "断点": [
+  "Breakpoint",
+  "ブレークポイント"
+ ],
+ "被删除": [
+  "Deleted",
+  "削除された"
+ ],
+ "打开了调试模式的开发者。会给一种牌下「{0}」（你手里那种牌有一张这回合打不出），「{1}」会永久删掉你一张手牌，「{2}」一回合后打出 {3} 点——编译那回合打他 {4} 点以上就能打断。半血进入蓝屏：力量 {5}，每回合往你弃牌堆塞「{6}」。弱点不变：一回合打出 {7} 张 {8} 费牌或 {9} 张牌，他会程序崩溃晕一回合。": [
+  "The Developer with debug mode on. He sets a 「{0}」 on a card type (one such card in your hand can't be played this turn), 「{1}」 permanently deletes a card from your hand, and 「{2}」 hits for {3} a turn later—deal {4}+ damage during the compile turn to interrupt it. At half HP he bluescreens: {5} Strength, and adds an 「{6}」 to your discard pile every turn. Same weakness: play {7} cards costing {8} or {9} cards in one turn and he crashes, stunned for a turn.",
+  "デバッグモードを開いた開発者。カードの種類に「{0}」を置き（手札のその種類のカード1枚がこのターン使えない）、「{1}」で手札を1枚永久に削除し、「{2}」の1ターン後に{3}ダメージ——コンパイル中に{4}以上与えれば中断できる。HP半分でブルースクリーン：筋力{5}、毎ターン捨て札に「{6}」を加える。弱点は同じ：1ターンに{8}コスト{7}枚か{9}枚使うとクラッシュして1ターン気絶。"
+ ],
+ "「debug 模式已开启。这次，我用管理员权限跟你们打。」": [
+  "\"Debug mode on. This time, I'm fighting you with admin privileges.\"",
+  "「デバッグモード、オン。今回は管理者権限で相手をする。」"
+ ],
+ "「断点……没打中？」": [
+  "\"Breakpoint... missed?\"",
+  "「ブレークポイント……外れた？」"
+ ],
+ "「程序崩溃了？！」": [
+  "\"It crashed?!\"",
+  "「クラッシュした！？」"
+ ],
+ "「……蓝屏了。没关系，蓝屏我也能打。」": [
+  "\"...Bluescreen. Doesn't matter. I can fight on a bluescreen.\"",
+  "「……ブルースクリーンか。構わない、このままでも戦える。」"
+ ],
+ "「编译失败？！」": [
+  "\"Build failed?!\"",
+  "「ビルド失敗！？」"
+ ],
+ "「跑一下测试用例。」": [
+  "\"Let's run the test cases.\"",
+  "「テストケースを走らせよう。」"
+ ],
+ "「打个热补丁。」": [
+  "\"Applying a hotfix.\"",
+  "「ホットフィックスを当てる。」"
+ ],
+ "「……行。这次是真的通关了。」": [
+  "\"...Fine. This time you really cleared it.\"",
+  "「……いいだろう。今度こそ本当にクリアだ。」"
+ ],
+ "「{0}」这里下个断点。」": [
+  "\"Breakpoint on 「{0}」.\"",
+  "「「{0}」にブレークポイント。」"
+ ],
+ "「{0}」，rm -rf。」": [
+  "\"「{0}」, rm -rf.\"",
+  "「「{0}」、rm -rf。」"
  ]
 }

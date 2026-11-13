@@ -105,6 +105,34 @@ export const E3 = {
     onTurn: (e, B) => { if (e.turn > 0 && e.turn % 7 === 0 && e.otT !== e.turn) { e.otT = e.turn; B.addSt(e, 'str', 1); B.say('「今晚又要加班了……」'); } if (e.stun) { e.stun = 0; e.pose = 'stun'; return 'skip'; } e.pose = null; },
     onDie: (e, B) => B.say('「行，你们比我会玩。……不过门那边漏出来的东西，我也没写过。小心。」'),
     ai: (e, B) => { const m = cycle(e, ['peek', 'keys', 'swap', 'del', 'patch', 'flip', 'debug']); return m === 'debug' && B.alive().some(a => a.mini) ? 'demand' : m; } },
+  /* ---------- 真结局 Boss：开发者 · debug 状态（三把钥匙才会遇到） ---------- */
+  dev_debug: { name: '开发者 · debug 状态', hd: 300, hp: [320, 320], sc: 2.7, boss: 1, brk: 30, art: 'dev_debug', poses: ['cast', 'charge', 'stun'],
+    lore: '打开了调试模式的开发者。会给一种牌下「断点」（你手里那种牌有一张这回合打不出），「rm -rf」会永久删掉你一张手牌，「编译」一回合后打出 38 点——编译那回合打他 30 点以上就能打断。半血进入蓝屏：力量 +3，每回合往你弃牌堆塞「报错」。弱点不变：一回合打出 3 张 0 费牌或 6 张牌，他会程序崩溃晕一回合。',
+    intro: '「debug 模式已开启。这次，我用管理员权限跟你们打。」',
+    moves: { bpA: { n: '断点：攻击', i: 'defdebuff', f: (e, B) => { B.eBlock(e, 15); e.pend = 'bp'; e.bpT = 'atk'; e.pose = 'cast'; } },
+      bpS: { n: '断点：技能', i: 'defdebuff', f: (e, B) => { B.eBlock(e, 15); e.pend = 'bp'; e.bpT = 'skill'; e.pose = 'cast'; } },
+      rm: { n: 'rm -rf', i: 'atkdebuff', d: 9, x: 3, f: e => { e.pend = 'rm'; } },
+      compile: { n: '编译中', i: 'buff', f: e => { e.chg = 1; e.st.chg = 1; e.pose = 'charge'; } },
+      deploy: { n: '部署', i: 'atk', d: 38 }, fail: { n: '编译失败', i: 'atk', d: 8 },
+      spawn: { n: '召唤测试用例', i: 'summon', f: (e, B) => { e.pose = 'cast'; for (const k of ['gob_king', 'wolf_lord']) { const m = B.summon(k, 30); if (m) { m.mini = 1; m.hd = 180; m.st = {}; } } B.say('「跑一下测试用例。」'); } },
+      hotfix: { n: '热修复', i: 'buff', f: (e, B) => { e.pose = 'cast'; for (const k of ['poison', 'weak', 'vuln', 'res', 'fburn']) delete e.st[k]; B.healE(e, Math.floor(e.max * .1)); B.say('「打个热补丁。」'); } } },
+    onPTurn: (e, B) => { e.bugT = 0; e.cc = 0;
+      if (e.pend === 'bp') { const n = B.sealType(e, e.bpT); B.say(n ? `「「${n}」这里下个断点。」` : '「断点……没打中？」'); }
+      if (e.pend === 'rm') { const n = B.exhRand(1); if (n) B.say(`「「${n}」，rm -rf。」`); }
+      e.pend = null; },
+    onCard: (e, type, B) => { e.cc = (e.cc || 0) + 1; if (!e.bugT && !e.stun && (B.zc() >= 3 || e.cc >= 6)) { e.bugT = 1; e.stun = 1; B.say('「程序崩溃了？！」'); } },
+    onHurt: (e, B) => { if (!e.z && e.hp > 0 && e.hp <= e.max / 2) { e.z = 1; e.ci = 0; B.addSt(e, 'str', 3); for (const m of B.alive()) if (m.mini) B.kill(m); B.say('「……蓝屏了。没关系，蓝屏我也能打。」'); } },
+    onTurn: (e, B) => { B.unseal(e); if (e.z) B.addCard('bugcard', 1);
+      if (e.stun) { e.stun = 0; e.pose = 'stun'; if (e.move === 'deploy') { e.chg = 0; delete e.st.chg; e.move = 'fail'; } return 'skip'; }
+      if (e.move === 'deploy') { const ok = e.chg && (e.dmgT || 0) < e.d.brk; e.chg = 0; delete e.st.chg; if (!ok) { e.move = 'fail'; B.say('「编译失败？！」'); } }
+      e.pose = null; },
+    onDie: (e, B) => B.say('「……行。这次是真的通关了。」'),
+    ai: (e, B) => { if (e.move === 'compile') return 'deploy';
+      const L = e.z ? ['bp', 'rm', 'compile', 'rm', 'spawn'] : ['bp', 'rm', 'compile', 'spawn', 'bp', 'rm', 'hotfix'];
+      e.ci = (e.ci || 0); let m = L[e.ci % L.length]; e.ci++;
+      if (m === 'spawn' && B.alive().some(a => a.mini)) m = 'rm';
+      if (m === 'bp') m = Math.random() < .6 ? 'bpA' : 'bpS';
+      return m; } },
   /* ---------- 龙族（新） ---------- */
   d_water: { name: '水龙', hp: [52, 56], sc: 2.4, hd: 270, brk: 15, dragon: 1, rage: 1, poses: ['charge'],
     lore: '水龙。涨潮那回合打它 15 点以上能打断巨浪；巨浪打中后，你下回合会被冲走 1 张手牌。',

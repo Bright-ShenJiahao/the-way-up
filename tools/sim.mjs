@@ -103,6 +103,8 @@ const BE = {
   swapHigh() { const cs = B.hand.filter(c => typeof cost(c) === 'number' && !CARDS[c.id].unplay).sort((a, b) => cost(b) - cost(a)); if (!cs.length) return null; B.hand.splice(B.hand.indexOf(cs[0]), 1); B.hand.push(mk('draft')); return 'x'; },
   flipRand() { const cs = B.hand.filter(c => !CARDS[c.id].unplay); if (cs.length) pickOne(cs).flip = 1; },
   nerfTop(n) { const pc = B.pc || {}, id = Object.keys(pc).sort((a, b) => pc[b] - pc[a])[0]; if (!id || CARDS[id].unplay) return null; [...B.draw, ...B.disc, ...B.hand, ...B.exh].filter(c => c.id === id).forEach(c => { c.pt = (c.pt || 0) - n; }); return 'x'; },
+  sealType(e, ty) { const cs = B.hand.filter(c => !c.seal && !CARDS[c.id].unplay && (ty === 'atk' ? CARDS[c.id].type === 'atk' : CARDS[c.id].type !== 'atk')); if (!cs.length) return null; const c = pickOne(cs); c.seal = e.id; return CARDS[c.id].name; },
+  exhRand(n) { let nm = null; for (let k = 0; k < n; k++) { const cs = B.hand.filter(c => !CARDS[c.id].unplay); if (!cs.length) break; const c = pickOne(cs); B.hand.splice(B.hand.indexOf(c), 1); B.exh.push(c); nm = CARDS[c.id].name; } return nm; },
   seal(e, perm) { const cs = B.hand.filter(c => !c.seal && !CARDS[c.id].unplay); if (!cs.length) return null; pickOne(cs).seal = perm ? 'perm' : e.id; return 'x'; },
   unseal(e) { [...B.draw, ...B.disc, ...B.hand, ...B.exh].forEach(c => { if (c.seal === e.id) delete c.seal; }); },
   zc: () => B.p.zc || 0, handTypes() { return { atk: B.hand.filter(c => CARDS[c.id].type === 'atk').length, skill: B.hand.filter(c => CARDS[c.id].type !== 'atk').length }; },
@@ -340,21 +342,22 @@ function run(char) {
       else if (node === 'shop') shop();
     }
   }
-  return { win: true, act: 3, floor: R.floor, hp: R.hp };
+  const hp = R.hp; R.hp = R.maxHp; const tw = battle(['dev_debug'], 'boss'); /* 真结局 Boss：满血再打一场，单独统计（不影响通关率） */
+  return { win: true, act: 3, floor: R.floor, hp, tw };
 }
 const lines = [`# 平衡测试结果（每个角色每档 N=${N} 局，解锁档 ${LOCKLV}，进阶 ${ASC}，种子 ${SEED0}，commit ${SHA}）`, '', `生成时间：${new Date().toISOString()}`, '', '新手机器人：很少想起用药水、选牌只看稀有度。熟练机器人：会用药水、按角色流派选牌。', ''];
 const diag = [];
 for (const smart of (process.env.SMARTONLY ? [true] : [false, true])) {
-  SMART = smart; lines.push(`## ${smart ? '熟练机器人（≈ 真人）' : '新手机器人'}`, '', '| 角色 | 第一章通关 | 第二章通关 | 第三章通关 | 第一章 Boss 战胜率 | 通关剩余生命 | 超时 | 最常死在 |', '|---|---|---|---|---|---|---|---|');
+  SMART = smart; lines.push(`## ${smart ? '熟练机器人（≈ 真人）' : '新手机器人'}`, '', '| 角色 | 第一章通关 | 第二章通关 | 第三章通关 | 第一章 Boss 战胜率 | 通关剩余生命 | 真Boss胜率 | 超时 | 最常死在 |', '|---|---|---|---|---|---|---|---|---|');
   for (const ch of ['miko', 'hero', 'witch', 'heroine', 'erin', 'gu', 'sylvie', 'mia', 'feiyue'].filter(c => !ONLY || c === ONLY)) {
     useW(smart ? ch : '__none__');
-    let to = 0, w1 = 0, w2 = 0, w3 = 0, hp = 0, rb = 0; const at = {};
+    let to = 0, w1 = 0, w2 = 0, w3 = 0, hp = 0, rb = 0, tw = 0; const at = {};
     DG = smart ? { dm: 0, bl: 0, tk: 0, turns: 0, fights: 0, bt: 0, bosses: 0, deck: 0, pk: {} } : null;
-    for (let i = 0; i < N; i++) { seedS = SEED0 * 7919 + i * 104729 + (smart ? 1 : 0); const r = run(ch); if (DG) { DG.deck += R.deck.length; for (const c of R.deck) if (CARDS[c.id].rar !== 'start') DG.pk[c.id] = (DG.pk[c.id] || 0) + 1; } const ok1 = r.win || r.act >= 2; if (ok1) w1++; if (r.win || r.act === 3) w2++; if (ok1 || (r.act === 1 && (r.at || '').startsWith('Boss'))) rb++; if (r.win) { w3++; hp += r.hp; } else if (r.to) to++; else { const k = ['', '一·', '二·', '三·'][r.act] + r.at; at[k] = (at[k] || 0) + 1; } }
+    for (let i = 0; i < N; i++) { seedS = SEED0 * 7919 + i * 104729 + (smart ? 1 : 0); const r = run(ch); if (DG) { DG.deck += R.deck.length; for (const c of R.deck) if (CARDS[c.id].rar !== 'start') DG.pk[c.id] = (DG.pk[c.id] || 0) + 1; } const ok1 = r.win || r.act >= 2; if (ok1) w1++; if (r.win || r.act === 3) w2++; if (ok1 || (r.act === 1 && (r.at || '').startsWith('Boss'))) rb++; if (r.win) { w3++; hp += r.hp; if (r.tw) tw++; } else if (r.to) to++; else { const k = ['', '一·', '二·', '三·'][r.act] + r.at; at[k] = (at[k] || 0) + 1; } }
     const top = Object.entries(at).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, v]) => `${k}(${v})`).join('、');
     if (DG) { const f = x => (x / Math.max(1, DG.turns)).toFixed(1), tp = Object.entries(DG.pk).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => `${CARDS[k].name}(${v})`).join('、');
       diag.push(`| ◇${ch} | ${f(DG.dm)} | ${f(DG.bl)} | ${f(DG.tk)} | ${(DG.turns / Math.max(1, DG.fights)).toFixed(1)} | ${(DG.bt / Math.max(1, DG.bosses)).toFixed(1)} | ${(DG.deck / N).toFixed(1)} | ${tp} |`); }
-    lines.push(`| ${ch} | ${(w1 / N * 100).toFixed(1)}% | ${(w2 / N * 100).toFixed(1)}% | ${(w3 / N * 100).toFixed(1)}% | ${rb ? (w1 / rb * 100).toFixed(0) : 0}% | ${w3 ? (hp / w3).toFixed(0) : '-'} | ${to} | ${top} |`);
+    lines.push(`| ${ch} | ${(w1 / N * 100).toFixed(1)}% | ${(w2 / N * 100).toFixed(1)}% | ${(w3 / N * 100).toFixed(1)}% | ${rb ? (w1 / rb * 100).toFixed(0) : 0}% | ${w3 ? (hp / w3).toFixed(0) : '-'} | ${w3 ? (tw / w3 * 100).toFixed(0) + '%' : '-'} | ${to} | ${top} |`);
   }
   lines.push('');
 }
