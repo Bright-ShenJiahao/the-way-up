@@ -474,7 +474,7 @@ function battle(keys, kind) {
   if (kind === 'fight' && R.trials && R.trials.includes('swarm') && keys.length < 4) keys = [...keys, 'd_egg'];
   const bg = ACT() === 3 && R.rift ? (kind === 'boss' && keys[0] !== FINAL3 ? 'c3_hall' : RIFTBG) : ACT() >= 3 ? (kind === 'boss' ? 'c3_hall' : 'c3_battle') : ACT() === 2 ? (kind === 'boss' ? 'c2_hall' : pickOne(['c2_exterior', 'c2_crypt'])) : kind === 'boss' ? 'battle_castle' : pickOne(BGS);
   B = { kind, bg, en: keys.map(mkEnemy), p: { block: 0, energy: 0, st: {}, noDraw: 0 }, draw: shuffle(R.deck.map(c => ({ ...c }))), hand: [], disc: [], exh: [], turn: 0, atkCnt: 0, sel: -1, busy: false, fx: [], over: false };
-  setMusic(kind === 'boss' ? (keys[0] === FINAL3 ? 'final' : 'boss') : kind === 'elite' ? 'elite' : 'battle'); setTimeout(() => B && B.en[0] && gv(B.en[0], 'laugh'), 500); if (kind === 'boss') audio.boss();
+  setMusic(kind === 'boss' ? (keys[0] === FINAL3 ? 'final' : keys[0] === 'dev_debug' ? 'true' : 'boss') : kind === 'elite' ? 'elite' : 'battle'); setTimeout(() => B && B.en[0] && gv(B.en[0], 'laugh'), 500); if (kind === 'boss') audio.boss();
   if (has('charm')) B.p.st.str = 1; if (has('lantern')) B.p.st.dex = (B.p.st.dex || 0) + 1;
   
   if (has('suzu')) B.p.st.kek = 5 + (has('omamori') ? 2 : 0); else if (has('omamori')) B.p.st.kek = 2;
@@ -1101,11 +1101,11 @@ function story(img, lines, done, once) {
   show(); $('#stskip').onclick = done; $('#stnext').onclick = () => { if (++i >= lines.length) done(); else show(); };
 }
 /* 外部曲子（Pixabay 许可，可商用）：标题 / 每章的地图、战斗、Boss 各一首 */
-const BGM = {}; let bgmNow = null, duckT = 0; const M3 = new Set(['c3_map', 'c3_battle', 'c3_elite', 'c3_boss', 'c3_rift', 'c3_final']);
+const BGM = {}; let bgmNow = null, duckT = 0; const M3 = new Set(['c3_map', 'c3_battle', 'c3_elite', 'c3_boss', 'c3_rift', 'c3_final', 'c3_true']);
 function sting(k, ms) { try { audio[k] && audio[k](); } catch (e) {} duckT = performance.now() + ms; }
 function setMusic(m) {
   const a = ACT() >= 2 ? 'c2' : 'c1'; let want = !R && m === 'menu' ? 'title' : m === 'menu' ? a + '_map' : m === 'boss' || m === 'final' ? a + '_boss' : m === 'elite' ? a + '_elite' : a + '_battle';
-  if (R && ACT() === 3) { const c = R.rift ? (m === 'final' ? 'c3_final' : m === 'boss' ? 'c3_elite' : 'c3_rift') : m === 'menu' ? 'c3_map' : m === 'boss' ? 'c3_boss' : m === 'elite' ? 'c3_elite' : 'c3_battle'; if (M3.has(c)) want = c; } /* 第三章的曲子到了哪首用哪首，没到的先用第二章的 */
+  if (R && ACT() === 3) { const c = m === 'true' ? 'c3_true' : R.rift ? (m === 'final' ? 'c3_final' : m === 'boss' ? 'c3_elite' : 'c3_rift') : m === 'menu' ? 'c3_map' : m === 'boss' ? 'c3_boss' : m === 'elite' ? 'c3_elite' : 'c3_battle'; if (M3.has(c)) want = c; } /* 第三章的曲子到了哪首用哪首，没到的先用第二章的 */
   if (bgmNow && bgmNow !== want) { BGM[bgmNow].pause(); bgmNow = null; }
   if (!want) { audio.setMode(m); return; }
   audio.setMode('silent');
