@@ -1,7 +1,7 @@
-import { tr } from './i18n.js?v=live2_11131530';
-import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11131530';
+import { tr } from './i18n.js?v=live2_11131720';
+import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11131720';
 export { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 };
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11131530';
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11131720';
 export { MECH, NEWKEYW, OLDKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
@@ -12,7 +12,7 @@ const v = (u, a, b) => (u ? b : a);
 export const CARDS = {
   // ======== 林拓 · 光弹（回合结束自动开火） ========
   shoot: { ch: 'hero', name: '射击', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_gun', tgt: 'one',
-    desc: u => `造成 ${v(u, 6, 9)} 点伤害。得到 1 发光弹。`, play: (g, u, t) => { g.attack(t, v(u, 6, 9)); g.ammo(1); } },
+    desc: u => `造成 ${v(u, 8, 11)} 点伤害。得到 1 发光弹。`, play: (g, u, t) => { g.attack(t, v(u, 8, 11)); g.ammo(1); } },
   load: { ch: 'hero', name: '装填', type: 'skill', rar: 'start', cost: [1, 0], icon: 'gb', tgt: 'self',
     desc: () => `得到 2 发光弹。抽 1 张牌。`, play: g => { g.ammo(2); g.draw(1); } },
   charge: { ch: 'hero', name: '速射', type: 'skill', rar: 'start', cost: [1, 0], icon: 'p_arc', tgt: 'self',
@@ -44,7 +44,7 @@ export const CARDS = {
 
   // ======== 女主 · 共鸣 ========
   note: { ch: 'heroine', name: '音符', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_bell', tgt: 'one',
-    desc: u => `造成 ${v(u, 6, 8)} 点伤害。给予 ${v(u, 2, 3)} 层共鸣。`, play: (g, u, t) => { g.attack(t, v(u, 6, 8)); g.res(t, v(u, 2, 3)); } },
+    desc: u => `造成 ${v(u, 8, 10)} 点伤害。给予 ${v(u, 2, 3)} 层共鸣。`, play: (g, u, t) => { g.attack(t, v(u, 8, 10)); g.res(t, v(u, 2, 3)); } },
   spread: { ch: 'heroine', name: '声波扩散', type: 'skill', rar: 'start', cost: [1, 1], icon: 'ic_aura', tgt: 'all',
     desc: u => `给予所有敌人 ${v(u, 3, 4)} 层共鸣。`, play: (g, u) => g.resAll(v(u, 3, 4)) },
   high: { ch: 'heroine', name: '高音', type: 'atk', rar: 'start', cost: [1, 1], icon: 'sk_holyorb', tgt: 'one',
@@ -270,8 +270,8 @@ export const STARTERS = {
 export const STARTER = STARTERS.hero;
 
 export const RELICS = {
-  gameboy: { noart: 1, ch: 'hero', name: '掌机', icon: 'gb', rar: 'start', desc: '每 2 回合得到 1 发光弹（第 1、3、5…回合）。战斗结束时回复 4 点生命。' },
-  phones: { noart: 1, ch: 'heroine', name: '粉色耳机', icon: 'ic_bell', rar: 'start', desc: '战斗开始时给予所有敌人 2 层共鸣，之后每回合开始再给 1 层。战斗结束时回复 4 点生命。' },
+  gameboy: { noart: 1, ch: 'hero', name: '掌机', icon: 'gb', rar: 'start', desc: '每 2 回合得到 1 发光弹（第 1、3、5…回合）。战斗结束时回复 8 点生命。' },
+  phones: { noart: 1, ch: 'heroine', name: '粉色耳机', icon: 'ic_bell', rar: 'start', desc: '战斗开始时给予所有敌人 2 层共鸣，之后每回合开始再给 1 层。战斗结束时回复 8 点生命。' },
   cauldron: { noart: 1, ch: 'witch', name: '魔女的坩埚', icon: 'pot', rar: 'start', desc: '战斗开始时随机获得 1 个炼金瓶。战斗结束时回复 4 点生命。' },
   toad: { noart: 1, ch: 'witch', name: '蟾蜍干', icon: 'b_curse', rar: 'c', desc: '每次给予中毒时，额外 +1 层。' },
   hat: { noart: 1, ch: 'witch', name: '魔女帽', icon: 'sk_shadow', rar: 'u', desc: '每使用 1 个炼金瓶，获得 2 点格挡。' },
@@ -304,6 +304,7 @@ export const RELICS = {
   crown: { name: '王冠', icon: 'm_crown', rar: 'r', desc: '每回合开始时，获得 1 点额外能量。拾取时最大生命 -10，战斗结束不再回复生命。' },
 };
 Object.assign(RELICS, NEWRELICS, R3);
+export const WEAKCH = { hero: 1, sylvie: 1, heroine: 1, erin: 1 }; /* 偏弱角色：生命 +10，战后回复 8 */
 export const STARTRELIC = { hero: 'gameboy', heroine: 'phones', miko: 'suzu', witch: 'cauldron', ...NEWSTARTRELIC };
 for (const [k, r] of Object.entries(RELICS)) { r.id = k; if (['spare', 'pad', 'phones', 'metro', 'mic', 'cauldron', 'toad', 'hat', 'suzu', 'omamori', 'hamaya'].includes(k)) r.icon = 'icons2/r_' + k; r.img = I(r.icon); }
 

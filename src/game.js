@@ -1,8 +1,8 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11131530';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11131530';
-import { createAudio } from './audio.js?v=live2_11131530';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11131530';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11131720';
+import { MECH, STARTRELIC, WEAKCH, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11131720';
+import { createAudio } from './audio.js?v=live2_11131720';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11131720';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -51,7 +51,7 @@ let R = null; // 当前一局
 let uidN = 1;
 const mkCard = (id, up = 0) => ({ id, up, uid: uidN++ });
 function newRun(char = 'hero', asc = 0) {
-  R = { char, hp: 80, maxHp: 80, gold: 120, potions: [], asc, deck: STARTERS[char].map(id => mkCard(id)), relics: [STARTRELIC[char]].filter(Boolean), map: genMap(), pos: null,
+  R = { char, hp: 80 + (WEAKCH[char] ? 10 : 0), maxHp: 80 + (WEAKCH[char] ? 10 : 0), gold: 120, potions: [], asc, deck: STARTERS[char].map(id => mkCard(id)), relics: [STARTRELIC[char]].filter(Boolean), map: genMap(), pos: null,
     floor: 0, fights: 0, removeCost: 75, boss: pickOne(ENCOUNTERS.boss)[0], feather: 0 };
   if (asc >= 4) { R.maxHp -= 8; R.hp = R.maxHp; }
 }
@@ -722,7 +722,7 @@ async function checkEnd() {
   if (R.hp <= 0) { B.over = true; heroAct('down'); render(); sting('lose', 2600); await sleep(1400); clearSave(); return endScreen(false); }
   if (!alive().length) {
     B.over = true; render(); sting(B.kind === 'boss' ? 'bossWin' : 'win', B.kind === 'boss' ? 2600 : 1400); await sleep(600); if (B !== b0) return true;
-    if (R.relics.some(x => RELICS[x] && RELICS[x].rar === 'start') && !has('crown')) R.hp = Math.min(R.maxHp, R.hp + 4);
+    if (R.relics.some(x => RELICS[x] && RELICS[x].rar === 'start') && !has('crown')) R.hp = Math.min(R.maxHp, R.hp + (WEAKCH[R.char] ? 8 : 4));
     { const m = MECH.victory(G, B.kind); if (m) say(tr(m)); const bo = MECH.boonOpts && MECH.boonOpts(G, B.kind); if (bo) { bo.forEach(o => { o.html = `<button class="btn"><b>${tr(o.name)}</b>：${tr(o.desc)}</button>`; }); const k = await pickOpt(tr('团子的灵魂恩赐：选一个（整局有效）'), bo, true); MECH.boonPick(G, k); } } if (has('grail')) R.hp = Math.min(R.maxHp, R.hp + 5);
     if (B.en.some(e => (e.st.hostage || 0) > 0)) { R.gold += 40; say(tr('（被救下的村民塞给你 40 金币：“谢谢你们！”）')); }
     if (B.kind === 'elite') R.elites = (R.elites || 0) + 1;

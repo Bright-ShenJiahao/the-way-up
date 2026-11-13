@@ -47,8 +47,8 @@ const ERIN = {
   sp_fog: spell('寒雾', 'skill', 'all', '获得 10 点格挡，给予所有敌人 2 层虚弱。', g => { g.block(10); g.applyAll('weak', 2); }),
   sp_wave: spell('冰缚', 'skill', 'one', '给予 2 层虚弱和 2 层易伤，抽 1 张牌。', (g, u, t) => { g.apply(t, 'weak', 2); g.apply(t, 'vuln', 2); g.draw(1); }),
   sp_gate: spell('风门', 'skill', 'self', '抽 2 张牌，得到 1 点能量（每回合只有第一张风门给能量）。', g => { g.draw(2); if (!P(g).gateT) { P(g).gateT = 1; g.energy(1); } }),
-  e_spark: { ch: 'erin', name: '火种', type: 'atk', rar: 'start', cost: [1, 1], icon: 'icons2/n_e_spark', tgt: 'one', desc: u => `造成 ${v(u, 9, 12)} 点伤害。写入火。`, play: (g, u, t) => { g.attack(t, v(u, 9, 12)); writeEl(g, '火'); } },
-  e_ripple: { ch: 'erin', name: '水纹', type: 'skill', rar: 'start', cost: [1, 1], icon: 'icons2/n_e_ripple', tgt: 'self', desc: u => `获得 ${v(u, 8, 11)} 点格挡。写入水。`, play: (g, u) => { g.block(v(u, 8, 11)); writeEl(g, '水'); } },
+  e_spark: { ch: 'erin', name: '火种', type: 'atk', rar: 'start', cost: [1, 1], icon: 'icons2/n_e_spark', tgt: 'one', desc: u => `造成 ${v(u, 11, 14)} 点伤害。写入火。`, play: (g, u, t) => { g.attack(t, v(u, 11, 14)); writeEl(g, '火'); } },
+  e_ripple: { ch: 'erin', name: '水纹', type: 'skill', rar: 'start', cost: [1, 1], icon: 'icons2/n_e_ripple', tgt: 'self', desc: u => `获得 ${v(u, 10, 13)} 点格挡。写入水。`, play: (g, u) => { g.block(v(u, 10, 13)); writeEl(g, '水'); } },
   e_invoke: { ch: 'erin', invoke: 1, name: '初阶祈唤', type: 'skill', rar: 'start', cost: [0, 0], icon: 'icons2/n_e_invoke', tgt: 'self', desc: u => `${v(u, '', '获得 3 点格挡，')}祈唤：把当前元素组合的法术放进手牌。`, play: (g, u) => { if (u) g.block(3); invoke(g); } },
   e_needle: { ch: 'erin', name: '追风针', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_e_needle', tgt: 'one', desc: u => `造成 ${v(u, 9, 12)} 点伤害。写入风。`, play: (g, u, t) => { g.attack(t, v(u, 9, 12)); writeEl(g, '风'); } },
   e_steamshot: { ch: 'erin', name: '蒸汽弹', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_e_steamshot', tgt: 'all', desc: u => `对所有敌人造成 ${v(u, 5, 7)} 点伤害；元素位里同时有火和水时改为 ${v(u, 7, 9)} 点。`, play: (g, u) => { const el = P(g).el || EL; g.attackAll(el.includes('火') && el.includes('水') ? v(u, 7, 9) : v(u, 5, 7)); } },
@@ -124,8 +124,8 @@ function gainDB(g, n) { const p = P(g); if (n > 0 && dr(g)) { const fh = p.fh; p
 function spendDB(g, n) { if (db(g) < n) return false; gainDB(g, -n); if (P(g).st.aval) g.block(n, true); return true; }
 function spendUpTo(g, n) { const k = Math.min(n, db(g)); if (k) spendDB(g, k); return k; }
 const SYL = {
-  s_lance: { ch: 'sylvie', name: '霜枪', type: 'atk', rar: 'start', cost: [1, 1], icon: 'icons2/n_s_lance', tgt: 'one', desc: u => `造成 ${v(u, 7, 10)} 点伤害，得到 2 点龙血。【龙】造成 ${v(u, 7, 10)}，全体 4。`, play: (g, u, t) => { g.attack(t, v(u, 7, 10)); gainDB(g, 2); } },
-  s_scale: { ch: 'sylvie', name: '鳞守', type: 'skill', rar: 'start', cost: [1, 1], icon: 'icons2/n_s_scale', tgt: 'self', desc: u => `获得 ${v(u, 5, 8)} 点格挡，得到 1 点龙血。【龙】${v(u, 3, 5)} 格挡，全体 2。`, play: (g, u) => { g.block(dr(g) ? v(u, 3, 5) : v(u, 5, 8)); gainDB(g, 1); } },
+  s_lance: { ch: 'sylvie', name: '霜枪', type: 'atk', rar: 'start', cost: [1, 1], icon: 'icons2/n_s_lance', tgt: 'one', desc: u => `造成 ${v(u, 9, 12)} 点伤害，得到 2 点龙血。【龙】造成 ${v(u, 9, 12)}，全体 4。`, play: (g, u, t) => { g.attack(t, v(u, 9, 12)); gainDB(g, 2); } },
+  s_scale: { ch: 'sylvie', name: '鳞守', type: 'skill', rar: 'start', cost: [1, 1], icon: 'icons2/n_s_scale', tgt: 'self', desc: u => `获得 ${v(u, 7, 10)} 点格挡，得到 1 点龙血。【龙】${v(u, 5, 7)} 格挡，全体 2。`, play: (g, u) => { g.block(dr(g) ? v(u, 5, 7) : v(u, 7, 10)); gainDB(g, 1); } },
   s_pulse: { ch: 'sylvie', name: '龙脉吐纳', type: 'skill', rar: 'start', cost: [1, 1], icon: 'icons2/n_s_pulse', tgt: 'self', desc: u => `得到 3 点龙血，获得 ${v(u, 3, 5)} 点格挡。【龙】全体 6，${v(u, 3, 5)} 格挡。`, play: (g, u) => { gainDB(g, 3); g.block(v(u, 3, 5)); } },
   s_crack: { ch: 'sylvie', name: '裂冰', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_crack', tgt: 'one', desc: u => `造成 ${v(u, 8, 11)} 点伤害。【龙】造成 ${v(u, 12, 15)}，给予 2 层霜灼。`, play: (g, u, t) => { if (dr(g)) { g.attack(t, v(u, 12, 15)); fburn(g, live(g, t), 2); } else g.attack(t, v(u, 8, 11)); } },
   s_rev: { ch: 'sylvie', name: '逆鳞刺', type: 'atk', rar: 'c', cost: [1, 1], icon: 'icons2/n_s_rev', tgt: 'one', desc: u => `造成 ${v(u, 5, 7)} 点伤害；花掉最多 3 点龙血，每点给目标 3 层霜灼。【龙】造成 ${v(u, 11, 14)}。`, play: (g, u, t) => { if (dr(g)) { g.attack(t, v(u, 11, 14)); return; } g.attack(t, v(u, 5, 7)); const k = spendUpTo(g, 3); if (k) fburn(g, live(g, t), 3 * k); } },
@@ -410,13 +410,13 @@ export const NEWSTARTERS = {
 };
 export const NEWSTARTRELIC = { erin: 'oldstaff', gu: 'swordtassel', sylvie: 'eggshard', mia: 'catbell', feiyue: 'ribbon' };
 export const NEWRELICS = {
-  oldstaff: { ch: 'erin', name: '旧世界法杖', icon: 'ic_rune', rar: 'start', desc: '每场战斗第一张祈唤牌少 1 费。战斗结束时回复 4 点生命。' },
+  oldstaff: { ch: 'erin', name: '旧世界法杖', icon: 'ic_rune', rar: 'start', desc: '每场战斗第一张祈唤牌少 1 费。战斗结束时回复 8 点生命。' },
   lens: { ch: 'erin', name: '定相透镜', icon: 'ic_crystal', rar: 'u', desc: '每场战斗第一次三格元素相同时，获得 6 点格挡。' },
   prism: { ch: 'erin', name: '裂色棱镜', icon: 'ic_hexa', rar: 'r', desc: '每场战斗第一次打出两种不同配方的法术后，抽 2 张牌，得到 1 点能量。' },
   swordtassel: { ch: 'gu', name: '雪纹剑穗', icon: 'ic_sword', rar: 'start', desc: '战斗开始时得到 2 把飞剑。战斗结束时回复 4 点生命。' },
   jade: { ch: 'gu', name: '护脉玉', icon: 'ic_aura', rar: 'u', desc: '每场战斗第一次射出飞剑后，再得到 2 把飞剑。' },
   manual: { ch: 'gu', name: '旧剑谱', icon: 'b_dur', rar: 'r', desc: '每场战斗第一次一回合打出 3 张攻击牌后，下回合多抽 2 张牌。' },
-  eggshard: { ch: 'sylvie', name: '寒卵碎片', icon: 'ic_crystal', rar: 'start', desc: '战斗开始时得到 3 点龙血。战斗结束时回复 4 点生命。' },
+  eggshard: { ch: 'sylvie', name: '寒卵碎片', icon: 'ic_crystal', rar: 'start', desc: '战斗开始时得到 3 点龙血。战斗结束时回复 8 点生命。' },
   horn: { ch: 'sylvie', name: '断角护符', icon: 'm_ward', rar: 'u', desc: '每场战斗第一次变身时，获得 8 点格挡。' },
   dayscale: { ch: 'sylvie', name: '极昼鳞', icon: 'p_tough', rar: 'r', desc: '每场战斗第一次退出霜龙形态时不会虚弱，并得到 3 点龙血。' },
   catbell: { ch: 'mia', name: '团子的铃铛', icon: 'ic_bell', rar: 'start', desc: '云猫团子和你并肩作战，每回合可以给它一个指令。战斗结束时回复 4 点生命。' },
