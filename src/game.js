@@ -1,9 +1,9 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11132400';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11132400';
-import { createAudio } from './audio.js?v=live2_11132400';
-import { BLESS_FREE, BLESS_COST, ASC2, MODS, ACH, hashSeed, mulberry, todayKey, dailyOf } from './meta.js?v=live2_11132400';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11132400';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11132500';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11132500';
+import { createAudio } from './audio.js?v=live2_11132500';
+import { BLESS_FREE, BLESS_COST, ASC2, MODS, ACH, hashSeed, mulberry, todayKey, dailyOf } from './meta.js?v=live2_11132500';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11132500';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -370,7 +370,7 @@ function rankBoard(daily) {
 function submitScore(win) {
   const name = LS('tw_name'); if (DEBUG || !ONLINE || !name) return Promise.resolve(null);
   return fetch(API, { method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ name, pin: LS('tw_pin'), char: R.char, asc: R.asc || 0, floor: (R.floor0 || 0) + R.floor, kills: R.kills || 0, elites: R.elites || 0, win, hp: Math.max(0, R.hp), daily: R.daily || '', bosses: R.bosses || 0, endless: R.endless || 0 }) })
+    body: JSON.stringify({ name, pin: LS('tw_pin'), char: R.char, asc: R.asc || 0, floor: (R.floor0 || 0) + R.floor, kills: R.kills || 0, elites: R.elites || 0, win, hp: Math.max(0, R.hp), daily: R.daily || '', bosses: R.bosses || 0, endless: R.endless || 0, trueEnd: !!R.trueEnd }) })
     .then(r => r.json()).catch(() => null);
 }
 
@@ -820,7 +820,7 @@ async function checkEnd() {
     if (B.en.some(e => (e.st.hostage || 0) > 0)) { R.gold += 40; say(tr('（被救下的村民塞给你 40 金币：“谢谢你们！”）')); }
     if (B.kind === 'elite') R.elites = (R.elites || 0) + 1; if (B.burn) gotKey('g');
     if (B.kind === 'boss' && R.hp >= (B.hp0 || 0)) ach('a_bossclean'); if (B.en.some(e => e.key === 'dev_boss')) ach('a_dev');
-    if (B.trueB) { B = null; clearSave(); R.trueEnd = 1; ach('a_true'); return story('story_home', ['门的后面，是一间亮着屏幕的小房间。', '开发者摘下眼镜，揉了揉眼睛：“……好吧，你们赢了。”', '屏幕上跳出一行字：「游戏结束——这次是真的。」', '光涌了上来。再睁开眼时，是放学路上的那条街。'], () => endScreen(true)); }
+    if (B.trueB) { B = null; clearSave(); R.trueEnd = 1; ach('a_true'); return story('story_home', ['门的后面，是一间亮着屏幕的小房间。', '开发者摘下眼镜，揉了揉眼睛：“……好吧，你们赢了。”', '屏幕上跳出一行字：「游戏结束——这次是真的。」', '光涌了上来。再睁开眼时，是放学路上的那条街。'], () => story(TRUEART, [...(TRUEEND[R.char] || []), '开发者在屏幕前敲下最后一行注释：// 谢谢你们，陪我把这个游戏打通。'], () => endScreen(true))); }
     if (B.kind === 'boss') { R.bosses = (R.bosses || 0) + 1; if (ACT() === 1) { delete R.pending; delete R.pendEnc; delete R.snap; R.after = 'act2'; save(); rewardScreen(); return true; }
       if (ACT() >= 2) { delete R.pending; delete R.pendEnc; delete R.snap;
         if (ACT() === 2) R.after = 'act3';
@@ -1164,7 +1164,18 @@ function endingChoice() {
   $('#up').onclick = () => { delete R.wait; startEndless(); };
 }
 /* 真结局：三把钥匙打开「源代码之间」（真 Boss 待定，先用加强版开发者占位） */
-const TRUEB = 'dev_debug';
+const TRUEB = 'dev_debug', TRUEART = 'story_home'; /* 真结局插图到了改成 'story_true' */
+const TRUEEND = {
+  hero: ['林拓回到了街口。掌机屏幕上，跳出了从没见过的两个字：「通关」。', '他把存档拷了好几份。“……下次，换我来做一个游戏。”'],
+  heroine: ['苏音摘下耳机，异世界的声音还在耳朵里回响。', '那天晚上，她录下了自己的第一首歌，歌名叫《通往顶端》。'],
+  miko: ['神社的铃铛在风里响着。千早在绘马上写下“愿大家平安”，挂在了最高的那根绳子上。', '她偶尔会对着山的方向拉一次空弦。那边的人，大概也听得到吧。'],
+  witch: ['门的这一边，莉泽送走了三个异世界来的朋友。', '她回到村子，把炼金铺的招牌换成了「通往顶端」。架子最高处，留着三个永远不卖的空瓶。'],
+  erin: ['艾琳在门边找到了第四种元素。它没有颜色，也没有温度，长老们叫它“回忆”。', '她把它写进了魔法书的第一页。'],
+  gu: ['剑派的人重新聚在了山下。师兄们看见她身后那群奇怪的同伴，第一次没有吵架。', '“练气还是练剑？”有人又问。顾清寒笑了：“一起练。”'],
+  sylvie: ['希尔薇不再害怕变身了。', '后来，雪山上多了一条会朝登山的人点头打招呼的白龙。'],
+  mia: ['团子在门口打了个大大的哈欠，米娅把它抱了起来。', '“我们的家，就是有你在的地方喵。”'],
+  feiyue: ['绯月站在晨光里，没有被灼伤。', '“原来……太阳是这样的温度。”她眯起眼睛，第一次不想躲。'],
+};
 function trueGate() { delete R.wait; R.wait = 'true'; save();
   story('story_gate', ['三把钥匙同时亮了起来，门的上方又裂开了一道缝。', '缝里传来敲键盘的声音。', '“……你们怎么找到这里的？”'], () => { delete R.wait; R.hp = R.maxHp; R.floor++; R.pending = 'trueb'; snap(); save(); enterNode('trueb'); }); }
 function startEndless() { delete R.rift; R.act = 4; R.endless = 1; R.rows = 8; R.trials = []; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; newLayer(); }
@@ -1223,6 +1234,7 @@ function endScreen(win) {
   if (ACT() === 4) win = true;
   const tf = (R.floor0 || 0) + R.floor; const rows = [[`攀登的层数 (${tf})`, tf * 20], [`击杀的敌人 (${k})`, k * 3], [`击败的精英 (${el})`, el * 25], [`打败 Boss (${R.bosses || 0})`, (R.bosses || 0) * 300], [`通关时剩余生命 (${win ? hp : 0})`, win ? hp * 2 : 0]];
   if (ACT() === 4) rows.push([t('无尽轮数 ({0})', R.endless || 1), (R.endless || 1) * 200]);
+  if (R.trueEnd) rows.push([t('真结局'), 500]);
   if (R.asc) rows.push([`进阶难度 ${R.asc}（×${(1 + R.asc * .1).toFixed(1)}）`, Math.round(rows.reduce((a, r) => a + r[1], 0) * R.asc * .1)]);
   const total = rows.reduce((a, r) => a + r[1], 0);
   const M = metaGet(), before = M.xp; let news = [];
@@ -1230,7 +1242,7 @@ function endScreen(win) {
   if (!DEBUG) { M.xp += total; if (win && ACT() >= 2 && (R.asc || 0) >= (M.asc[R.char] || 0) && (M.asc[R.char] || 0) < 15) { M.asc[R.char] = (R.asc || 0) + 1; } metaSet(M); }
   const nx = UNLOCKS.find(u => M.xp < u.xp), left = UNLOCKS.filter(u => M.xp < u.xp).length;
   view.innerHTML = `${win && ACT() === 3 ? bgHTML(true, 'story_home') : win && ACT() === 2 ? bgHTML(true, 'story_end2') : bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
-   <p class="endsub" data-noi18n>${ACT() === 4 ? `${t('在天外之塔爬到了第 {0} 轮。', R.endless || 1)}<br><b style="color:#ffe08a">${t('感谢游玩！')}</b>` : win && ACT() === 3 ? `${t('深渊之主倒下了，回家的门打开了。')}<br><b style="color:#ffe08a">${t('全部通关 · 感谢游玩！')}</b>` : win && ACT() === 2 ? `${t('{0}化为了灰烬，古堡的血月熄灭了。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第二章完 · 感谢游玩！')}</b>${t('山顶上，还有更深的黑暗在等待……')}` : win ? `${t('{0}倒下了，翠绿之地恢复了平静。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第一章完 · 感谢游玩！')}</b>${t('远处山顶的古堡，亮起了血红的光……')}<br><b style="color:#ff8a8a">${t('第二章：血月古堡（制作中）')}</b>` : t(ACT() === 3 ? '{0}倒在了永冬之巅第 {1} 层。' : ACT() === 2 ? '{0}倒在了血月古堡第 {1} 层。' : '{0}倒在了翠绿之地第 {1} 层。', tr(CHARS[R.char || 'hero'].name), R.floor)}</p>
+   <p class="endsub" data-noi18n>${R.trueEnd ? `${t('开发者合上了电脑。这一次，是真的回家了。')}<br><b style="color:#ffe08a">${t('真结局 · 感谢游玩！')}</b>` : ACT() === 4 ? `${t('在天外之塔爬到了第 {0} 轮。', R.endless || 1)}<br><b style="color:#ffe08a">${t('感谢游玩！')}</b>` : win && ACT() === 3 ? `${t('深渊之主倒下了，回家的门打开了。')}<br><b style="color:#ffe08a">${t('全部通关 · 感谢游玩！')}</b>` : win && ACT() === 2 ? `${t('{0}化为了灰烬，古堡的血月熄灭了。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第二章完 · 感谢游玩！')}</b>${t('山顶上，还有更深的黑暗在等待……')}` : win ? `${t('{0}倒下了，翠绿之地恢复了平静。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第一章完 · 感谢游玩！')}</b>${t('远处山顶的古堡，亮起了血红的光……')}<br><b style="color:#ff8a8a">${t('第二章：血月古堡（制作中）')}</b>` : t(ACT() === 3 ? '{0}倒在了永冬之巅第 {1} 层。' : ACT() === 2 ? '{0}倒在了血月古堡第 {1} 层。' : '{0}倒在了翠绿之地第 {1} 层。', tr(CHARS[R.char || 'hero'].name), R.floor)}</p>
    ${win && ACT() === 3 && CH3END[R.char] ? `<p class="endsub endq"><b>${CHARS[R.char].name}</b>：“<span>${tr(CH3END[R.char])}</span>”</p>` : ''}${win && ACT() === 2 && CHARINFO[R.char] && CHARINFO[R.char].end ? `<p class="endsub endq"><b>${CHARS[R.char].name}</b>：“<span>${CHARINFO[R.char].end}</span>”</p>` : ''}
    <table class="score">${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}<tr class="tot"><td>分数</td><td>${total}</td></tr></table>
    ${news.map(t => `<p class="endsub" style="color:#7fe07f">★ ${t}</p>`).join('')}
@@ -1303,6 +1315,10 @@ const CONCEPTS = [
   ['状态', ['str', 'dex', 'vuln', 'weak', 'thorns', 'metal', 'regen', 'poison'].map(k => [STATUS[k][0], KW[STATUS[k][0]] || STATUS[k][1]])],
   ['角色机制', [['光弹', KW['光弹']], ['共鸣', KW['共鸣']], ['爆音', KW['爆音']], ['结界', KW['结界']], ['炼金瓶', KW['炼金瓶']], ['药水', KW['药水']], ['中毒', KW['中毒']]]],
   ['地图', [['战斗', '普通的哥布林小队，赢了给金币和卡牌。'], ['精英', '强敌，赢了额外给一个秘宝。'], ['未知', '随机事件，可能是好事也可能有代价。'], ['营火', '休息回血，或者升级一张卡。'], ['商店', '花金币买卡、买秘宝、删卡。'], ['宝箱', '直接拿秘宝和金币。'], ['Boss', '每章最后的大头目，打赢就通关。']]],
+  ['冒险规则', [['开局祝福', '每局出发前，路边的神龛给三个选项：两个免费，一个有代价。只能选一个。'], ['进阶难度', '选角色时可以调 0～20 级，每一级都会叠加之前所有的难度。'],
+    ['燃烧的精英', '第一章地图上有一个带火焰标记的精英：血更多、力量 +2，打赢就能拿到翡翠钥匙。'], ['三把钥匙', '翡翠钥匙（第一章燃烧的精英）、血月钥匙（第二章营火放弃休息换取）、龙鳞钥匙（第三章宝箱放弃秘宝换取）。集齐后打倒魔王，可以打开通往真结局的门。'],
+    ['断点', '真结局 Boss 的招式：指定一种牌，你手里那种牌会有一张这回合被封住打不出。'], ['每日挑战', '每天所有人用同一个角色、同一张地图和同样的修正，有单独的今日排行。'],
+    ['自定义模式', '可以填种子（种子相同，地图和奖励就相同），也可以勾选各种修正规则。'], ['成就', '主菜单的「成就」页可以看到全部成就和解锁情况，只记录在这台设备上。']]],
   ['分数', [['排行榜积分', '层数×20 + 击杀×3 + 精英×25；通关再加 300，以及剩余生命×2。同一个名字只记最高的一局，调试模式不记录。']]],
 ];
 

@@ -17,7 +17,7 @@ const cleanName = raw => Array.from(String(raw ?? '').replace(/[\u0000-\u001f<>\
 const int = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.round(Number(v) || 0)));
 
 // 积分 = 层数×20 + 击杀×3 + 精英×25 + 通关 300 + 通关时剩余生命×2
-export const scoreOf = r => { const b = r.floor * 20 + r.kills * 3 + r.elites * 25 + (r.bosses || 0) * 300 + (r.win ? r.hp * 2 : 0) + (r.endless || 0) * 200; return b + Math.round(b * r.asc * .1); };
+export const scoreOf = r => { const b = r.floor * 20 + r.kills * 3 + r.elites * 25 + (r.bosses || 0) * 300 + (r.win ? r.hp * 2 : 0) + (r.endless || 0) * 200 + (r.trueEnd ? 500 : 0); return b + Math.round(b * r.asc * .1); };
 
 export default async function handler(req) {
   CORS = corsFor(req);
@@ -51,7 +51,7 @@ export default async function handler(req) {
   if (saved) { const ok = saved.length === 64 ? same(saved, hashPin(name, pin)) : saved === pin; if (!ok) return json({ ok: false, error: '这个名字已被设了口令，口令不对' }, 403); if (saved.length !== 64) await store.set(pk, hashPin(name, pin)); }
   else if (pin) await store.set(pk, hashPin(name, pin));
   const r = { name, char: CHARS.includes(b.char) ? b.char : 'hero', floor: int(b.floor, 0, 400), kills: int(b.kills, 0, 1500),
-    elites: int(b.elites, 0, 60), asc: int(b.asc, 0, 20), win: !!b.win, hp: int(b.hp, 0, 400), bosses: int(b.bosses, 0, 60), endless: int(b.endless, 0, 50), at: Date.now() };
+    elites: int(b.elites, 0, 60), asc: int(b.asc, 0, 20), win: !!b.win, hp: int(b.hp, 0, 400), bosses: int(b.bosses, 0, 60), endless: int(b.endless, 0, 50), trueEnd: !!b.trueEnd, at: Date.now() };
   const day = /^\d{8}$/.test(String(b.daily || '')) ? String(b.daily) : '';
   /* 合理性检查：一局最多 17 层；击杀、精英与层数相符；通关必须到最后一层 */
   if ((r.win && r.floor < 16) || r.kills > r.floor * 5 + 6 || r.elites > Math.ceil(r.floor / 3) + 2 || r.bosses > Math.ceil(r.floor / 7) + 1 || (!r.win && r.hp > 0)) return json({ ok: false, error: '数据异常' }, 400);

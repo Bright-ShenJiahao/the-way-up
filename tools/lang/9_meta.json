@@ -1002,5 +1002,141 @@
  "「{0}」，rm -rf。」": [
   "\"「{0}」, rm -rf.\"",
   "「「{0}」、rm -rf。」"
+ ],
+ "冒险规则": [
+  "Run Rules",
+  "冒険のルール"
+ ],
+ "开局祝福": [
+  "Opening Blessing",
+  "開始時の祝福"
+ ],
+ "每局出发前，路边的神龛给三个选项：两个免费，一个有代价。只能选一个。": [
+  "Before each run, a roadside shrine offers three options: two free, one with a cost. You may pick only one.",
+  "毎回の出発前、道端の祠が3つの選択肢をくれる：2つは無料、1つは代償付き。選べるのは1つだけ。"
+ ],
+ "进阶难度": [
+  "Ascension",
+  "アセンション"
+ ],
+ "选角色时可以调 {0}～{1} 级，每一级都会叠加之前所有的难度。": [
+  "Set it from {0} to {1} when choosing a character. Each level stacks with all previous ones.",
+  "キャラ選択時に{0}～{1}で設定。各レベルはそれ以前のすべてと重なる。"
+ ],
+ "燃烧的精英": [
+  "Burning Elite",
+  "燃えるエリート"
+ ],
+ "第一章地图上有一个带火焰标记的精英：血更多、力量 {0}，打赢就能拿到翡翠钥匙。": [
+  "One elite on the Chapter 1 map carries a flame mark: more HP and {0} Strength. Beat it to get the Emerald Key.",
+  "第1章のマップに炎マークのエリートが1体いる：HPが多く筋力{0}。倒すと翡翠の鍵が手に入る。"
+ ],
+ "翡翠钥匙（第一章燃烧的精英）、血月钥匙（第二章营火放弃休息换取）、龙鳞钥匙（第三章宝箱放弃秘宝换取）。集齐后打倒魔王，可以打开通往真结局的门。": [
+  "Emerald Key (Chapter 1 burning elite), Blood Moon Key (give up a Chapter 2 campfire), Dragonscale Key (give up a Chapter 3 chest). With all three, defeating the Demon Lord opens the door to the true ending.",
+  "翡翠の鍵（第1章の燃えるエリート）、血月の鍵（第2章の焚き火を諦める）、竜鱗の鍵（第3章の宝箱を諦める）。3つ揃えて魔王を倒すと、真エンディングへの扉が開く。"
+ ],
+ "真结局 Boss 的招式：指定一种牌，你手里那种牌会有一张这回合被封住打不出。": [
+  "A move of the true-ending boss: he picks a card type, and one such card in your hand is sealed this turn.",
+  "真エンディングのボスの技：カードの種類を指定し、手札のその種類のカード1枚がこのターン封印される。"
+ ],
+ "每天所有人用同一个角色、同一张地图和同样的修正，有单独的今日排行。": [
+  "Every day, everyone plays the same character, map, and modifiers, with its own daily ranking.",
+  "毎日、全員が同じキャラ・同じマップ・同じ修正で遊び、専用のランキングがある。"
+ ],
+ "可以填种子（种子相同，地图和奖励就相同），也可以勾选各种修正规则。": [
+  "Enter a seed (same seed, same map and rewards) and toggle modifier rules.",
+  "シードを入力でき（同じシードならマップと報酬も同じ）、各種修正ルールも選べる。"
+ ],
+ "主菜单的「{0}」页可以看到全部成就和解锁情况，只记录在这台设备上。": [
+  "See every achievement and your progress on the 「{0}」 page of the main menu. Saved on this device only.",
+  "メインメニューの「{0}」ページで全実績と解除状況を確認できる。この端末にのみ保存。"
+ ],
+ "开发者合上了电脑。这一次，是真的回家了。": [
+  "The Developer closes his laptop. This time, you really are going home.",
+  "開発者はパソコンを閉じた。今度こそ、本当に帰れる。"
+ ],
+ "真结局 · 感谢游玩！": [
+  "True Ending · Thanks for playing!",
+  "真エンディング・プレイありがとう！"
+ ],
+ "开发者在屏幕前敲下最后一行注释：// 谢谢你们，陪我把这个游戏打通。": [
+  "At his screen, the Developer types one last comment: // Thank you for playing this game through with me.",
+  "開発者は画面に最後のコメントを打ち込んだ：// 一緒にこのゲームをクリアしてくれて、ありがとう。"
+ ],
+ "林拓回到了街口。掌机屏幕上，跳出了从没见过的两个字：「{0}」。": [
+  "Lin is back at the street corner. On his handheld, a word he's never seen appears: 「{0}」.",
+  "リンは街角に戻ってきた。携帯ゲーム機の画面に、見たことのない文字が浮かぶ：「{0}」。"
+ ],
+ "他把存档拷了好几份。“……下次，换我来做一个游戏。”": [
+  "He backs up the save file several times. \"...Next time, I'll make a game myself.\"",
+  "彼はセーブデータを何個もコピーした。「……次は、俺がゲームを作る番だ。」"
+ ],
+ "苏音摘下耳机，异世界的声音还在耳朵里回响。": [
+  "Suin takes off her headphones. The sounds of the other world still echo in her ears.",
+  "スインはヘッドホンを外した。異世界の音がまだ耳に響いている。"
+ ],
+ "那天晚上，她录下了自己的第一首歌，歌名叫《通往顶端》。": [
+  "That night, she records her first song. She calls it \"The Way Up\".",
+  "その夜、彼女は初めての曲を録音した。曲名は『The Way Up』。"
+ ],
+ "神社的铃铛在风里响着。千早在绘马上写下“愿大家平安”，挂在了最高的那根绳子上。": [
+  "The shrine bells ring in the wind. Chihaya writes \"May everyone be safe\" on an ema plaque and hangs it on the highest rope.",
+  "神社の鈴が風に鳴る。千早は絵馬に「みんなが無事でありますように」と書き、一番高い縄に掛けた。"
+ ],
+ "她偶尔会对着山的方向拉一次空弦。那边的人，大概也听得到吧。": [
+  "Now and then she plucks an empty bowstring toward the mountains. Someone over there can probably hear it.",
+  "ときどき彼女は山の方へ弦を一度だけ鳴らす。向こうの誰かにも、きっと聞こえている。"
+ ],
+ "门的这一边，莉泽送走了三个异世界来的朋友。": [
+  "On this side of the door, Lise sees off her three friends from another world.",
+  "扉のこちら側で、リーゼは異世界から来た三人の友達を見送った。"
+ ],
+ "她回到村子，把炼金铺的招牌换成了「{0}」。架子最高处，留着三个永远不卖的空瓶。": [
+  "Back in the village, she renames her alchemy shop 「{0}」. On the top shelf sit three empty bottles that will never be sold.",
+  "村に戻った彼女は、錬金術店の看板を「{0}」に変えた。棚の一番上には、決して売らない空き瓶が三つ。"
+ ],
+ "艾琳在门边找到了第四种元素。它没有颜色，也没有温度，长老们叫它“回忆”。": [
+  "By the door, Erin finds a fourth element. It has no color and no heat; the elders call it \"memory\".",
+  "エリンは扉のそばで四つ目の元素を見つけた。色も温度もない。長老たちはそれを「思い出」と呼ぶ。"
+ ],
+ "她把它写进了魔法书的第一页。": [
+  "She writes it on the first page of her spellbook.",
+  "彼女はそれを魔法書の最初のページに書き記した。"
+ ],
+ "剑派的人重新聚在了山下。师兄们看见她身后那群奇怪的同伴，第一次没有吵架。": [
+  "The sword sect gathers again at the foot of the mountain. Seeing her odd companions, her seniors don't argue for once.",
+  "剣派の者たちが山の麓に再び集まった。彼女の後ろの奇妙な仲間たちを見て、兄弟子たちは初めて口論しなかった。"
+ ],
+ "“练气还是练剑？”有人又问。顾清寒笑了：“一起练。”": [
+  "\"Qi or sword first?\" someone asks again. Gu Qinghan smiles: \"Both. Together.\"",
+  "「気が先か、剣が先か？」また誰かが尋ねた。顧清寒は笑った。「一緒に練ればいい。」"
+ ],
+ "希尔薇不再害怕变身了。": [
+  "Sylvie is no longer afraid of transforming.",
+  "シルヴィはもう変身を怖がらない。"
+ ],
+ "后来，雪山上多了一条会朝登山的人点头打招呼的白龙。": [
+  "Later, climbers on the snowy peak start meeting a white dragon who nods hello.",
+  "やがて雪山には、登山者に会釈して挨拶する白い竜が現れるようになった。"
+ ],
+ "团子在门口打了个大大的哈欠，米娅把它抱了起来。": [
+  "Dango lets out a huge yawn at the door, and Mia scoops it up.",
+  "団子が扉の前で大きなあくびをし、ミアはそれを抱き上げた。"
+ ],
+ "“我们的家，就是有你在的地方喵。”": [
+  "\"Home is wherever you are, nya.\"",
+  "「あたしたちの家は、あんたがいる場所にゃ。」"
+ ],
+ "绯月站在晨光里，没有被灼伤。": [
+  "Hizuki stands in the morning light, unburned.",
+  "緋月は朝の光の中に立っていた。焼けることもなく。"
+ ],
+ "“原来……太阳是这样的温度。”她眯起眼睛，第一次不想躲。": [
+  "\"So this is... how warm the sun is.\" She squints, and for the first time doesn't want to hide.",
+  "「太陽って……こんな温かさだったんだ。」彼女は目を細め、初めて隠れたいと思わなかった。"
+ ],
+ "真结局": [
+  "True Ending",
+  "真エンディング"
  ]
 }
