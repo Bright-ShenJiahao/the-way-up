@@ -914,5 +914,21 @@
  "每回合第一次吸到血时，抽 {0} 张牌并得到 {1} 点能量": [
   "The first time each turn you Lifesteal, draw {0} card and gain {1} Energy",
   "毎ターン初めて吸血した時、カード{0}枚とエネルギー{1}"
+ ],
+ "养气": [
+  "Cultivate Qi",
+  "養気"
+ ],
+ "每回合结束时，如果飞剑不少于 {0} 把，回复 {1} 点生命（每场最多 {2} 点）。": [
+  "At the end of each turn, if you have {0}+ Flying Swords, heal {1} HP (max {2} per combat).",
+  "毎ターン終了時、飛剣が{0}本以上ならHPを{1}回復（各戦闘最大{2}）。"
+ ],
+ "对所有敌人造成 {0} 点伤害，每打中 {1} 个敌人回复 {2} 点生命，得到 {3} 把飞剑。": [
+  "Deal {0} damage to all enemies, heal {2} HP for every {1} enemy hit, and gain {3} Flying Sword.",
+  "すべての敵に{0}ダメージ、命中した敵{1}体ごとにHPを{2}回復し、飛剣を{3}本得る。"
+ ],
+ "回合结束时飞剑不少于 {0} 把，回复这么多生命（每场最多 {1}）": [
+  "At turn end, if you have {0}+ Flying Swords, heal this much (max {1} per combat)",
+  "ターン終了時、飛剣{0}本以上ならこの値回復（各戦闘最大{1}）"
  ]
 }

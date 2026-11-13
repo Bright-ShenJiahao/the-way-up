@@ -3330,5 +3330,9 @@ export default {
 "每回合开始团子攻击 {0}（本场最多 {1}）": "Dango gets Attack {0} each turn (max {1} this combat)",
 "回合开始时血蝠不少于 {0} 只，获得这么多格挡": "At turn start, if you have {0}+ Blood Bats, gain this much Block",
 "因为自己的牌失去生命时，对随机敌人造成这么多伤害": "When you lose HP from your own cards, deal this much damage to a random enemy",
-"每回合第一次吸到血时，抽 {0} 张牌并得到 {1} 点能量": "The first time each turn you Lifesteal, draw {0} card and gain {1} Energy"
+"每回合第一次吸到血时，抽 {0} 张牌并得到 {1} 点能量": "The first time each turn you Lifesteal, draw {0} card and gain {1} Energy",
+"养气": "Cultivate Qi",
+"每回合结束时，如果飞剑不少于 {0} 把，回复 {1} 点生命（每场最多 {2} 点）。": "At the end of each turn, if you have {0}+ Flying Swords, heal {1} HP (max {2} per combat).",
+"对所有敌人造成 {0} 点伤害，每打中 {1} 个敌人回复 {2} 点生命，得到 {3} 把飞剑。": "Deal {0} damage to all enemies, heal {2} HP for every {1} enemy hit, and gain {3} Flying Sword.",
+"回合结束时飞剑不少于 {0} 把，回复这么多生命（每场最多 {1}）": "At turn end, if you have {0}+ Flying Swords, heal this much (max {1} per combat)"
 };
