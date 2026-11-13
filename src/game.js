@@ -1165,10 +1165,10 @@ function endingChoice() {
 }
 /* 真结局：三把钥匙打开「源代码之间」（真 Boss 待定，先用加强版开发者占位） */
 const TRUEB = 'dev_debug'; /* 真结局插图：千早回日本的街道；其他人回中国小镇（图到了改成 story_true_cn） */
-const CN_ART = false; /* 中国小镇两张图到了改成 true（story_home_cn / story_true_cn） */
+const CN_ART = true, CN_TRUE = false; /* 中国小镇：普通结局图已到；真结局图 story_true_cn 到了把 CN_TRUE 改成 true */
 const HOMEART = { miko: 'story_home', hero: 'story_home_cn', heroine: 'story_home_cn', witch: 'story_party', mia: 'story_party', erin: 'story_gate', gu: 'story_snow', sylvie: 'story_snow', feiyue: 'story_end2' };
 const homeArt = () => { const a = HOMEART[R && R.char] || 'story_home'; return a.endsWith('_cn') && !CN_ART ? 'story_home' : a; };
-const trueArt = () => { const c = R && R.char; if (c === 'miko') return 'story_true_jp'; if (c === 'hero' || c === 'heroine') return CN_ART ? 'story_true_cn' : 'story_true_jp'; return homeArt(); };
+const trueArt = () => { const c = R && R.char; if (c === 'miko') return 'story_true_jp'; if (c === 'hero' || c === 'heroine') return CN_TRUE ? 'story_true_cn' : 'story_home_cn'; return homeArt(); };
 const TRUEEND = {
   hero: ['林拓回到了街口。掌机屏幕上，跳出了从没见过的两个字：「通关」。', '他把存档拷了好几份。“……下次，换我来做一个游戏。”'],
   heroine: ['苏音摘下耳机，异世界的声音还在耳朵里回响。', '那天晚上，她录下了自己的第一首歌，歌名叫《通往顶端》。'],
