@@ -1,7 +1,8 @@
-import { tr } from './i18n.js?v=live2_11131730';
-import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11131730';
+import { tr } from './i18n.js?v=live2_11131930';
+import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11131930';
 export { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 };
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11131730';
+import { R2, P2, EV1B, EV2B, EV3B, setPotPool } from './content2.js?v=live2_11131930';
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11131930';
 export { MECH, NEWKEYW, OLDKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
@@ -303,7 +304,7 @@ export const RELICS = {
   feather: { name: '凤凰羽', icon: 'p_rev', rar: 'r', desc: '死亡时，复活并回复 30% 生命（一次）。' },
   crown: { name: '王冠', icon: 'm_crown', rar: 'r', desc: '每回合开始时，获得 1 点额外能量。拾取时最大生命 -10，战斗结束不再回复生命。' },
 };
-Object.assign(RELICS, NEWRELICS, R3);
+Object.assign(RELICS, NEWRELICS, R3, R2);
 export const STARTRELIC = { hero: 'gameboy', heroine: 'phones', miko: 'suzu', witch: 'cauldron', ...NEWSTARTRELIC };
 for (const [k, r] of Object.entries(RELICS)) { r.id = k; if (['spare', 'pad', 'phones', 'metro', 'mic', 'cauldron', 'toad', 'hat', 'suzu', 'omamori', 'hamaya'].includes(k)) r.icon = 'icons2/r_' + k; r.img = I(r.icon); }
 
@@ -322,6 +323,8 @@ export const POTIONS = {
   fairy: { name: '复活药水', icon: 'p_rev', rar: 'r', tgt: 'auto', desc: '死亡时自动使用：回复 30% 最大生命。不能主动使用。', use: () => {} },
 };
 for (const [k, x] of Object.entries(POTIONS)) { x.id = k; x.icon = 'icons2/pot_' + k; x.img = I(x.icon); }
+for (const [k, x] of Object.entries(P2)) { x.id = k; x.img = I(x.icon); POTIONS[k] = x; } /* 新药水：图标到了再换成 icons2/pot_* */
+setPotPool(Object.keys(POTIONS).filter(k => k !== 'fairy'));
 
 export const STATUS = {
   str: ['力量', '攻击伤害增加', '#e05a3a'], dex: ['敏捷', '获得的格挡增加', '#5ab45a'],
@@ -613,6 +616,7 @@ for (const r of Object.values(RELICS)) { tx(r, 'name'); tx(r, 'desc'); }
 for (const x of Object.values(POTIONS)) { tx(x, 'name'); tx(x, 'desc'); }
 for (const e of Object.values(ENEMIES)) { tx(e, 'name'); for (const m of Object.values(e.moves)) tx(m, 'n'); }
 for (const st of Object.values(STATUS)) { tx(st, 0); tx(st, 1); }
+EVENTS.push(...EV1B); EVENTS2.push(...EV2B); EV3.push(...EV3B);
 for (const ev of [...EVENTS, ...EVENTS2, ...EV3]) { tx(ev, 'title'); tx(ev, 'text'); for (const o of ev.opts) { tx(o, 't'); tf(o, 'go'); } }
 
 // 两个引擎共用的规则常量（游戏和平衡模拟都从这里读）

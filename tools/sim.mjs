@@ -59,7 +59,7 @@ const G = {
   discard(n) { const pool = [...B.hand]; let cnt = 0; for (let k = 0; k < n && pool.length; k++) { const c = pool.splice(Math.floor(Math.random() * pool.length), 1)[0], d = CARDS[c.id]; const hi = B.hand.indexOf(c); if (hi < 0) { k--; continue; } B.hand.splice(hi, 1); cnt++;
     if (d.sly) { const a = alive(); B.p.fh = d.type === 'atk' ? 1 : 0; try { d.play(G, c.up, d.tgt === 'one' ? a[Math.floor(Math.random() * a.length)] : null, c); } catch (e) {} postPlay(d); (d.exhaust ? B.exh : B.disc).push(c); } else B.disc.push(c); } G.discNote(cnt); },
   get p() { return B.p; }, get hand() { return B.hand; }, get R() { return R; }, x: 0, alive: () => alive(),
-  addHand(id, up = 0) { if (B.hand.length >= 10) return false; B.hand.push(mk(id, up)); return true; }, note() {}, hitE(e, n) { if (e && !e.dead) hurt(e, n, null, false); },
+  addHand(id, up = 0) { if (B.hand.length >= 10) return false; B.hand.push(mk(id, up)); return true; }, note() {}, hitE(e, n) { if (e && !e.dead) hurt(e, n, null, false); }, hit(t, n) { if (t && !t.dead) hurt(t, n, B.p, false); },
   fhb() { const pt = B.p.ptP || 0; B.p.ptP = 0; if (!B.p.fh) return pt; B.p.fh = 0; return MECH.firstHit(G) + pt; },
   patch(c, n) { if (!c) return; n *= CARDS[c.id].dbl ? 2 : 1; c.pt = (c.pt || 0) + n; c.pv = (c.pv || 0) + 1; B.p.ptN = (B.p.ptN || 0) + 1; if (has('mug') && !B.p.mugU) { B.p.mugU = 1; B.p.energy++; } },
   cardOf: c => CARDS[c.id], costOf: c => cost(c),
@@ -111,7 +111,7 @@ const BE = {
   split(e, key, n) { const i = B.en.indexOf(e), hp = Math.max(1, Math.floor(e.hp / n)), bits = []; for (let k = 0; k < n; k++) { const b = mkE(key); b.hp = b.max = hp; b.move = b.d.ai(b, BE); bits.push(b); } e.dead = true; e.fled = 1; e.hp = 0; B.en.splice(i, 1, ...bits); }, summon(key, hp) { if (alive().length >= 5) return null; const e = mkE(key); if (hp) e.hp = e.max = hp; e.move = e.d.ai(e, BE); const i = B.en.findIndex(x => x.dead && !(x.d.prePhase && !x.revived && !x.fled)); if (i >= 0) B.en[i] = e; else B.en.unshift(e); return e; } /* 召唤物优先填进已经死掉的位置，队伍不会越排越长 */,
 };
 let eid = 1;
-function mkE(key) { const d = ENEMIES[key], hm = 1 + (A_(1) && d.elite ? .15 : 0) + (A_(2) && !d.elite && !d.boss ? .1 : 0) + (A_(6) && d.boss ? .15 : 0), hp = Math.round(rnd(d.hp[0], d.hp[1]) * hm * (R.act === 2 ? RULES.act2Mul : R.act === 3 ? RULES.act3Hp : 1)); const e = { key, d, hp, max: hp, dmul: (1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0)) * (R.act === 2 ? RULES.act2Mul : R.act === 3 ? RULES.act3Dmg : 1), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++ }; d.init && d.init(e); return e; }
+function mkE(key) { const d = ENEMIES[key], hm = 1 + (A_(1) && d.elite ? .15 : 0) + (A_(2) && !d.elite && !d.boss ? .1 : 0) + (A_(6) && d.boss ? .15 : 0) + (A_(15) ? .1 : 0), hp = Math.round(rnd(d.hp[0], d.hp[1]) * hm * (R.act === 2 ? RULES.act2Mul : R.act === 3 ? RULES.act3Hp : 1)); const e = { key, d, hp, max: hp, dmul: (1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0)) * (R.act === 2 ? RULES.act2Mul : R.act === 3 ? RULES.act3Dmg : 1), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++ }; if (A_(10) && d.elite) e.st.str = 1; d.init && d.init(e); return e; }
 const cost0 = c => { const d = CARDS[c.id]; if (c.free) return 0; if (c.rc != null) return c.rc; const k = d.cost[c.up ? 1 : 0]; return c.disc && k !== 'X' ? Math.max(0, k - 1) : k; };
 const cost = c => { const k = cost0(c); return B && typeof k === 'number' ? Math.max(0, k + MECH.costMod(G, CARDS[c.id])) : k; };
 function startTurn(first) {
@@ -124,7 +124,7 @@ function startTurn(first) {
   if (has('hamaya') && (B.p.st.kek || 0) >= 4) drawCards(1);
   B.p.oc = 0; B.p.aoe = 0; B.p.metroUsed = 0; B.p.cplays = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (has('gameboy') && B.turn % 2 === 1) G.ammo(1); if (!first && has('phones')) G.resAll(1); if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
-  drawCards(5 + (first && has('scroll') ? 2 : 0) - Math.min(4, B.p.st.drowsy || 0)); B.p.slept = 0;
+  drawCards(5 + (first && has('scroll') ? 2 : 0) - Math.min(4, B.p.st.drowsy || 0) - (first && A_(13) ? 1 : 0)); B.p.slept = 0;
   if (B.p.st.confuse) { B.hand.forEach(c => { if (typeof cost(c) === 'number') c.rc = rnd(0, 3); }); addSt(B.p, 'confuse', -1); }
   B.onPT = 1;
   MECH.turnStart(G, first);
@@ -261,7 +261,7 @@ function battle(keys, kind) {
   return true;
 }
 function revive() { pDeath(); return R.hp > 0; }
-function dropPot(kind) { if (Math.random() < (kind === 'elite' ? .6 : .4) && R.pots.length < 3) R.pots.push(pickOne(POTS)); }
+function dropPot(kind) { if (Math.random() < (kind === 'elite' ? .6 : .4) && R.pots.length < (A_(12) ? 2 : 3)) R.pots.push(pickOne(POTS)); }
 function rollCards(n, bonus = 0) { const out = []; while (out.length < n) { const x = Math.random(), rar = x < .04 + bonus ? 'r' : x < .36 + bonus ? 'u' : 'c'; const pool = Object.values(CARDS).filter(d => d.rar === rar && mine(d) && !out.includes(d.id)); if (pool.length) out.push(pickOne(pool).id); } return mixTypes(out, d => mine(d) && d.rar !== 'start' && d.rar !== 'gen'); }
 /* 三选一保底：三张全是攻击或全是非攻击时，把稀有度最低的一张换成另一类（优先同稀有度） */
 function mixTypes(out, okFn) {
@@ -290,10 +290,11 @@ function smartScore(id) { const d = CARDS[id], t = dtxt(id), { A, b, n } = archO
   if (isBlock(d) && blocks < R.deck.length * .3) v += W.needBlk; if (d.type === 'atk' && atks < R.deck.length * .4) v += W.needAtk; if (d.type !== 'atk' && !isBlock(d) && atks < R.deck.length * .35) v -= W.nonAtk;
   if (d.type === 'power' && R.deck.filter(c => CARDS[c.id].type === 'power').length >= 3) v -= W.powPen;
   v -= (R.picks[id] || 0) * (d.type === 'power' ? 3 : W.dup); return v; }
-function reward(kind) { const cs = rollCards(3, kind === 'elite' ? .07 : 0);
+function reward(kind) { const cs = rollCards(3 + (has('b_cards') ? 1 : 0), kind === 'elite' ? .07 : 0);
   if (SMART) { const sc = smartScore;
     const best = cs.sort((a, b) => sc(b) - sc(a))[0]; if (sc(best) < W.skip && R.deck.length > 18) return; R.deck.push(mk(best)); R.picks[best] = (R.picks[best] || 0) + 1; return; } if (R.deck.length > 26 && Math.random() < .5) return; const best = cs.sort((a, b) => TIER[CARDS[b].rar] - TIER[CARDS[a].rar] + (CARDS[b].ch ? .5 : 0) - (CARDS[a].ch ? .5 : 0))[0]; R.deck.push(mk(best)); R.picks[best] = (R.picks[best] || 0) + 1; }
-function relic() { let pool = []; for (let k = 0; k < 30 && !pool.length; k++) { const rr = pickOne(['c', 'c', 'c', 'u', 'u', 'r']); pool = Object.values(RELICS).filter(r => r.rar === rr && mine(r) && !has(r.id) && r.id !== 'crown'); } if (!pool.length) pool = Object.values(RELICS).filter(r => r.rar !== 'start' && mine(r) && !has(r.id)); if (!pool.length) return; const r = pickOne(pool); R.relics.push(r.id); if (r.id === 'herb') { R.maxHp += 10; R.hp += 10; } if (r.id === 'crown') { R.maxHp -= 10; R.hp = Math.min(R.hp, R.maxHp); } if (r.id === 'grail') { R.maxHp -= 5; R.hp = Math.min(R.hp, R.maxHp); } }
+function bossRelic() { const ps = Object.values(RELICS).filter(r => r.rar === 'boss' && !has(r.id)); if (!ps.length) return; const r = pickOne(ps); R.relics.push(r.id); if (r.pick) r.pick(R); }
+function relic() { let pool = []; for (let k = 0; k < 30 && !pool.length; k++) { const rr = pickOne(['c', 'c', 'c', 'u', 'u', 'r']); pool = Object.values(RELICS).filter(r => r.rar === rr && mine(r) && !has(r.id) && r.id !== 'crown'); } if (!pool.length) pool = Object.values(RELICS).filter(r => r.rar !== 'start' && r.rar !== 'boss' && mine(r) && !has(r.id)); if (!pool.length) return; const r = pickOne(pool); R.relics.push(r.id); if (r.pick) r.pick(R); if (r.id === 'herb') { R.maxHp += 10; R.hp += 10; } if (r.id === 'crown') { R.maxHp -= 10; R.hp = Math.min(R.hp, R.maxHp); } if (r.id === 'grail') { R.maxHp -= 5; R.hp = Math.min(R.hp, R.maxHp); } }
 const UNLOCKS = [{ cards: ['dual', 'concert'], relics: [] }, { cards: ['shinboku', 'sage'], relics: ['mic'] }, { cards: ['screen', 'distort', 'deadly'], relics: ['pad'] }, { cards: ['thunder'], relics: ['crown', 'feather'] }];
 const LOCK = new Set(UNLOCKS.slice(LOCKLV).flatMap(u => [...u.cards, ...u.relics]));
 function shop() { if (!SMART) { const i = R.deck.findIndex(c => c.id === 'defend'); if (i >= 0) R.deck.splice(i, 1); return; }
@@ -305,23 +306,23 @@ function event() { const x = Math.random(); if (x < .3) heal(10); else if (x < .
 function riftRun() { let fights = 0; /* 第三章下半：魔界裂隙 */
   for (const node of ROUTE_R) { R.floor++;
     if (node === 'fight') { const enc = pickOne(fights < 2 ? RIFT.easy : RIFT.hard); fights++; if (!battle(enc, 'fight')) return { win: false, to: TIMEOUT, act: 3, floor: R.floor, at: '裂隙·' + enc.join('+') }; reward(); dropPot('fight'); R.gold += 15; }
-    else if (node === 'elite') { const enc = pickOne(RIFT.elite); if (!battle(enc, 'elite')) return { win: false, to: TIMEOUT, act: 3, floor: R.floor, at: '裂隙精英:' + enc.join('+') }; reward('elite'); relic(); dropPot('elite'); R.gold += 30; }
+    else if (node === 'elite') { const enc = pickOne(RIFT.elite); if (!battle(enc, 'elite')) return { win: false, to: TIMEOUT, act: 3, floor: R.floor, at: '裂隙精英:' + enc.join('+') }; reward('elite'); relic(); if (has('b_star')) relic(); dropPot('elite'); R.gold += 30; }
     else if (node === 'boss') { if (!battle([GATE3], 'boss')) return { win: false, to: TIMEOUT, act: 3, floor: R.floor, at: 'Boss:' + GATE3 }; }
-    else if (node === 'rest') { if (R.hp < R.maxHp * W.rest) heal(Math.floor(R.maxHp * (A_(5) ? .2 : .3))); else { const c = R.deck.find(c => !c.up && CARDS[c.id].rar !== 'start') || R.deck.find(c => !c.up); if (c) c.up = 1; } }
+    else if (node === 'rest') { if (R.hp < R.maxHp * W.rest && !has('b_core')) heal(Math.floor(R.maxHp * (A_(5) ? .2 : .3)) - (A_(14) ? 5 : 0)); else { const c = R.deck.find(c => !c.up && CARDS[c.id].rar !== 'start') || R.deck.find(c => !c.up); if (c) c.up = 1; } }
     else if (node === 'event') event(); else if (node === 'shop') shop(); }
   return null; }
 function run(char) {
-  TIMEOUT = 0; uid = 1; R = { char, hp: A_(4) ? 72 : 80, maxHp: A_(4) ? 72 : 80, deck: STARTERS[char].map(id => mk(id)), relics: [STARTRELIC[char]], kills: 0, picks: {}, floor: 0, pots: [], act: 1, gold: 99 };
+  TIMEOUT = 0; uid = 1; R = { char, hp: A_(4) ? 72 : 80, maxHp: A_(4) ? 72 : 80, deck: STARTERS[char].map(id => mk(id)), relics: [STARTRELIC[char]], kills: 0, picks: {}, floor: 0, pots: [], act: 1, gold: 99 }; if (A_(9)) R.deck.push(mk('regret'));
   for (const [act, EN] of [[1, ENCOUNTERS], [2, ENCOUNTERS2], [3, ENC3]]) {
     R.act = act; let fights = 0; if (act >= 2) R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .5));
     for (const node of ROUTE) {
       R.floor++;
       if (node === 'fight') { const enc = pickOne(fights < 3 ? EN.easy : EN.hard); fights++; if (!battle(enc, 'fight')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: enc.join('+') }; reward(); dropPot('fight'); R.gold += Math.round((10 + Math.floor(Math.random() * 11)) * (A_(7) ? .7 : 1)); }
-      else if (node === 'elite') { const enc = pickOne(EN.elite); if (!battle(enc, 'elite')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: '精英:' + enc.join('+') }; reward('elite'); relic(); dropPot('elite'); R.gold += Math.round((25 + Math.floor(Math.random() * 11)) * (A_(7) ? .7 : 1)); }
-      else if (node === 'boss') { if (DG) DG.bosses++; const bk = pickOne(EN.boss)[0]; if (!battle([bk], 'boss')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: 'Boss:' + bk };
+      else if (node === 'elite') { const enc = pickOne(EN.elite); if (!battle(enc, 'elite')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: '精英:' + enc.join('+') }; reward('elite'); relic(); if (has('b_star')) relic(); dropPot('elite'); R.gold += Math.round((25 + Math.floor(Math.random() * 11)) * (A_(7) ? .7 : 1)); }
+      else if (node === 'boss') { if (DG) DG.bosses++; const bk = pickOne(EN.boss)[0]; if (!battle([bk], 'boss')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: 'Boss:' + bk }; if (act < 3) bossRelic();
         if (act === 3) { relic(); R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .3)); const r = riftRun(); if (r) return r;
           R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * .3)); if (!battle([FINAL3], 'boss')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: 'Boss:' + FINAL3 }; } }
-      else if (node === 'rest') { if (R.hp < R.maxHp * W.rest) heal(Math.floor(R.maxHp * (A_(5) ? .2 : .3))); else { const c = R.deck.find(c => !c.up && CARDS[c.id].rar !== 'start') || R.deck.find(c => !c.up); if (c) c.up = 1; } }
+      else if (node === 'rest') { if (R.hp < R.maxHp * W.rest && !has('b_core')) heal(Math.floor(R.maxHp * (A_(5) ? .2 : .3)) - (A_(14) ? 5 : 0)); else { const c = R.deck.find(c => !c.up && CARDS[c.id].rar !== 'start') || R.deck.find(c => !c.up); if (c) c.up = 1; } }
       else if (node === 'event') event();
       else if (node === 'treasure') relic();
       else if (node === 'shop') shop();

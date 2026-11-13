@@ -1,8 +1,8 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11131730';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11131730';
-import { createAudio } from './audio.js?v=live2_11131730';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11131730';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11131930';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11131930';
+import { createAudio } from './audio.js?v=live2_11131930';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11131930';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -54,6 +54,7 @@ function newRun(char = 'hero', asc = 0) {
   R = { char, hp: 80, maxHp: 80, gold: 120, potions: [], asc, deck: STARTERS[char].map(id => mkCard(id)), relics: [STARTRELIC[char]].filter(Boolean), map: genMap(), pos: null,
     floor: 0, fights: 0, removeCost: 75, boss: pickOne(ENCOUNTERS.boss)[0], feather: 0 };
   if (asc >= 4) { R.maxHp -= 8; R.hp = R.maxHp; }
+  if (asc >= 9) R.deck.push(mkCard('regret'));
 }
 const has = id => R.relics.includes(id);
 const snap = () => { const { snap: _, ...o } = R; R.snap = JSON.stringify(o); }; /* 进入节点前的快照：中途退出后从这里恢复 */
@@ -190,15 +191,21 @@ function chooseCard(cards, done, title = '选择一张牌加入牌组') {
 }
 function rollRelic(rars = ['c', 'c', 'c', 'u', 'u', 'r'], crown = false) {
   for (let k = 0; k < 30; k++) { const r = pickOne(rars); const pool = Object.values(RELICS).filter(x => x.rar === r && mine(x) && !lockedSet().has(x.id) && !has(x.id) && (crown || x.id !== 'crown')); if (pool.length) return pickOne(pool).id; }
-  const pool = Object.values(RELICS).filter(x => x.rar !== 'start' && mine(x) && !lockedSet().has(x.id) && !has(x.id) && (crown || x.id !== 'crown')); return pool.length ? pickOne(pool).id : null;
+  const pool = Object.values(RELICS).filter(x => x.rar !== 'start' && x.rar !== 'boss' && mine(x) && !lockedSet().has(x.id) && !has(x.id) && (crown || x.id !== 'crown')); return pool.length ? pickOne(pool).id : null;
 }
-function gainRelic(id) { if (!id) return; R.relics.push(id); if (id === 'herb') { R.maxHp += 10; R.hp += 10; } if (id === 'crown') { R.maxHp -= 10; R.hp = Math.min(R.hp, R.maxHp); } if (id === 'grail') { R.maxHp -= 5; R.hp = Math.min(R.hp, R.maxHp); } audio.level(); }
+function gainRelic(id) { if (!id) return; R.relics.push(id); if (id === 'herb') { R.maxHp += 10; R.hp += 10; } if (id === 'crown') { R.maxHp -= 10; R.hp = Math.min(R.hp, R.maxHp); } if (id === 'grail') { R.maxHp -= 5; R.hp = Math.min(R.hp, R.maxHp); } if (RELICS[id] && RELICS[id].pick) RELICS[id].pick(R); audio.level(); }
+const rollBossRelics = () => shuffle(Object.values(RELICS).filter(x => x.rar === 'boss' && !has(x.id)).map(x => x.id)).slice(0, 3);
+function chooseBossRelic(ids, done) { /* Boss 秘宝三选一 */
+  const o = overlay(`<div class="panel" style="width:min(760px,92vw);text-align:center"><h2>${tr('Boss 秘宝：选一个')}</h2><p style="opacity:.8">${tr('力量强大，但都有代价。')}</p><div class="row" style="justify-content:center;gap:12px;flex-wrap:nowrap">${ids.map(id => `<div class="reward brel" data-id="${id}" style="width:31%;min-width:0;margin:0;flex-direction:column;text-align:center"><img src="${RELICS[id].img}" style="width:64px;height:64px"><b>${tr(RELICS[id].name)}</b><span style="font-size:14px">${tr(RELICS[id].desc)}</span></div>`).join('')}</div><br><button class="btn" id="bsk">${tr('跳过')}</button></div>`);
+  o.querySelectorAll('.brel').forEach(el => el.onclick = () => { gainRelic(el.dataset.id); o.remove(); done(true); });
+  o.querySelector('#bsk').onclick = () => { o.remove(); done(false); };
+}
 
 // ---------- 标题 ----------
 // ---------- 玩家名字 / 口令（存在浏览器里） ----------
 const LS = (k, v) => { try { if (v === undefined) return localStorage.getItem(k) || ''; localStorage.setItem(k, v); } catch (e) { return ''; } };
 // ---------- 局外成长：进阶难度 + 解锁 ----------
-const ASC = ['标准难度', '精英血量 +15%', '普通怪血量 +10%', '敌人伤害 +10%', '开局最大生命 -8', '营火只回复 20% 生命', 'Boss 血量 +15%', '战斗金币 -30%', '敌人伤害再 +10%'];
+const ASC = ['标准难度', '精英血量 +15%', '普通怪血量 +10%', '敌人伤害 +10%', '开局最大生命 -8', '营火只回复 20% 生命', 'Boss 血量 +15%', '战斗金币 -30%', '敌人伤害再 +10%', '开局牌组多一张「懊悔」', '精英开局有 1 点力量', '商店价格 +20%', '药水栏只有 2 格', '每场战斗第一回合少抽 1 张牌', '营火回血再少 5 点', '所有敌人血量再 +10%'];
 const UNLOCKS = [
   { xp: 300, cards: ['dual', 'concert'], relics: [] },
   { xp: 800, cards: ['shinboku', 'sage'], relics: ['mic'] },
@@ -235,6 +242,13 @@ function title() {
   const go = () => { const n = $('#nm').value.trim() || ('Guest' + Math.floor(100 + Math.random() * 900)); LS('tw_name', n); LS('tw_pin', $('#pin').value.trim()); mainMenu(); };
   $('#enter').onclick = go; $('#nm').onkeydown = $('#pin').onkeydown = e => { if (e.key === 'Enter') go(); };
 }
+function runHistory() { /* 对局历史和统计（存在本机） */
+  let H = []; try { H = JSON.parse(localStorage.getItem('tw_hist') || '[]'); } catch (e) {}
+  const st = Object.keys(CHARS).map(c => { const r = H.filter(h => h.c === c); return r.length ? `<tr><td>${CHARS[c].name}</td><td>${r.length}</td><td>${r.filter(h => h.w).length}</td><td>${Math.round(r.filter(h => h.w).length / r.length * 100)}%</td><td>${Math.max(...r.map(h => h.f))}</td></tr>` : ''; }).join('');
+  const rows = H.slice(0, 20).map(h => `<tr><td>${new Date(h.t).toLocaleDateString()}</td><td>${CHARS[h.c] ? CHARS[h.c].name : h.c}</td><td>${h.w ? tr('通关') : t('第 {0} 章 · 第 {1} 层', h.a, h.f)}</td><td>${h.asc}</td><td>${h.by ? h.by.split(' + ').map(n => tr(n)).join(' + ') : ''}</td></tr>`).join('');
+  const o = overlay(`<div class="panel" style="width:820px;max-height:86vh;overflow:auto"><h2>${tr('战绩')}</h2>${H.length ? `<h3>${tr('各角色')}</h3><table class="hist"><tr><th>${tr('角色')}</th><th>${tr('局数')}</th><th>${tr('通关')}</th><th>${tr('胜率')}</th><th>${tr('最高层数')}</th></tr>${st}</table><h3>${tr('最近 20 局')}</h3><table class="hist"><tr><th>${tr('日期')}</th><th>${tr('角色')}</th><th>${tr('结果')}</th><th>${tr('进阶')}</th><th>${tr('倒在')}</th></tr>${rows}</table>` : `<p>${tr('还没有完成过冒险。')}</p>`}<br><button class="btn" id="hx">${tr('返回')}</button></div>`);
+  o.querySelector('#hx').onclick = () => o.remove();
+}
 function mainMenu() {
   R = null; B = null; setMusic('menu');
   const sv = load(), nm = LS('tw_name');
@@ -243,7 +257,7 @@ function mainMenu() {
    <div class="mmenu">${nm ? `<p class="who">冒险者：<b data-noi18n>${esc(nm)}</b></p>` : ''}
     ${sv ? `<button class="btn mm" id="cont">继续冒险<small>${CHARS[sv.char || 'hero'].name} · 第 ${sv.floor} 层</small></button>` : ''}
     <button class="btn mm" id="start">新的冒险</button><button class="btn mm" id="book">图鉴</button>
-    <button class="btn mm" id="rank">排行榜</button><button class="btn mm" id="set">设置</button>
+    <button class="btn mm" id="rank">排行榜</button><button class="btn mm" id="hist">战绩</button><button class="btn mm" id="set">设置</button>
     <button class="btn mm sm2" id="back">返回标题</button>${langBar()}</div>`;
   bindLang(mainMenu); SCREEN = 'menu';
   $('#start').onclick = () => askName(() => { if (!sv) return pickChar();
@@ -251,6 +265,7 @@ function mainMenu() {
     y.querySelector('#y0').onclick = () => y.remove(); y.querySelector('#y1').onclick = () => { y.remove(); clearSave(); pickChar(); }; });
   $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending && R.snap && ['fight', 'elite', 'boss', 'final'].includes(R.pending)) { try { const o = JSON.parse(R.snap); R = Object.assign(o, { snap: R.snap }); } catch (e) {} } if (R.act2wait) act2Choice(); else if (R.wait === 'act3') act3Choice(); else if (R.wait === 'rift') riftChoice(); else if (R.wait === 'final') finalPrep(); else if (R.wait === 'ending') endingChoice(); else if (R.wait === 'trial') pickTrial(); else if (R.wait === 'layer') layerEnd(); else if (R.wait === 'trialR') trialReward(R.trialK); else if (R.loot) rewardScreen(); else if (R.pending) enterNode(R.pending); else mapScreen(); });
   $('#book').onclick = () => book();
+  $('#hist').onclick = runHistory;
   $('#rank').onclick = rankBoard; $('#set').onclick = () => settings(false); $('#back').onclick = title;
 }
 function askName(done) {
@@ -314,7 +329,7 @@ function pickChar() {
    <div class="ascbar">进阶难度 <button class="btn" id="am">−</button><b id="av"></b><button class="btn" id="ap">＋</button><span id="ad"></span></div>
    <button class="btn" id="back">返回</button></div>`;
   const M = metaGet(); let asc = 0, cur = 'miko';
-  const mx = k => DEBUG ? 8 : Math.min(8, M.asc[k] || 0);
+  const mx = k => DEBUG ? 15 : Math.min(15, M.asc[k] || 0);
   const show = () => { asc = Math.min(asc, mx(cur)); $('#av').textContent = asc; $('#ad').textContent = asc ? ASC.slice(1, asc + 1).join('，') : `标准难度（用这个角色通关可解锁进阶 1，当前最高 ${mx(cur)}）`; };
   view.querySelectorAll('[data-c]').forEach(el => { el.onmouseenter = () => { cur = el.dataset.c; show(); }; el.onclick = () => { newRun(el.dataset.c, Math.min(asc, mx(el.dataset.c))); save(); story('story_intro', ['放学路上，三个互不相识的少年少女，被一道光卷进了异世界。', '迎接他们的，是本地的小魔女莉泽——她的村民被哥布林抓上了山。', '“回家的方法，也许就在山顶。”四个人，一起出发吧。'], mapScreen, 'introSeen'); }; });
   $('#am').onclick = () => { asc = Math.max(0, asc - 1); show(); }; $('#ap').onclick = () => { asc = Math.min(mx(cur), asc + 1); if (asc === mx(cur) && asc < 8) tip(`${CHARS[cur].name}：通关进阶 ${asc} 后解锁下一级`); show(); }; show();
@@ -373,10 +388,11 @@ let B = null, eid = 1;
 function mkEnemy(key) {
   try { const M = metaGet(); M.seen = M.seen || {}; if (!M.seen[key]) { M.seen[key] = 1; metaSet(M); } } catch (e) {}
   const d = ENEMIES[key], hp = rnd(d.hp[0], d.hp[1]);
-  const hm = 1 + (A_(1) && d.elite ? .15 : 0) + (A_(2) && !d.elite && !d.boss ? .1 : 0) + (A_(6) && d.boss ? .15 : 0);
+  const hm = 1 + (A_(1) && d.elite ? .15 : 0) + (A_(2) && !d.elite && !d.boss ? .1 : 0) + (A_(6) && d.boss ? .15 : 0) + (A_(15) ? .1 : 0);
   const xm = R && R.endless ? endlessMul(R.endless) : { hp: 1, dmg: 1 }, tr2 = R && R.trials || [];
   const hp1 = Math.round(hp * hm * (ACT() === 2 ? RULES.act2Mul : ACT() === 3 ? RULES.act3Hp : 1) * xm.hp * (d.elite && tr2.includes('blood') ? 1.25 : 1));
   const e = { key, d, name: d.name, hp: hp1, max: hp1, dmul: (1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0)) * (ACT() === 2 ? RULES.act2Mul : ACT() === 3 ? RULES.act3Dmg : 1) * xm.dmg * (d.boss && tr2.includes('tyrant') ? 1.15 : 1), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++, move: null };
+  if (A_(10) && d.elite) e.st.str = 1;
   d.init && d.init(e); return e;
 }
 const alive = () => B.en.filter(e => !e.dead);
@@ -574,7 +590,7 @@ function startTurn(first) {
   B.p.oc = 0; B.p.aoe = 0; B.p.metroUsed = 0; B.p.cplays = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (has('gameboy') && B.turn % 2 === 1) G.ammo(1); if (!first && has('phones')) G.resAll(1);
   if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
-  drawCards(5 + (first && has('scroll') ? 2 : 0) - (first && R.trials && R.trials.includes('wind') ? 1 : 0) - Math.min(4, B.p.st.drowsy || 0));
+  drawCards(5 + (first && has('scroll') ? 2 : 0) - (first && R.trials && R.trials.includes('wind') ? 1 : 0) - Math.min(4, B.p.st.drowsy || 0) - (first && A_(13) ? 1 : 0));
   if (B.p.slept) { B.p.slept = 0; setTimeout(() => banner(tr('你睡着了：这回合没有能量')), 300); }
   if (B.p.st.confuse) { B.hand.forEach(c => { if (typeof cardCost(c) === 'number') c.rc = rnd(0, 3); }); addSt(B.p, 'confuse', -1); }
   MECH.turnStart(G, first);
@@ -905,20 +921,22 @@ function rewardScreen() { /* 战利品先存进存档（R.loot），刷新页面
   if (B) { const kind = B.kind; B = null; const L = [];
     L.push({ t: 'gold', n: Math.round((kind === 'boss' ? rnd(90, 110) : kind === 'elite' ? rnd(25, 35) : rnd(10, 20)) * (A_(7) ? .7 : 1)) });
     if (has('clover')) L.push({ t: 'clover' });
-    if (kind === 'elite') { const rl = rollRelic(); if (rl) L.push({ t: 'relic', id: rl }); }
+    if (kind === 'elite') { const rl = rollRelic(); if (rl) L.push({ t: 'relic', id: rl }); if (has('b_star')) { const r2 = rollRelic(); if (r2 && r2 !== rl) L.push({ t: 'relic', id: r2 }); } }
+    if (kind === 'boss' && (R.after === 'act2' || R.after === 'act3')) { /* 打完第一、二章 Boss 各一次 */ const ids = rollBossRelics(); if (ids.length) L.push({ t: 'brelic', ids }); }
     if (kind === 'boss') { const rl = rollRelic(['r']); if (rl) L.push({ t: 'relic', id: rl }); if (R.bonusRelic) { delete R.bonusRelic; let r2 = null; for (let k = 0; k < 10 && (!r2 || r2 === rl); k++) r2 = rollRelic(); if (r2 && r2 !== rl) L.push({ t: 'relic', id: r2 }); } }
     if (Math.random() < (kind === 'elite' ? .6 : .4)) L.push({ t: 'potion', id: rollPotion() });
-    L.push({ t: 'cards', ids: (kind === 'boss' ? rollCards(3, 0, true) : rollCards(3, kind === 'elite' ? .07 : 0)).map(c => c.id) }); /* Boss：三选一稀有牌 */
+    L.push({ t: 'cards', ids: (kind === 'boss' ? rollCards(3 + (has('b_cards') ? 1 : 0), 0, true) : rollCards(3 + (has('b_cards') ? 1 : 0), kind === 'elite' ? .07 : 0)).map(c => c.id) }); /* Boss：三选一稀有牌 */
     R.loot = L; save(); }
   setMusic('menu');
   const L = R.loot || [];
-  const html = it => it.t === 'gold' ? `<img src="assets/icons/goldbag.png">${it.n} 金币` : it.t === 'clover' ? `<img src="${RELICS.clover.img}">四叶草：15 金币` : it.t === 'relic' ? `<img src="${RELICS[it.id].img}"><span>秘宝：</span>${RELICS[it.id].name}` : it.t === 'potion' ? `<img src="${POTIONS[it.id].img}"><span>药水：</span>${POTIONS[it.id].name}` : `<img src="assets/icons/p_arc.png">选择一张牌加入牌组`;
+  const html = it => it.t === 'gold' ? `<img src="assets/icons/goldbag.png">${it.n} 金币` : it.t === 'clover' ? `<img src="${RELICS.clover.img}">四叶草：15 金币` : it.t === 'relic' ? `<img src="${RELICS[it.id].img}"><span>秘宝：</span>${RELICS[it.id].name}` : it.t === 'brelic' ? `<img src="${RELICS[it.ids[0]].img}"><span>Boss 秘宝：</span>三选一` : it.t === 'potion' ? `<img src="${POTIONS[it.id].img}"><span>药水：</span>${POTIONS[it.id].name}` : `<img src="assets/icons/p_arc.png">选择一张牌加入牌组`;
   const take = i => { L.splice(i, 1); save(); draw(); };
   const draw = () => {
     view.innerHTML = `${bgHTML()}${topBar()}<div class="panel"><h2>战利品</h2>${L.map((it, i) => `<div class="reward" data-i="${i}">${html(it)}</div>`).join('')}<br><button class="btn" id="go">继续前进</button></div>`;
     bindTop();
     view.querySelectorAll('.reward').forEach(el => el.onclick = () => {
       const i = +el.dataset.i, it = L[i];
+      if (it.t === 'brelic') return chooseBossRelic(it.ids, ok => { if (ok) take(i); else draw(); });
       if (it.t === 'cards') return chooseCard(it.ids.map(id => mkCard(id)), ok => { if (ok) take(i); else draw(); });
       if (it.t === 'gold') R.gold += it.n; else if (it.t === 'clover') R.gold += 15; else if (it.t === 'relic') gainRelic(it.id); else if (it.t === 'potion') { if (gainPotion(it.id) === false) return; }
       audio.gem(); take(i);
@@ -930,9 +948,9 @@ function rewardScreen() { /* 战利品先存进存档（R.loot），刷新页面
 
 // ---------- 营火 ----------
 function restScreen() {
-  const heal = Math.floor(R.maxHp * ((A_(5) ? .2 : .3) - (R.trials && R.trials.includes('hunger') ? .15 : 0))) + (has('stove') ? 10 : 0);
+  const heal = Math.floor(R.maxHp * ((A_(5) ? .2 : .3) - (R.trials && R.trials.includes('hunger') ? .15 : 0))) + (has('stove') ? 10 : 0) - (A_(14) ? 5 : 0);
   view.innerHTML = `${bgHTML(false, 'c' + Math.min(3, ACT()) + '_rest')}${topBar()}<div class="panel"><h2>营火</h2><p>篝火噼啪作响，难得的安宁。</p><div class="row">
-   <button class="btn" id="rest">休息：回复 ${heal} 生命</button><button class="btn" id="smith" ${R.deck.some(c => !c.up) ? '' : 'disabled'}>锻造：升级一张牌</button></div></div>`;
+   <button class="btn" id="rest" ${has('b_core') ? 'disabled' : ''}>${has('b_core') ? tr('熔火之心：不能休息') : `休息：回复 ${heal} 生命`}</button><button class="btn" id="smith" ${R.deck.some(c => !c.up) ? '' : 'disabled'}>锻造：升级一张牌</button></div></div>`;
   bindTop();
   $('#rest').onclick = () => { R.hp = Math.min(R.maxHp, R.hp + heal); audio.holy(); mapScreen(); };
   $('#smith').onclick = () => pickDeck('upgrade', ok => { if (ok) mapScreen(); });
@@ -951,7 +969,7 @@ function treasureScreen() {
 
 // ---------- 商店 ----------
 function shopScreen() {
-  const gm = R.trials && R.trials.includes('greed') ? 1.5 : 1, PR = { c: 50 * gm, u: 75 * gm, r: 150 * gm }, RP = { c: 150 * gm, u: 200 * gm, r: 280 * gm };
+  const gm = (R.trials && R.trials.includes('greed') ? 1.5 : 1) * (A_(11) ? 1.2 : 1), PR = { c: 50 * gm, u: 75 * gm, r: 150 * gm }, RP = { c: 150 * gm, u: 200 * gm, r: 280 * gm };
   const cards = rollCards(5).map(c => ({ c, p: Math.round(PR[CARDS[c.id].rar] * (0.9 + Math.random() * .2)) }));
   const rels = []; for (let k = 0; k < 2; k++) { const id = rollRelic(['c', 'u', 'u', 'r'], true); if (id && !rels.some(x => x.id === id)) rels.push({ id, p: RP[RELICS[id].rar] + rnd(-10, 10) }); }
   const pots = [rollPotion(), rollPotion()].map(id => ({ id, p: Math.round((id === 'fairy' ? 120 : rnd(45, 60)) * gm) })), rmc = () => Math.round(R.removeCost * gm);
@@ -1094,6 +1112,7 @@ function layerEnd() { B = null; if (R.layerHeal !== R.endless) { R.layerHeal = R
 }
 function endScreen(win) {
   stage.querySelectorAll('.say').forEach(x => x.remove());
+  if (!DEBUG && !R.histed) { R.histed = 1; try { const H = JSON.parse(localStorage.getItem('tw_hist') || '[]'); H.unshift({ c: R.char, w: (win || ACT() === 4) ? 1 : 0, a: ACT(), f: (R.floor0 || 0) + R.floor, asc: R.asc || 0, by: !win && B ? B.en.filter(e => !e.dead).map(e => e.d.name).join(' + ') : '', t: Date.now() }); localStorage.setItem('tw_hist', JSON.stringify(H.slice(0, 50))); } catch (e) {} }
   B = null; setMusic('menu');
   const k = R.kills || 0, el = R.elites || 0, hp = Math.max(0, R.hp);
   if (ACT() === 4) win = true;
@@ -1102,7 +1121,7 @@ function endScreen(win) {
   if (R.asc) rows.push([`进阶难度 ${R.asc}（×${(1 + R.asc * .1).toFixed(1)}）`, Math.round(rows.reduce((a, r) => a + r[1], 0) * R.asc * .1)]);
   const total = rows.reduce((a, r) => a + r[1], 0);
   const M = metaGet(), before = M.xp; let news = [];
-  if (!DEBUG) { M.xp += total; if (win && ACT() >= 2 && (R.asc || 0) >= (M.asc[R.char] || 0) && (M.asc[R.char] || 0) < 8) { M.asc[R.char] = (R.asc || 0) + 1; news.push(`${CHARS[R.char].name} 解锁进阶 ${M.asc[R.char]}`); } metaSet(M); }
+  if (!DEBUG) { M.xp += total; if (win && ACT() >= 2 && (R.asc || 0) >= (M.asc[R.char] || 0) && (M.asc[R.char] || 0) < 15) { M.asc[R.char] = (R.asc || 0) + 1; news.push(`${CHARS[R.char].name} 解锁进阶 ${M.asc[R.char]}`); } metaSet(M); }
   UNLOCKS.forEach(u => { if (before < u.xp && M.xp >= u.xp) news.push('解锁：' + [...u.cards.map(c => CARDS[c].name), ...u.relics.map(x => RELICS[x].name)].join('、')); });
   const nx = UNLOCKS.find(u => M.xp < u.xp), left = UNLOCKS.filter(u => M.xp < u.xp).length;
   view.innerHTML = `${win && ACT() === 3 ? bgHTML(true, 'story_home') : win && ACT() === 2 ? bgHTML(true, 'story_end2') : bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
@@ -1142,7 +1161,7 @@ stage.addEventListener('touchend', e => { if (e.target.closest && e.target.close
 stage.addEventListener('click', e => { if (!(TOUCH && e.target.closest && e.target.closest('.sts b[title], .intent[title]'))) kwHide(); }, true);
 
 // ---------- 药水 ----------
-function gainPotion(id) { R.potions = R.potions || []; if (R.potions.length >= 3) { tip('药水栏满了'); return false; } R.potions.push(id); audio.gem(); return true; }
+function gainPotion(id) { R.potions = R.potions || []; if (R.potions.length >= (A_(12) ? 2 : 3)) { tip('药水栏满了'); return false; } R.potions.push(id); audio.gem(); return true; }
 function rollPotion() { return Math.random() < .08 ? 'fairy' : pickOne(Object.keys(POTIONS).filter(k => k !== 'fairy')); }
 function potionClick(i) {
   const id = R.potions[i], P = POTIONS[id]; if (!P) return;
