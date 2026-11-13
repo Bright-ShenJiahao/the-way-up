@@ -1,7 +1,7 @@
 // 内容扩充：新秘宝（含 Boss 秘宝）、新药水、新事件。
 // 秘宝效果都写成钩子，挂在 MECH / CORE3 上，游戏和平衡模拟器共用同一份逻辑。
-import { MECH } from './chars.js?v=live2_11131930';
-import { CORE3 } from './act3.js?v=live2_11131930';
+import { MECH, PW } from './chars.js?v=live2_11132100';
+import { CORE3 } from './act3.js?v=live2_11132100';
 
 let CB = null; /* 当前战斗 */
 const has = id => !!(CB && CB.rel && CB.rel.includes(id));
@@ -79,9 +79,10 @@ const fold = (k, v, ...a) => { if (!CB || !CB.rel) return v; for (const id of CB
 { const o = CORE3.pre; CORE3.pre = (B, tgt, amt, isP, attacker, hs) => { amt = o(B, tgt, amt, isP, attacker, hs); if (amt <= 0 || !B.r2) return amt;
   if (!isP && attacker === B.p) amt = fold('atk', amt, tgt, B); else if (isP && attacker && attacker !== B.p) amt = fold('def', amt, B, B.rr); return amt; }; }
 { const o = CORE3.after; CORE3.after = (tgt, left, isP, attacker, B) => { o(tgt, left, isP, attacker, B); if (!B.r2) return; if (isP) each('hurt', B, B.rr); else if (tgt.hp <= 0) each('kill', B); }; }
-{ const o = MECH.turnStart; MECH.turnStart = (G, first) => { o(G, first); each('ts', G, CB, first); }; }
-{ const o = MECH.turnEnd; MECH.turnEnd = G => { o(G); each('te', G, CB); }; }
-{ const o = MECH.postPlay; MECH.postPlay = (G, d) => { o(G, d); each('pp', G, CB, d); }; }
+const pw = (k, G, ...a) => { if (!CB) return; const st = CB.p.st; for (const id of Object.keys(st)) { const h = PW[id]; if (h && h[k] && st[id]) h[k](G, st[id], ...a); } };
+{ const o = MECH.turnStart; MECH.turnStart = (G, first) => { o(G, first); if (CB) { CB.p.shotN = 0; CB.p.kotoB = 0; CB.p.kotoS = 0; } each('ts', G, CB, first); pw('ts', G); }; }
+{ const o = MECH.turnEnd; MECH.turnEnd = G => { o(G); each('te', G, CB); pw('te', G); }; }
+{ const o = MECH.postPlay; MECH.postPlay = (G, d) => { o(G, d); each('pp', G, CB, d); pw('pp', G, d); if (CB && CB.p.kotoB && d.type === 'skill') { if (CB.p.kotoS) CB.p.kotoS = 0; else G.block(CB.p.kotoB, true); } }; }
 { const o = MECH.victory; MECH.victory = (G, kind) => { const m = o(G, kind); each('vic', G); return m; }; }
 
 /* ---------- 药水 ---------- */

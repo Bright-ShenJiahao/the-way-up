@@ -51,7 +51,7 @@ function boom(t) { if (!t.boomCC) { t.boomCC = 1; MECH.cc(G, t, 'stun'); } const
 function drawCards(n) { for (let i = 0; i < n; i++) { if (B.p.noDraw || B.hand.length >= 10) return; if (!B.draw.length) { if (!B.disc.length) return; B.draw = shuffle(B.disc); B.disc = []; } B.hand.push(B.draw.pop()); } }
 const G = {
   has: id => has(id), handSize() { return B.hand.length; }, potsInHand() { return B.hand.filter(c => CARDS[c.id].potion).length; },
-  kekSpend(n) { if ((B.p.st.kek || 0) < n) return false; addSt(B.p, 'kek', -n); return true; },
+  kekSpend(n) { if ((B.p.st.kek || 0) < n) return false; addSt(B.p, 'kek', -n); if (B.p.st.sakaki && (B.p.sakT || 0) < B.p.st.sakaki) { B.p.sakT = (B.p.sakT || 0) + 1; G.draw(1); } return true; },
   execute(t) { if (t && !t.dead) { t.hp = 0; killE(t); } },
   discardPick(uid) { const i = B.hand.findIndex(c => c.uid === uid); if (i < 0) return; const c = B.hand.splice(i, 1)[0], d = CARDS[c.id]; G.discNote(1);
     if (d.sly) { const a = alive(); B.p.fh = d.type === 'atk' ? 1 : 0; try { d.play(G, c.up, d.tgt === 'one' ? a[Math.floor(Math.random() * a.length)] : null, c); } catch (e) {} postPlay(d); (d.exhaust ? B.exh : B.disc).push(c); } else B.disc.push(c); },
