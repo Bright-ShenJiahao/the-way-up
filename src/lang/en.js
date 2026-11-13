@@ -2804,5 +2804,6 @@ export default {
 "深渊之主化成了黑烟。门的对面，是放学路上的那条街。": "The Lord of the Abyss dissolves into black smoke. On the other side of the gate is the street on the way home from school.",
 "深渊之主倒下了，回家的门打开了。": "The Lord of the Abyss has fallen, and the gate home is open.",
 "进入第三章·下半：魔界裂隙（回复 30% 生命）": "Enter Chapter 3, Part 2: Demon Rift (heal 30% HP)",
-"每场战斗开始时，你获得 {0} 层鳞甲（每层让每次受到的攻击伤害 {1}，最多减一半；一次受到 {2} 点以上的攻击会打碎 {3} 层）。": "At the start of each combat, gain {0} Scales (each reduces attack damage taken per hit by {1}, up to half; a single hit of {2}+ breaks {3} Scale)."
+"每场战斗开始时，你获得 {0} 层鳞甲（每层让每次受到的攻击伤害 {1}，最多减一半；一次受到 {2} 点以上的攻击会打碎 {3} 层）。": "At the start of each combat, gain {0} Scales (each reduces attack damage taken per hit by {1}, up to half; a single hit of {2}+ breaks {3} Scale).",
+"这个游戏的作者。他能看你的手牌、改你的牌，每轮 {0} 个动作做完还会「{1}」力量 {2}。弱点：一回合打出 {3} 张 {4} 费牌，或者一回合打出 {5} 张牌，他就会「{6}」晕一回合。": "The author of this game. He can peek at and edit your cards, and after each cycle of {0} moves he works 「{1}」 for {2} Strength. Weakness: play {3} cards costing {4} in one turn, or play {5} cards in one turn, and he hits a 「{6}」, stunned for a turn."
 };
