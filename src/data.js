@@ -1,9 +1,9 @@
-import { tr } from './i18n.js?v=live2_11140430';
-import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11140430';
+import { tr } from './i18n.js?v=live2_11140520';
+import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11140520';
 export { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 };
-import { R2, P2, EV1B, EV2B, EV3B, setPotPool } from './content2.js?v=live2_11140430';
-import { EV1C, EV2C, EV3C } from './meta.js?v=live2_11140430';
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11140430';
+import { R2, P2, EV1B, EV2B, EV3B, setPotPool } from './content2.js?v=live2_11140520';
+import { EV1C, EV2C, EV3C } from './meta.js?v=live2_11140520';
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11140520';
 export { MECH, NEWKEYW, OLDKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
@@ -84,7 +84,7 @@ export const CARDS = {
   arrow: { ch: 'miko', name: '射箭', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_bow', tgt: 'one',
     desc: u => `造成 ${v(u, 6, 9)} 点伤害。`, play: (g, u, t) => g.attack(t, v(u, 6, 9)) },
   kekkai: { ch: 'miko', name: '张设结界', type: 'skill', rar: 'start', cost: [1, 1], icon: 'sk_sigil', tgt: 'self',
-    desc: u => `结界 +1。获得 ${v(u, 4, 6)} 点格挡。`, play: (g, u) => { g.kek(1); g.block(v(u, 4, 6)); } },
+    desc: u => `结界 +1。获得 ${v(u, 5, 7)} 点格挡。`, play: (g, u) => { g.kek(1); g.block(v(u, 5, 7)); } },
   hama: { ch: 'miko', name: '破魔箭', type: 'atk', rar: 'start', cost: [1, 1], icon: 'sk_holyorb', tgt: 'one',
     desc: u => `造成 ${v(u, 8, 11)} 点伤害，每层结界 +${v(u, 2, 3)}（最多算 6 层）。`, play: (g, u, t) => g.attack(t, v(u, 8, 11) + Math.min(6, g.p.st.kek || 0) * v(u, 2, 3)) },
   fuda: { ch: 'miko', name: '纸人替身', type: 'skill', rar: 'c', cost: [0, 0], icon: 'ic_rune', tgt: 'self', exhaust: 1,
@@ -182,7 +182,7 @@ export const CARDS = {
   distill: { ch: 'witch', name: '蒸馏', type: 'skill', rar: 'u', cost: [1, 1], icon: 'ic_crystal', tgt: 'self',
     desc: u => `消耗手里 1 个炼金瓶（没有就先随机获得 1 个），获得 2 点能量。${v(u, '', '再随机获得 1 个炼金瓶。')}`, play: (g, u) => { if (!g.potsInHand()) g.potion(1); if (g.usePotion()) g.energy(2); if (u) g.potion(1); } },
   catalyst: { ch: 'witch', name: '催化剂', type: 'skill', rar: 'u', cost: [1, 0], icon: 'ic_crystal', tgt: 'one', exhaust: 1,
-    desc: () => `目标的中毒层数翻倍。消耗。`, play: (g, u, t) => g.poison(t, t.st.poison || 0) },
+    desc: () => `目标的中毒层数翻倍（可以反复叠加）。消耗。`, play: (g, u, t) => g.poison(t, t.st.poison || 0) },
   alchemy: { ch: 'witch', name: '炼金爆发', type: 'atk', rar: 'u', cost: [2, 2], icon: 'ic_vortex', tgt: 'one',
     desc: u => `造成 ${v(u, 7, 9)} 点伤害，本回合每用过 1 个炼金瓶，再打 1 次。`, play: (g, u, t) => g.attack(t, v(u, 7, 9), 1 + (g.p.pot || 0)) },
   plague: { ch: 'witch', name: '疫病', type: 'power', rar: 'u', cost: [1, 1], icon: 'sk_undead', tgt: 'self',
@@ -477,19 +477,19 @@ export const ENEMIES = {
     moves: { combo: { n: '连斩', i: 'atk', d: 6, x: 2 }, crush: { n: '破甲', i: 'atkdebuff', d: 10, f: (e, B) => B.applyP('vuln', 1) },
       charge: { n: '蓄力', i: 'unknown' }, heavy: { n: '重劈', i: 'atk', d: 18 } },
     ai: e => cycle(e, ['combo', 'crush', 'charge', 'heavy']) },
-  gob_king: { name: '哥布林大王', intro: '「打败我就结束了？兽人老爷……还有古堡里那位大人，都不会放过你们！」', onDie: (e, B) => B.say('「伯爵大人……会替我报仇的……」'), hp: [190, 190], sc: 2.9, hd: 380, hdw: 260, boss: 1,
+  gob_king: { name: '哥布林大王', intro: '「打败我就结束了？兽人老爷……还有古堡里那位大人，都不会放过你们！」', onDie: (e, B) => B.say('「伯爵大人……会替我报仇的……」'), hp: [170, 170], sc: 2.9, hd: 380, hdw: 260, boss: 1,
     lore: '血量掉到一半时会暴怒，叫来两个手下。',
     onHurt: (e, B) => { if (!e.p2 && e.hp <= e.max / 2) { e.p2 = 1; B.summon('goblin', 10); B.summon('goblin', 10); B.say('「小的们，给我上！」'); } },
     moves: { call: { n: '召唤', i: 'summon', f: (e, B) => { for (let k = 0; k < 2 && B.alive().length < 3; k++) B.summon('goblin', 8); } },
       cut: { n: '王之斩', i: 'atk', d: 18 }, order: { n: '号令', i: 'buff', f: (e, B) => { B.alive().forEach(a => B.addSt(a, 'str', 2)); B.eBlock(e, 12); } },
       fury: { n: '暴怒连斩', i: 'atk', d: 6, x: 3 } },
     ai: (e, B) => { const m = cycle(e, ['call', 'cut', 'order', 'fury']); return m === 'call' && B.alive().length >= 3 ? 'cut' : m; } },
-  gob_archshaman: { name: '哥布林大祭司', art: 'gob_shaman', tint: 'hue-rotate(250deg) saturate(1.4)', hp: [160, 160], sc: 2.9, hd: 330, hdw: 250, boss: 1,
+  gob_archshaman: { name: '哥布林大祭司', art: 'gob_shaman', tint: 'hue-rotate(250deg) saturate(1.4)', hp: [145, 145], sc: 2.9, hd: 330, hdw: 250, boss: 1,
     moves: { bolt: { n: '暗影弹', i: 'atk', d: 13 }, hex: { n: '大诅咒', i: 'atkdebuff', d: 6, f: (e, B) => { B.applyP('vuln', 2); B.applyP('weak', 2); B.addCard('daze', 2); } },
       totem: { n: '召唤图腾', i: 'summon', f: (e, B) => { if (B.alive().length < 3) B.summon('gob_mage', 0); B.alive().forEach(a => B.healE(a, 8)); } },
       rite: { n: '血祭', i: 'buff', f: (e, B) => { B.addSt(e, 'str', 2); B.eBlock(e, 15); } } },
     ai: (e, B) => { const m = cycle(e, ['totem', 'bolt', 'hex', 'rite', 'bolt']); return m === 'totem' && B.alive().length >= 3 ? 'bolt' : m; } },
-  gob_warlord: { name: '狼骑统领', art: 'gob_wolf', tint: 'hue-rotate(320deg) saturate(1.5) brightness(.9)', hp: [155, 155], sc: 2.9, hd: 330, hdw: 300, boss: 1,
+  gob_warlord: { name: '狼骑统领', art: 'gob_wolf', tint: 'hue-rotate(320deg) saturate(1.5) brightness(.9)', hp: [140, 140], sc: 2.9, hd: 330, hdw: 300, boss: 1,
     moves: { maul: { n: '狼群撕咬', i: 'atk', d: 7, x: 2 }, howl: { n: '战嚎', i: 'atkdebuff', d: 8, f: (e, B) => B.applyP('weak', 2) },
       pack: { n: '呼唤狼群', i: 'summon', f: (e, B) => { for (let k = 0; k < 2 && B.alive().length < 3; k++) B.summon('wolf', 0); } },
       charge: { n: '冲锋', i: 'atk', d: 15 } },
@@ -597,7 +597,7 @@ export const EVENTS = [
   { title: '流浪铁匠', pic: 'smith', img: 'ic_hammer', text: '路边一个背着铁砧的矮人朝你招手：“兄弟，武器要打磨吗？”',
     opts: [
       { t: '打磨：升级一张牌', go: (R, A) => { A.pick('upgrade'); return '叮叮当当，焕然一新。'; } },
-      { t: '离开', go: () => '你谢绝了他。' }] },
+      { t: '歇歇脚：回复 10 生命', go: (R, A) => { A.heal(10); return '矮人请你喝了口热汤，你坐着歇了一会儿。'; } }] },
   { title: '掌机的信号', pic: 'signal', img: 'gb', text: '口袋里的掌机突然震动，屏幕上滚过一串乱码……',
     opts: [
       { t: '接收：随机变化一张牌', go: (R, A) => { A.pick('transform'); return '你的一张牌被改写成了别的东西。'; } },
@@ -606,7 +606,7 @@ export const EVENTS = [
   { title: '受伤的商队', pic: 'caravan', img: 'box', text: '一辆翻倒的马车旁，商人捂着伤口：“救救我，我有好东西给你。”',
     opts: [
       { t: '帮忙：失去 6 生命，获得一张稀有牌（三选一）', go: (R, A) => { A.hurt(6); A.rareCard(); return '商人感激地塞给你几张卡。'; } },
-      { t: '离开', go: () => '你转身离开。' }] },
+      { t: '帮他扶起马车：获得 30 金币', go: (R, A) => { A.gold(30); return '商人连声道谢，塞给你一袋零钱。'; } }] },
 ];
 
 /* 多语言：名字和说明在读取时翻译（存档里只存 id，不受影响） */
@@ -621,5 +621,5 @@ EVENTS.push(...EV1B); EVENTS2.push(...EV2B); EV3.push(...EV3B); EVENTS.push(...E
 for (const ev of [...EVENTS, ...EVENTS2, ...EV3]) { tx(ev, 'title'); tx(ev, 'text'); for (const o of ev.opts) { tx(o, 't'); tf(o, 'go'); } }
 
 // 两个引擎共用的规则常量（游戏和平衡模拟都从这里读）
-export const RULES = { furyTurn: 9, furyEvery: 2, bloodTurn: 5, bloodStr: 1, act2Mul: 0.9, act3Hp: 1.25, act3Dmg: 1.15, maxTurns: 60 };
+export const RULES = { furyTurn: 9, furyEvery: 2, bloodTurn: 5, bloodStr: 1, act2Mul: 1.0, act3Hp: 1.25, act3Dmg: 1.15, maxTurns: 60 };
 export const isFury = turn => turn >= RULES.furyTurn && (turn - RULES.furyTurn) % RULES.furyEvery === 0;

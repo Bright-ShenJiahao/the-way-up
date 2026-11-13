@@ -3650,5 +3650,15 @@ export default {
 "补丁：开发者改过这张牌的数值（本场有效）": "Patch: the Developer changed this card's numbers (this combat)",
 "反转：打出时效果变成反的（攻击牌改为给敌人回血，技能牌改为自己掉血）": "Flipped: its effect is reversed when played (Attacks heal enemies, Skills hurt you)",
 "封印：这张牌暂时不能打出": "Sealed: this card can't be played for now",
-"明白了": "Got it"
+"明白了": "Got it",
+"目标的中毒层数翻倍（可以反复叠加）。消耗。": "Double the target's Poison (stacks if used again). Exhaust.",
+"获得 {0} 点格挡。之后每回合结束时，结界不少于 {1} 层就获得 {2} 点格挡。": "Gain {0} Block. Afterwards, at the end of each turn, if you have at least {1} Barrier, gain {2} Block.",
+"精英战胜利后额外掉落一个秘宝。每场战斗第一回合少抽 {0} 张牌。": "Elites drop an extra relic. Draw {0} fewer card on the first turn of each combat.",
+"卡牌奖励多 {0} 张可选。商店价格 {1}。": "Card rewards offer {0} more choice. Shop prices {1}.",
+"歇歇脚：回复 {0} 生命": "Take a rest: heal {0} HP",
+"帮他扶起马车：获得 {0} 金币": "Help right the cart: gain {0} gold",
+"矮人请你喝了口热汤，你坐着歇了一会儿。": "The dwarf shares some hot soup, and you sit and rest a while.",
+"商人连声道谢，塞给你一袋零钱。": "The merchant thanks you again and again and presses a pouch of coins into your hand.",
+"开局金币 {0}": "Starting gold {0}",
+"所有 Boss 开局有 {0} 点力量、生命 {1}": "All bosses start with {0} Strength and {1} HP"
 };

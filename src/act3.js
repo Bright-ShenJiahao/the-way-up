@@ -106,8 +106,8 @@ export const E3 = {
     onDie: (e, B) => B.say('「行，你们比我会玩。……不过门那边漏出来的东西，我也没写过。小心。」'),
     ai: (e, B) => { const m = cycle(e, ['peek', 'keys', 'swap', 'del', 'patch', 'flip', 'debug']); return m === 'debug' && B.alive().some(a => a.mini) ? 'demand' : m; } },
   /* ---------- 真结局 Boss：开发者 · debug 状态（三把钥匙才会遇到） ---------- */
-  dev_debug: { name: '开发者 · debug 状态', hd: 300, hp: [320, 320], sc: 2.7, boss: 1, brk: 30, art: 'dev_debug', poses: ['cast', 'charge', 'stun'],
-    lore: '打开了调试模式的开发者。会给一种牌下「断点」（你手里那种牌有一张这回合打不出），「rm -rf」会把你一张手牌删到本场战斗结束，「编译」一回合后打出 38 点——编译那回合打他 30 点以上就能打断。半血进入蓝屏：力量 +3，每回合往你弃牌堆塞「报错」。弱点不变：一回合打出 3 张 0 费牌或 6 张牌，他会程序崩溃晕一回合。',
+  dev_debug: { name: '开发者 · debug 状态', hd: 300, hp: [380, 380], sc: 2.7, boss: 1, brk: 40, art: 'dev_debug', poses: ['cast', 'charge', 'stun'],
+    lore: '打开了调试模式的开发者。会给一种牌下「断点」（你手里那种牌有一张这回合打不出），「rm -rf」会把你一张手牌删到本场战斗结束，「编译」一回合后打出 38 点——编译那回合打他 40 点以上就能打断。半血进入蓝屏：力量 +3，每回合往你弃牌堆塞「报错」。弱点不变：一回合打出 3 张 0 费牌或 6 张牌，他会程序崩溃晕一回合。',
     intro: '「debug 模式已开启。这次，我用管理员权限跟你们打。」',
     moves: { bpA: { n: '断点：攻击', i: 'defdebuff', f: (e, B) => { B.eBlock(e, 15); e.pend = 'bp'; e.bpT = 'atk'; e.pose = 'cast'; } },
       bpS: { n: '断点：技能', i: 'defdebuff', f: (e, B) => { B.eBlock(e, 15); e.pend = 'bp'; e.bpT = 'skill'; e.pose = 'cast'; } },

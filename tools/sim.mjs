@@ -114,7 +114,7 @@ const BE = {
   split(e, key, n) { const i = B.en.indexOf(e), hp = Math.max(1, Math.floor(e.hp / n)), bits = []; for (let k = 0; k < n; k++) { const b = mkE(key); b.hp = b.max = hp; b.move = b.d.ai(b, BE); bits.push(b); } e.dead = true; e.fled = 1; e.hp = 0; B.en.splice(i, 1, ...bits); }, summon(key, hp) { if (alive().length >= 5) return null; const e = mkE(key); if (hp) e.hp = e.max = hp; e.move = e.d.ai(e, BE); const i = B.en.findIndex(x => x.dead && !(x.d.prePhase && !x.revived && !x.fled)); if (i >= 0) B.en[i] = e; else B.en.unshift(e); return e; } /* 召唤物优先填进已经死掉的位置，队伍不会越排越长 */,
 };
 let eid = 1;
-function mkE(key) { const d = ENEMIES[key], hm = 1 + (A_(1) && d.elite ? .15 : 0) + (A_(2) && !d.elite && !d.boss ? .1 : 0) + (A_(6) && d.boss ? .15 : 0) + (A_(15) ? .1 : 0) + (A_(18) && d.elite ? .1 : 0), hp = Math.round(rnd(d.hp[0], d.hp[1]) * hm * (R.act === 2 ? RULES.act2Mul : R.act === 3 ? RULES.act3Hp : 1)); const e = { key, d, hp, max: hp, dmul: (1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0) + (A_(17) && !d.elite && !d.boss ? .1 : 0)) * (R.act === 2 ? RULES.act2Mul : R.act === 3 ? RULES.act3Dmg : 1), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++ }; if (A_(10) && d.elite) e.st.str = 1; if (A_(20) && d.boss) e.st.str = (e.st.str || 0) + 2; d.init && d.init(e); return e; }
+function mkE(key) { const d = ENEMIES[key], hm = 1 + (A_(1) && d.elite ? .15 : 0) + (A_(2) && !d.elite && !d.boss ? .1 : 0) + (A_(6) && d.boss ? .15 : 0) + (A_(15) ? .1 : 0) + (A_(18) && d.elite ? .1 : 0) + (A_(20) && d.boss ? .1 : 0), hp = Math.round(rnd(d.hp[0], d.hp[1]) * hm * (R.act === 2 ? RULES.act2Mul : R.act === 3 ? RULES.act3Hp : 1)); const e = { key, d, hp, max: hp, dmul: (1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0) + (A_(17) && !d.elite && !d.boss ? .1 : 0)) * (R.act === 2 ? RULES.act2Mul : R.act === 3 ? RULES.act3Dmg : 1), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++ }; if (A_(10) && d.elite) e.st.str = 1; if (A_(20) && d.boss) e.st.str = (e.st.str || 0) + 1; d.init && d.init(e); return e; }
 const cost0 = c => { const d = CARDS[c.id]; if (c.free) return 0; if (c.rc != null) return c.rc; const k = d.cost[c.up ? 1 : 0]; return c.disc && k !== 'X' ? Math.max(0, k - 1) : k; };
 const cost = c => { const k = cost0(c); return B && typeof k === 'number' ? Math.max(0, k + MECH.costMod(G, CARDS[c.id])) : k; };
 function startTurn(first) {
@@ -127,7 +127,7 @@ function startTurn(first) {
   if (has('hamaya') && (B.p.st.kek || 0) >= 4) drawCards(1);
   B.p.oc = 0; B.p.aoe = 0; B.p.metroUsed = 0; B.p.cplays = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (has('gameboy') && B.turn % 2 === 1) G.ammo(1); if (!first && has('phones')) G.resAll(1); if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
-  drawCards(5 + (first && has('scroll') ? 2 : 0) - Math.min(4, B.p.st.drowsy || 0) - (first && A_(13) ? 1 : 0)); B.p.slept = 0;
+  drawCards(5 + (first && has('scroll') ? 2 : 0) - Math.min(4, B.p.st.drowsy || 0) - (first && A_(13) ? 1 : 0) - (first && has('b_star') ? 1 : 0)); B.p.slept = 0;
   if (B.p.st.confuse) { B.hand.forEach(c => { if (typeof cost(c) === 'number') c.rc = rnd(0, 3); }); addSt(B.p, 'confuse', -1); }
   B.onPT = 1;
   MECH.turnStart(G, first);
@@ -302,7 +302,7 @@ function relic(rars = ['c', 'c', 'c', 'u', 'u', 'r']) { let pool = []; for (let 
 const UNLOCKS = [{ cards: ['dual', 'concert'], relics: [] }, { cards: ['shinboku', 'sage'], relics: ['mic'] }, { cards: ['screen', 'distort', 'deadly'], relics: ['pad'] }, { cards: ['thunder'], relics: ['crown', 'feather'] }];
 const LOCK = new Set(UNLOCKS.slice(LOCKLV).flatMap(u => [...u.cards, ...u.relics]));
 function shop() { if (!SMART) { const i = R.deck.findIndex(c => c.id === 'defend'); if (i >= 0) R.deck.splice(i, 1); return; }
-  const gm = A_(11) ? 1.2 : 1, rc = Math.round(R.removeCost * gm); /* 价格和游戏一致：卡 50/75/150、删牌 75 起每次 +25、秘宝 150/200/280 */
+  const gm = (A_(11) ? 1.2 : 1) * (has('b_cards') ? 1.2 : 1), rc = Math.round(R.removeCost * gm); /* 价格和游戏一致：卡 50/75/150、删牌 75 起每次 +25、秘宝 150/200/280 */
   if (R.gold >= rc) { const i = R.deck.findIndex(c => CARDS[c.id].curse) >= 0 ? R.deck.findIndex(c => CARDS[c.id].curse) : R.deck.findIndex(c => c.id === 'strike' || c.id === 'defend' || c.id === 'tstrike'); if (i >= 0) { R.deck.splice(i, 1); R.gold -= rc; R.removeCost += 25; } }
   { const cs = rollCards(5); const d = cs.map(id => CARDS[id]).sort((a, b) => smartScore(b.id) - smartScore(a.id))[0], pr = Math.round(({ c: 50, u: 75, r: 150 }[d.rar] || 75) * gm); if (R.gold >= pr && smartScore(d.id) >= 3) { R.deck.push(mk(d.id)); R.gold -= pr; } }
   if (R.gold >= 55 * gm && R.pots.length < (A_(12) ? 2 : 3)) { R.pots.push(pickOne(POTS)); R.gold -= Math.round(55 * gm); }
@@ -318,21 +318,21 @@ function riftRun() { let fights = 0; /* 第三章下半：魔界裂隙 */
   return null; }
 /* 开局祝福（和 game.js 一致：两个免费 + 一个有代价；进阶 19 只剩有代价的）。机器人按固定喜好挑 */
 const BPREF = ['b_rm', 'b_up', 'b_card', 'b_relic', 't_rare', 'b_hp', 'b_pot', 't_rm2', 'b_gold', 't_relic', 't_gold'];
-function bless() { const f = shuffle(Object.keys(BLESS_FREE)).slice(0, 2), c = pickOne(Object.keys(BLESS_COST)), opts = A_(19) ? [c] : [...f, c];
+function bless() { const f = shuffle(Object.keys(BLESS_FREE)).slice(0, 2), c = pickOne(Object.keys(BLESS_COST)), opts = [...f, c];
   const k = opts.sort((a, b) => BPREF.indexOf(a) - BPREF.indexOf(b))[0]; R.bless = k;
   const rmStart = n => { for (let i = 0; i < n; i++) { const j = R.deck.findIndex(x => CARDS[x.id].curse) >= 0 ? R.deck.findIndex(x => CARDS[x.id].curse) : R.deck.findIndex(x => CARDS[x.id].rar === 'start' && !/defend|block/i.test(x.id)); const jj = j >= 0 ? j : R.deck.findIndex(x => CARDS[x.id].rar === 'start'); if (jj >= 0) R.deck.splice(jj, 1); } };
   if (k === 'b_hp') { R.maxHp += 8; R.hp += 8; } else if (k === 'b_gold') R.gold += 100; else if (k === 'b_rm') rmStart(1);
   else if (k === 'b_up') { const x = R.deck.find(x => !x.up && CARDS[x.id].rar !== 'start') || R.deck.find(x => !x.up); if (x) x.up = 1; }
   else if (k === 'b_card') reward(); else if (k === 'b_pot') { for (let i = 0; i < 2 && R.pots.length < (A_(12) ? 2 : 3); i++) R.pots.push(pickOne(POTS)); } else if (k === 'b_relic') relic(['c']);
   else if (k === 't_rare') { R.maxHp -= Math.floor(R.maxHp * .1); R.hp = Math.min(R.hp, R.maxHp); const cs = rollCards(3, 1); const best = SMART ? cs.sort((a, b) => smartScore(b) - smartScore(a))[0] : cs[0]; R.deck.push(mk(best)); }
-  else if (k === 't_relic') { R.gold = 0; relic(['r']); } else if (k === 't_rm2') { rmStart(2); R.deck.push(mk('regret')); } else if (k === 't_gold') { R.maxHp -= 12; R.hp = Math.min(R.hp, R.maxHp); R.gold += 250; } }
+  else if (k === 't_relic') { R.gold = 0; relic(['r']); } else if (k === 't_rm2') { rmStart(2); R.deck.push(mk('regret')); } else if (k === 't_gold') { R.maxHp -= 12; R.hp = Math.min(R.hp, R.maxHp); R.gold += 150; } }
 /* Boss 战利品（和游戏一致）：金币 90~110、稀有秘宝、三选一稀有牌、药水 */
 function bossLoot() { R.gold += Math.round((90 + Math.floor(Math.random() * 21)) * (A_(7) ? .7 : 1)); relic(['r']); reward('boss'); dropPot('boss'); }
 function run(char) {
-  TIMEOUT = 0; uid = 1; R = { char, hp: A_(4) ? 72 : 80, maxHp: A_(4) ? 72 : 80, deck: STARTERS[char].map(id => mk(id)), relics: [STARTRELIC[char]], kills: 0, picks: {}, floor: 0, pots: [], act: 1, gold: 120, removeCost: 75, asc: ASC }; POTS = Object.keys(POTIONS); if (A_(9)) R.deck.push(mk('regret'));
+  TIMEOUT = 0; uid = 1; R = { char, hp: A_(4) ? 72 : 80, maxHp: A_(4) ? 72 : 80, deck: STARTERS[char].map(id => mk(id)), relics: [STARTRELIC[char]], kills: 0, picks: {}, floor: 0, pots: [], act: 1, gold: 120 - (A_(19) ? 60 : 0), removeCost: 75, asc: ASC }; POTS = Object.keys(POTIONS); if (A_(9)) R.deck.push(mk('regret'));
   bless();
   for (const [act, EN] of [[1, ENCOUNTERS], [2, ENCOUNTERS2], [3, ENC3]]) {
-    R.act = act; let fights = 0; if (act >= 2) R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * (A_(16) ? .3 : .5)));
+    R.act = act; let fights = 0; if (act >= 2) R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * (A_(16) ? .4 : .5)));
     for (const node of ROUTE) {
       R.floor++;
       if (node === 'fight') { const enc = pickOne(fights < 3 ? EN.easy : EN.hard); fights++; if (!battle(enc, 'fight')) return { win: false, to: TIMEOUT, act, floor: R.floor, at: enc.join('+') }; reward(); dropPot('fight'); R.gold += Math.round((10 + Math.floor(Math.random() * 11)) * (A_(7) ? .7 : 1)); }

@@ -1,9 +1,9 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11140430';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11140430';
-import { createAudio } from './audio.js?v=live2_11140430';
-import { BLESS_FREE, BLESS_COST, ASC2, MODS, ACH, hashSeed, mulberry, todayKey, dailyOf } from './meta.js?v=live2_11140430';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11140430';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11140520';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11140520';
+import { createAudio } from './audio.js?v=live2_11140520';
+import { BLESS_FREE, BLESS_COST, ASC2, MODS, ACH, hashSeed, mulberry, todayKey, dailyOf } from './meta.js?v=live2_11140520';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11140520';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -52,7 +52,7 @@ let R = null; // 当前一局
 let uidN = 1;
 const mkCard = (id, up = 0) => ({ id, up, uid: uidN++ });
 function newRun(char = 'hero', asc = 0, opt = {}) {
-  R = { char, hp: 80, maxHp: 80, gold: 120, potions: [], asc, deck: STARTERS[char].map(id => mkCard(id)), relics: [STARTRELIC[char]].filter(Boolean), map: null, pos: null,
+  R = { char, hp: 80, maxHp: 80, gold: 120 - (asc >= 19 ? 60 : 0), potions: [], asc, deck: STARTERS[char].map(id => mkCard(id)), relics: [STARTRELIC[char]].filter(Boolean), map: null, pos: null,
     floor: 0, fights: 0, removeCost: 75, boss: null, feather: 0, keys: {}, mode: opt.mode || 'normal', mods: opt.mods || [], log: { picks: [], hp: [], t0: Date.now() } };
   if (opt.seed != null && opt.seed !== '') R.seed = String(opt.seed);
   R.map = genMap(); R.boss = SR(() => pickOne(ENCOUNTERS.boss)[0]);
@@ -83,7 +83,7 @@ function charIntro(done) { const M = metaGet(); M.cintro = M.cintro || {}; if (M
    ${i.builds ? `<p style="margin-top:8px"><b>${tr('推荐流派')}</b></p>${i.builds.map(b => `<p>· <b>${tr(b[0])}</b>：${tr(b[1])}</p>`).join('')}` : ''}<div class="row" style="justify-content:center"><button class="btn gold" id="cix">${tr('明白了')}</button></div></div>`);
   o.querySelector('#cix').onclick = () => { o.remove(); done(); }; }
 function blessScreen() { if (!R.ciShown) { R.ciShown = 1; return charIntro(blessScreen); } SCREEN = 'bless'; B = null; R.wait = 'bless';
-  if (!R.blessOpts) R.blessOpts = SR(() => { const f = shuffle(Object.keys(BLESS_FREE)).slice(0, 2), c = pickOne(Object.keys(BLESS_COST)); return A_(19) ? [c] : [...f, c]; });
+  if (!R.blessOpts) R.blessOpts = SR(() => { const f = shuffle(Object.keys(BLESS_FREE)).slice(0, 2), c = pickOne(Object.keys(BLESS_COST)); return [...f, c]; });
   save(); setMusic('menu');
   const txt = k => BLESS_FREE[k] || BLESS_COST[k];
   view.innerHTML = `${bgHTML(false, 'story_road')}${topBar()}<div class="panel" style="width:min(720px,92vw);text-align:center"><h2>${tr('出发前的祝福')}</h2><p>${tr('路边的小神龛亮了起来。选一个带上路吧。')}</p>
@@ -103,7 +103,7 @@ function applyBless(k) { const fin = () => { delete R.wait; delete R.blessOpts; 
   if (k === 't_rare') { R.maxHp -= Math.floor(R.maxHp * .1); R.hp = Math.min(R.hp, R.maxHp); return chooseCard(rollCards(3, 0, true), fin); }
   if (k === 't_relic') { R.gold = 0; gainRelic(rollRelic(['r'])); return fin(); }
   if (k === 't_rm2') return rm(2, () => { R.deck.push(mkCard('regret')); fin(); }); /* 先删 2 张再塞悔意，悔意删不掉 */
-  if (k === 't_gold') { R.maxHp -= 12; R.hp = Math.min(R.hp, R.maxHp); R.gold += 250; return fin(); }
+  if (k === 't_gold') { R.maxHp -= 12; R.hp = Math.min(R.hp, R.maxHp); R.gold += 150; return fin(); }
   fin();
 }
 const has = id => R.relics.includes(id);
@@ -469,11 +469,11 @@ let B = null, eid = 1;
 function mkEnemy(key) {
   try { const M = metaGet(); M.seen = M.seen || {}; if (!M.seen[key]) { M.seen[key] = 1; metaSet(M); if (Object.keys(ENEMIES).every(k => M.seen[k] || ENEMIES[k].hide)) ach('a_codex'); } } catch (e) {}
   const d = ENEMIES[key], hp = rnd(d.hp[0], d.hp[1]);
-  const hm = 1 + (A_(1) && d.elite ? .15 : 0) + (A_(2) && !d.elite && !d.boss ? .1 : 0) + (A_(6) && d.boss ? .15 : 0) + (A_(15) ? .1 : 0) + (A_(18) && d.elite ? .1 : 0) + (MOD('heavy') ? .25 : 0);
+  const hm = 1 + (A_(1) && d.elite ? .15 : 0) + (A_(2) && !d.elite && !d.boss ? .1 : 0) + (A_(6) && d.boss ? .15 : 0) + (A_(15) ? .1 : 0) + (A_(18) && d.elite ? .1 : 0) + (A_(20) && d.boss ? .1 : 0) + (MOD('heavy') ? .25 : 0);
   const xm = R && R.endless ? endlessMul(R.endless) : { hp: 1, dmg: 1 }, tr2 = R && R.trials || [];
   const hp1 = Math.round(hp * hm * (ACT() === 2 ? RULES.act2Mul : ACT() === 3 ? RULES.act3Hp : 1) * xm.hp * (d.elite && tr2.includes('blood') ? 1.25 : 1));
   const e = { key, d, name: d.name, hp: hp1, max: hp1, dmul: (1 + (A_(3) ? .1 : 0) + (A_(8) ? .1 : 0) + (A_(17) && !d.elite && !d.boss ? .1 : 0)) * (ACT() === 2 ? RULES.act2Mul : ACT() === 3 ? RULES.act3Dmg : 1) * xm.dmg * (d.boss && tr2.includes('tyrant') ? 1.15 : 1), block: 0, st: {}, turn: 0, hist: [], id: 'e' + eid++, move: null };
-  if (A_(10) && d.elite) e.st.str = 1; if (A_(20) && d.boss) e.st.str = (e.st.str || 0) + 2;
+  if (A_(10) && d.elite) e.st.str = 1; if (A_(20) && d.boss) e.st.str = (e.st.str || 0) + 1;
   d.init && d.init(e); return e;
 }
 const alive = () => B.en.filter(e => !e.dead);
@@ -676,7 +676,7 @@ function startTurn(first) {
   B.p.oc = 0; B.p.aoe = 0; B.p.metroUsed = 0; B.p.cplays = 0; if (B.p.st.gen) G.ammo(B.p.st.gen); if (has('spare')) G.ammo(1); if (B.p.padDraw) { drawCards(B.p.padDraw); B.p.padDraw = 0; } if (has('gameboy') && B.turn % 2 === 1) G.ammo(1); if (!first && has('phones')) G.resAll(1);
   if (B.p.st.lowf) G.resAll(B.p.st.lowf);
   if (first && has('anchor')) B.p.block += 10;
-  drawCards(5 + (first && has('scroll') ? 2 : 0) - (first && R.trials && R.trials.includes('wind') ? 1 : 0) - Math.min(4, B.p.st.drowsy || 0) - (first && A_(13) ? 1 : 0));
+  drawCards(5 + (first && has('scroll') ? 2 : 0) - (first && R.trials && R.trials.includes('wind') ? 1 : 0) - Math.min(4, B.p.st.drowsy || 0) - (first && A_(13) ? 1 : 0) - (first && has('b_star') ? 1 : 0));
   if (B.p.slept) { B.p.slept = 0; setTimeout(() => banner(tr('你睡着了：这回合没有能量')), 300); }
   if (B.p.st.confuse) { B.hand.forEach(c => { if (typeof cardCost(c) === 'number') c.rc = rnd(0, 3); }); addSt(B.p, 'confuse', -1); }
   MECH.turnStart(G, first);
@@ -1060,7 +1060,7 @@ function treasureScreen() {
 
 // ---------- 商店 ----------
 function shopScreen() {
-  const gm = (R.trials && R.trials.includes('greed') ? 1.5 : 1) * (A_(11) ? 1.2 : 1) * (MOD('midas') ? 2 : 1), PR = { c: 50 * gm, u: 75 * gm, r: 150 * gm }, RP = { c: 150 * gm, u: 200 * gm, r: 280 * gm };
+  const gm = (R.trials && R.trials.includes('greed') ? 1.5 : 1) * (A_(11) ? 1.2 : 1) * (MOD('midas') ? 2 : 1) * (has('b_cards') ? 1.2 : 1), PR = { c: 50 * gm, u: 75 * gm, r: 150 * gm }, RP = { c: 150 * gm, u: 200 * gm, r: 280 * gm };
   /* 商店货物进店时生成一次并存档：退出重进还是同一批货（不能刷新重抽） */
   if (!R.shopStock) R.shopStock = SR(() => { const cards = rollCards(5).map(c => ({ c, p: Math.round(PR[CARDS[c.id].rar] * (0.9 + Math.random() * .2)) }));
     const rels = []; for (let k = 0; k < 2; k++) { const id = rollRelic(['c', 'u', 'u', 'r'], true); if (id && !rels.some(x => x.id === id)) rels.push({ id, p: RP[RELICS[id].rar] + rnd(-10, 10) }); }
@@ -1140,9 +1140,9 @@ setInterval(() => { if (bgmNow) { const V = audio.vol || {}; BGM[bgmNow].volume 
 function act2Choice() { sting('act2', 2600);
   B = null; delete R.pending; delete R.pendEnc; delete R.snap; R.act2wait = 1; save(); setMusic('menu'); const bn = tr((ENEMIES[R.boss] || {}).name || '哥布林大王');
   view.innerHTML = `${bgHTML(false, 'story_road')}<div class="panel" style="width:760px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('{0}倒下了', bn)}</h2>
-   <p>${t('远处山顶的古堡亮起了血红的光。被抓走的村民，就关在那里。')}</p><p style="color:#ffb0b0">${t('进入第二章：血月古堡（回复 {0}% 生命）', A_(16) ? 30 : 50)}</p>
+   <p>${t('远处山顶的古堡亮起了血红的光。被抓走的村民，就关在那里。')}</p><p style="color:#ffb0b0">${t('进入第二章：血月古堡（回复 {0}% 生命）', A_(16) ? 40 : 50)}</p>
    <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="go2">${t('前往古堡')}</button><button class="btn" id="end1">${t('到此为止')}</button></div></div>`;
-  $('#go2').onclick = () => { delete R.act2wait; R.floor0 = R.floor; R.floor = 0; R.act = 2; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * (A_(16) ? .3 : .5))); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = SR(() => pickOne(ENCOUNTERS2.boss)[0]);
+  $('#go2').onclick = () => { delete R.act2wait; R.floor0 = R.floor; R.floor = 0; R.act = 2; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * (A_(16) ? .4 : .5))); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = SR(() => pickOne(ENCOUNTERS2.boss)[0]);
     delete R.pending; delete R.pendEnc; delete R.snap; save(); mapScreen(); };
   $('#end1').onclick = () => { delete R.act2wait; clearSave(); endScreen(true); };
   /* 第二章通关结局：先看结局插图 */
@@ -1153,9 +1153,9 @@ const END2 = () => [R.boss === 'vamp_count' ? '伯爵化为了灰烬，天终于
 function act3Choice() { sting('act2', 2600);
   B = null; delete R.pending; delete R.pendEnc; delete R.snap; R.wait = 'act3'; save(); setMusic('menu');
   view.innerHTML = `${bgHTML(false, 'story_end2')}<div class="panel" style="width:780px;text-align:center;top:auto;bottom:40px;transform:translateX(-50%)"><h2>${t('{0}倒下了', tr((ENEMIES[R.boss] || {}).name || ''))}</h2>
-   <p>${t('古堡的血月熄灭了，被关押的村民们重获自由。')}</p><p>${t('可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。')}</p><p style="color:#a8dcff">${t('进入第三章：永冬之巅（回复 {0}% 生命）', A_(16) ? 30 : 50)}</p>
+   <p>${t('古堡的血月熄灭了，被关押的村民们重获自由。')}</p><p>${t('可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。')}</p><p style="color:#a8dcff">${t('进入第三章：永冬之巅（回复 {0}% 生命）', A_(16) ? 40 : 50)}</p>
    <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="go3">${t('前往雪山')}</button><button class="btn" id="end2">${t('到此为止')}</button></div></div>`;
-  $('#go3').onclick = () => { delete R.wait; delete R.rift; delete R.rows; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; R.act = 3; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * (A_(16) ? .3 : .5))); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = ENC3.boss[0][0];
+  $('#go3').onclick = () => { delete R.wait; delete R.rift; delete R.rows; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; R.act = 3; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * (A_(16) ? .4 : .5))); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = ENC3.boss[0][0];
     save(); story('story_snow', ['古堡后面的山路，一直通向终年不化的雪峰。', '风里传来龙的长啸，一声接着一声。', '“那双紫色的眼睛……就在山顶。”'], mapScreen); };
   $('#end2').onclick = () => { delete R.wait; clearSave(); story('story_end2', END2(), () => story('story_party', ['天亮了。大家并肩站在晨光里，笑得满脸是灰。', '“走吧，往上。”'], () => endScreen(true))); };
 }

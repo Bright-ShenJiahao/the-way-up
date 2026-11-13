@@ -1,7 +1,7 @@
 // 内容扩充：新秘宝（含 Boss 秘宝）、新药水、新事件。
 // 秘宝效果都写成钩子，挂在 MECH / CORE3 上，游戏和平衡模拟器共用同一份逻辑。
-import { MECH, PW } from './chars.js?v=live2_11140430';
-import { CORE3 } from './act3.js?v=live2_11140430';
+import { MECH, PW } from './chars.js?v=live2_11140520';
+import { CORE3 } from './act3.js?v=live2_11140520';
 
 let CB = null; /* 当前战斗 */
 const has = id => !!(CB && CB.rel && CB.rel.includes(id));
@@ -31,13 +31,13 @@ export const R2 = {
   /* 罕见 */
   r_shard: { name: '锋利石片', icon: 'ic_rapier', rar: 'u', desc: '你的每次攻击伤害 +1。', atk: a => a + 1 },
   r_opal: { name: '猫眼石', icon: 'ic_crystal', rar: 'u', desc: '每回合打出的第一张实际花费 0 能量的牌，抽 1 张牌。', pp: (G, B, d) => { if (G.x === 0 && S().opT !== B.turn) { S().opT = B.turn; G.draw(1); } } },
-  r_banner: { name: '战旗', icon: 'ic_gods', rar: 'u', desc: '精英和 Boss 战的第一回合，多 2 点能量、获得 10 点格挡。', ts: (G, B, first) => { if (first && (B.kind === 'elite' || B.kind === 'boss')) { G.energy(2); G.block(10, true); } } },
+  r_banner: { name: '战旗', icon: 'ic_gods', rar: 'u', desc: '精英和 Boss 战的第一回合，多 1 点能量、获得 10 点格挡。', ts: (G, B, first) => { if (first && (B.kind === 'elite' || B.kind === 'boss')) { G.energy(1); G.block(10, true); } } },
   r_soulgem: { name: '灵魂宝石', icon: 'ic_necro', rar: 'u', desc: '打倒敌人时得到 1 点能量（每回合 1 次）。', kill: B => { if (S().sgT !== B.turn) { S().sgT = B.turn; B.p.energy++; } } },
   r_rune: { name: '守护符文', icon: 'ic_rune', rar: 'u', desc: '回合结束时，最多 5 点格挡留到下回合。', te: (G, B) => { S().keep = Math.min(5, B.p.block || 0); }, ts: (G, B, first) => { if (!first && S().keep) { G.block(S().keep, true); S().keep = 0; } } },
   r_rage: { name: '怒火之心', icon: 'm_anger', rar: 'u', desc: '生命低于一半时，你的每次攻击伤害 +3。', atk: (a, t, B) => B.rr && B.rr.hp < B.rr.maxHp / 2 ? a + 3 : a },
-  r_bracer: { name: '寒铁护腕', icon: 'b_armor', rar: 'u', desc: '回合开始时如果生命低于 30%，获得 10 点格挡。', ts: (G, B) => { if (B.rr && B.rr.hp < B.rr.maxHp * .3) G.block(10, true); } },
+  r_bracer: { name: '寒铁护腕', icon: 'b_armor', rar: 'u', desc: '回合开始时如果生命低于 40%，获得 10 点格挡。', ts: (G, B) => { if (B.rr && B.rr.hp < B.rr.maxHp * .4) G.block(10, true); } },
   r_ink: { name: '魔法墨水', icon: 'sk_orb', rar: 'u', desc: '每打出 5 张技能牌，抽 2 张牌。', pp: (G, B, d) => { if (d.type === 'skill' && ++S().inkN % 5 === 0) G.draw(2); } },
-  r_shoes: { name: '弹簧鞋', icon: 'ic_stride', rar: 'u', desc: '每回合你的第一次攻击伤害 +3。', atk: (a, t, B) => { if (S().shT !== B.turn) { S().shT = B.turn; return a + 3; } return a; } },
+  r_shoes: { name: '弹簧鞋', icon: 'ic_stride', rar: 'u', desc: '每回合你的第一次攻击伤害 +4。', atk: (a, t, B) => { if (S().shT !== B.turn) { S().shT = B.turn; return a + 4; } return a; } },
   r_alch: { name: '炼金石', icon: 'ic_hexa', rar: 'u', desc: '战斗胜利时有 25% 几率得到一瓶药水。', vic: G => { if (Math.random() < .25) give(G.R); } },
   r_sand: { name: '时之沙', icon: 'ic_vortex', rar: 'u', desc: '每场战斗第 3 回合开始时，得到 2 点能量。', ts: (G, B) => { if (B.turn === 3) G.energy(2); } },
   r_star: { name: '星图', icon: 'ic_aura', rar: 'u', desc: '每场战斗你的生命第一次降到一半以下时，立刻获得 12 点格挡，下个回合多 1 点能量。', hurt: (B, R) => { if (!S().star && R.hp > 0 && R.hp < R.maxHp / 2) { S().star = 1; B.p.block += 12; S().starE = 1; } }, ts: G => { if (S().starE) { S().starE = 0; G.energy(1); } } },
@@ -61,11 +61,11 @@ export const R2 = {
   b_scale: { name: '命运天平', icon: 'ic_hexa', rar: 'boss', desc: '每回合多 1 点能量。每回合开始时随机弃掉 1 张手牌。', ts: (G, B) => { G.energy(1); if (B.hand.length) G.discard(1); } },
   b_mask: { name: '狂战面具', icon: 'p_berserk', rar: 'boss', desc: '你的每次攻击伤害 +3。每回合开始时失去 1 点生命。', atk: a => a + 3, ts: G => G.loseHp(1) },
   b_frozen: { name: '冰封之心', icon: 'ic_water', rar: 'boss', desc: '每回合多 1 点能量。敌人生命 +10%。', ts: G => G.energy(1), bs: B => B.en.forEach(e => { e.max = Math.round(e.max * 1.1); e.hp = Math.round(e.hp * 1.1); }) },
-  b_star: { name: '黑星', icon: 'ic_aura', rar: 'boss', desc: '精英战胜利后额外掉落一个秘宝。' },
-  b_cards: { name: '群星画卷', icon: 'p_arc', rar: 'boss', desc: '卡牌奖励多 1 张可选。' },
+  b_star: { name: '黑星', icon: 'ic_aura', rar: 'boss', desc: '精英战胜利后额外掉落一个秘宝。每场战斗第一回合少抽 1 张牌。' },
+  b_cards: { name: '群星画卷', icon: 'p_arc', rar: 'boss', desc: '卡牌奖励多 1 张可选。商店价格 +20%。' },
   b_giant: { name: '巨人之心', icon: 'm_blood', rar: 'boss', desc: '拾取时最大生命 +25。每场战斗第一回合少 1 点能量。', pick: R => { R.maxHp += 25; R.hp += 25; }, ts: (G, B, first) => { if (first) G.energy(-1); } },
   b_tome: { name: '禁忌之书', icon: 'sk_orb', rar: 'boss', desc: '每回合多抽 2 张牌。每回合结束时失去 1 点生命。', ts: G => G.draw(2), te: G => G.loseHp(1) },
-  b_lens: { name: '时光透镜', icon: 'ic_orbit', rar: 'boss', desc: '每场战斗第一回合多 2 点能量、多抽 2 张牌。精英和 Boss 生命 +10%。', ts: (G, B, first) => { if (first) { G.energy(2); G.draw(2); } }, bs: B => { if (B.kind !== 'fight') B.en.forEach(e => { e.max = Math.round(e.max * 1.1); e.hp = Math.round(e.hp * 1.1); }); } },
+  b_lens: { name: '时光透镜', icon: 'ic_orbit', rar: 'boss', desc: '每场战斗第一回合多 1 点能量、多抽 2 张牌。精英和 Boss 生命 +10%。', ts: (G, B, first) => { if (first) { G.energy(1); G.draw(2); } }, bs: B => { if (B.kind !== 'fight') B.en.forEach(e => { e.max = Math.round(e.max * 1.1); e.hp = Math.round(e.hp * 1.1); }); } },
 };
 let POOL = ['heal'];
 export const setPotPool = ks => { POOL = ks; };
