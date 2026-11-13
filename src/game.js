@@ -820,7 +820,7 @@ async function checkEnd() {
     if (B.en.some(e => (e.st.hostage || 0) > 0)) { R.gold += 40; say(tr('（被救下的村民塞给你 40 金币：“谢谢你们！”）')); }
     if (B.kind === 'elite') R.elites = (R.elites || 0) + 1; if (B.burn) gotKey('g');
     if (B.kind === 'boss' && R.hp >= (B.hp0 || 0)) ach('a_bossclean'); if (B.en.some(e => e.key === 'dev_boss')) ach('a_dev');
-    if (B.trueB) { B = null; clearSave(); R.trueEnd = 1; ach('a_true'); return story('story_home', ['门的后面，是一间亮着屏幕的小房间。', '开发者摘下眼镜，揉了揉眼睛：“……好吧，你们赢了。”', '屏幕上跳出一行字：「游戏结束——这次是真的。」', '光涌了上来。再睁开眼时，是放学路上的那条街。'], () => story(TRUEART, [...(TRUEEND[R.char] || []), '开发者在屏幕前敲下最后一行注释：// 谢谢你们，陪我把这个游戏打通。'], () => endScreen(true))); }
+    if (B.trueB) { B = null; clearSave(); R.trueEnd = 1; ach('a_true'); return story('story_home', ['门的后面，是一间亮着屏幕的小房间。', '开发者摘下眼镜，揉了揉眼睛：“……好吧，你们赢了。”', '屏幕上跳出一行字：「游戏结束——这次是真的。」', '光涌了上来。再睁开眼时，是放学路上的那条街。'], () => story(trueArt(), [...(TRUEEND[R.char] || []), '开发者在屏幕前敲下最后一行注释：// 谢谢你们，陪我把这个游戏打通。'], () => endScreen(true))); }
     if (B.kind === 'boss') { R.bosses = (R.bosses || 0) + 1; if (ACT() === 1) { delete R.pending; delete R.pendEnc; delete R.snap; R.after = 'act2'; save(); rewardScreen(); return true; }
       if (ACT() >= 2) { delete R.pending; delete R.pendEnc; delete R.snap;
         if (ACT() === 2) R.after = 'act3';
@@ -1164,7 +1164,8 @@ function endingChoice() {
   $('#up').onclick = () => { delete R.wait; startEndless(); };
 }
 /* 真结局：三把钥匙打开「源代码之间」（真 Boss 待定，先用加强版开发者占位） */
-const TRUEB = 'dev_debug', TRUEART = 'story_home'; /* 真结局插图到了改成 'story_true' */
+const TRUEB = 'dev_debug'; /* 真结局插图：千早回日本的街道；其他人回中国小镇（图到了改成 story_true_cn） */
+const trueArt = () => R && R.char === 'miko' ? 'story_true_jp' : 'story_true_jp';
 const TRUEEND = {
   hero: ['林拓回到了街口。掌机屏幕上，跳出了从没见过的两个字：「通关」。', '他把存档拷了好几份。“……下次，换我来做一个游戏。”'],
   heroine: ['苏音摘下耳机，异世界的声音还在耳朵里回响。', '那天晚上，她录下了自己的第一首歌，歌名叫《通往顶端》。'],
