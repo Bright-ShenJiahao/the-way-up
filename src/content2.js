@@ -1,7 +1,7 @@
 // 内容扩充：新秘宝（含 Boss 秘宝）、新药水、新事件。
 // 秘宝效果都写成钩子，挂在 MECH / CORE3 上，游戏和平衡模拟器共用同一份逻辑。
-import { MECH, PW } from './chars.js?v=live2_11141420';
-import { CORE3 } from './act3.js?v=live2_11141420';
+import { MECH, PW } from './chars.js?v=live2_11141535';
+import { CORE3 } from './act3.js?v=live2_11141535';
 
 let CB = null; /* 当前战斗 */
 const has = id => !!(CB && CB.rel && CB.rel.includes(id));

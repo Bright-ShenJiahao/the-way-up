@@ -425,7 +425,7 @@ const NEW4 = {
   s_drop2: NC('heroine', 's_drop2', '重拍', 'atk', 'c', [1, 1], 'n_dropbeat', 'one', u => `造成 ${v(u, 6, 8)} 点伤害，给予 2 层共鸣。狡诈。`, (g, u, t) => { g.attack(t, v(u, 6, 8)); g.res(live(g, t), 2); }, { sly: 1 }),
   s_lullaby: NC('heroine', 's_lullaby', '摇篮曲', 'skill', 'c', [1, 1], 'n_s_surround', 'one', u => `给予 2 层虚弱和 ${v(u, 2, 3)} 层共鸣。`, (g, u, t) => { g.apply(t, 'weak', 2); g.res(t, v(u, 2, 3)); }),
   s_acap: NC('heroine', 's_acap', '清唱', 'skill', 'u', [1, 1], 'n_s_loop', 'self', u => `回复 ${v(u, 4, 6)} 点生命，给予所有敌人 1 层共鸣。消耗。`, (g, u) => { g.heal(v(u, 4, 6)); g.resAll(1); }, { exhaust: 1 }),
-  s_amp: NC('heroine', 's_amp', '功放', 'power', 'u', [1, 1], 'n_s_sub', 'self', u => `每回合开始时，如果有敌人共鸣不少于 4 层，获得 ${v(u, 6, 8)} 点格挡。`, (g, u) => { P(g).st.amp = Math.max(P(g).st.amp || 0, v(u, 6, 8)); }),
+  s_amp: NC('heroine', 's_amp', '功放', 'power', 'u', [1, 1], 'n_s_sub', 'self', u => `每回合开始时，如果有敌人共鸣不少于 5 层，获得 ${v(u, 6, 8)} 点格挡。`, (g, u) => { P(g).st.amp = Math.max(P(g).st.amp || 0, v(u, 6, 8)); }),
   s_cresc: NC('heroine', 's_cresc', '渐强', 'atk', 'u', [1, 1], 'n_s_encore', 'one', u => `造成 ${v(u, 4, 5)} 点伤害 3 次，每次给予 1 层共鸣（叠满会当场爆音）。`, (g, u, t) => { for (let i = 0; i < 3; i++) { const e = live(g, t); if (!e) break; g.attack(e, v(u, 4, 5)); if (!e.dead) g.res(e, 1); } }),
   s_rest: NC('heroine', 's_rest', '休止符', 'skill', 'u', [1, 1], 'n_s_sample', 'self', u => `获得 ${v(u, 9, 12)} 点格挡，随机弃 1 张牌。`, (g, u) => { g.block(v(u, 9, 12)); g.discard(1); }),
   s_mosh: NC('heroine', 's_mosh', '狂欢', 'atk', 'u', [2, 2], 'n_s_crowd', 'all', u => `对所有敌人造成 ${v(u, 8, 11)} 点伤害；原本共鸣不少于 5 层且还活着的敌人再给予 3 层。`, (g, u) => { const hi = g.alive().filter(e => (e.st.res || 0) >= 5); g.attackAll(v(u, 8, 11)); hi.forEach(e => { if (!e.dead) g.res(e, 3); }); }),
@@ -529,7 +529,7 @@ export const PW = {
   turret: { te: (g, n) => { const a = g.alive(); if (a.length) g.hit(rand(a), n); } },
   stock: { ts: g => { P(g).stockT = 0; }, pp: (g, n, d) => { if (d.type === 'atk' && !P(g).stockT) { P(g).stockT = 1; g.ammo(1); if (n > 1) g.draw(1); } } },
   hcount: { ts: g => { P(g).hcN = 0; }, pp: (g, n, d) => { if (d.type === 'atk' && ++P(g).hcN === 4) { g.draw(2); g.ammo(1); if (n > 1) g.block(5, true); } } },
-  amp: { ts: (g, n) => { if (g.alive().some(e => (e.st.res || 0) >= 4)) g.block(n, true); } },
+  amp: { ts: (g, n) => { if (g.alive().some(e => (e.st.res || 0) >= 5)) g.block(n, true); } },
   plist: { ts: g => { g.draw(1); g.discard(1); } },
   chamber: { te: (g, n) => { const a = g.alive(); if (!a.length) return; const top = a.reduce((m, e) => (e.st.res || 0) > (m.st.res || 0) ? e : m, a[0]); g.res(top, n); } },
   kekN: { ts: (g, n) => { g.kek(n); delete P(g).st.kekN; } },
@@ -587,7 +587,7 @@ export const NEWSTATUS = {
   turret: ['自动炮台', '每回合结束时，对随机敌人造成这么多伤害', '#60d0ff'],
   stock: ['弹药库', '每回合第一张攻击牌得到 1 发光弹', '#60d0ff'],
   hcount: ['连击计数器', '每回合第 4 张攻击牌后抽 2 张牌、得到 1 发光弹', '#60d0ff'],
-  amp: ['功放', '回合开始时有敌人共鸣不少于 4 层，获得这么多格挡', '#ff80c0'],
+  amp: ['功放', '回合开始时有敌人共鸣不少于 5 层，获得这么多格挡', '#ff80c0'],
   plist: ['歌单', '每回合开始抽 1 张牌再随机弃 1 张', '#ff80c0'],
   chamber: ['共振腔', '回合结束时，共鸣最多的敌人再得到这么多层共鸣', '#ff80c0'],
   kekN: ['神铃', '下回合开始时结界增加这么多', '#ffd8a0'],
@@ -678,11 +678,13 @@ export const MECH = {
   },
   /* 敌人攻击打到玩家：格挡之前（团子护卫） */
   /* 只读估算：下回合敌人攻击扣掉护卫、式神、血骑士、减伤之后还剩多少（不改任何状态，给血条提示用） */
-  estimate(g, hits) { const p = P(g), c = p.cat; let shiki = p.st.shiki || 0, knight = p.big && p.big.kind === 'knight' && !p.bigG ? p.big.hp : 0, guard = c && !c.down && !c.merged && (c.cmd === 'guard' || p.st.mtwin) && c.guardOn ? Math.min(5 + (c.gB || 0) + (c.gP || 0) + (p.st.mgate ? 3 : 0) + (p.mount ? p.mountB || 8 : 0), c.hp) : 0, t = 0;
-    for (const { amt: a0, e } of hits) { let amt = a0; if (p.rage && amt > 0) amt = Math.ceil(amt * 1.5); if (shiki > 0 && amt > 0) { shiki--; continue; }
+  /* 只读的伤害预估；传 blk 时返回扣完格挡后真正掉的血 */
+  estimate(g, hits, blk) { const p = P(g), c = p.cat; let sc = p.st.scale || 0, loss = 0, shiki = p.st.shiki || 0, knight = p.big && p.big.kind === 'knight' && !p.bigG ? p.big.hp : 0, guard = c && !c.down && !c.merged && (c.cmd === 'guard' || p.st.mtwin) && c.guardOn ? Math.min(5 + (c.gB || 0) + (c.gP || 0) + (p.st.mgate ? 3 : 0) + (p.mount ? p.mountB || 8 : 0), c.hp) : 0, t = 0;
+    for (const { amt: a0, e, br } of hits) { let amt = a0; if (sc && amt > 0) { const raw = amt; amt = Math.max(Math.ceil(amt / 2), amt - sc); if (raw >= 10) sc--; } if (p.rage && amt > 0) amt = Math.ceil(amt * 1.5); if (shiki > 0 && amt > 0) { shiki--; continue; }
       if (e) { if (e.cutH) amt = Math.floor(amt / 2); if (e.cutS) amt = Math.max(0, amt - e.cutS); if (p.st.permaf && e.st && e.st.fburn) amt = Math.max(0, amt - p.st.permaf); }
-      if (p.flhsD) amt = Math.floor(amt * .8); if (knight > 0 && amt > 0) { knight = 0; continue; } if (guard > 0 && amt > 0) { const k = Math.min(amt, guard); amt -= k; guard = 0; } t += amt; }
-    if (p.st.dragon && !p.drHit && t > 0) t = Math.max(0, t - 4); return t; },
+      if (p.flhsD) amt = Math.floor(amt * .8); if (knight > 0 && amt > 0) { knight = 0; continue; } if (guard > 0 && amt > 0) { const k = Math.min(amt, guard); amt -= k; guard = 0; } t += amt;
+      if (blk != null) { const hf = br && blk > 1 ? Math.floor(blk / 2) : 0, use = Math.min(blk - hf, amt); blk -= use; loss += amt - use; } }
+    if (blk != null) t = loss; if (p.st.dragon && !p.drHit && t > 0) t = Math.max(0, t - 4); return t; },
   preBlock(g, amt, e) { const p = P(g), c = p.cat;
     if (p.rage && amt > 0) amt = Math.ceil(amt * 1.5);
     if (e && amt > 0 && p.st.shiki) { p.st.shiki--; if (!p.st.shiki) delete p.st.shiki; g.note(`式神挡下了 ${amt}`); if (p.st.shikiR) g.kek(2); return 0; }

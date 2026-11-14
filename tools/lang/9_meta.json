@@ -1386,5 +1386,49 @@
  "「又改了一版需求……」": [
   "\"The requirements changed again...\"",
   "「また仕様変更か……」"
+ ],
+ "{0} 专属": [
+  "{0} only",
+  "{0}専用"
+ ],
+ "通用": [
+  "Shared",
+  "共通"
+ ],
+ "生命": [
+  "HP",
+  "HP"
+ ],
+ "精英": [
+  "Elite",
+  "エリート"
+ ],
+ "普通": [
+  "Normal",
+  "通常"
+ ],
+ "初始": [
+  "Starter",
+  "初期"
+ ],
+ "罕见": [
+  "Uncommon",
+  "アンコモン"
+ ],
+ "稀有": [
+  "Rare",
+  "レア"
+ ],
+ "选一张手牌：升级、补丁 +5、本场 0 费": [
+  "Pick a card in hand: upgrade it, Patch +5, costs 0 this combat",
+  "手札を1枚選ぶ：アップグレード、パッチ+5、この戦闘中コスト0"
+ ],
+ "下回合将给自己加格挡，并给你施加负面状态": [
+  "Next turn: gains Block and applies a debuff to you",
+  "次のターン：自分にブロックを付与し、あなたに弱体を与える"
+ ],
+ "给自己加格挡，并给你施加负面状态": [
+  "gains Block and applies a debuff to you",
+  "自分にブロックを付与し、あなたに弱体を与える"
  ]
 }

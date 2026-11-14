@@ -28,11 +28,11 @@ export const E3 = {
     main: { n: '龙爪', i: 'atk', d: 11 }, breath: { n: '烈焰龙息', i: 'atkdebuff', d: 16, f: (e, B) => B.applyP('pburn', 3) }, fizzle: 5 }),
   d_frost: dragon('frost', { name: '霜龙', hp: [50, 54], hd: 255, lore: '冰霜龙。它的龙息会让你冻伤：回合结束时手里剩的牌越多，掉的血越多。',
     main: { n: '尾扫', i: 'atkdef', d: 9, f: (e, B) => B.eBlock(e, 6) }, breath: { n: '寒霜龙息', i: 'atkdebuff', d: 14, f: (e, B) => B.applyP('frost', 3) }, fizzle: 5 }),
-  d_storm: dragon('storm', { name: '雷龙', hp: [42, 46], hd: 255, lore: '雷龙。你每打出一张非攻击牌，它就积 1 层静电（最多 3 层），每层让下一次雷爪多抓一下。龙息会让你麻痹（下回合少 1 点能量）。',
+  d_storm: dragon('storm', { name: '雷龙', hp: [42, 46], hd: 255, lore: '雷龙。你每打出一张非攻击牌，它就积 1 层静电（最多 3 层），每层让下一次雷爪多抓一下。龙息会让你电麻（下回合少 1 点能量）。',
     onCard: (e, type) => { if (type !== 'atk' && (e.st.static || 0) < 3) { e.st.static = (e.st.static || 0) + 1; e.xb = e.st.static; } },
     after: e => { if (e.move === 'main') { delete e.st.static; e.xb = 0; } },
     main: { n: '雷爪', i: 'atk', d: 6, x: 2 }, breath: { n: '雷霆龙息', i: 'atkdebuff', d: 18, f: (e, B) => B.applyP('zap', 1) }, fizzle: 6 }),
-  d_venom: dragon('venom', { name: '毒沼龙', hp: [48, 52], hd: 230, lore: '毒沼龙。身上全是毒鳞：每次被你攻击，你也中毒 1 层。',
+  d_venom: dragon('venom', { name: '毒沼龙', hp: [48, 52], hd: 230, lore: '毒沼龙。身上全是毒鳞：每次被你攻击，你也会中 1 层剧毒。',
     main: { n: '毒牙', i: 'atkdebuff', d: 8, f: (e, B) => B.applyP('ppois', 3) }, breath: { n: '毒雾龙息', i: 'atkdebuff', d: 10, f: (e, B) => B.applyP('ppois', 5) }, fizzle: 4,
     onHurt: (e, B) => { if (e.hitByP) B.applyP('ppois', 1); } }),
   d_wyvern: { name: '双足飞龙', dragon: 1, hp: [30, 34], sc: 2.2, hd: 250, lore: '一直飞在半空。每回合第一次受到的伤害减半。',
@@ -115,7 +115,7 @@ export const E3 = {
       compile: { n: '编译中', i: 'buff', f: e => { e.chg = 1; e.st.chg = 1; e.pose = 'charge'; } },
       deploy: { n: '部署', i: 'atk', d: 45 }, fail: { n: '编译失败', i: 'atk', d: 8 },
       spawn: { n: '召唤测试用例', i: 'summon', f: (e, B) => { e.pose = 'cast'; for (const k of ['gob_king', 'wolf_lord']) { const m = B.summon(k, 30); if (m) { m.mini = 1; m.hd = 180; m.st = {}; } } B.say('「跑一下测试用例。」'); } },
-      hotfix: { n: '热修复', i: 'buff', f: (e, B) => { e.pose = 'cast'; for (const k of ['poison', 'weak', 'vuln', 'res', 'fburn']) delete e.st[k]; B.healE(e, Math.floor(e.max * .1)); B.say('「打个热补丁。」'); } } },
+      hotfix: { n: '热修复', i: 'buff', f: (e, B) => { e.pose = 'cast'; for (const k of ['poison', 'weak', 'vuln', 'res']) delete e.st[k]; B.healE(e, Math.floor(e.max * .1)); B.say('「打个热补丁。」'); } } },
     onPTurn: (e, B) => { e.bugT = 0; e.cc = 0; if (e.rbT) e.rbT--;
       if (e.pend === 'bp') { const n = B.sealType(e, e.bpT); B.say(n ? `「「${n}」这里下个断点。」` : '「断点……没打中？」'); }
       if (e.pend === 'rm') { const n = B.exhRand(1); if (n) B.say(`「「${n}」，rm -rf。」`); }

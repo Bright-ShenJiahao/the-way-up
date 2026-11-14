@@ -186,7 +186,7 @@ export default {
 "炼金瓶（由其他牌生成）": "Flask (made by other cards)",
 "{0} 分解锁": "unlocks at {0} pts",
 "专属": "only",
-"通用": "Any hero",
+"通用": "Shared",
 "所有角色通用。最多带 {0} 瓶，战斗中点左上角的药水使用，不花能量。打完战斗有机会掉落，商店也卖。": "Any hero can use them. Carry up to {0}. Tap a potion at the top left in battle; no Energy needed. Dropped after battles and sold in shops.",
 "生命": "HP",
 "防御": "Defend",
@@ -3664,5 +3664,9 @@ export default {
 "重启保护：还剩回合": "Rebooting — turns left:",
 "打开了调试模式的开发者。会给一种牌下「{0}」（你手里那种牌有一张这回合打不出），「{1}」会把你一张手牌删到本场战斗结束，「{2}」一回合后打出 {3} 点——编译那回合打他 {4} 点以上就能打断。半血进入蓝屏：力量 {5}，每回合往你弃牌堆塞「{6}」。弱点不变：一回合打出 {7} 张 {8} 费牌或 {9} 张牌，他会程序崩溃晕一回合；但崩溃后会自动重启，之后 {10} 回合不会再崩溃。": "The Developer with debug mode on. He sets a 「{0}」 on a card type (one such card in your hand can't be played this turn), 「{1}」 removes a card from your hand for the rest of the combat, and 「{2}」 hits for {3} a turn later—deal {4}+ damage during the compile turn to interrupt it. At half HP he bluescreens: {5} Strength, and adds an 「{6}」 to your discard pile every turn. Same weakness: play {7} cards costing {8} or {9} cards in one turn and he crashes, stunned for a turn. But he reboots after a crash and can't crash again for the next {10} turns.",
 "打开了调试模式的开发者。会给一种牌下「{0}」（你手里那种牌有一张这回合打不出），「{1}」会把你一张手牌删到本场战斗结束，「{2}」一回合后打出 {3} 点——编译那回合打他 {4} 点以上就能打断。每 {5} 回合力量 {6}（加班）。半血进入蓝屏：力量 {7}，每回合往你弃牌堆塞「{8}」。弱点不变：一回合打出 {9} 张 {10} 费牌或 {11} 张牌，他会程序崩溃晕一回合；但崩溃后会自动重启，之后 {12} 回合不会再崩溃。": "The developer, in debug mode. He sets a 「{0}」 on a card type (one card of that type in your hand can't be played this turn); 「{1}」 deletes one card in your hand for the rest of the fight; 「{2}」 hits for {3} a turn later — deal {4}+ damage to him on the compiling turn to interrupt it. Every {5} turns he gains {6} Strength (overtime). At half HP he bluescreens: Strength {7}, and he shuffles an 「{8}」 into your discard pile each turn. His weakness is unchanged: play {9} cards costing {10} or {11} cards in one turn and he crashes, stunned for a turn; but he reboots after a crash and can't crash again for the next {12} turns.",
-"「又改了一版需求……」": "\"The requirements changed again...\""
+"「又改了一版需求……」": "\"The requirements changed again...\"",
+"{0} 专属": "{0} only",
+"选一张手牌：升级、补丁 +5、本场 0 费": "Pick a card in hand: upgrade it, Patch +5, costs 0 this combat",
+"下回合将给自己加格挡，并给你施加负面状态": "Next turn: gains Block and applies a debuff to you",
+"给自己加格挡，并给你施加负面状态": "gains Block and applies a debuff to you"
 };
