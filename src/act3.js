@@ -84,27 +84,55 @@ export const E3 = {
     onTurn: (e, B) => { if (e.p2) { if (e.grounded) { e.grounded = 0; e.st.fly = 3; return 'skip'; } e.st.fly = 3; breathTurn(e, B, 'fbreath', 'ffizzle'); } else breathTurn(e, B, 'breath', 'fizzle'); },
     onDie: (e, B) => B.say(B.sylvie ? '「幼崽……替我，守住这扇门。」' : '「……拦住它。只有你们，能从这扇门走回去。」'),
     ai: e => e.p2 ? cycle({ turn: e.turn - (e.t2 || 0) }, ['fcharge', 'fbreath', 'dive']) : cycle(e, ['hatch', 'claw', 'charge', 'breath', 'scales']) },
-  dev_boss: { name: '开发者', hd: 290, hp: [260, 260], sc: 2.6, boss: 1, lore: '这个游戏的作者。他能看你的手牌、改你的牌，每轮 7 个动作做完还会「加班」力量 +2。弱点：一回合打出 3 张 0 费牌，他就会「程序报错」晕一回合。',
+  dev_boss: { name: '开发者', hd: 290, hp: [235, 235], sc: 2.6, boss: 1, lore: '这个游戏的作者。他能看你的手牌、改你的牌，每轮 7 个动作做完还会「加班」力量 +1。弱点：一回合打出 3 张 0 费牌，或者一回合打出 6 张牌，他就会「程序报错」晕一回合。',
     intro: '「这一关……其实我自己都没打过。」',
     moves: { peek: { n: '偷看', i: 'unknown' }, peekDef: { n: '看穿', i: 'def', f: (e, B) => B.eBlock(e, 18) }, peekHit: { n: '看穿', i: 'atk', d: 17 },
-      keys: { n: '键盘连打', i: 'atk', d: 8, x: 3 },
+      keys: { n: '键盘连打', i: 'atk', d: 7, x: 3 },
       swap: { n: '换牌', i: 'debuff', f: e => { e.pend = 'swap'; e.pose = 'cast'; } },
       del: { n: 'Delete', i: 'atkdebuff', d: 12, f: e => { e.pend = 'del'; } },
       patch: { n: '平衡补丁', i: 'debuff', f: (e, B) => { e.pose = 'cast'; const n = B.nerfTop(3); B.say(n ? `「「${n}」太强了，削。」` : '「嗯……没什么好削的。」'); } },
       flip: { n: '敲回车', i: 'atkdebuff', d: 14, f: e => { e.pend = 'flip'; } },
       debug: { n: '调试召唤', i: 'summon', f: (e, B) => { e.pose = 'cast'; const m = B.summon(Math.random() < .5 ? 'gob_king' : 'wolf_lord', 45); if (m) { m.mini = 1; m.hd = 200; } B.say('「调试一下……」'); } },
       demand: { n: '需求变更', i: 'atk', d: 24 } },
-    onPTurn: (e, B) => { e.bugT = 0;
+    onPTurn: (e, B) => { e.bugT = 0; e.cc = 0;
       if (e.move === 'peek') { const h = B.handTypes(); e.move = h.atk >= h.skill ? 'peekDef' : 'peekHit'; B.say('「你手里的牌，我都看到了。」'); }
       if (e.pend === 'swap') { const n = B.swapHigh(); if (n) B.say(`「「${n}」借我用用。」`); }
       if (e.pend === 'del') { B.discardRand(2); B.say('「这两张，删了。」'); }
       if (e.pend === 'flip') { B.flipRand(); B.say('「这张……正负反过来试试。」'); }
       e.pend = null; },
-    onCard: (e, type, B) => { if (!e.bugT && !e.stun && B.zc() >= 3) { e.bugT = 1; e.stun = 1; B.say('「程序报错了？！」'); } },
+    onCard: (e, type, B) => { e.cc = (e.cc || 0) + 1; if (!e.bugT && !e.stun && (B.zc() >= 3 || e.cc >= 6)) { e.bugT = 1; e.stun = 1; B.say('「程序报错了？！」'); } },
     onHurt: (e, B) => { if (!e.z && e.hp > 0 && e.hp <= e.max / 2) { e.z = 1; B.healE(e, Math.floor(e.max * .3)); B.addSt(e, 'str', 1); B.addHand('bugcard', 2); B.say('「这个数值不对……Ctrl+Z。」'); } },
-    onTurn: (e, B) => { if (e.turn > 0 && e.turn % 7 === 0 && e.otT !== e.turn) { e.otT = e.turn; B.addSt(e, 'str', 2); B.say('「今晚又要加班了……」'); } if (e.stun) { e.stun = 0; e.pose = 'stun'; return 'skip'; } e.pose = null; },
+    onTurn: (e, B) => { if (e.turn > 0 && e.turn % 7 === 0 && e.otT !== e.turn) { e.otT = e.turn; B.addSt(e, 'str', 1); B.say('「今晚又要加班了……」'); } if (e.stun) { e.stun = 0; e.pose = 'stun'; return 'skip'; } e.pose = null; },
     onDie: (e, B) => B.say('「行，你们比我会玩。……不过门那边漏出来的东西，我也没写过。小心。」'),
     ai: (e, B) => { const m = cycle(e, ['peek', 'keys', 'swap', 'del', 'patch', 'flip', 'debug']); return m === 'debug' && B.alive().some(a => a.mini) ? 'demand' : m; } },
+  /* ---------- 真结局 Boss：开发者 · debug 状态（三把钥匙才会遇到） ---------- */
+  dev_debug: { name: '开发者 · debug 状态', hd: 300, hp: [740, 740], sc: 2.7, boss: 1, brk: 40, art: 'dev_debug', poses: ['cast', 'charge', 'stun'],
+    lore: '打开了调试模式的开发者。会给一种牌下「断点」（你手里那种牌有一张这回合打不出），「rm -rf」会把你一张手牌删到本场战斗结束，「编译」一回合后打出 45 点——编译那回合打他 40 点以上就能打断。每 3 回合力量 +2（加班）。半血进入蓝屏：力量 +4，每回合往你弃牌堆塞「报错」。弱点不变：一回合打出 3 张 0 费牌或 6 张牌，他会程序崩溃晕一回合；但崩溃后会自动重启，之后 2 回合不会再崩溃。',
+    intro: '「debug 模式已开启。这次，我用管理员权限跟你们打。」',
+    moves: { bpA: { n: '断点：攻击', i: 'defdebuff', f: (e, B) => { B.eBlock(e, 15); e.pend = 'bp'; e.bpT = 'atk'; e.pose = 'cast'; } },
+      bpS: { n: '断点：技能', i: 'defdebuff', f: (e, B) => { B.eBlock(e, 15); e.pend = 'bp'; e.bpT = 'skill'; e.pose = 'cast'; } },
+      rm: { n: 'rm -rf', i: 'atkdebuff', d: 9, x: 3, f: e => { e.pend = 'rm'; } },
+      compile: { n: '编译中', i: 'buff', f: e => { e.chg = 1; e.st.chg = 1; e.pose = 'charge'; } },
+      deploy: { n: '部署', i: 'atk', d: 45 }, fail: { n: '编译失败', i: 'atk', d: 8 },
+      spawn: { n: '召唤测试用例', i: 'summon', f: (e, B) => { e.pose = 'cast'; for (const k of ['gob_king', 'wolf_lord']) { const m = B.summon(k, 30); if (m) { m.mini = 1; m.hd = 180; m.st = {}; } } B.say('「跑一下测试用例。」'); } },
+      hotfix: { n: '热修复', i: 'buff', f: (e, B) => { e.pose = 'cast'; for (const k of ['poison', 'weak', 'vuln', 'res', 'fburn']) delete e.st[k]; B.healE(e, Math.floor(e.max * .1)); B.say('「打个热补丁。」'); } } },
+    onPTurn: (e, B) => { e.bugT = 0; e.cc = 0; if (e.rbT) e.rbT--;
+      if (e.pend === 'bp') { const n = B.sealType(e, e.bpT); B.say(n ? `「「${n}」这里下个断点。」` : '「断点……没打中？」'); }
+      if (e.pend === 'rm') { const n = B.exhRand(1); if (n) B.say(`「「${n}」，rm -rf。」`); }
+      e.pend = null; },
+    onCard: (e, type, B) => { e.cc = (e.cc || 0) + 1; if (!e.bugT && !e.stun && !e.rbT && (B.zc() >= 3 || e.cc >= 6)) { e.bugT = 1; e.stun = 1; e.rbT = 3; B.say('「程序崩溃了？！」'); } },
+    onHurt: (e, B) => { if (!e.z && e.hp > 0 && e.hp <= e.max / 2) { e.z = 1; e.ci = 0; B.addSt(e, 'str', 4); for (const m of B.alive()) if (m.mini) B.kill(m); B.say('「……蓝屏了。没关系，蓝屏我也能打。」'); } },
+    onTurn: (e, B) => { B.unseal(e); if (e.z) B.addCard('bugcard', 1); if (e.turn > 0 && e.turn % 3 === 0 && e.otT !== e.turn) { e.otT = e.turn; B.addSt(e, 'str', 2); B.say('「又改了一版需求……」'); }
+      if (e.stun) { e.stun = 0; e.pose = 'stun'; if (e.move === 'deploy') { e.chg = 0; delete e.st.chg; e.move = 'fail'; } return 'skip'; }
+      if (e.move === 'deploy') { const ok = e.chg && (e.dmgT || 0) < e.d.brk; e.chg = 0; delete e.st.chg; if (!ok) { e.move = 'fail'; B.say('「编译失败？！」'); } }
+      e.pose = null; },
+    onDie: (e, B) => B.say('「……行。这次是真的通关了。」'),
+    ai: (e, B) => { if (e.move === 'compile') return 'deploy';
+      const L = e.z ? ['bp', 'rm', 'compile', 'rm', 'spawn'] : ['bp', 'rm', 'compile', 'spawn', 'bp', 'rm', 'hotfix'];
+      e.ci = (e.ci || 0); let m = L[e.ci % L.length]; e.ci++;
+      if (m === 'spawn' && B.alive().some(a => a.mini)) m = 'rm';
+      if (m === 'bp') m = Math.random() < .6 ? 'bpA' : 'bpS';
+      return m; } },
   /* ---------- 龙族（新） ---------- */
   d_water: { name: '水龙', hp: [52, 56], sc: 2.4, hd: 270, brk: 15, dragon: 1, rage: 1, poses: ['charge'],
     lore: '水龙。涨潮那回合打它 15 点以上能打断巨浪；巨浪打中后，你下回合会被冲走 1 张手牌。',
@@ -120,7 +148,7 @@ export const E3 = {
       shade: { n: '暗影潜行', i: 'buff', f: (e, B) => { B.addSt(e, 'shade', 1); e.pose = 'shade'; } } },
     onTurn: e => { delete e.st.shade; e.pose = null; },
     ai: e => cycle(e, ['claw', 'breath', 'shade']) },
-  d_bone: { name: '骨龙', hp: [118, 124], sc: 2.8, hd: 320, elite: 1, dragon: 1, rage: 1, poses: ['revive'],
+  d_bone: { name: '骨龙', hp: [108, 114], sc: 2.8, hd: 320, elite: 1, dragon: 1, rage: 1, poses: ['revive'],
     lore: '不死的骨龙。第一次被打死会带 30% 生命重新拼起来——除非它死的时候身上有灼烧或中毒。会唤起骷髅护卫，龙息让你虚弱又易伤。',
     moves: { raise: { n: '唤骨', i: 'summon', f: (e, B) => { if (B.alive().length < 2) { const s = B.summon('skeleton', 20); if (s) s.mini = 1; } } },
       bite: { n: '骨咬', i: 'atk', d: 14 }, breath: { n: '灵魂龙息', i: 'atkdebuff', d: 12, br: 1, f: (e, B) => { B.applyP('weak', 1); B.applyP('vuln', 1); } } },
@@ -133,7 +161,7 @@ export const E3 = {
       judge: { n: '审判', i: 'atk', d: 4, x: 1 }, heal: { n: '圣愈', i: 'buff', f: (e, B) => { e.pose = 'cast'; B.alive().forEach(a => { B.healE(a, a === e ? 16 : 10); if (a !== e) B.eBlock(a, 8); }); } } },
     onTurn: e => { if (e.pose === 'cast' || !e.st.hshield) e.pose = null; },
     onPTurn: e => { e.cc = 0; e.xb = e.move === 'judge' ? -1 : 0; },
-    onCard: e => { e.cc = (e.cc || 0) + 1; if (e.move === 'judge') e.xb = e.cc - 1; },
+    onCard: e => { e.cc = (e.cc || 0) + 1; if (e.move === 'judge') e.xb = e.cc; },
     ai: e => cycle(e, ['shield', 'claw', 'judge', 'heal']) },
   d_arch: { name: '大法师龙', hp: [136, 142], sc: 2.8, hd: 320, elite: 1, dragon: 1, rage: 1, poses: ['cast', 'meteor', 'mirror'],
     lore: '披着法袍的老龙。你每打出一张技能牌，它就积 1 点法力；攒满 4 点会立刻改念大魔法：陨石、镜像或奥术飞弹（意图会变）。',
@@ -181,7 +209,7 @@ export const E3 = {
     onPTurn: (e, B) => { if (e.pend === 'seal') { e.pend = null; const n = B.seal(e, 1); if (n) B.say(`（「${n}」被封印到战斗结束！）`); } },
     onTurn: e => { e.pose = null; },
     ai: e => cycle(e, ['seal', 'summon', 'hellfire', 'summon', 'smash', 'summon']) },
-  demon_king: { name: '深渊之主', hp: [340, 340], sc: 3, hd: 380, boss: 1, brk: 30, demon: 1, poses: ['soul', 'charge', 'devour', 'night'],
+  demon_king: { name: '深渊之主', hp: [310, 310], sc: 3, hd: 380, boss: 1, brk: 30, demon: 1, poses: ['soul', 'charge', 'devour', 'night'],
     lore: '门那一边的魔王。召来的小恶魔会被它献祭成护盾；终焉审判蓄力时打它 30 点以上能打断。生命掉到一半会吞掉全部手下、卸甲进入二阶段。',
     intro: '「龙守着门，就是为了关住我。……谢谢你们，替我把门打开了。」',
     moves: { legion: { n: '召唤军团', i: 'summon', f: (e, B) => { for (let k = 0; k < 2 && B.alive().length < 4; k++) B.summon('d_imp'); } },
@@ -223,8 +251,8 @@ export const FINAL3 = 'demon_king', GATE3 = 'd_boss';
 export const S3 = {
   pburn: ['灼烧', '回合结束时失去等同层数的生命，然后减 1 层', '#ff7a30', 'icons2/st_pburn'],
   frost: ['冻伤', '回合结束时，手里每剩 1 张牌失去 1 生命（最多按层数算），然后减 1 层', '#9ad8ff', 'icons2/st_frost'],
-  zap: ['麻痹', '回合开始时少 1 点能量，然后减 1 层', '#ffe14a', 'icons2/st_zap'],
-  ppois: ['中毒', '回合开始时失去等同层数的生命，然后减 1 层', '#70d040'],
+  zap: ['电麻', '回合开始时少 1 点能量，然后减 1 层', '#ffe14a', 'icons2/st_zap'],
+  ppois: ['剧毒', '（你身上的毒）回合开始时失去等同层数的生命，然后减 1 层', '#70d040'],
   scale: ['鳞甲', '受到的每次攻击伤害减少等同层数（最多减一半）；一次受到 10 点以上的攻击会打碎 1 层', '#b0a080', 'icons2/st_scale'],
   hatch: ['孵化', '归零时孵化成幼龙', '#ffb060'], grow: ['成长', '归零时长成满血的成龙', '#ff9040'],
   heads: ['头', '每个头咬一口', '#60c0a0'], chg: ['蓄力', '下回合放出龙息。这回合内受到足够伤害就会被打断', '#ffffff', 'icons2/st_chg'],

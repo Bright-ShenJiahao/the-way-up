@@ -174,7 +174,7 @@ button{font-family:inherit;cursor:pointer}
 .bi .mvl{margin:3px 0;font-size:15px;line-height:1.5}.bi.mon.unk{opacity:.55}.bi.mon.unk .qm{flex:0 0 100px;width:100px;height:110px;font-size:60px}
 .who .core{margin:0 0 6px!important}.who .chip{display:inline-block;margin:2px 6px 2px 0;padding:1px 8px;border-radius:10px;background:#5a3a1a;color:#ffe6a8;font-size:14px}
 .who .cl{text-align:left!important}.csel .reward.cc img{height:88px}.csel h2{margin:0 0 6px}.csel .reward.cc .ct{display:none}.csel .reward.cc{padding:6px 8px 8px;gap:2px}.csel .reward.cc b{font-size:17px}
-.card .sealb{position:absolute;inset:0;z-index:7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:rgba(40,0,60,.6);border-radius:12px;color:#ecd0ff;font:bold 18px/1.2 sans-serif;font-style:normal;text-shadow:0 0 6px #000;pointer-events:none}.card .sealb img{width:74px;height:74px}.card .ver{position:absolute;right:6px;top:30px;z-index:5;font-style:normal;font:bold 12px/1 sans-serif;background:#1a6a3a;color:#d8ffe0;border:1px solid #7fe0a0;border-radius:8px;padding:3px 6px}.card .ver.neg{background:#6a1a1a;color:#ffd8d8;border-color:#e08080}.card .flipb{position:absolute;left:50%;top:44%;transform:translateX(-50%) rotate(-12deg);z-index:6;font-style:normal;font:bold 18px/1 sans-serif;color:#fff;background:#c0202a;border:2px solid #ffb0b0;border-radius:8px;padding:4px 10px}.reward.trial{display:flex;flex-direction:column;gap:4px;align-items:flex-start;text-align:left;width:100%}
+table.hist{width:100%;border-collapse:collapse;margin:6px 0 12px;font-size:15px}table.hist td,table.hist th{border-bottom:1px solid rgba(201,163,90,.35);padding:5px 8px;text-align:center}table.hist th{color:#e8c47a}.card .sealb{position:absolute;inset:0;z-index:7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:rgba(40,0,60,.6);border-radius:12px;color:#ecd0ff;font:bold 18px/1.2 sans-serif;font-style:normal;text-shadow:0 0 6px #000;pointer-events:none}.card .sealb img{width:74px;height:74px}.card .ver{position:absolute;right:6px;top:30px;z-index:5;font-style:normal;font:bold 12px/1 sans-serif;background:#1a6a3a;color:#d8ffe0;border:1px solid #7fe0a0;border-radius:8px;padding:3px 6px}.card .ver.neg{background:#6a1a1a;color:#ffd8d8;border-color:#e08080}.card .flipb{position:absolute;left:50%;top:44%;transform:translateX(-50%) rotate(-12deg);z-index:6;font-style:normal;font:bold 18px/1 sans-serif;color:#fff;background:#c0202a;border:2px solid #ffb0b0;border-radius:8px;padding:4px 10px}.reward.trial{display:flex;flex-direction:column;gap:4px;align-items:flex-start;text-align:left;width:100%}
 .reward.cc.locked{cursor:default;position:relative;filter:saturate(.75) brightness(.8)}.reward.cc.locked:hover{transform:none}.reward.cc .lockb{position:absolute;top:6px;right:6px;font-style:normal;font-size:12px;background:#000a;color:#ffd35a;padding:1px 6px;border-radius:8px}
 .reward.cc .cl,.who .cl{color:#ffe6a8;font-style:italic;font-size:13px;line-height:1.45;text-align:center}
 .reward.cc.soon{cursor:default;opacity:.7;filter:grayscale(1)}.reward.cc.soon:hover{transform:none}
@@ -216,6 +216,12 @@ button{font-family:inherit;cursor:pointer}
 .rules h3{color:#ffd35a;margin:10px 0 4px}.rules table{width:100%;border-collapse:separate;border-spacing:0 4px}.rules td{background:rgba(0,0,0,.25);padding:6px 12px;font-size:15px}.rules td:first-child{width:130px;color:#ffe9b8;white-space:nowrap}
 .pots{display:flex;gap:4px;margin:0 10px}.pot{width:34px;height:34px;object-fit:contain;cursor:pointer;border-radius:8px;background:rgba(255,255,255,.06)}.pot.empty{display:inline-block;border:1px dashed rgba(255,255,255,.25)}.pot.sel{outline:2px solid #ffd35a;background:rgba(255,211,90,.25)}.pot:hover{transform:scale(1.15)}
 .ascbar{display:flex;align-items:center;gap:8px;margin:10px 0 4px;font-size:16px}.ascbar .btn{padding:2px 12px;font-size:18px}.ascbar b{font-size:22px;color:#ffd35a;width:24px;text-align:center}.ascbar span{font-size:13px;color:#cbbf9f;max-width:760px;text-align:left}
+.crashc{margin-top:2px;font-size:12px;color:#7fe0ff;text-shadow:0 0 3px #000;white-space:nowrap}.touch .crashc{font-size:16px}
+.modebar{display:flex;align-items:center;gap:10px;margin:2px 0 8px;font-size:14px;color:#e8dcc0}.modebar .btn{padding:4px 14px}.modebar a{cursor:pointer;color:#ff8a8a;margin-left:6px}
+.modl{display:flex;flex-direction:column;gap:6px;text-align:left;margin:10px 0;max-height:46vh;overflow:auto}.modl .ck span{font-size:14px}
+.achg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin:10px 0}.ach{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px;border-radius:10px;background:rgba(0,0,0,.35);border:2px solid #4a3a28;opacity:.55;text-align:center}.ach.on{opacity:1;border-color:#c9a35a;background:rgba(80,55,20,.45)}.ach i{font-style:normal;font-size:24px}.ach b{font-size:15px;color:#ffe08a}.ach span{font-size:12px;color:#d8ccb0}
+#top .rkeys{font-style:normal;display:inline-flex;flex:none;align-items:center;gap:2px;margin-left:8px;font-size:16px;text-shadow:0 0 4px #000}.node .burn{position:absolute;right:-8px;top:-12px;font-style:normal;font-size:22px;filter:drop-shadow(0 0 4px #ff6a00);pointer-events:none}
+.touch .achp{max-height:96vh!important;width:min(1100px,96vw)!important}.touch .achg{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}.touch .ach b{font-size:19px}.touch .ach span{font-size:15px}.touch .modebar .btn{font-size:20px;padding:6px 18px}.touch .modl .ck span{font-size:18px}
 .xpw{width:460px;display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:14px;color:#e8dcc0}.xpb{grid-column:1/3;height:10px;background:rgba(255,255,255,.15);border-radius:5px;overflow:hidden}.xpb i{display:block;height:100%;background:#ffd35a}
 
 .ring{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;border:6px solid;pointer-events:none;animation:ring .6s ease-out forwards;z-index:60}
@@ -255,8 +261,10 @@ button{font-family:inherit;cursor:pointer}
 .touch #hand .card.peek:hover,.touch #hand .card.peek{transform:translateY(-120px) scale(1.3) rotate(0deg)!important}
 .touch #energy{zoom:1.15;bottom:150px;left:10px}.touch #endturn{bottom:175px;width:250px;height:84px;font-size:26px}
 .touch .panel p{font-size:23px}.touch .panel h2{font-size:34px}.touch .csel .cd,.touch .csel .diff,.touch .csel .ct{font-size:118%}.touch .csel .reward.cc .cl{display:none}.touch .csel .reward.cc img{height:72px}.touch .ascbar{font-size:18px}
-.touch .legend,.touch #legend{zoom:1.4;right:auto;left:10px}.touch #mapin{zoom:var(--mz,1.22)}.touch .setw .langbar{zoom:1.5}.touch #kwtip{width:340px;font-size:20px}.touch #kwtip p{font-size:20px;line-height:1.4}
+.touch .legend,.touch #legend{zoom:1.4;right:auto;left:10px}.touch #mapin{zoom:var(--mz,1.22)}.touch .setw .langbar{zoom:1.5}.touch #kwtip{width:340px;font-size:20px;z-index:125}.touch #kwtip p{font-size:20px;line-height:1.4}
 .touch .fxn{font-size:150%}
+.csel{max-height:716px;overflow-y:auto}.touch .ck span{font-size:20px}.touch .score{width:560px;font-size:24px}.touch .score tr.tot td{font-size:30px}.touch .endsub{font-size:22px}
+#cprev{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(2.1);z-index:118;pointer-events:none;filter:drop-shadow(0 8px 24px #000)}#cprev .card{position:relative!important;left:auto!important;bottom:auto!important;transform:none!important;margin:0}
 .touch .overlay>*:not(.setw):not(.bookw):not(.panel){zoom:1.7}.touch #view>.panel:not(.csel){zoom:1.22}.touch #view>.panel.evp{width:900px!important;top:55%}.touch .evp img{width:230px!important;float:left;margin:0 18px 8px 0!important}.touch .evp h2{margin-bottom:6px}
 .touch .bookw{width:calc(var(--sw,1280px) - 60px);height:690px}.touch .bookw .tabs b{font-size:26px}
 .touch .bbody{zoom:1.3}.touch .bgrid.cards{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
@@ -280,6 +288,6 @@ button{font-family:inherit;cursor:pointer}
 <body>
 <div id="rot"><div class="ph"></div><div>请把手机横过来玩</div><div style="font-size:15px;color:#c8b890">Please rotate your device</div></div>
 <div id="stage"><div id="view"></div><div id="fx"></div></div>
-<script type="module" src="src/game.js?v=live2_11130410"></script>
+<script type="module" src="src/game.js?v=live2_11141420"></script>
 </body>
 </html>

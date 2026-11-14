@@ -1,7 +1,9 @@
-import { tr } from './i18n.js?v=live2_11130410';
-import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11130410';
+import { tr } from './i18n.js?v=live2_11141420';
+import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11141420';
 export { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 };
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11130410';
+import { R2, P2, EV1B, EV2B, EV3B, setPotPool } from './content2.js?v=live2_11141420';
+import { EV1C, EV2C, EV3C } from './meta.js?v=live2_11141420';
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11141420';
 export { MECH, NEWKEYW, OLDKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
@@ -12,7 +14,7 @@ const v = (u, a, b) => (u ? b : a);
 export const CARDS = {
   // ======== 林拓 · 光弹（回合结束自动开火） ========
   shoot: { ch: 'hero', name: '射击', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_gun', tgt: 'one',
-    desc: u => `造成 ${v(u, 6, 9)} 点伤害。得到 1 发光弹。`, play: (g, u, t) => { g.attack(t, v(u, 6, 9)); g.ammo(1); } },
+    desc: u => `造成 ${v(u, 8, 11)} 点伤害。得到 1 发光弹。`, play: (g, u, t) => { g.attack(t, v(u, 8, 11)); g.ammo(1); } },
   load: { ch: 'hero', name: '装填', type: 'skill', rar: 'start', cost: [1, 0], icon: 'gb', tgt: 'self',
     desc: () => `得到 2 发光弹。抽 1 张牌。`, play: g => { g.ammo(2); g.draw(1); } },
   charge: { ch: 'hero', name: '速射', type: 'skill', rar: 'start', cost: [1, 0], icon: 'p_arc', tgt: 'self',
@@ -44,7 +46,7 @@ export const CARDS = {
 
   // ======== 女主 · 共鸣 ========
   note: { ch: 'heroine', name: '音符', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_bell', tgt: 'one',
-    desc: u => `造成 ${v(u, 6, 8)} 点伤害。给予 ${v(u, 2, 3)} 层共鸣。`, play: (g, u, t) => { g.attack(t, v(u, 6, 8)); g.res(t, v(u, 2, 3)); } },
+    desc: u => `造成 ${v(u, 8, 10)} 点伤害。给予 ${v(u, 2, 3)} 层共鸣。`, play: (g, u, t) => { g.attack(t, v(u, 8, 10)); g.res(t, v(u, 2, 3)); } },
   spread: { ch: 'heroine', name: '声波扩散', type: 'skill', rar: 'start', cost: [1, 1], icon: 'ic_aura', tgt: 'all',
     desc: u => `给予所有敌人 ${v(u, 3, 4)} 层共鸣。`, play: (g, u) => g.resAll(v(u, 3, 4)) },
   high: { ch: 'heroine', name: '高音', type: 'atk', rar: 'start', cost: [1, 1], icon: 'sk_holyorb', tgt: 'one',
@@ -72,7 +74,7 @@ export const CARDS = {
   wave: { ch: 'heroine', name: '共鸣冲击', type: 'atk', rar: 'u', cost: [1, 1], icon: 'sk_waterel', tgt: 'all',
     desc: u => `对每个敌人造成 ${v(u, 3, 4)} 点伤害，再加上它的共鸣层数。`, play: (g, u) => g.eachEnemy(e => g.attack(e, v(u, 3, 4) + (e.st.res || 0))) },
   lowf: { ch: 'heroine', name: '低频', type: 'power', rar: 'u', cost: [1, 1], icon: 'ic_hexa', tgt: 'self',
-    desc: u => `每回合开始时，给予所有敌人 ${v(u, 1, 2)} 层共鸣。`, play: (g, u) => g.self('lowf', v(u, 1, 2)) },
+    desc: u => `每回合开始时，给予所有敌人 ${v(u, 1, 2)} 层共鸣。战斗结束时回复 5 点生命。`, play: (g, u) => { g.self('lowf', v(u, 1, 2)); g.self('mend', 5); } },
   distort: { ch: 'heroine', name: '失真', type: 'power', rar: 'r', cost: [2, 1], icon: 'sk_sigil', tgt: 'self',
     desc: () => `爆音后多保留 3 层共鸣，爆音伤害 +8。`, play: g => g.self('dist', 1) },
   concert: { ch: 'heroine', name: '演唱会', type: 'power', rar: 'r', cost: [3, 2], icon: 'sk_fairy', tgt: 'self',
@@ -82,7 +84,7 @@ export const CARDS = {
   arrow: { ch: 'miko', name: '射箭', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_bow', tgt: 'one',
     desc: u => `造成 ${v(u, 6, 9)} 点伤害。`, play: (g, u, t) => g.attack(t, v(u, 6, 9)) },
   kekkai: { ch: 'miko', name: '张设结界', type: 'skill', rar: 'start', cost: [1, 1], icon: 'sk_sigil', tgt: 'self',
-    desc: u => `结界 +1。获得 ${v(u, 4, 6)} 点格挡。`, play: (g, u) => { g.kek(1); g.block(v(u, 4, 6)); } },
+    desc: u => `结界 +1。获得 ${v(u, 5, 7)} 点格挡。`, play: (g, u) => { g.kek(1); g.block(v(u, 5, 7)); } },
   hama: { ch: 'miko', name: '破魔箭', type: 'atk', rar: 'start', cost: [1, 1], icon: 'sk_holyorb', tgt: 'one',
     desc: u => `造成 ${v(u, 8, 11)} 点伤害，每层结界 +${v(u, 2, 3)}（最多算 6 层）。`, play: (g, u, t) => g.attack(t, v(u, 8, 11) + Math.min(6, g.p.st.kek || 0) * v(u, 2, 3)) },
   fuda: { ch: 'miko', name: '纸人替身', type: 'skill', rar: 'c', cost: [0, 0], icon: 'ic_rune', tgt: 'self', exhaust: 1,
@@ -115,7 +117,7 @@ export const CARDS = {
   // ======== 魔女 · 药瓶 / 毒 ========
   // 药瓶牌（rar:'gen' 不进奖励池，只由其他牌生成）
   p_fire: { ch: 'witch', potion: 1, name: '火焰瓶', type: 'atk', rar: 'gen', cost: [0, 0], icon: 'ic_flame', tgt: 'all', exhaust: 1,
-    desc: () => `对所有敌人造成 7 点伤害。消耗。`, play: g => { const n0 = g.alive().length; g.attackAll((7 + (g.p.st.inferno || 0)) * g.pm()); potKill(g, n0); } },
+    desc: () => `对所有敌人造成 9 点伤害。消耗。`, play: g => { const n0 = g.alive().length; g.attackAll((9 + (g.p.st.inferno || 0)) * g.pm()); potKill(g, n0); } },
   p_frost: { ch: 'witch', potion: 1, name: '冰霜瓶', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'ic_water', tgt: 'one', exhaust: 1,
     desc: () => `冰冻目标（跳过下一次行动；精英和 Boss 改为下一次攻击减半）。消耗。`, play: (g, u, t) => MECH.cc(g, t, 'frozen') },
   p_heal: { ch: 'witch', potion: 1, name: '治疗瓶', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'pot', tgt: 'self', exhaust: 1,
@@ -160,11 +162,11 @@ export const CARDS = {
   p_vine: { ch: 'witch', potion: 1, name: '藤蔓瓶', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'p_boom', tgt: 'one', exhaust: 1,
     desc: () => `束缚目标（跳过下一次行动），并且接下来 2 次行动前各受到 4 点伤害。消耗。`, play: (g, u, t) => { MECH.cc(g, t, 'bind'); if (t && !t.dead) g.apply(t, 'bindD', 2); } },
   zap: { ch: 'witch', name: '魔弹', type: 'atk', rar: 'start', cost: [1, 1], icon: 'sk_orb', tgt: 'one',
-    desc: u => `造成 ${v(u, 6, 9)} 点伤害。`, play: (g, u, t) => g.attack(t, v(u, 6, 9)) },
+    desc: u => `造成 ${v(u, 7, 10)} 点伤害。`, play: (g, u, t) => g.attack(t, v(u, 7, 10)) },
   brew: { ch: 'witch', name: '调药', type: 'skill', rar: 'start', cost: [1, 1], icon: 'pot', tgt: 'self',
     desc: u => `随机获得 ${v(u, 1, 2)} 个炼金瓶。抽 1 张牌。`, play: (g, u) => { g.potion(v(u, 1, 2)); g.draw(1); } },
   needle: { ch: 'witch', name: '毒针', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_stake', tgt: 'one',
-    desc: u => `造成 3 点伤害，给予 ${v(u, 4, 6)} 层中毒。`, play: (g, u, t) => { g.attack(t, 3); g.poison(t, v(u, 4, 6)); } },
+    desc: u => `造成 4 点伤害，给予 ${v(u, 5, 7)} 层中毒。`, play: (g, u, t) => { g.attack(t, 4); g.poison(t, v(u, 5, 7)); } },
   venom: { ch: 'witch', name: '剧毒', type: 'skill', rar: 'c', cost: [1, 1], icon: 'b_curse', tgt: 'one',
     desc: u => `给予 ${v(u, 7, 10)} 层中毒。`, play: (g, u, t) => g.poison(t, v(u, 7, 10)) },
   miasma: { ch: 'witch', name: '毒雾', type: 'skill', rar: 'c', cost: [1, 1], icon: 'sk_bmist', tgt: 'all',
@@ -178,9 +180,9 @@ export const CARDS = {
   antidote: { ch: 'witch', name: '解毒剂', type: 'skill', rar: 'c', cost: [0, 0], icon: 'holywater', tgt: 'self',
     exhaust: 1, desc: u => `清除自身虚弱和易伤，获得 ${v(u, 3, 5)} 点格挡；清除了至少一种时得到 1 瓶毒药瓶。消耗。`, play: (g, u) => { const had = g.p.st.weak || g.p.st.vuln; delete g.p.st.weak; delete g.p.st.vuln; g.block(v(u, 3, 5)); if (had) g.potion(1, 'p_poison'); } },
   distill: { ch: 'witch', name: '蒸馏', type: 'skill', rar: 'u', cost: [1, 1], icon: 'ic_crystal', tgt: 'self',
-    desc: u => `消耗手里 1 个炼金瓶（没有就先随机获得 1 个），获得 2 点能量。${v(u, '', '抽 1 张牌。')}`, play: (g, u) => { if (!g.potsInHand()) g.potion(1); if (g.usePotion()) g.energy(2); if (u) g.draw(1); } },
+    desc: u => `消耗手里 1 个炼金瓶（没有就先随机获得 1 个），获得 2 点能量。${v(u, '', '再随机获得 1 个炼金瓶。')}`, play: (g, u) => { if (!g.potsInHand()) g.potion(1); if (g.usePotion()) g.energy(2); if (u) g.potion(1); } },
   catalyst: { ch: 'witch', name: '催化剂', type: 'skill', rar: 'u', cost: [1, 0], icon: 'ic_crystal', tgt: 'one', exhaust: 1,
-    desc: () => `目标的中毒层数翻倍。消耗。`, play: (g, u, t) => g.poison(t, t.st.poison || 0) },
+    desc: () => `目标的中毒层数翻倍（可以反复叠加）。消耗。`, play: (g, u, t) => g.poison(t, t.st.poison || 0) },
   alchemy: { ch: 'witch', name: '炼金爆发', type: 'atk', rar: 'u', cost: [2, 2], icon: 'ic_vortex', tgt: 'one',
     desc: u => `造成 ${v(u, 7, 9)} 点伤害，本回合每用过 1 个炼金瓶，再打 1 次。`, play: (g, u, t) => g.attack(t, v(u, 7, 9), 1 + (g.p.pot || 0)) },
   plague: { ch: 'witch', name: '疫病', type: 'power', rar: 'u', cost: [1, 1], icon: 'sk_undead', tgt: 'self',
@@ -303,7 +305,7 @@ export const RELICS = {
   feather: { name: '凤凰羽', icon: 'p_rev', rar: 'r', desc: '死亡时，复活并回复 30% 生命（一次）。' },
   crown: { name: '王冠', icon: 'm_crown', rar: 'r', desc: '每回合开始时，获得 1 点额外能量。拾取时最大生命 -10，战斗结束不再回复生命。' },
 };
-Object.assign(RELICS, NEWRELICS, R3);
+Object.assign(RELICS, NEWRELICS, R3, R2); for (const k of Object.keys(R2)) R2[k].icon = 'icons2/' + k;
 export const STARTRELIC = { hero: 'gameboy', heroine: 'phones', miko: 'suzu', witch: 'cauldron', ...NEWSTARTRELIC };
 for (const [k, r] of Object.entries(RELICS)) { r.id = k; if (['spare', 'pad', 'phones', 'metro', 'mic', 'cauldron', 'toad', 'hat', 'suzu', 'omamori', 'hamaya'].includes(k)) r.icon = 'icons2/r_' + k; r.img = I(r.icon); }
 
@@ -322,6 +324,8 @@ export const POTIONS = {
   fairy: { name: '复活药水', icon: 'p_rev', rar: 'r', tgt: 'auto', desc: '死亡时自动使用：回复 30% 最大生命。不能主动使用。', use: () => {} },
 };
 for (const [k, x] of Object.entries(POTIONS)) { x.id = k; x.icon = 'icons2/pot_' + k; x.img = I(x.icon); }
+for (const [k, x] of Object.entries(P2)) { x.id = k; x.icon = 'icons2/p2_' + k; x.img = I(x.icon); POTIONS[k] = x; } /* 新药水：图标到了再换成 icons2/pot_* */
+setPotPool(Object.keys(POTIONS).filter(k => k !== 'fairy'));
 
 export const STATUS = {
   str: ['力量', '攻击伤害增加', '#e05a3a'], dex: ['敏捷', '获得的格挡增加', '#5ab45a'],
@@ -340,7 +344,7 @@ export const STATUS = {
   kek: ['结界', '回合开始时按层数获得格挡', '#ffd060'], kagura: ['神乐舞', '回合开始结界 +1', '#ffd060'], shinboku: ['御神木', '结界格挡翻倍', '#ffd060'],
   poison: ['中毒', '回合开始时受到等同层数的伤害（无视格挡），然后减 1 层', '#70d040'], plague: ['疫病', '回合开始给所有敌人中毒', '#70d040'],
   satchel: ['药剂腰包', '回合开始获得炼金瓶', '#c090ff'], sage: ['贤者之石', '炼金瓶的伤害翻倍、中毒 ×1.5', '#c090ff'],
-  aegis: ['圣盾', '免疫所有伤害', '#ffe070'],
+  aegis: ['无敌', '免疫所有伤害', '#ffe070'],
 };
 
 Object.assign(STATUS, NEWSTATUS, S3);
@@ -473,19 +477,19 @@ export const ENEMIES = {
     moves: { combo: { n: '连斩', i: 'atk', d: 6, x: 2 }, crush: { n: '破甲', i: 'atkdebuff', d: 10, f: (e, B) => B.applyP('vuln', 1) },
       charge: { n: '蓄力', i: 'unknown' }, heavy: { n: '重劈', i: 'atk', d: 18 } },
     ai: e => cycle(e, ['combo', 'crush', 'charge', 'heavy']) },
-  gob_king: { name: '哥布林大王', intro: '「打败我就结束了？兽人老爷……还有古堡里那位大人，都不会放过你们！」', onDie: (e, B) => B.say('「伯爵大人……会替我报仇的……」'), hp: [190, 190], sc: 2.9, hd: 380, hdw: 260, boss: 1,
+  gob_king: { name: '哥布林大王', intro: '「打败我就结束了？兽人老爷……还有古堡里那位大人，都不会放过你们！」', onDie: (e, B) => B.say('「伯爵大人……会替我报仇的……」'), hp: [170, 170], sc: 2.9, hd: 380, hdw: 260, boss: 1,
     lore: '血量掉到一半时会暴怒，叫来两个手下。',
     onHurt: (e, B) => { if (!e.p2 && e.hp <= e.max / 2) { e.p2 = 1; B.summon('goblin', 10); B.summon('goblin', 10); B.say('「小的们，给我上！」'); } },
     moves: { call: { n: '召唤', i: 'summon', f: (e, B) => { for (let k = 0; k < 2 && B.alive().length < 3; k++) B.summon('goblin', 8); } },
       cut: { n: '王之斩', i: 'atk', d: 18 }, order: { n: '号令', i: 'buff', f: (e, B) => { B.alive().forEach(a => B.addSt(a, 'str', 2)); B.eBlock(e, 12); } },
       fury: { n: '暴怒连斩', i: 'atk', d: 6, x: 3 } },
     ai: (e, B) => { const m = cycle(e, ['call', 'cut', 'order', 'fury']); return m === 'call' && B.alive().length >= 3 ? 'cut' : m; } },
-  gob_archshaman: { name: '哥布林大祭司', art: 'gob_shaman', tint: 'hue-rotate(250deg) saturate(1.4)', hp: [160, 160], sc: 2.9, hd: 330, hdw: 250, boss: 1,
+  gob_archshaman: { name: '哥布林大祭司', art: 'gob_shaman', tint: 'hue-rotate(250deg) saturate(1.4)', hp: [145, 145], sc: 2.9, hd: 330, hdw: 250, boss: 1,
     moves: { bolt: { n: '暗影弹', i: 'atk', d: 13 }, hex: { n: '大诅咒', i: 'atkdebuff', d: 6, f: (e, B) => { B.applyP('vuln', 2); B.applyP('weak', 2); B.addCard('daze', 2); } },
       totem: { n: '召唤图腾', i: 'summon', f: (e, B) => { if (B.alive().length < 3) B.summon('gob_mage', 0); B.alive().forEach(a => B.healE(a, 8)); } },
       rite: { n: '血祭', i: 'buff', f: (e, B) => { B.addSt(e, 'str', 2); B.eBlock(e, 15); } } },
     ai: (e, B) => { const m = cycle(e, ['totem', 'bolt', 'hex', 'rite', 'bolt']); return m === 'totem' && B.alive().length >= 3 ? 'bolt' : m; } },
-  gob_warlord: { name: '狼骑统领', art: 'gob_wolf', tint: 'hue-rotate(320deg) saturate(1.5) brightness(.9)', hp: [155, 155], sc: 2.9, hd: 330, hdw: 300, boss: 1,
+  gob_warlord: { name: '狼骑统领', art: 'gob_wolf', tint: 'hue-rotate(320deg) saturate(1.5) brightness(.9)', hp: [140, 140], sc: 2.9, hd: 330, hdw: 300, boss: 1,
     moves: { maul: { n: '狼群撕咬', i: 'atk', d: 7, x: 2 }, howl: { n: '战嚎', i: 'atkdebuff', d: 8, f: (e, B) => B.applyP('weak', 2) },
       pack: { n: '呼唤狼群', i: 'summon', f: (e, B) => { for (let k = 0; k < 2 && B.alive().length < 3; k++) B.summon('wolf', 0); } },
       charge: { n: '冲锋', i: 'atk', d: 15 } },
@@ -593,7 +597,7 @@ export const EVENTS = [
   { title: '流浪铁匠', pic: 'smith', img: 'ic_hammer', text: '路边一个背着铁砧的矮人朝你招手：“兄弟，武器要打磨吗？”',
     opts: [
       { t: '打磨：升级一张牌', go: (R, A) => { A.pick('upgrade'); return '叮叮当当，焕然一新。'; } },
-      { t: '离开', go: () => '你谢绝了他。' }] },
+      { t: '歇歇脚：回复 10 生命', go: (R, A) => { A.heal(10); return '矮人请你喝了口热汤，你坐着歇了一会儿。'; } }] },
   { title: '掌机的信号', pic: 'signal', img: 'gb', text: '口袋里的掌机突然震动，屏幕上滚过一串乱码……',
     opts: [
       { t: '接收：随机变化一张牌', go: (R, A) => { A.pick('transform'); return '你的一张牌被改写成了别的东西。'; } },
@@ -602,7 +606,7 @@ export const EVENTS = [
   { title: '受伤的商队', pic: 'caravan', img: 'box', text: '一辆翻倒的马车旁，商人捂着伤口：“救救我，我有好东西给你。”',
     opts: [
       { t: '帮忙：失去 6 生命，获得一张稀有牌（三选一）', go: (R, A) => { A.hurt(6); A.rareCard(); return '商人感激地塞给你几张卡。'; } },
-      { t: '离开', go: () => '你转身离开。' }] },
+      { t: '帮他扶起马车：获得 30 金币', go: (R, A) => { A.gold(30); return '商人连声道谢，塞给你一袋零钱。'; } }] },
 ];
 
 /* 多语言：名字和说明在读取时翻译（存档里只存 id，不受影响） */
@@ -613,8 +617,9 @@ for (const r of Object.values(RELICS)) { tx(r, 'name'); tx(r, 'desc'); }
 for (const x of Object.values(POTIONS)) { tx(x, 'name'); tx(x, 'desc'); }
 for (const e of Object.values(ENEMIES)) { tx(e, 'name'); for (const m of Object.values(e.moves)) tx(m, 'n'); }
 for (const st of Object.values(STATUS)) { tx(st, 0); tx(st, 1); }
+EVENTS.push(...EV1B); EVENTS2.push(...EV2B); EV3.push(...EV3B); EVENTS.push(...EV1C); EVENTS2.push(...EV2C); EV3.push(...EV3C);
 for (const ev of [...EVENTS, ...EVENTS2, ...EV3]) { tx(ev, 'title'); tx(ev, 'text'); for (const o of ev.opts) { tx(o, 't'); tf(o, 'go'); } }
 
 // 两个引擎共用的规则常量（游戏和平衡模拟都从这里读）
-export const RULES = { furyTurn: 9, furyEvery: 2, bloodTurn: 5, bloodStr: 1, act2Mul: 0.9, act3Hp: 1.25, act3Dmg: 1.15, maxTurns: 60 };
+export const RULES = { furyTurn: 9, furyEvery: 2, bloodTurn: 5, bloodStr: 1, act2Mul: 0.95, act3Hp: 1.25, act3Dmg: 1.15, maxTurns: 60 };
 export const isFury = turn => turn >= RULES.furyTurn && (turn - RULES.furyTurn) % RULES.furyEvery === 0;

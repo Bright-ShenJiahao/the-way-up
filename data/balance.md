@@ -1,33 +1,19 @@
-# 平衡测试结果（每个角色每档 N=1000 局，解锁档 4，进阶 0，种子 1，commit 80b62cd）
+# 平衡测试结果（每个角色每档 N=300 局，解锁档 4，进阶 0，种子 1，commit 532ad0c）
 
-生成时间：2026-11-12T17:27:53.176Z
+生成时间：2026-11-14T04:45:16.623Z
 
 新手机器人：很少想起用药水、选牌只看稀有度。熟练机器人：会用药水、按角色流派选牌。
 
-## 新手机器人
+## 强化训练 AI（用 tools/weights.json 里学到的打法）
 
-| 角色 | 第一章通关 | 第二章通关 | 第一章 Boss 战胜率 | 第二章通关剩余生命 | 超时 | 最常死在 |
-|---|---|---|---|---|---|---|
-| erin | 45.0% | 19.5% | 1.0% | 45% | 18 | 0 | 一·Boss:gob_warlord(223)、一·Boss:gob_king(186)、一·Boss:gob_archshaman(131)、二·Boss:death_knight(78)、二·Boss:wolf_lord(62)、三·Boss:dev_boss(59)、二·Boss:vamp_count(46)、二·精英:necromancer+skeleton+zombie(42) |
-| feiyue | 40.7% | 23.8% | 9.9% | 44% | 37 | 0 | 一·Boss:gob_warlord(253)、一·Boss:gob_king(158)、一·Boss:gob_archshaman(112)、二·Boss:death_knight(57)、三·Boss:dev_boss(41)、二·Boss:wolf_lord(36)、二·精英:necromancer+skeleton+zombie(33)、三·Boss:demon_king(29) |
-| gu | 48.5% | 25.6% | 5.3% | 55% | 27 | 0 | 一·Boss:gob_king(169)、一·Boss:gob_warlord(149)、一·Boss:gob_archshaman(75)、二·Boss:death_knight(46)、二·精英:necromancer+skeleton+zombie(41)、二·Boss:wolf_lord(41)、三·精英:d_bone(40)、三·Boss:dev_boss(34) |
-| hero | 30.1% | 12.1% | 0.8% | 34% | 53 | 1 | 一·Boss:gob_warlord(220)、一·Boss:gob_king(212)、一·Boss:gob_archshaman(148)、二·精英:necromancer+skeleton+zombie(37)、二·Boss:wolf_lord(31)、一·精英:gob_kid+gob_shaman+gob_kid(29)、二·gargoyle+gargoyle(27)、三·Boss:dev_boss(24) |
-| heroine | 27.4% | 7.4% | 1.3% | 33% | 29 | 0 | 一·Boss:gob_king(227)、一·Boss:gob_warlord(196)、一·Boss:gob_archshaman(145)、二·精英:necromancer+skeleton+zombie(37)、二·Boss:wolf_lord(29)、一·精英:gob_kid+gob_shaman+gob_kid(29)、二·Boss:death_knight(28)、一·精英:goblin+orc_overseer+goblin(24) |
-| mia | 42.2% | 30.7% | 12.3% | 42% | 29 | 0 | 一·Boss:gob_warlord(237)、一·Boss:gob_king(202)、一·Boss:gob_archshaman(133)、三·Boss:dev_boss(78)、三·Boss:demon_king(52)、二·Boss:death_knight(49)、二·Boss:wolf_lord(32)、二·精英:necromancer+skeleton+zombie(17) |
-| miko | 51.3% | 37.9% | 15.5% | 51% | 49 | 8 | 一·Boss:gob_king(192)、一·Boss:gob_warlord(169)、一·Boss:gob_archshaman(122)、三·Boss:dev_boss(97)、二·Boss:death_knight(48)、二·Boss:wolf_lord(39)、三·精英:d_bone(34)、三·Boss:demon_king(33) |
-| sylvie | 27.0% | 10.6% | 0.3% | 30% | 51 | 0 | 一·Boss:gob_king(226)、一·Boss:gob_warlord(216)、一·Boss:gob_archshaman(180)、三·Boss:dev_boss(39)、二·Boss:death_knight(29)、二·精英:necromancer+skeleton+zombie(28)、二·Boss:vamp_count(28)、二·Boss:wolf_lord(27) |
-| witch | 23.5% | 9.6% | 1.5% | 30% | 39 | 0 | 一·Boss:gob_king(225)、一·Boss:gob_warlord(218)、一·Boss:gob_archshaman(118)、一·精英:gob_kid+gob_shaman+gob_kid(40)、二·Boss:wolf_lord(38)、一·精英:gob_hero(38)、一·精英:goblin+orc_overseer+goblin(34)、二·Boss:death_knight(29) |
-
-## 熟练机器人（≈ 真人）
-
-| 角色 | 第一章通关 | 第二章通关 | 第一章 Boss 战胜率 | 第二章通关剩余生命 | 超时 | 最常死在 |
-|---|---|---|---|---|---|---|
-| erin | 63.1% | 40.5% | 4.5% | 63% | 23 | 0 | 一·Boss:gob_warlord(145)、一·Boss:gob_king(139)、三·Boss:dev_boss(118)、一·Boss:gob_archshaman(83)、二·Boss:death_knight(80)、三·Boss:demon_king(71)、三·精英:d_bone(58)、二·Boss:wolf_lord(58) |
-| feiyue | 54.9% | 38.8% | 14.7% | 55% | 29 | 0 | 一·Boss:gob_warlord(217)、一·Boss:gob_king(156)、三·Boss:demon_king(90)、三·Boss:dev_boss(80)、一·Boss:gob_archshaman(72)、二·Boss:death_knight(59)、二·Boss:wolf_lord(45)、三·精英:d_bone(34) |
-| gu | 76.2% | 65.3% | 18.8% | 76% | 30 | 0 | 三·Boss:dev_boss(148)、一·Boss:gob_warlord(107)、一·Boss:gob_king(105)、三·Boss:demon_king(99)、三·精英:d_bone(49)、三·d_frost+d_storm(41)、二·Boss:death_knight(40)、三·精英:d_arch(39) |
-| hero | 60.4% | 39.3% | 5.8% | 61% | 27 | 0 | 一·Boss:gob_warlord(183)、三·Boss:dev_boss(141)、一·Boss:gob_king(134)、一·Boss:gob_archshaman(62)、二·Boss:wolf_lord(50)、二·Boss:death_knight(42)、三·精英:d_bone(40)、三·d_frost+d_storm(33) |
-| heroine | 60.0% | 34.9% | 7.4% | 62% | 25 | 0 | 一·Boss:gob_king(156)、一·Boss:gob_warlord(146)、三·Boss:dev_boss(103)、一·Boss:gob_archshaman(63)、二·Boss:wolf_lord(62)、二·Boss:death_knight(60)、三·精英:d_bone(58)、三·Boss:demon_king(48) |
-| mia | 54.5% | 44.2% | 24.1% | 55% | 32 | 0 | 一·Boss:gob_warlord(227)、一·Boss:gob_king(134)、三·Boss:dev_boss(105)、一·Boss:gob_archshaman(94)、三·Boss:demon_king(59)、二·Boss:death_knight(51)、二·Boss:wolf_lord(36)、三·精英:d_bone(12) |
-| miko | 57.2% | 40.0% | 6.4% | 57% | 29 | 1 | 一·Boss:gob_king(178)、一·Boss:gob_warlord(163)、三·Boss:dev_boss(147)、一·Boss:gob_archshaman(86)、二·Boss:death_knight(69)、三·Boss:demon_king(69)、二·Boss:wolf_lord(60)、三·精英:d_bone(51) |
-| sylvie | 54.5% | 29.5% | 2.5% | 56% | 28 | 0 | 一·Boss:gob_warlord(175)、一·Boss:gob_king(151)、三·Boss:dev_boss(115)、一·Boss:gob_archshaman(109)、二·Boss:wolf_lord(74)、二·Boss:death_knight(69)、二·精英:necromancer+skeleton+zombie(42)、三·Boss:demon_king(37) |
-| witch | 49.5% | 33.5% | 14.2% | 54% | 32 | 0 | 一·Boss:gob_warlord(175)、一·Boss:gob_king(160)、一·Boss:gob_archshaman(86)、二·Boss:wolf_lord(57)、三·Boss:demon_king(49)、三·Boss:dev_boss(46)、二·Boss:death_knight(42)、二·精英:necromancer+skeleton+zombie(27) |
+| 角色 | 第一章通关 | 第二章通关 | 第三章通关 | 第一章 Boss 战胜率 | 通关剩余生命 | 真Boss胜率 | 超时 | 最常死在 |
+|---|---|---|---|---|---|---|---|---|
+| erin | 95.3% | 91.3% | 88.7% | 95% | 67 | 52% | 0 | 一·Boss:gob_warlord(7)、二·Boss:death_knight(5)、二·Boss:wolf_lord(4)、一·Boss:gob_king(4)、一·Boss:gob_archshaman(3)、三·d_frost+d_storm(2)、三·精英:d_holy+d_whelp(2)、三·Boss:dev_boss(1) |
+| feiyue | 93.0% | 89.3% | 87.7% | 93% | 72 | 70% | 0 | 一·Boss:gob_king(11)、一·Boss:gob_warlord(8)、二·Boss:death_knight(7)、一·Boss:gob_archshaman(2)、二·精英:necromancer+skeleton+zombie(2)、三·精英:d_holy+d_whelp(1)、二·gargoyle+ghost(1)、三·精英:d_arch(1) |
+| gu | 98.3% | 97.7% | 94.0% | 98% | 68 | 66% | 0 | 一·Boss:gob_warlord(4)、三·精英:d_holy+d_whelp(4)、三·d_frost+d_storm(2)、三·d_storm+d_egg(2)、三·精英:d_arch(2)、二·gargoyle+ghost(1)、二·Boss:wolf_lord(1)、三·Boss:d_boss(1) |
+| hero | 94.3% | 91.0% | 86.3% | 94% | 61 | 51% | 0 | 一·Boss:gob_warlord(12)、三·Boss:dev_boss(5)、二·Boss:death_knight(5)、三·精英:d_arch(4)、二·Boss:wolf_lord(4)、一·Boss:gob_king(3)、三·精英:d_holy+d_whelp(2)、三·d_frost+d_storm(2) |
+| heroine | 92.3% | 90.0% | 87.7% | 95% | 66 | 67% | 0 | 一·Boss:gob_king(14)、一·精英:goblin+orc_overseer+goblin(4)、三·精英:d_arch(3)、三·精英:d_bone(2)、二·Boss:death_knight(2)、一·精英:gob_kid+gob_shaman+gob_kid(2)、一·Boss:gob_warlord(2)、三·Boss:demon_king(2) |
+| mia | 87.3% | 86.3% | 84.0% | 87% | 65 | 42% | 0 | 一·Boss:gob_king(16)、一·Boss:gob_warlord(14)、一·Boss:gob_archshaman(8)、三·精英:d_arch(2)、三·d_frost+d_storm(2)、二·Boss:death_knight(2)、三·d_storm+d_egg(1)、三·Boss:dev_boss(1) |
+| miko | 84.7% | 80.7% | 80.3% | 85% | 76 | 43% | 0 | 一·Boss:gob_king(24)、一·Boss:gob_warlord(18)、二·Boss:death_knight(7)、一·Boss:gob_archshaman(4)、二·Boss:wolf_lord(3)、三·精英:d_holy+d_whelp(1)、二·精英:necromancer+skeleton(1)、二·精英:necromancer+skeleton+zombie(1) |
+| sylvie | 98.3% | 95.3% | 92.3% | 98% | 67 | 15% | 0 | 一·Boss:gob_king(3)、三·Boss:dev_boss(3)、二·Boss:wolf_lord(3)、二·Boss:death_knight(3)、三·d_frost+d_storm(2)、二·Boss:vamp_count(2)、一·Boss:gob_archshaman(2)、三·精英:d_holy+d_whelp(1) |
+| witch | 84.7% | 81.7% | 80.0% | 86% | 66 | 80% | 0 | 一·Boss:gob_king(20)、一·Boss:gob_warlord(16)、一·Boss:gob_archshaman(5)、二·Boss:wolf_lord(4)、一·精英:gob_kid+gob_shaman+gob_kid(3)、二·精英:necromancer+skeleton(2)、三·精英:d_arch(2)、三·精英:d_holy+d_whelp(2) |

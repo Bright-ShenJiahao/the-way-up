@@ -1,0 +1,934 @@
+{
+ "跳弹": [
+  "Ricochet",
+  "跳弾"
+ ],
+ "造成 {0} 点伤害；光弹不少于 {1} 发时再打 {2} 次。": [
+  "Deal {0} damage. If you have at least {1} light rounds, hit {2} more time.",
+  "{0}ダメージ。光弾が{1}発以上なら、さらに{2}回攻撃。"
+ ],
+ "护卫无人机": [
+  "Guard Drone",
+  "護衛ドローン"
+ ],
+ "获得 {0} 点格挡 {1} 次。": [
+  "Gain {0} Block {1} times.",
+  "ブロックを{0}得る（{1}回）。"
+ ],
+ "连点": [
+  "Double Tap",
+  "連打"
+ ],
+ "瞄准镜": [
+  "Scope",
+  "スコープ"
+ ],
+ "本回合下一张攻击牌的第一击 {0}，抽 {1} 张牌。": [
+  "Your next Attack this turn deals {0} on its first hit. Draw {1} card.",
+  "このターン次の攻撃カードの初撃{0}。カードを{1}枚引く。"
+ ],
+ "冷却": [
+  "Cooldown",
+  "冷却"
+ ],
+ "获得 {0} 点格挡，清除自身虚弱。": [
+  "Gain {0} Block. Remove your Weak.",
+  "ブロックを{0}得る。自分の脱力を解除。"
+ ],
+ "扫射": [
+  "Strafe",
+  "掃射"
+ ],
+ "对所有敌人造成 {0} 点伤害 {1} 次。": [
+  "Deal {0} damage to all enemies {1} times.",
+  "すべての敵に{0}ダメージを{1}回。"
+ ],
+ "回收弹壳": [
+  "Recycle Shells",
+  "薬莢回収"
+ ],
+ "本回合每打出过 {0} 张攻击牌，得到 {1} 发光弹并获得 {2} 点格挡。": [
+  "For each {0} Attack played this turn, gain {1} light round and {2} Block.",
+  "このターン使った攻撃カード{0}枚ごとに、光弾{1}発とブロック{2}を得る。"
+ ],
+ "锁定": [
+  "Lock On",
+  "ロックオン"
+ ],
+ "给予 {0} 层易伤，得到 {1} 发光弹。": [
+  "Apply {0} Vulnerable. Gain {1} light rounds.",
+  "弱体{0}を与え、光弾を{1}発得る。"
+ ],
+ "自动炮台": [
+  "Auto Turret",
+  "自動砲台"
+ ],
+ "弹药库": [
+  "Ammo Depot",
+  "弾薬庫"
+ ],
+ "每回合打出第一张攻击牌时，得到 {0} 发光弹。": [
+  "When you play your first Attack each turn, gain {0} light round.",
+  "毎ターン最初の攻撃カードを使うと、光弾を{0}発得る。"
+ ],
+ "每回合打出第一张攻击牌时，得到 {0} 发光弹，抽 {1} 张牌。": [
+  "When you play your first Attack each turn, gain {0} light round and draw {1} card.",
+  "毎ターン最初の攻撃カードを使うと、光弾を{0}発得てカードを{1}枚引く。"
+ ],
+ "双枪齐射": [
+  "Twin Volley",
+  "二丁斉射"
+ ],
+ "造成 {0} 点伤害 {1} 次，得到 {2} 发光弹。": [
+  "Deal {0} damage {1} times. Gain {2} light rounds.",
+  "{0}ダメージを{1}回。光弾を{2}発得る。"
+ ],
+ "必杀技": [
+  "Finisher",
+  "必殺技"
+ ],
+ "用掉所有光弹，每发对所有敌人造成 {0} 点伤害；然后得到 {1} 发光弹。": [
+  "Spend all light rounds; each deals {0} damage to all enemies. Then gain {1} light rounds.",
+  "光弾をすべて使い、1発ごとにすべての敵に{0}ダメージ。その後光弾を{1}発得る。"
+ ],
+ "急救包": [
+  "First Aid Kit",
+  "救急キット"
+ ],
+ "回复 {0} 点生命。消耗。": [
+  "Heal {0} HP. Exhaust.",
+  "HPを{0}回復。廃棄。"
+ ],
+ "连击计数器": [
+  "Combo Counter",
+  "コンボカウンター"
+ ],
+ "每回合打出第 {0} 张攻击牌后，抽 {1} 张牌并得到 {2} 发光弹。": [
+  "After you play your {0}th Attack each turn, draw {1} cards and gain {2} light round.",
+  "毎ターン{0}枚目の攻撃カードを使った後、カードを{1}枚引き光弾を{2}発得る。"
+ ],
+ "每回合打出第 {0} 张攻击牌后，抽 {1} 张牌并得到 {2} 发光弹，获得 {3} 点格挡。": [
+  "After you play your {0}th Attack each turn, draw {1} cards, gain {2} light round and {3} Block.",
+  "毎ターン{0}枚目の攻撃カードを使った後、カードを{1}枚引き光弾を{2}発、ブロックを{3}得る。"
+ ],
+ "调音": [
+  "Tuning",
+  "チューニング"
+ ],
+ "获得 {0} 点格挡。狡诈。": [
+  "Gain {0} Block. Sly.",
+  "ブロックを{0}得る。狡猾。"
+ ],
+ "贝斯线": [
+  "Bassline",
+  "ベースライン"
+ ],
+ "造成 {0} 点伤害；目标共鸣不少于 {1} 层时再给予 {2} 层。": [
+  "Deal {0} damage. If the target has at least {1} Resonance, give {2} more.",
+  "{0}ダメージ。対象の共鳴が{1}以上なら、さらに{2}付与。"
+ ],
+ "获得 {0} 点格挡；本回合弃过牌时抽 {1} 张牌。": [
+  "Gain {0} Block. If you discarded this turn, draw {1} card.",
+  "ブロックを{0}得る。このターン捨て札していればカードを{1}枚引く。"
+ ],
+ "重拍": [
+  "Downbeat",
+  "強拍"
+ ],
+ "摇篮曲": [
+  "Lullaby",
+  "子守唄"
+ ],
+ "给予 {0} 层虚弱和 {1} 层共鸣。": [
+  "Apply {0} Weak and {1} Resonance.",
+  "脱力{0}と共鳴{1}を与える。"
+ ],
+ "清唱": [
+  "A Cappella",
+  "アカペラ"
+ ],
+ "回复 {0} 点生命，给予所有敌人 {1} 层共鸣。消耗。": [
+  "Heal {0} HP. Give all enemies {1} Resonance. Exhaust.",
+  "HPを{0}回復し、すべての敵に共鳴{1}。廃棄。"
+ ],
+ "功放": [
+  "Amplifier",
+  "アンプ"
+ ],
+ "每回合开始时，如果有敌人共鸣不少于 {0} 层，获得 {1} 点格挡。": [
+  "At the start of each turn, if any enemy has {0}+ Resonance, gain {1} Block.",
+  "毎ターン開始時、共鳴{0}以上の敵がいればブロックを{1}得る。"
+ ],
+ "渐强": [
+  "Crescendo",
+  "クレッシェンド"
+ ],
+ "造成 {0} 点伤害 {1} 次，每次给予 {2} 层共鸣。": [
+  "Deal {0} damage {1} times, giving {2} Resonance each time.",
+  "{0}ダメージを{1}回、毎回共鳴{2}を付与。"
+ ],
+ "休止符": [
+  "Rest Note",
+  "休符"
+ ],
+ "获得 {0} 点格挡，随机弃 {1} 张牌。": [
+  "Gain {0} Block. Discard {1} random card.",
+  "ブロックを{0}得て、ランダムに{1}枚捨てる。"
+ ],
+ "狂欢": [
+  "Mosh Pit",
+  "モッシュ"
+ ],
+ "对所有敌人造成 {0} 点伤害；共鸣不少于 {1} 层的敌人再给予 {2} 层。": [
+  "Deal {0} damage to all enemies. Enemies with {1}+ Resonance gain {2} more.",
+  "すべての敵に{0}ダメージ。共鳴{1}以上の敵にさらに共鳴{2}。"
+ ],
+ "歌单": [
+  "Playlist",
+  "プレイリスト"
+ ],
+ "每回合开始时，抽 {0} 张牌，再随机弃 {1} 张牌。": [
+  "At the start of each turn, draw {0} card, then discard {1} random card.",
+  "毎ターン開始時、カードを{0}枚引き、ランダムに{1}枚捨てる。"
+ ],
+ "高潮": [
+  "Climax",
+  "クライマックス"
+ ],
+ "对每个敌人造成它共鸣层数 ×{0} 的伤害（共鸣不减）。": [
+  "Deal damage to each enemy equal to its Resonance ×{0} (Resonance is not removed).",
+  "各敵に共鳴×{0}のダメージ（共鳴は減らない）。"
+ ],
+ "共振腔": [
+  "Resonance Chamber",
+  "共鳴室"
+ ],
+ "每回合结束时，共鸣最多的敌人 {0} 层共鸣。": [
+  "At the end of each turn, the enemy with the most Resonance gains {0} Resonance.",
+  "毎ターン終了時、共鳴が最も多い敵に共鳴{0}。"
+ ],
+ "DJ 台": [
+  "DJ Booth",
+  "DJブース"
+ ],
+ "随机弃 {0} 张牌，给予所有敌人 {1} 层共鸣，抽 {2} 张牌。": [
+  "Discard {0} random cards. Give all enemies {1} Resonance. Draw {2} cards.",
+  "ランダムに{0}枚捨て、すべての敵に共鳴{1}、カードを{2}枚引く。"
+ ],
+ "符箓": [
+  "Talisman Script",
+  "符籙"
+ ],
+ "结界 {0}，抽 {1} 张牌。": [
+  "Barrier {0}. Draw {1} card(s).",
+  "結界{0}。カードを{1}枚引く。"
+ ],
+ "鏑矢": [
+  "Whistling Arrow",
+  "鏑矢"
+ ],
+ "禊": [
+  "Misogi",
+  "禊"
+ ],
+ "回复 {0} 点生命，结界 {1}。消耗。": [
+  "Heal {0} HP. Barrier {1}. Exhaust.",
+  "HPを{0}回復。結界{1}。廃棄。"
+ ],
+ "神风": [
+  "Divine Wind",
+  "神風"
+ ],
+ "对所有敌人造成 {0} 点伤害；结界不少于 {1} 层时抽 {2} 张牌。": [
+  "Deal {0} damage to all enemies. If you have {1}+ Barrier, draw {2} card.",
+  "すべての敵に{0}ダメージ。結界{1}以上ならカードを{2}枚引く。"
+ ],
+ "八咫镜": [
+  "Yata Mirror",
+  "八咫鏡"
+ ],
+ "获得结界层数 ×{0} 的格挡（至少 {1}）。": [
+  "Gain Block equal to Barrier ×{0} (at least {1}).",
+  "結界×{0}のブロックを得る（最低{1}）。"
+ ],
+ "御神签": [
+  "Omikuji",
+  "おみくじ"
+ ],
+ "随机一种：结界 {0} / 抽 {1} 张牌 / 获得 {2} 点格挡。": [
+  "Random: Barrier {0} / draw {1} cards / gain {2} Block.",
+  "ランダム：結界{0}／カードを{1}枚引く／ブロック{2}。"
+ ],
+ "玉串": [
+  "Tamagushi",
+  "玉串"
+ ],
+ "本回合每打出过 {0} 张技能牌，结界 {1}（最多 {2}）。": [
+  "For each {0} Skill played this turn, Barrier {1} (max {2}).",
+  "このターン使ったスキル{0}枚ごとに結界{1}（最大{2}）。"
+ ],
+ "破魔弓": [
+  "Demon-Breaking Bow",
+  "破魔弓"
+ ],
+ "造成 {0} 点伤害；结界不少于 {1} 层时打 {2} 次。": [
+  "Deal {0} damage. If you have {1}+ Barrier, hit {2} times.",
+  "{0}ダメージ。結界{1}以上なら{2}回攻撃。"
+ ],
+ "榊": [
+  "Sakaki",
+  "榊"
+ ],
+ "每次花掉结界时，抽 {0} 张牌（每回合最多 {1} 次）。": [
+  "Whenever you spend Barrier, draw {0} card (up to {1} times per turn).",
+  "結界を消費するたびにカードを{0}枚引く（毎ターン最大{1}回）。"
+ ],
+ "大祓": [
+  "Great Purification",
+  "大祓"
+ ],
+ "清除所有敌人的格挡，给予所有敌人 {0} 层虚弱和 {1} 层易伤。消耗。": [
+  "Remove all enemies' Block. Apply {0} Weak and {1} Vulnerable to all enemies. Exhaust.",
+  "すべての敵のブロックを消し、脱力{0}と弱体{1}を与える。廃棄。"
+ ],
+ "天照": [
+  "Amaterasu",
+  "天照"
+ ],
+ "对所有敌人造成结界层数 ×{0} 的伤害（至少 {1}），然后结界 {2}。消耗。": [
+  "Deal damage equal to Barrier ×{0} to all enemies (at least {1}), then Barrier {2}. Exhaust.",
+  "すべての敵に結界×{0}のダメージ（最低{1}）、その後結界{2}。廃棄。"
+ ],
+ "神铃": [
+  "Sacred Bell",
+  "神鈴"
+ ],
+ "获得 {0} 点格挡；下回合开始时结界 {1}。": [
+  "Gain {0} Block. Next turn, Barrier {1}.",
+  "ブロックを{0}得る。次のターン開始時、結界{1}。"
+ ],
+ "言灵": [
+  "Kotodama",
+  "言霊"
+ ],
+ "抽 {0} 张牌；本回合之后每打出 {1} 张技能牌，获得 {2} 点格挡。": [
+  "Draw {0} card. For each {1} Skill you play after this, this turn, gain {2} Block.",
+  "カードを{0}枚引く。このターン以降スキルを{1}枚使うたびにブロック{2}。"
+ ],
+ "御神体": [
+  "Shintai",
+  "御神体"
+ ],
+ "每回合开始时，如果结界不少于 {0} 层，得到 {1} 点能量。": [
+  "At the start of each turn, if you have {0}+ Barrier, gain {1} Energy.",
+  "毎ターン開始時、結界{0}以上ならエネルギーを{1}得る。"
+ ],
+ "研钵": [
+  "Mortar",
+  "乳鉢"
+ ],
+ "手里每有 {0} 个炼金瓶，抽 {1} 张牌（最多 {2} 张，至少 {3} 张）。": [
+  "Draw {1} card for each {0} potion flask in hand (max {2}, at least {3}).",
+  "手札の錬金瓶{0}個ごとにカードを{1}枚引く（最大{2}、最低{3}）。"
+ ],
+ "毒焰": [
+  "Toxic Flame",
+  "毒炎"
+ ],
+ "对所有敌人造成 {0} 点伤害，并给予 {1} 层中毒。": [
+  "Deal {0} damage to all enemies and apply {1} Poison.",
+  "すべての敵に{0}ダメージと毒{1}。"
+ ],
+ "灵药": [
+  "Elixir",
+  "霊薬"
+ ],
+ "连锁爆炸": [
+  "Chain Explosion",
+  "連鎖爆発"
+ ],
+ "对所有敌人造成 {0} 点伤害；本回合用过炼金瓶时再给予所有敌人 {1} 层易伤。": [
+  "Deal {0} damage to all enemies. If you used a flask this turn, also apply {1} Vulnerable to all.",
+  "すべての敵に{0}ダメージ。このターン錬金瓶を使っていればすべての敵に弱体{1}。"
+ ],
+ "每回合开始时，如果手里没有炼金瓶，随机获得 {0} 个。": [
+  "At the start of each turn, if you have no flasks in hand, gain {0} random flask.",
+  "毎ターン開始時、手札に錬金瓶がなければランダムに{0}個得る。"
+ ],
+ "每回合开始时，如果手里没有炼金瓶，随机获得 {0} 个；有的话获得 {1} 点格挡。": [
+  "At the start of each turn, if you have no flasks in hand, gain {0} random flask; otherwise gain {1} Block.",
+  "毎ターン開始時、手札に錬金瓶がなければランダムに{0}個得る。あればブロック{1}。"
+ ],
+ "造成 {0} 点伤害；目标已中毒时，中毒 {1}。": [
+  "Deal {0} damage. If the target is Poisoned, Poison {1}.",
+  "{0}ダメージ。対象が毒状態なら毒{1}。"
+ ],
+ "空瓶": [
+  "Empty Flask",
+  "空き瓶"
+ ],
+ "获得 {0} 点格挡；本回合用过炼金瓶时再 {1}。": [
+  "Gain {0} Block. If you used a flask this turn, {1} more.",
+  "ブロックを{0}得る。このターン錬金瓶を使っていればさらに{1}。"
+ ],
+ "过量": [
+  "Overdose",
+  "過剰摂取"
+ ],
+ "造成等于目标中毒层数的伤害（中毒不减）。": [
+  "Deal damage equal to the target's Poison (Poison is not removed).",
+  "対象の毒と同じダメージ（毒は減らない）。"
+ ],
+ "造成等于目标中毒层数 ×{0}的伤害（中毒不减）。": [
+  "Deal damage equal to the target's Poison ×{0} (Poison is not removed).",
+  "対象の毒×{0}のダメージ（毒は減らない）。"
+ ],
+ "火花链": [
+  "Spark Chain",
+  "火花の連鎖"
+ ],
+ "造成 {0} 点伤害 {1} 次。写入火。": [
+  "Deal {0} damage {1} times. Write Fire.",
+  "{0}ダメージを{1}回。火を書き込む。"
+ ],
+ "霜环": [
+  "Frost Ring",
+  "霜の輪"
+ ],
+ "给予所有敌人 {0} 层虚弱，获得 {1} 点格挡。写入水。": [
+  "Apply {0} Weak to all enemies. Gain {1} Block. Write Water.",
+  "すべての敵に脱力{0}。ブロックを{1}得る。水を書き込む。"
+ ],
+ "风步": [
+  "Wind Step",
+  "風歩"
+ ],
+ "写入风，获得 {0} 点格挡，抽 {1} 张牌。消耗。": [
+  "Write Wind, gain {0} Block, draw {1} card. Exhaust.",
+  "風を書き込み、ブロック{0}、カードを{1}枚引く。廃棄。"
+ ],
+ "大魔导": [
+  "Archmage",
+  "大魔導"
+ ],
+ "每回合开始时，免费祈唤一次。": [
+  "At the start of each turn, Invoke for free.",
+  "毎ターン開始時、無料で祈喚する。"
+ ],
+ "拔刀术": [
+  "Iaido",
+  "抜刀術"
+ ],
+ "造成 {0} 点伤害，射出 {1} 把飞剑（{2} 点）。": [
+  "Deal {0} damage. Fire {1} Flying Sword ({2} damage).",
+  "{0}ダメージ。飛剣を{1}本放つ（{2}ダメージ）。"
+ ],
+ "踏云": [
+  "Cloud Step",
+  "踏雲"
+ ],
+ "镜剑": [
+  "Mirror Blade",
+  "鏡剣"
+ ],
+ "造成 {0} 点伤害；飞剑不少于 {1} 把时再打 {2} 次。": [
+  "Deal {0} damage. If you have {1}+ Flying Swords, hit {2} more time.",
+  "{0}ダメージ。飛剣が{1}本以上なら、さらに{2}回攻撃。"
+ ],
+ "剑气墙": [
+  "Sword Qi Wall",
+  "剣気の壁"
+ ],
+ "获得飞剑数 ×{0} 的格挡（至少 {1}）。": [
+  "Gain Block equal to Flying Swords ×{0} (at least {1}).",
+  "飛剣×{0}のブロックを得る（最低{1}）。"
+ ],
+ "打坐": [
+  "Meditate",
+  "座禅"
+ ],
+ "回复 {0} 点生命，得到 {1} 把飞剑。消耗。": [
+  "Heal {0} HP. Gain {1} Flying Sword. Exhaust.",
+  "HPを{0}回復し、飛剣を{1}本得る。廃棄。"
+ ],
+ "剑雨": [
+  "Sword Rain",
+  "剣の雨"
+ ],
+ "射出 {0} 把飞剑，每把对随机敌人造成 {1} 点伤害。": [
+  "Fire {0} Flying Swords, each dealing {1} damage to a random enemy.",
+  "飛剣を{0}本放ち、1本ごとにランダムな敵に{1}ダメージ。"
+ ],
+ "剑魂": [
+  "Sword Soul",
+  "剣魂"
+ ],
+ "每回合结束时，如果飞剑有 {0} 把，对所有敌人造成 {1} 点伤害。": [
+  "At the end of each turn, if you have {0} Flying Swords, deal {1} damage to all enemies.",
+  "毎ターン終了時、飛剣が{0}本なら、すべての敵に{1}ダメージ。"
+ ],
+ "断水": [
+  "Water Cleaver",
+  "断水"
+ ],
+ "造成 {0} 点伤害；没有飞剑时再 {1}。": [
+  "Deal {0} damage. If you have no Flying Swords, {1} more.",
+  "{0}ダメージ。飛剣がなければさらに{1}。"
+ ],
+ "回风": [
+  "Returning Wind",
+  "回風"
+ ],
+ "对所有敌人造成 {0} 点伤害，得到 {1} 把飞剑。": [
+  "Deal {0} damage to all enemies. Gain {1} Flying Sword.",
+  "すべての敵に{0}ダメージ。飛剣を{1}本得る。"
+ ],
+ "剑仙": [
+  "Sword Immortal",
+  "剣仙"
+ ],
+ "每回合开始时，得到 {0} 把飞剑，抽 {1} 张牌。": [
+  "At the start of each turn, gain {0} Flying Sword and draw {1} card.",
+  "毎ターン開始時、飛剣を{0}本得てカードを{1}枚引く。"
+ ],
+ "一闪": [
+  "Flash",
+  "一閃"
+ ],
+ "造成 {0} 点伤害；本回合每射出过 {1} 把飞剑，再 {2}。": [
+  "Deal {0} damage. {2} for each {1} Flying Sword fired this turn.",
+  "{0}ダメージ。このターン放った飛剣{1}本ごとに{2}。"
+ ],
+ "卸力": [
+  "Deflect",
+  "受け流し"
+ ],
+ "剑吟": [
+  "Sword Hum",
+  "剣吟"
+ ],
+ "得到 {0} 把飞剑；飞剑已满 {1} 把时改为抽 {2} 张牌。": [
+  "Gain {0} Flying Sword. If you already have {1}, draw {2} cards instead.",
+  "飛剣を{0}本得る。すでに{1}本なら代わりにカードを{2}枚引く。"
+ ],
+ "剑意护身": [
+  "Sword Aura",
+  "剣意護身"
+ ],
+ "每回合开始时，每有 {0} 把飞剑获得 {1} 点格挡。": [
+  "At the start of each turn, gain {1} Block for every {0} Flying Swords.",
+  "毎ターン開始時、飛剣{0}本ごとにブロックを{1}得る。"
+ ],
+ "冰晶弹": [
+  "Ice Shard",
+  "氷晶弾"
+ ],
+ "造成 {0} 点伤害。【龙】改为全体 {1}。": [
+  "Deal {0} damage. 【Dragon】 Instead deal {1} to all.",
+  "{0}ダメージ。【竜】代わりに全体{1}。"
+ ],
+ "血盾": [
+  "Blood Shield",
+  "血の盾"
+ ],
+ "获得 {0} 点格挡；花掉最多 {1} 点龙血，每点再 {2}。【龙】获得 {3} 点格挡。": [
+  "Gain {0} Block. Spend up to {1} Dragon Blood; {2} per point. 【Dragon】 Gain {3} Block.",
+  "ブロックを{0}得る。竜血を最大{1}消費し、1点ごとに{2}。【竜】ブロック{3}。"
+ ],
+ "冬之息": [
+  "Winter's Breath",
+  "冬の息吹"
+ ],
+ "回复 {0} 点生命，得到 {1} 点龙血。消耗。【龙】回复 {2} 点生命。": [
+  "Heal {0} HP and gain {1} Dragon Blood. Exhaust. 【Dragon】 Heal {2} HP.",
+  "HPを{0}回復し、竜血を{1}得る。廃棄。【竜】HPを{2}回復。"
+ ],
+ "冻伤爪": [
+  "Frostbite Claw",
+  "凍傷の爪"
+ ],
+ "造成 {0} 点伤害，给予 {1} 层霜灼。": [
+  "Deal {0} damage and apply {1} Frostburn.",
+  "{0}ダメージと霜焼け{1}。"
+ ],
+ "龙心跳动": [
+  "Dragon Heartbeat",
+  "竜の鼓動"
+ ],
+ "每回合开始时，龙血不少于 {0} 点就获得 {1} 点格挡。": [
+  "At the start of each turn, if you have {0}+ Dragon Blood, gain {1} Block.",
+  "毎ターン開始時、竜血が{0}以上ならブロックを{1}得る。"
+ ],
+ "冰刺阵": [
+  "Ice Spikes",
+  "氷棘陣"
+ ],
+ "对所有敌人造成 {0} 点伤害，给予 {1} 层霜灼。【龙】全体 {2}。": [
+  "Deal {0} damage to all enemies and apply {1} Frostburn. 【Dragon】 {2} to all.",
+  "すべての敵に{0}ダメージと霜焼け{1}。【竜】全体{2}。"
+ ],
+ "蛰伏": [
+  "Hibernate",
+  "冬籠り"
+ ],
+ "获得 {0} 点格挡；下回合开始时得到 {1} 点龙血。": [
+  "Gain {0} Block. Next turn, gain {1} Dragon Blood.",
+  "ブロックを{0}得る。次のターン開始時、竜血を{1}得る。"
+ ],
+ "霜闪": [
+  "Frost Flash",
+  "霜閃"
+ ],
+ "造成 {0} 点伤害，得到 {1} 点龙血；目标有霜灼时再 {2}。": [
+  "Deal {0} damage and gain {1} Dragon Blood. {2} if the target has Frostburn.",
+  "{0}ダメージ、竜血を{1}得る。対象が霜焼けなら{2}。"
+ ],
+ "古龙之力": [
+  "Ancient Dragon's Might",
+  "古竜の力"
+ ],
+ "霜龙形态下，每回合开始得到 {0} 点能量。": [
+  "In Frost Dragon form, gain {0} Energy at the start of each turn.",
+  "霜竜形態の間、毎ターン開始時エネルギーを{0}得る。"
+ ],
+ "获得 {0} 点格挡；每个有霜灼的敌人再 {1}。": [
+  "Gain {0} Block, {1} more for each enemy with Frostburn.",
+  "ブロックを{0}得る。霜焼けの敵1体ごとに{1}。"
+ ],
+ "冰净": [
+  "Ice Cleanse",
+  "氷の浄め"
+ ],
+ "清除自身虚弱和易伤，得到 {0} 点龙血。消耗。": [
+  "Remove your Weak and Vulnerable. Gain {0} Dragon Blood. Exhaust.",
+  "自分の脱力と弱体を解除し、竜血を{0}得る。廃棄。"
+ ],
+ "寒潮吐息": [
+  "Cold Tide Breath",
+  "寒潮の息"
+ ],
+ "暴风雪": [
+  "Blizzard",
+  "吹雪"
+ ],
+ "所有敌人霜灼 {0}，给予所有敌人 {1} 层虚弱。消耗。": [
+  "All enemies Frostburn {0}. Apply {1} Weak to all enemies. Exhaust.",
+  "すべての敵に霜焼け{0}、脱力{1}。廃棄。"
+ ],
+ "龙血再生": [
+  "Dragon Blood Regeneration",
+  "竜血再生"
+ ],
+ "每回合结束时，花 {0} 点龙血回复 {1} 点生命（每场最多 {2} 点）。": [
+  "At the end of each turn, spend {0} Dragon Blood to heal {1} HP (max {2} per combat).",
+  "毎ターン終了時、竜血を{0}消費してHPを{1}回復（各戦闘最大{2}）。"
+ ],
+ "团子回复 {0} 生命，抽 {1} 张牌。": [
+  "Dango heals {0} HP. Draw {1} card.",
+  "団子のHPを{0}回復。カードを{1}枚引く。"
+ ],
+ "并肩作战": [
+  "Side by Side",
+  "肩を並べて"
+ ],
+ "造成 {0} 点伤害；团子在场时再造成团子攻击力一半的伤害。": [
+  "Deal {0} damage. If Dango is up, deal damage equal to half Dango's Attack.",
+  "{0}ダメージ。団子がいれば団子の攻撃力の半分のダメージを追加。"
+ ],
+ "猫毯": [
+  "Cat Blanket",
+  "猫毛布"
+ ],
+ "获得 {0} 点格挡；团子倒地时改为 {1} 点。": [
+  "Gain {0} Block ({1} if Dango is down).",
+  "ブロックを{0}得る（団子が倒れていれば{1}）。"
+ ],
+ "小鱼干": [
+  "Dried Fish",
+  "煮干し"
+ ],
+ "驯养：团子本场生命上限 {0}、攻击 {1}，回复 {2} 生命。": [
+  "Tame: Dango gets {0} Max HP and {1} Attack this combat, and heals {2} HP.",
+  "飼育：団子の最大HP{0}、攻撃{1}（この戦闘）、HPを{2}回復。"
+ ],
+ "哈气": [
+  "Hiss",
+  "威嚇"
+ ],
+ "给予所有敌人 {0} 层虚弱，获得 {1} 点格挡。": [
+  "Apply {0} Weak to all enemies. Gain {1} Block.",
+  "すべての敵に脱力{0}。ブロックを{1}得る。"
+ ],
+ "呼噜": [
+  "Purr",
+  "ゴロゴロ"
+ ],
+ "每回合开始时，米娅和团子各回复 {0} 点生命（米娅每场最多 {1} 点）。": [
+  "At the start of each turn, Mia and Dango each heal {0} HP (Mia up to {1} per combat).",
+  "毎ターン開始時、ミアと団子がそれぞれHPを{0}回復（ミアは各戦闘最大{1}）。"
+ ],
+ "猫猫拳连打": [
+  "Kitty Combo",
+  "猫パンチ連打"
+ ],
+ "造成 {0} 点伤害 {1} 次；目标是团子的扑击目标时每下 {2}。": [
+  "Deal {0} damage {1} times; {2} per hit if the target is Dango's pounce target.",
+  "{0}ダメージを{1}回。対象が団子の飛びかかり対象なら1回ごとに{2}。"
+ ],
+ "掩护撤退": [
+  "Cover Retreat",
+  "援護退却"
+ ],
+ "团子回复 {0} 生命；团子满血时米娅获得 {1} 点格挡。": [
+  "Dango heals {0} HP. If Dango is at full HP, Mia gains {1} Block.",
+  "団子のHPを{0}回復。団子が全快ならミアがブロックを{1}得る。"
+ ],
+ "舔毛": [
+  "Grooming",
+  "毛づくろい"
+ ],
+ "月下猫影": [
+  "Moonlit Cat",
+  "月下の猫影"
+ ],
+ "对所有敌人造成 {0} 点伤害；本回合团子扑击多打 {1} 次。": [
+  "Deal {0} damage to all enemies. This turn, Dango pounces {1} extra time.",
+  "すべての敵に{0}ダメージ。このターン団子の飛びかかり+{1}回。"
+ ],
+ "猫的标记": [
+  "Cat's Mark",
+  "猫のマーキング"
+ ],
+ "给予 {0} 层易伤；团子的扑击目标改成这个敌人。": [
+  "Apply {0} Vulnerable. Dango's pounce target becomes this enemy.",
+  "弱体{0}を与え、団子の飛びかかり対象をこの敵にする。"
+ ],
+ "猫王": [
+  "Cat King",
+  "猫の王"
+ ],
+ "驯养：每回合开始时团子攻击 {0}（本场最多 {1}）。": [
+  "Tame: At the start of each turn, Dango gets Attack {0} (max {1} this combat).",
+  "飼育：毎ターン開始時、団子の攻撃{0}（この戦闘で最大{1}）。"
+ ],
+ "午睡": [
+  "Nap",
+  "お昼寝"
+ ],
+ "米娅和团子各回复 {0} 点生命。消耗。": [
+  "Mia and Dango each heal {0} HP. Exhaust.",
+  "ミアと団子がそれぞれHPを{0}回復。廃棄。"
+ ],
+ "单打独斗": [
+  "Going Solo",
+  "一騎打ち"
+ ],
+ "造成 {0} 点伤害；团子倒地时改为 {1} 点。": [
+  "Deal {0} damage ({1} if Dango is down).",
+  "{0}ダメージ（団子が倒れていれば{1}）。"
+ ],
+ "倒刺": [
+  "Barb",
+  "逆棘"
+ ],
+ "造成 {0} 点伤害；有血蝠时召唤 {1} 只血蝠。": [
+  "Deal {0} damage. If you have Blood Bats, summon {1} more.",
+  "{0}ダメージ。血蝙蝠がいれば{1}匹召喚。"
+ ],
+ "蝠盾": [
+  "Bat Shield",
+  "蝠の盾"
+ ],
+ "获得 {0} 点格挡；有血蝠时消灭 {1} 只，再 {2}。": [
+  "Gain {0} Block. If you have Blood Bats, sacrifice {1} for {2} more.",
+  "ブロックを{0}得る。血蝙蝠がいれば{1}匹消して{2}。"
+ ],
+ "血库": [
+  "Blood Bank",
+  "血液バンク"
+ ],
+ "夜幕": [
+  "Nightfall",
+  "夜の帳"
+ ],
+ "给予所有敌人 {0} 层虚弱，召唤 {1} 只血蝠。": [
+  "Apply {0} Weak to all enemies. Summon {1} Blood Bat(s).",
+  "すべての敵に脱力{0}。血蝙蝠を{1}匹召喚。"
+ ],
+ "猩红新月": [
+  "Crimson Crescent",
+  "真紅の新月"
+ ],
+ "对所有敌人造成 {0} 点伤害并吸血。": [
+  "Deal {0} damage to all enemies with Lifesteal.",
+  "すべての敵に{0}ダメージ（吸血）。"
+ ],
+ "失去 {0} 点生命，获得 {1} 点格挡，抽 {2} 张牌。": [
+  "Lose {0} HP. Gain {1} Block. Draw {2} card.",
+  "HPを{0}失い、ブロックを{1}得て、カードを{2}枚引く。"
+ ],
+ "血棘": [
+  "Blood Thorns",
+  "血の棘"
+ ],
+ "每次因为自己的牌失去生命时，对随机敌人造成 {0} 点伤害。": [
+  "Whenever you lose HP from your own cards, deal {0} damage to a random enemy.",
+  "自分のカードでHPを失うたび、ランダムな敵に{0}ダメージ。"
+ ],
+ "吸血之吻": [
+  "Vampire Kiss",
+  "吸血のキス"
+ ],
+ "造成 {0} 点伤害，这一击伤害全部回成生命。": [
+  "Deal {0} damage and heal for all of it.",
+  "{0}ダメージ。与えたダメージ分HPを回復。"
+ ],
+ "血之狂潮": [
+  "Blood Frenzy",
+  "血の狂潮"
+ ],
+ "造成 {0} 点伤害 X 次；X = 本回合失去过的生命 ÷{1}（至少 {2}，最多 {3}）。": [
+  "Deal {0} damage X times; X = HP lost this turn ÷{1} (at least {2}, at most {3}).",
+  "{0}ダメージをX回。X＝このターン失ったHP÷{1}（最低{2}、最大{3}）。"
+ ],
+ "血之复苏": [
+  "Blood Revival",
+  "血の蘇生"
+ ],
+ "回复本场失去过的生命的一半（最多 {0}）。消耗。": [
+  "Heal half the HP you lost this combat (max {0}). Exhaust.",
+  "この戦闘で失ったHPの半分を回復（最大{0}）。廃棄。"
+ ],
+ "蝠王": [
+  "Bat King",
+  "蝙蝠王"
+ ],
+ "每回合开始时，如果血蝠不少于 {0} 只，获得 {1} 点格挡。": [
+  "At the start of each turn, if you have {0}+ Blood Bats, gain {1} Block.",
+  "毎ターン開始時、血蝙蝠が{0}匹以上ならブロックを{1}得る。"
+ ],
+ "造成 {0} 点伤害；目标有易伤时再 {1}。": [
+  "Deal {0} damage. {1} if the target is Vulnerable.",
+  "{0}ダメージ。対象が弱体なら{1}。"
+ ],
+ "鲜血屏障": [
+  "Blood Barrier",
+  "鮮血の障壁"
+ ],
+ "血之舞会": [
+  "Blood Ball",
+  "血の舞踏会"
+ ],
+ "每回合第一次吸到血时，抽 {0} 张牌并得到 {1} 点能量。": [
+  "The first time each turn you Lifesteal, draw {0} card and gain {1} Energy.",
+  "毎ターン初めて吸血した時、カードを{0}枚引きエネルギーを{1}得る。"
+ ],
+ "每回合结束时，对随机敌人造成这么多伤害": [
+  "At the end of each turn, deal this much damage to a random enemy",
+  "毎ターン終了時、ランダムな敵にこの値のダメージ"
+ ],
+ "每回合第一张攻击牌得到 {0} 发光弹": [
+  "First Attack each turn gives {0} light round",
+  "毎ターン最初の攻撃カードで光弾{0}発"
+ ],
+ "每回合第 {0} 张攻击牌后抽 {1} 张牌、得到 {2} 发光弹": [
+  "After the {0}th Attack each turn, draw {1} cards and gain {2} light round",
+  "毎ターン{0}枚目の攻撃後、カードを{1}枚引き光弾{2}発"
+ ],
+ "回合开始时有敌人共鸣不少于 {0} 层，获得这么多格挡": [
+  "At turn start, if any enemy has {0}+ Resonance, gain this much Block",
+  "ターン開始時、共鳴{0}以上の敵がいればこの値のブロック"
+ ],
+ "每回合开始抽 {0} 张牌再随机弃 {1} 张": [
+  "At turn start, draw {0} and discard {1} at random",
+  "ターン開始時、{0}枚引きランダムに{1}枚捨てる"
+ ],
+ "回合结束时，共鸣最多的敌人再得到这么多层共鸣": [
+  "At turn end, the enemy with the most Resonance gains this much more",
+  "ターン終了時、共鳴最多の敵にこの値の共鳴"
+ ],
+ "下回合开始时结界增加这么多": [
+  "Gain this much Barrier next turn",
+  "次のターン開始時、結界がこの値増える"
+ ],
+ "回合开始时结界不少于这么多层，得到 {0} 点能量": [
+  "At turn start, if Barrier is at least this much, gain {0} Energy",
+  "ターン開始時、結界がこの値以上ならエネルギー{0}"
+ ],
+ "每回合前这么多次花掉结界时，抽 {0} 张牌": [
+  "The first this-many times you spend Barrier each turn, draw {0} card",
+  "毎ターンこの回数まで、結界を消費するとカードを{0}枚引く"
+ ],
+ "回合开始时手里没有炼金瓶就随机获得 {0} 个": [
+  "At turn start, if no flasks in hand, gain {0} random flask",
+  "ターン開始時、手札に錬金瓶がなければランダムに{0}個"
+ ],
+ "每回合开始时免费祈唤一次": [
+  "Invoke for free at the start of each turn",
+  "毎ターン開始時、無料で祈喚"
+ ],
+ "回合结束时飞剑有 {0} 把，对所有敌人造成这么多伤害": [
+  "At turn end, if you have {0} Flying Swords, deal this much damage to all enemies",
+  "ターン終了時、飛剣が{0}本ならすべての敵にこの値のダメージ"
+ ],
+ "每回合开始得到 {0} 把飞剑，抽 {1} 张牌": [
+  "Gain {0} Flying Sword and draw {1} card each turn",
+  "毎ターン開始時、飛剣{0}本とカード{1}枚"
+ ],
+ "回合开始时每 {0} 把飞剑获得这么多格挡": [
+  "At turn start, gain this much Block per {0} Flying Swords",
+  "ターン開始時、飛剣{0}本ごとにこの値のブロック"
+ ],
+ "回合开始时龙血不少于 {0} 点，获得这么多格挡": [
+  "At turn start, if Dragon Blood is {0}+, gain this much Block",
+  "ターン開始時、竜血{0}以上ならこの値のブロック"
+ ],
+ "下回合开始时得到这么多龙血": [
+  "Gain this much Dragon Blood next turn",
+  "次のターン開始時、この値の竜血を得る"
+ ],
+ "霜龙形态下每回合开始得到 {0} 点能量": [
+  "In Frost Dragon form, gain {0} Energy each turn",
+  "霜竜形態の間、毎ターンエネルギー{0}"
+ ],
+ "回合结束时花 {0} 点龙血回复这么多生命（每场最多 {1}）": [
+  "At turn end, spend {0} Dragon Blood to heal this much (max {1} per combat)",
+  "ターン終了時、竜血{0}を消費してこの値回復（各戦闘最大{1}）"
+ ],
+ "每回合开始米娅和团子各回复这么多生命": [
+  "Mia and Dango each heal this much at the start of each turn",
+  "毎ターン開始時、ミアと団子がこの値回復"
+ ],
+ "每回合开始团子攻击 {0}（本场最多 {1}）": [
+  "Dango gets Attack {0} each turn (max {1} this combat)",
+  "毎ターン団子の攻撃{0}（この戦闘最大{1}）"
+ ],
+ "回合开始时血蝠不少于 {0} 只，获得这么多格挡": [
+  "At turn start, if you have {0}+ Blood Bats, gain this much Block",
+  "ターン開始時、血蝙蝠{0}匹以上ならこの値のブロック"
+ ],
+ "因为自己的牌失去生命时，对随机敌人造成这么多伤害": [
+  "When you lose HP from your own cards, deal this much damage to a random enemy",
+  "自分のカードでHPを失うと、ランダムな敵にこの値のダメージ"
+ ],
+ "每回合第一次吸到血时，抽 {0} 张牌并得到 {1} 点能量": [
+  "The first time each turn you Lifesteal, draw {0} card and gain {1} Energy",
+  "毎ターン初めて吸血した時、カード{0}枚とエネルギー{1}"
+ ],
+ "养气": [
+  "Cultivate Qi",
+  "養気"
+ ],
+ "每回合结束时，如果飞剑不少于 {0} 把，回复 {1} 点生命（每场最多 {2} 点）。": [
+  "At the end of each turn, if you have {0}+ Flying Swords, heal {1} HP (max {2} per combat).",
+  "毎ターン終了時、飛剣が{0}本以上ならHPを{1}回復（各戦闘最大{2}）。"
+ ],
+ "对所有敌人造成 {0} 点伤害，每打中 {1} 个敌人回复 {2} 点生命，得到 {3} 把飞剑。": [
+  "Deal {0} damage to all enemies, heal {2} HP for every {1} enemy hit, and gain {3} Flying Sword.",
+  "すべての敵に{0}ダメージ、命中した敵{1}体ごとにHPを{2}回復し、飛剣を{3}本得る。"
+ ],
+ "回合结束时飞剑不少于 {0} 把，回复这么多生命（每场最多 {1}）": [
+  "At turn end, if you have {0}+ Flying Swords, heal this much (max {1} per combat)",
+  "ターン終了時、飛剣{0}本以上ならこの値回復（各戦闘最大{1}）"
+ ]
+}
