@@ -1,9 +1,9 @@
-import { tr } from './i18n.js?v=live2_11140520';
-import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11140520';
+import { tr } from './i18n.js?v=live2_11141335';
+import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11141335';
 export { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 };
-import { R2, P2, EV1B, EV2B, EV3B, setPotPool } from './content2.js?v=live2_11140520';
-import { EV1C, EV2C, EV3C } from './meta.js?v=live2_11140520';
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11140520';
+import { R2, P2, EV1B, EV2B, EV3B, setPotPool } from './content2.js?v=live2_11141335';
+import { EV1C, EV2C, EV3C } from './meta.js?v=live2_11141335';
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11141335';
 export { MECH, NEWKEYW, OLDKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
@@ -117,7 +117,7 @@ export const CARDS = {
   // ======== 魔女 · 药瓶 / 毒 ========
   // 药瓶牌（rar:'gen' 不进奖励池，只由其他牌生成）
   p_fire: { ch: 'witch', potion: 1, name: '火焰瓶', type: 'atk', rar: 'gen', cost: [0, 0], icon: 'ic_flame', tgt: 'all', exhaust: 1,
-    desc: () => `对所有敌人造成 7 点伤害。消耗。`, play: g => { const n0 = g.alive().length; g.attackAll((7 + (g.p.st.inferno || 0)) * g.pm()); potKill(g, n0); } },
+    desc: () => `对所有敌人造成 9 点伤害。消耗。`, play: g => { const n0 = g.alive().length; g.attackAll((9 + (g.p.st.inferno || 0)) * g.pm()); potKill(g, n0); } },
   p_frost: { ch: 'witch', potion: 1, name: '冰霜瓶', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'ic_water', tgt: 'one', exhaust: 1,
     desc: () => `冰冻目标（跳过下一次行动；精英和 Boss 改为下一次攻击减半）。消耗。`, play: (g, u, t) => MECH.cc(g, t, 'frozen') },
   p_heal: { ch: 'witch', potion: 1, name: '治疗瓶', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'pot', tgt: 'self', exhaust: 1,
@@ -162,11 +162,11 @@ export const CARDS = {
   p_vine: { ch: 'witch', potion: 1, name: '藤蔓瓶', type: 'skill', rar: 'gen', cost: [0, 0], icon: 'p_boom', tgt: 'one', exhaust: 1,
     desc: () => `束缚目标（跳过下一次行动），并且接下来 2 次行动前各受到 4 点伤害。消耗。`, play: (g, u, t) => { MECH.cc(g, t, 'bind'); if (t && !t.dead) g.apply(t, 'bindD', 2); } },
   zap: { ch: 'witch', name: '魔弹', type: 'atk', rar: 'start', cost: [1, 1], icon: 'sk_orb', tgt: 'one',
-    desc: u => `造成 ${v(u, 6, 9)} 点伤害。`, play: (g, u, t) => g.attack(t, v(u, 6, 9)) },
+    desc: u => `造成 ${v(u, 7, 10)} 点伤害。`, play: (g, u, t) => g.attack(t, v(u, 7, 10)) },
   brew: { ch: 'witch', name: '调药', type: 'skill', rar: 'start', cost: [1, 1], icon: 'pot', tgt: 'self',
     desc: u => `随机获得 ${v(u, 1, 2)} 个炼金瓶。抽 1 张牌。`, play: (g, u) => { g.potion(v(u, 1, 2)); g.draw(1); } },
   needle: { ch: 'witch', name: '毒针', type: 'atk', rar: 'start', cost: [1, 1], icon: 'ic_stake', tgt: 'one',
-    desc: u => `造成 3 点伤害，给予 ${v(u, 4, 6)} 层中毒。`, play: (g, u, t) => { g.attack(t, 3); g.poison(t, v(u, 4, 6)); } },
+    desc: u => `造成 4 点伤害，给予 ${v(u, 5, 7)} 层中毒。`, play: (g, u, t) => { g.attack(t, 4); g.poison(t, v(u, 5, 7)); } },
   venom: { ch: 'witch', name: '剧毒', type: 'skill', rar: 'c', cost: [1, 1], icon: 'b_curse', tgt: 'one',
     desc: u => `给予 ${v(u, 7, 10)} 层中毒。`, play: (g, u, t) => g.poison(t, v(u, 7, 10)) },
   miasma: { ch: 'witch', name: '毒雾', type: 'skill', rar: 'c', cost: [1, 1], icon: 'sk_bmist', tgt: 'all',
@@ -621,5 +621,5 @@ EVENTS.push(...EV1B); EVENTS2.push(...EV2B); EV3.push(...EV3B); EVENTS.push(...E
 for (const ev of [...EVENTS, ...EVENTS2, ...EV3]) { tx(ev, 'title'); tx(ev, 'text'); for (const o of ev.opts) { tx(o, 't'); tf(o, 'go'); } }
 
 // 两个引擎共用的规则常量（游戏和平衡模拟都从这里读）
-export const RULES = { furyTurn: 9, furyEvery: 2, bloodTurn: 5, bloodStr: 1, act2Mul: 1.0, act3Hp: 1.25, act3Dmg: 1.15, maxTurns: 60 };
+export const RULES = { furyTurn: 9, furyEvery: 2, bloodTurn: 5, bloodStr: 1, act2Mul: 0.95, act3Hp: 1.25, act3Dmg: 1.15, maxTurns: 60 };
 export const isFury = turn => turn >= RULES.furyTurn && (turn - RULES.furyTurn) % RULES.furyEvery === 0;
