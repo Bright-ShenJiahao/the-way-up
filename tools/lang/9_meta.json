@@ -1430,5 +1430,9 @@
  "给自己加格挡，并给你施加负面状态": [
   "gains Block and applies a debuff to you",
   "自分にブロックを付与し、あなたに弱体を与える"
+ ],
+ "通关难度": [
+  "Difficulty",
+  "クリア難易度"
  ]
 }

@@ -3668,5 +3668,6 @@ export default {
 "{0} 专属": "{0} only",
 "选一张手牌：升级、补丁 +5、本场 0 费": "Pick a card in hand: upgrade it, Patch +5, costs 0 this combat",
 "下回合将给自己加格挡，并给你施加负面状态": "Next turn: gains Block and applies a debuff to you",
-"给自己加格挡，并给你施加负面状态": "gains Block and applies a debuff to you"
+"给自己加格挡，并给你施加负面状态": "gains Block and applies a debuff to you",
+"通关难度": "Difficulty"
 };

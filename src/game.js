@@ -1,9 +1,9 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11141535';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11141535';
-import { createAudio } from './audio.js?v=live2_11141535';
-import { BLESS_FREE, BLESS_COST, ASC2, MODS, ACH, hashSeed, mulberry, todayKey, dailyOf } from './meta.js?v=live2_11141535';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11141535';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11141620';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11141620';
+import { createAudio } from './audio.js?v=live2_11141620';
+import { BLESS_FREE, BLESS_COST, ASC2, MODS, ACH, hashSeed, mulberry, todayKey, dailyOf } from './meta.js?v=live2_11141620';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11141620';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -281,15 +281,15 @@ ASC.push(...ASC2);
 const ONLINE = !/githack|localhost|127\.0\.0\.1|^file/.test(location.href); /* 试玩链接上没有后台 */
 const API = /netlify\.app$/.test(location.hostname) ? '/api/scores' : 'https://the-way-up.netlify.app/api/scores'; /* itch.io 等外部站点连 Netlify 后台 */
 const CHARINFO = {
-  erin: { diff: 3, tip: '三个元素位，写入火、水、风；「祈唤」按组合把 10 种法术之一放进手牌。', line: '“火、水、风……这次搓哪一个呢。”', bio: '艾琳是精灵族的年轻魔法师，天生能同时感受到火、水、风。长老总说她太急，一个元素还没练稳就想把三个搅在一起。她偏不服：元素本来就会互相说话，只是没人肯听。听说山顶的门连着所有世界，她背着法杖就上了山，想看看门那边的元素长什么样。一路上法术时灵时不灵，她最怕的不是失手，是别人那句“我早说过”。后来她才明白，组合的诀窍从来不是快，而是等对的那一个。', end: '原来元素也要等时机……下次我会慢一点的。大概吧。', builds: [['三同专精', '把三格写成同一种元素，打出陨星、冰镜、风门这类大法术。', ['纯相爆发', '三相冠冕', '冰幕', '点火']], ['混合应变', '每回合换组合，多写入、多祈唤，吃不同配方的奖励。', ['临场变式', '四季轮转', '三色光', '调和']]] },
-  gu: { diff: 2, tip: '飞剑留在身上，每把让攻击牌第一击 +1（每 2 把再额外 +1）、回合结束给 1 点格挡；攒够了也能一口气射出去。', line: '“剑在，人就在。”', bio: '顾清寒是雪山剑派的弟子。门里为“先练气”还是“先练剑”吵成两派，她两边都偷学，结果两边都不认她。魔王占了山顶，剑派被赶下山，师兄们各奔东西，只有她背着剑往回走。她习惯一个人练、一个人扛，连受了伤都只在夜里偷偷运气。直到有一回，同伴替她挡了一刀，她才发现：一个人能同时会两套剑法，一支队伍也能把几个怪人拧成一股。', end: '剑宗也好，气宗也罢……能并肩的，就是同门。', builds: [['养剑流', '飞剑攒在身上，攻击牌第一击越来越重，回合结束还给格挡。', ['养剑', '唤剑', '剑阵', '剑心通明']], ['射剑流', '养够飞剑后一口气射出去，打出一回合爆发。', ['万剑归一', '并指三剑', '剑意', '剑意循环']], ['连击流', '便宜的攻击牌一张接一张，越连越痛。', ['雪径连斩', '连环剑', '风过松', '双剑']]] },
-  sylvie: { diff: 2, tip: '攒满 8 点龙血点「变身」，霜龙形态的三回合打得最狠；也可以不变身，把龙血留着吃加成。', line: '“……别让我变回那个样子。”', bio: '希尔薇是远古白龙最后的后裔，平时是个话少、怕冷的安静少女。可只要情绪一激动，鳞片就会从手背长出来，等回过神，四周已经结满了冰。她不记得变成龙时做过什么，所以一直离人很远。魔王占了祖先的龙巢，她不得不下山。第一次在大家面前变身那天，她以为同伴会逃开，结果有人只是把外套披到她肩上，说：“冷吧，变回来就好。”', end: '龙也好，人也好……你们都叫我希尔薇，那就够了。', builds: [['抢变身', '尽快攒满龙血，把霜龙三回合对准敌人最凶的时候。', ['极夜龙息', '血脉回响', '龙爪二式', '冬眠苏醒']], ['霜甲反击', '不急着变身，叠霜甲挡伤害再反打。', ['雪崩之心', '冰棺', '逆鳞刺', '冰晶脊']]] },
-  mia: { diff: 1, tip: '分离时给团子下护卫或扑击指令；点「合体」让团子融进米娅身上，【猫】牌合体时更强。驯养牌和灵魂恩赐能把团子养强。', line: '“团子，拜托你了喵。”', bio: '米娅是人类和猫耳族的混血，两边的族人都不太接纳她，从小只有云猫团子陪着。团子的母亲是山里的守护神，被哥布林抓走了，米娅抱着团子就上了山。她嘴上总说“拜托你了喵”，其实每次团子冲出去，她的尾巴都绷得笔直。她以为自己一直在保护团子，直到团子第一次挡在她前面，冲着比自己大十倍的怪物炸毛。原来团子也想保护她。', end: '团子，我们找到妈妈了喵……以后，换我们一起保护她。', builds: [['扑击', '团子当主攻，配合扑击目标打出加成。', ['大猫扑杀', '夹击', '追踪哨', '绕背']], ['护卫', '团子替你挡刀，再把挡下的伤害还回去。', ['云猫守门', '护主反扑', '掩护撤退', '不动如山']], ['照料', '保住团子让它一路长大。', ['猫薄荷', '暖窝', '绝不松手', '舔毛']]] },
-  feiyue: { diff: 3, tip: '花自己的生命换高伤害和召唤血蝠、血骑士；所有伤害都会吸一点血回来。', line: '“……血的味道，我才不喜欢。”', bio: '绯月是日本的高中生，那道光卷走的不止三个人。她一直不知道，母亲那边流着吸血鬼的血，直到古堡的血月升起，她的眼睛在黑暗里亮了起来。伯爵一眼认出了她，说这里才是她的家。她拒绝了，可每用一次这股力量，她就离人类远一点。最让她害怕的不是血，是同伴哪天也用伯爵那样的眼神看她。后来她发现，大家看她的眼神始终没变：还是那个会把最后一口水让出去的同学。', end: '我还是我。只是……以后晚上，我来守夜吧。', builds: [['鲜血', '主动献血，攒够鲜血打出爆发。', ['破脉', '血尽天明', '血祭', '血线']], ['吸血', '靠吸血把献掉的血补回来。', ['血契', '借血还血', '夜饮', '红爪']], ['蝙蝠', '放出蝙蝠叠血痕，再全部出猎。', ['万蝠降临', '翼刃', '蝠影', '响指']]] },
-  miko: { diff: 1, end: '这次换我说……谢谢你们，撑住了我。', tip: '结界越叠越厚，每回合自动加格挡。防守稳，最适合新手。', line: '“神社的铃，也能替异世界的人挡一挡灾。”', bio: '千早从小在日本的神社帮忙。祭典散场后，她常留下来收灯笼，也总记得把最靠近台阶的那盏留到最后。到了异世界，她手里的神乐铃能撑起护住同伴的结界，破魔箭能净化不死的怪物。平时她说话轻声细气，可只要还有人没撤到安全的地方，谁也劝不动她先走。一路上，最难开口的反倒是那句“我撑不住了”。她慢慢学着在手开始发抖时，就喊同伴的名字。', builds: [['结界防守流', '每回合自动叠结界，白拿格挡，稳稳磨死敌人。', ['神乐舞', '注连绳', '御神木', '护身符']], ['结界爆发流', '先把结界叠高，再一口气换成伤害。', ['破邪结界', '破魔·满月', '镇魂歌', '破魔箭']]] },
+  erin: { diff: 2, tip: '三个元素位，写入火、水、风；「祈唤」按组合把 10 种法术之一放进手牌。', line: '“火、水、风……这次搓哪一个呢。”', bio: '艾琳是精灵族的年轻魔法师，天生能同时感受到火、水、风。长老总说她太急，一个元素还没练稳就想把三个搅在一起。她偏不服：元素本来就会互相说话，只是没人肯听。听说山顶的门连着所有世界，她背着法杖就上了山，想看看门那边的元素长什么样。一路上法术时灵时不灵，她最怕的不是失手，是别人那句“我早说过”。后来她才明白，组合的诀窍从来不是快，而是等对的那一个。', end: '原来元素也要等时机……下次我会慢一点的。大概吧。', builds: [['三同专精', '把三格写成同一种元素，打出陨星、冰镜、风门这类大法术。', ['纯相爆发', '三相冠冕', '冰幕', '点火']], ['混合应变', '每回合换组合，多写入、多祈唤，吃不同配方的奖励。', ['临场变式', '四季轮转', '三色光', '调和']]] },
+  gu: { diff: 1, tip: '飞剑留在身上，每把让攻击牌第一击 +1（每 2 把再额外 +1）、回合结束给 1 点格挡；攒够了也能一口气射出去。', line: '“剑在，人就在。”', bio: '顾清寒是雪山剑派的弟子。门里为“先练气”还是“先练剑”吵成两派，她两边都偷学，结果两边都不认她。魔王占了山顶，剑派被赶下山，师兄们各奔东西，只有她背着剑往回走。她习惯一个人练、一个人扛，连受了伤都只在夜里偷偷运气。直到有一回，同伴替她挡了一刀，她才发现：一个人能同时会两套剑法，一支队伍也能把几个怪人拧成一股。', end: '剑宗也好，气宗也罢……能并肩的，就是同门。', builds: [['养剑流', '飞剑攒在身上，攻击牌第一击越来越重，回合结束还给格挡。', ['养剑', '唤剑', '剑阵', '剑心通明']], ['射剑流', '养够飞剑后一口气射出去，打出一回合爆发。', ['万剑归一', '并指三剑', '剑意', '剑意循环']], ['连击流', '便宜的攻击牌一张接一张，越连越痛。', ['雪径连斩', '连环剑', '风过松', '双剑']]] },
+  sylvie: { diff: 1, tip: '攒满 8 点龙血点「变身」，霜龙形态的三回合打得最狠；也可以不变身，把龙血留着吃加成。', line: '“……别让我变回那个样子。”', bio: '希尔薇是远古白龙最后的后裔，平时是个话少、怕冷的安静少女。可只要情绪一激动，鳞片就会从手背长出来，等回过神，四周已经结满了冰。她不记得变成龙时做过什么，所以一直离人很远。魔王占了祖先的龙巢，她不得不下山。第一次在大家面前变身那天，她以为同伴会逃开，结果有人只是把外套披到她肩上，说：“冷吧，变回来就好。”', end: '龙也好，人也好……你们都叫我希尔薇，那就够了。', builds: [['抢变身', '尽快攒满龙血，把霜龙三回合对准敌人最凶的时候。', ['极夜龙息', '血脉回响', '龙爪二式', '冬眠苏醒']], ['霜甲反击', '不急着变身，叠霜甲挡伤害再反打。', ['雪崩之心', '冰棺', '逆鳞刺', '冰晶脊']]] },
+  mia: { diff: 2, tip: '分离时给团子下护卫或扑击指令；点「合体」让团子融进米娅身上，【猫】牌合体时更强。驯养牌和灵魂恩赐能把团子养强。', line: '“团子，拜托你了喵。”', bio: '米娅是人类和猫耳族的混血，两边的族人都不太接纳她，从小只有云猫团子陪着。团子的母亲是山里的守护神，被哥布林抓走了，米娅抱着团子就上了山。她嘴上总说“拜托你了喵”，其实每次团子冲出去，她的尾巴都绷得笔直。她以为自己一直在保护团子，直到团子第一次挡在她前面，冲着比自己大十倍的怪物炸毛。原来团子也想保护她。', end: '团子，我们找到妈妈了喵……以后，换我们一起保护她。', builds: [['扑击', '团子当主攻，配合扑击目标打出加成。', ['大猫扑杀', '夹击', '追踪哨', '绕背']], ['护卫', '团子替你挡刀，再把挡下的伤害还回去。', ['云猫守门', '护主反扑', '掩护撤退', '不动如山']], ['照料', '保住团子让它一路长大。', ['猫薄荷', '暖窝', '绝不松手', '舔毛']]] },
+  feiyue: { diff: 2, tip: '花自己的生命换高伤害和召唤血蝠、血骑士；所有伤害都会吸一点血回来。', line: '“……血的味道，我才不喜欢。”', bio: '绯月是日本的高中生，那道光卷走的不止三个人。她一直不知道，母亲那边流着吸血鬼的血，直到古堡的血月升起，她的眼睛在黑暗里亮了起来。伯爵一眼认出了她，说这里才是她的家。她拒绝了，可每用一次这股力量，她就离人类远一点。最让她害怕的不是血，是同伴哪天也用伯爵那样的眼神看她。后来她发现，大家看她的眼神始终没变：还是那个会把最后一口水让出去的同学。', end: '我还是我。只是……以后晚上，我来守夜吧。', builds: [['鲜血', '主动献血，攒够鲜血打出爆发。', ['破脉', '血尽天明', '血祭', '血线']], ['吸血', '靠吸血把献掉的血补回来。', ['血契', '借血还血', '夜饮', '红爪']], ['蝙蝠', '放出蝙蝠叠血痕，再全部出猎。', ['万蝠降临', '翼刃', '蝠影', '响指']]] },
+  miko: { diff: 3, end: '这次换我说……谢谢你们，撑住了我。', tip: '结界越叠越厚，每回合自动加格挡。防守稳，最适合新手。', line: '“神社的铃，也能替异世界的人挡一挡灾。”', bio: '千早从小在日本的神社帮忙。祭典散场后，她常留下来收灯笼，也总记得把最靠近台阶的那盏留到最后。到了异世界，她手里的神乐铃能撑起护住同伴的结界，破魔箭能净化不死的怪物。平时她说话轻声细气，可只要还有人没撤到安全的地方，谁也劝不动她先走。一路上，最难开口的反倒是那句“我撑不住了”。她慢慢学着在手开始发抖时，就喊同伴的名字。', builds: [['结界防守流', '每回合自动叠结界，白拿格挡，稳稳磨死敌人。', ['神乐舞', '注连绳', '御神木', '护身符']], ['结界爆发流', '先把结界叠高，再一口气换成伤害。', ['破邪结界', '破魔·满月', '镇魂歌', '破魔箭']]] },
   hero: { diff: 2, end: '回家之前，谁都不许散伙——到家以后也不许。', tip: '打牌攒光弹，回合结束自动扫射。光弹越多打得越猛，规则最简单。', line: '“这关我熟！……喂，等等，咱们一起走啊。”', bio: '林拓是个爱打游戏的普通初中生。那台旧掌机的电池盖用胶带粘着，他还是天天把它塞进书包。穿越以后，掌机能射出光弹，充一次电就是装填一次弹药。他嘴上喊着“这关我熟”，等光弹打光了，才想起自己根本没问撤退路线。比起打不过的敌人，他更怕有人说“接下来各走各的”。后来有一次，他终于肯蹲在路边给掌机充电，抬头问了一句：“能等我一下吗？”', builds: [['弹幕流', '光弹越多越好，回合结束自动扫射。', ['充电', '电池扩容', '满弹连射', '全屏扫射']], ['重弹流', '光弹不用多，提高每一发的伤害。', ['双持', '超频', '速射', '连射']]] },
-  witch: { diff: 2, end: '村子里的人都回来了……原来我，也算够格了吧。', tip: '随机炼金瓶 + 剧毒，慢慢把敌人磨死。每局手感都不一样。', line: '“村子里还有人在等我。跟紧，左边那条路能上山。”', bio: '莉泽是山脚村庄的小魔女，也是个还没出师的炼金学徒。药水调得不错，毒药调得更好，就是瓶塞上的记号画得太像，有时得迎着光看半天，才敢递给同伴。村民被抓走后，她把能用的瓶瓶罐罐全塞进挎包，独自上山找帮手。她认得山上每一种草，知道哪段坡下过雨就不能走。可一到自己也没去过的岔路口，她还是习惯咬着牙挑一条。直到有一次，她把地图摊在大家中间，承认自己也拿不准。', builds: [['剧毒流', '叠毒慢慢磨，再翻倍或一次引爆。', ['疫病', '毒雾', '催化剂', '毒爆']], ['炼金瓶流', '攒很多炼金瓶，配合加成连续扔。', ['药剂腰包', '调药', '贤者之石', '炼金爆发']]] },
-  heroine: { diff: 3, end: '两只耳机都摘了。今天，我想听你们说话。', tip: '给敌人叠共鸣，满 10 层爆音。要算层数，玩好了伤害最高。', line: '“……耳机先摘一只。你们说，我在听。”', bio: '苏音总戴着一副粉色耳机，喜欢把同一段旋律反复听上好几遍。身边太吵的时候，只要把音量调高一点，她就能安静下来。到了异世界，耳机里的音乐能在敌人身上叠起共鸣，等震动积到足够强，她就踩着节拍将它引爆。队伍里数她最安静，可每次开打，大家都会下意识地等她那一拍落下来。有一回，她只顾数拍子，错过了同伴喊她的声音。从那以后，她开始把一边耳罩拨开。', builds: [['爆音流', '把共鸣叠到 10 层，反复触发爆音。', ['低频', '演唱会', '回声', '失真']], ['清算流', '不等爆音，直接把共鸣换成伤害。', ['重低音', '高音', '破音', '共鸣冲击']]] },
+  witch: { diff: 3, end: '村子里的人都回来了……原来我，也算够格了吧。', tip: '随机炼金瓶 + 剧毒，慢慢把敌人磨死。每局手感都不一样。', line: '“村子里还有人在等我。跟紧，左边那条路能上山。”', bio: '莉泽是山脚村庄的小魔女，也是个还没出师的炼金学徒。药水调得不错，毒药调得更好，就是瓶塞上的记号画得太像，有时得迎着光看半天，才敢递给同伴。村民被抓走后，她把能用的瓶瓶罐罐全塞进挎包，独自上山找帮手。她认得山上每一种草，知道哪段坡下过雨就不能走。可一到自己也没去过的岔路口，她还是习惯咬着牙挑一条。直到有一次，她把地图摊在大家中间，承认自己也拿不准。', builds: [['剧毒流', '叠毒慢慢磨，再翻倍或一次引爆。', ['疫病', '毒雾', '催化剂', '毒爆']], ['炼金瓶流', '攒很多炼金瓶，配合加成连续扔。', ['药剂腰包', '调药', '贤者之石', '炼金爆发']]] },
+  heroine: { diff: 2, end: '两只耳机都摘了。今天，我想听你们说话。', tip: '给敌人叠共鸣，满 10 层爆音。要算层数，玩好了伤害最高。', line: '“……耳机先摘一只。你们说，我在听。”', bio: '苏音总戴着一副粉色耳机，喜欢把同一段旋律反复听上好几遍。身边太吵的时候，只要把音量调高一点，她就能安静下来。到了异世界，耳机里的音乐能在敌人身上叠起共鸣，等震动积到足够强，她就踩着节拍将它引爆。队伍里数她最安静，可每次开打，大家都会下意识地等她那一拍落下来。有一回，她只顾数拍子，错过了同伴喊她的声音。从那以后，她开始把一边耳罩拨开。', builds: [['爆音流', '把共鸣叠到 10 层，反复触发爆音。', ['低频', '演唱会', '回声', '失真']], ['清算流', '不等爆音，直接把共鸣换成伤害。', ['重低音', '高音', '破音', '共鸣冲击']]] },
 };
 const ORDER = ['miko', 'hero', 'witch', 'heroine', 'erin', 'gu', 'sylvie', 'mia', 'feiyue'];
 const SOON = `<div class="reward cc soon"><div class="qm">?</div><b>？？？</b><span class="cd">即将加入</span><span class="ct">那道光里，好像还有别人的影子……</span></div>`; /* 留白：以后加角色 */
@@ -329,7 +329,7 @@ function mainMenu() {
   $('#book').onclick = () => book();
   $('#hist').onclick = runHistory; $('#achb').onclick = achScreen;
   if (!LS('tw_teleNote')) { LS('tw_teleNote', '1'); setTimeout(() => tip(tr('为了调整平衡，游戏会匿名上传每局的数据（不含名字），可以在设置里关闭')), 1200); }
-  $('#rank').onclick = rankBoard; $('#set').onclick = () => settings(false); $('#back').onclick = title;
+  $('#rank').onclick = () => rankBoard(); $('#set').onclick = () => settings(false); $('#back').onclick = title;
 }
 function askName(done) {
   if (LS('tw_name')) return done();
@@ -396,7 +396,7 @@ function dailyScreen() { const key = todayKey(), dd = dailyOf(key, ORDER.filter(
 function pickChar() {
   view.innerHTML = `${bgHTML()}<div class="panel csel"><h2>选择角色</h2><div class="row">${ORDER.map(k => { const c = CHARS[k], i = CHARINFO[k];
     const lk = c.temp && !DEBUG; return `<div class="reward cc${lk ? ' locked' : ''}" ${lk ? '' : `data-c="${k}"`}>${lk ? `<i class="lockb">${t('即将推出')}</i>` : c.temp ? `<i class="lockb">${t('测试中')}</i>` : ''}<img src="assets/${c.dir}/portrait.png"${c.tint ? ` style="filter:${c.tint}"` : ''}><b>${tr(c.name)}</b><span class="cl">${i.line}</span><span class="cd">${tr(c.desc)}</span>
-     <span class="diff">上手难度 <i>${'★'.repeat(i.diff)}${'☆'.repeat(3 - i.diff)}</i> ${['', '简单', '普通', '困难'][i.diff]}</span><span class="ct">${i.tip}</span></div>`; }).join('')}</div>
+     <span class="diff">通关难度 <i>${'★'.repeat(i.diff)}${'☆'.repeat(3 - i.diff)}</i> ${['', '简单', '普通', '困难'][i.diff]}</span><span class="ct">${i.tip}</span></div>`; }).join('')}</div>
    <div class="ascbar">进阶难度 <button class="btn" id="am">−</button><b id="av"></b><button class="btn" id="ap">＋</button><span id="ad"></span></div>
    <div class="modebar"><button class="btn gold" id="daily">${tr('每日挑战')}</button><button class="btn" id="cust">${tr('自定义模式')}</button><span id="mdx"></span></div>
    <button class="btn" id="back">返回</button></div>`;
@@ -425,7 +425,7 @@ function available() {
   const cur = R.map[R.pos.r][R.pos.c]; return cur.next.map(c => R.map[R.pos.r + 1][c]);
 }
 const NSET = () => ACT() === 2 ? 'node2' : ACT() === 3 ? 'node3' : '';
-function mapScreen() { SCREEN = 'map'; delete R.shopStock; delete R.evPick;
+function mapScreen() { if (R) preHero(R.char); SCREEN = 'map'; delete R.shopStock; delete R.evPick;
   setMusic('menu'); delete R.pending; delete R.pendEnc; delete R.snap; save();
   const ROWS = RW(), av = available(), H = ROWS * 92 + 320, LC = ACT() === 3 ? '#3c4f78' : '#5a3a1a';
   let lines = '';
@@ -758,9 +758,9 @@ const sumHTML = () => { const p = B && B.p; if (!p || (!p.big && !p.bats)) retur
 const catHTML = () => { const c = B && B.p && B.p.cat; if (!c || (c.merged && !c.down)) return ''; return `<div class="catw"><img class="catspr ${c.down ? 'down' : ''}" src="${catFrame()}" style="height:${CATH[(R.cat && R.cat.lv) || 1]}px"><div class="cathp"><i style="width:${Math.max(0, c.hp) / c.max * 100}%"></i><span>${Math.max(0, c.hp)}/${c.max}</span></div></div>`; };
 const HA = { idle: [4, 200, 1], shoot: [4, 75, 0], hurt: [2, 130, 0], block: [1, 380, 0], down: [3, 220, 2], xform: [1, 700, 0] }; // 帧数, 每帧毫秒, 1=循环 2=停在最后
 let hst = { n: 'idle', t: 0 };
-const heroImgs = []; const decodeAll = () => heroImgs.forEach(i => i.decode && i.decode().catch(() => {})); for (const [n, [c]] of Object.entries(HA)) for (let k = 0; k < c; k++) { if (n === 'xform') continue; for (const c of Object.values(CHARS)) { const im = new Image(); im.src = `assets/${c.dir}/${n}${k}.png`; heroImgs.push(im); } }
-setTimeout(decodeAll, 500);
-const extraImgs = []; const preloadExtra = ch => { if (ch === 'sylvie') ['idle0', 'idle1', 'idle2', 'idle3', 'shoot0', 'shoot1', 'shoot2', 'shoot3', 'hurt0', 'hurt1', 'block0', 'xform0'].forEach(n => { const im = new Image(); im.src = `assets/sylvie_dragon/${n}.png`; extraImgs.push(im); }); if (ch === 'mia') ['idle0', 'idle1', 'idle2', 'idle3', 'shoot0', 'shoot1', 'shoot2', 'shoot3', 'hurt0', 'hurt1', 'block0', 'down0', 'down1', 'down2'].forEach(n => { const im = new Image(); im.src = `assets/mia_merge/${n}.png`; extraImgs.push(im); }); if (ch === 'feiyue') ['knight_idle0', 'knight_idle1', 'knight_idle2', 'knight_idle3', 'knight_atk0', 'knight_atk1', 'knight_atk2', 'knight_atk3', 'bats_idle0', 'bats_idle1', 'bats_atk0', 'bats_atk1'].forEach(n => { const im = new Image(); im.src = `assets/feiyue_summon/${n}.png`; extraImgs.push(im); }); if (ch === 'mia') for (const lv of [1, 2, 3]) for (const n of ['idle0', 'idle1', 'atk', 'hit']) { const im = new Image(); im.src = `assets/dango/lv${lv}_${n}.png`; extraImgs.push(im); } };
+/* 只预载当前角色的立绘帧（以前开页面就把 9 个角色约 20MB 全下完再解码，菜单会很卡） */
+const heroImgs = [], heroDone = new Set(); const preHero = ch => { const c = CHARS[ch]; if (!c || heroDone.has(ch)) return; heroDone.add(ch); for (const [n, [cnt]] of Object.entries(HA)) for (let k = 0; k < cnt; k++) { if (n === 'xform') continue; const im = new Image(); im.src = `assets/${c.dir}/${n}${k}.png`; heroImgs.push(im); im.decode && im.decode().catch(() => {}); } };
+const extraImgs = []; const preloadExtra = ch => { preHero(ch); if (ch === 'sylvie') ['idle0', 'idle1', 'idle2', 'idle3', 'shoot0', 'shoot1', 'shoot2', 'shoot3', 'hurt0', 'hurt1', 'block0', 'xform0'].forEach(n => { const im = new Image(); im.src = `assets/sylvie_dragon/${n}.png`; extraImgs.push(im); }); if (ch === 'mia') ['idle0', 'idle1', 'idle2', 'idle3', 'shoot0', 'shoot1', 'shoot2', 'shoot3', 'hurt0', 'hurt1', 'block0', 'down0', 'down1', 'down2'].forEach(n => { const im = new Image(); im.src = `assets/mia_merge/${n}.png`; extraImgs.push(im); }); if (ch === 'feiyue') ['knight_idle0', 'knight_idle1', 'knight_idle2', 'knight_idle3', 'knight_atk0', 'knight_atk1', 'knight_atk2', 'knight_atk3', 'bats_idle0', 'bats_idle1', 'bats_atk0', 'bats_atk1'].forEach(n => { const im = new Image(); im.src = `assets/feiyue_summon/${n}.png`; extraImgs.push(im); }); if (ch === 'mia') for (const lv of [1, 2, 3]) for (const n of ['idle0', 'idle1', 'atk', 'hit']) { const im = new Image(); im.src = `assets/dango/lv${lv}_${n}.png`; extraImgs.push(im); } };
 let wasDragon = 0;
 function heroAct(n) { if (hst.n === 'down') return; if (n === 'block' && hst.n === 'shoot') return; hst = { n, t: performance.now() }; }
 function heroFrame() {
@@ -1279,7 +1279,7 @@ function endScreen(win) {
    ${news.map(t => `<p class="endsub" style="color:#7fe07f">★ ${t}</p>`).join('')}
    <p id="sc" class="endsub" style="color:#ffd35a">${DEBUG ? '调试模式，成绩不记录' : !ONLINE ? '试玩链接不记录成绩' : LS('tw_name') ? '正在提交成绩……' : ''}</p>
    <div class="row"><button class="btn big" id="again">主菜单</button><button class="btn" id="rk2">排行榜</button></div></div>`;
-  $('#again').onclick = mainMenu; $('#rk2').onclick = rankBoard;
+  $('#again').onclick = mainMenu; $('#rk2').onclick = () => rankBoard();
   submitScore(win).then(d => { const e = $('#sc'); if (!e || !d) return; e.textContent = d.ok ? `已记入排行榜（${LS('tw_name')}）` : `没能上榜：${d.error}`; });
 }
 
