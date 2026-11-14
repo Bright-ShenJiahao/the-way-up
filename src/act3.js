@@ -115,7 +115,7 @@ export const E3 = {
       compile: { n: '编译中', i: 'buff', f: e => { e.chg = 1; e.st.chg = 1; e.pose = 'charge'; } },
       deploy: { n: '部署', i: 'atk', d: 45 }, fail: { n: '编译失败', i: 'atk', d: 8 },
       spawn: { n: '召唤测试用例', i: 'summon', f: (e, B) => { e.pose = 'cast'; for (const k of ['gob_king', 'wolf_lord']) { const m = B.summon(k, 30); if (m) { m.mini = 1; m.hd = 180; m.st = {}; } } B.say('「跑一下测试用例。」'); } },
-      hotfix: { n: '热修复', i: 'buff', f: (e, B) => { e.pose = 'cast'; for (const k of ['poison', 'weak', 'vuln', 'res', 'fburn']) delete e.st[k]; B.healE(e, Math.floor(e.max * .1)); B.say('「打个热补丁。」'); } } },
+      hotfix: { n: '热修复', i: 'buff', f: (e, B) => { e.pose = 'cast'; for (const k of ['poison', 'weak', 'vuln', 'res']) delete e.st[k]; B.healE(e, Math.floor(e.max * .1)); B.say('「打个热补丁。」'); } } },
     onPTurn: (e, B) => { e.bugT = 0; e.cc = 0; if (e.rbT) e.rbT--;
       if (e.pend === 'bp') { const n = B.sealType(e, e.bpT); B.say(n ? `「「${n}」这里下个断点。」` : '「断点……没打中？」'); }
       if (e.pend === 'rm') { const n = B.exhRand(1); if (n) B.say(`「「${n}」，rm -rf。」`); }
