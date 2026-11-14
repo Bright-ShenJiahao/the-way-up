@@ -1,9 +1,9 @@
-import { tr } from './i18n.js?v=live2_11141535';
-import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11141535';
+import { tr } from './i18n.js?v=live2_11141620';
+import { E3, S3, R3, ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './act3.js?v=live2_11141620';
 export { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 };
-import { R2, P2, EV1B, EV2B, EV3B, setPotPool } from './content2.js?v=live2_11141535';
-import { EV1C, EV2C, EV3C } from './meta.js?v=live2_11141535';
-import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11141535';
+import { R2, P2, EV1B, EV2B, EV3B, setPotPool } from './content2.js?v=live2_11141620';
+import { EV1C, EV2C, EV3C } from './meta.js?v=live2_11141620';
+import { NEWCARDS, NEWRELICS, NEWSTATUS, NEWSTARTERS, NEWSTARTRELIC, NEWKEYW, OLDKEYW, MECH, bindCards } from './chars.js?v=live2_11141620';
 export { MECH, NEWKEYW, OLDKEYW };
 // 数据：卡牌 / 秘宝 / 敌人 / 遭遇 / 事件
 // 卡牌 play(g,u,t)：g=战斗接口，u=是否升级(0/1)，t=目标敌人
