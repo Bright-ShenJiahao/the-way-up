@@ -106,8 +106,8 @@ export const E3 = {
     onDie: (e, B) => B.say('「行，你们比我会玩。……不过门那边漏出来的东西，我也没写过。小心。」'),
     ai: (e, B) => { const m = cycle(e, ['peek', 'keys', 'swap', 'del', 'patch', 'flip', 'debug']); return m === 'debug' && B.alive().some(a => a.mini) ? 'demand' : m; } },
   /* ---------- 真结局 Boss：开发者 · debug 状态（三把钥匙才会遇到） ---------- */
-  dev_debug: { name: '开发者 · debug 状态', hd: 300, hp: [500, 500], sc: 2.7, boss: 1, brk: 40, art: 'dev_debug', poses: ['cast', 'charge', 'stun'],
-    lore: '打开了调试模式的开发者。会给一种牌下「断点」（你手里那种牌有一张这回合打不出），「rm -rf」会把你一张手牌删到本场战斗结束，「编译」一回合后打出 45 点——编译那回合打他 40 点以上就能打断。半血进入蓝屏：力量 +4，每回合往你弃牌堆塞「报错」。弱点不变：一回合打出 3 张 0 费牌或 6 张牌，他会程序崩溃晕一回合；但崩溃后会自动重启，之后 2 回合不会再崩溃。',
+  dev_debug: { name: '开发者 · debug 状态', hd: 300, hp: [650, 650], sc: 2.7, boss: 1, brk: 40, art: 'dev_debug', poses: ['cast', 'charge', 'stun'],
+    lore: '打开了调试模式的开发者。会给一种牌下「断点」（你手里那种牌有一张这回合打不出），「rm -rf」会把你一张手牌删到本场战斗结束，「编译」一回合后打出 45 点——编译那回合打他 40 点以上就能打断。每 3 回合力量 +2（加班）。半血进入蓝屏：力量 +4，每回合往你弃牌堆塞「报错」。弱点不变：一回合打出 3 张 0 费牌或 6 张牌，他会程序崩溃晕一回合；但崩溃后会自动重启，之后 2 回合不会再崩溃。',
     intro: '「debug 模式已开启。这次，我用管理员权限跟你们打。」',
     moves: { bpA: { n: '断点：攻击', i: 'defdebuff', f: (e, B) => { B.eBlock(e, 15); e.pend = 'bp'; e.bpT = 'atk'; e.pose = 'cast'; } },
       bpS: { n: '断点：技能', i: 'defdebuff', f: (e, B) => { B.eBlock(e, 15); e.pend = 'bp'; e.bpT = 'skill'; e.pose = 'cast'; } },
@@ -122,7 +122,7 @@ export const E3 = {
       e.pend = null; },
     onCard: (e, type, B) => { e.cc = (e.cc || 0) + 1; if (!e.bugT && !e.stun && !e.rbT && (B.zc() >= 3 || e.cc >= 6)) { e.bugT = 1; e.stun = 1; e.rbT = 3; B.say('「程序崩溃了？！」'); } },
     onHurt: (e, B) => { if (!e.z && e.hp > 0 && e.hp <= e.max / 2) { e.z = 1; e.ci = 0; B.addSt(e, 'str', 4); for (const m of B.alive()) if (m.mini) B.kill(m); B.say('「……蓝屏了。没关系，蓝屏我也能打。」'); } },
-    onTurn: (e, B) => { B.unseal(e); if (e.z) B.addCard('bugcard', 1);
+    onTurn: (e, B) => { B.unseal(e); if (e.z) B.addCard('bugcard', 1); if (e.turn > 0 && e.turn % 3 === 0 && e.otT !== e.turn) { e.otT = e.turn; B.addSt(e, 'str', 2); B.say('「又改了一版需求……」'); }
       if (e.stun) { e.stun = 0; e.pose = 'stun'; if (e.move === 'deploy') { e.chg = 0; delete e.st.chg; e.move = 'fail'; } return 'skip'; }
       if (e.move === 'deploy') { const ok = e.chg && (e.dmgT || 0) < e.d.brk; e.chg = 0; delete e.st.chg; if (!ok) { e.move = 'fail'; B.say('「编译失败？！」'); } }
       e.pose = null; },

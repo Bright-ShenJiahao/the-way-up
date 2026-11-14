@@ -1269,7 +1269,7 @@ function endScreen(win) {
   if (!DEBUG) { M.xp += total; if (win && ACT() >= 2 && (R.asc || 0) >= (M.asc[R.char] || 0) && (M.asc[R.char] || 0) < 15) { M.asc[R.char] = (R.asc || 0) + 1; } metaSet(M); }
   const nx = UNLOCKS.find(u => M.xp < u.xp), left = UNLOCKS.filter(u => M.xp < u.xp).length;
   view.innerHTML = `${win && ACT() === 3 ? bgHTML(true, R.trueEnd ? trueArt() : homeArt()) : win && ACT() === 2 ? bgHTML(true, 'story_end2') : bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
-   <p class="endsub" data-noi18n>${R.trueEnd ? `${t('开发者合上了电脑。这一次，是真的回家了。')}<br><b style="color:#ffe08a">${t('真结局 · 感谢游玩！')}</b>` : ACT() === 4 ? `${t('在天外之塔爬到了第 {0} 轮。', R.endless || 1)}<br><b style="color:#ffe08a">${t('感谢游玩！')}</b>` : win && ACT() === 3 ? `${t('深渊之主倒下了，回家的门打开了。')}<br><b style="color:#ffe08a">${t('全部通关 · 感谢游玩！')}</b>` : win && ACT() === 2 ? `${t('{0}化为了灰烬，古堡的血月熄灭了。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第二章完 · 感谢游玩！')}</b>${t('山顶上，还有更深的黑暗在等待……')}` : win ? `${t('{0}倒下了，翠绿之地恢复了平静。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第一章完 · 感谢游玩！')}</b>${t('远处山顶的古堡，亮起了血红的光……')}<br><b style="color:#ff8a8a">${t('第二章：血月古堡（制作中）')}</b>` : t(ACT() === 3 ? '{0}倒在了永冬之巅第 {1} 层。' : ACT() === 2 ? '{0}倒在了血月古堡第 {1} 层。' : '{0}倒在了翠绿之地第 {1} 层。', tr(CHARS[R.char || 'hero'].name), R.floor)}</p>
+   <p class="endsub" data-noi18n>${R.trueEnd ? `${t('开发者合上了电脑。这一次，是真的回家了。')}<br><b style="color:#ffe08a">${t('真结局 · 感谢游玩！')}</b>` : ACT() === 4 ? `${t('在天外之塔爬到了第 {0} 轮。', R.endless || 1)}<br><b style="color:#ffe08a">${t('感谢游玩！')}</b>` : win && ACT() === 3 ? `${t('深渊之主倒下了，回家的门打开了。')}<br><b style="color:#ffe08a">${t('全部通关 · 感谢游玩！')}</b>` : win && ACT() === 2 ? `${t('{0}化为了灰烬，古堡的血月熄灭了。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第二章完 · 感谢游玩！')}</b>${t('山顶上，还有更深的黑暗在等待……')}` : win ? `${t('{0}倒下了，翠绿之地恢复了平静。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第一章完 · 感谢游玩！')}</b>${t('远处山顶的古堡，亮起了血红的光……')}` : t(ACT() === 3 ? '{0}倒在了永冬之巅第 {1} 层。' : ACT() === 2 ? '{0}倒在了血月古堡第 {1} 层。' : '{0}倒在了翠绿之地第 {1} 层。', tr(CHARS[R.char || 'hero'].name), R.floor)}</p>
    ${win && ACT() === 3 && CH3END[R.char] ? `<p class="endsub endq"><b>${CHARS[R.char].name}</b>：“<span>${tr(CH3END[R.char])}</span>”</p>` : ''}${win && ACT() === 2 && CHARINFO[R.char] && CHARINFO[R.char].end ? `<p class="endsub endq"><b>${CHARS[R.char].name}</b>：“<span>${CHARINFO[R.char].end}</span>”</p>` : ''}
    <table class="score">${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}<tr class="tot"><td>分数</td><td>${total}</td></tr></table>
    ${news.map(t => `<p class="endsub" style="color:#7fe07f">★ ${t}</p>`).join('')}
@@ -1287,19 +1287,21 @@ const KWS = { '结界': '叠在自己身上，每回合开始按层数自动获�
   '中毒': '敌人行动前掉等于层数的血（无视格挡），然后层数 -1。', '炼金瓶': '由其他牌生成的 0 费牌，用一次就没了。' };
 function kwList(c) { const d = CARDS[c.id], s = d.desc(c.up) + (d.potion ? tr('炼金瓶') : '') + (d.type === 'power' ? tr('能力') : ''); const all = Object.assign({}, KW, KWS, { '能力': '打出后整场战斗持续生效。' }); return Object.keys(all).filter(k => s.includes(tr(k))).map(k => [tr(k), tr(all[k])]); }
 let kwTimer = 0;
+/* 手机上长按商店 / 奖励 / 牌组里的卡：放大预览整张牌 */
+function cardPrev(el) { if (!TOUCH || el.closest('#hand')) return; $('#cprev')?.remove(); const d = document.createElement('div'); d.id = 'cprev'; const c = el.cloneNode(true); c.removeAttribute('id'); d.appendChild(c); stage.appendChild(d); }
 function kwShow(el) { if (!SET.kwtip) return; const c = { id: el.dataset.cid, up: +el.dataset.up }; if (!CARDS[c.id]) return; const L = kwList(c); kwHide(); if (!L.length) return;
   const s = stage._s || 1, sr = stage.getBoundingClientRect(), r = el.getBoundingClientRect(), b = document.createElement('div'); b.id = 'kwtip';
-  b.innerHTML = L.map(([k, v]) => `<p><b>${k}</b>${v}</p>`).join('') + '<i>设置里可关闭提示</i>'; stage.appendChild(b);
+  b.innerHTML = L.map(([k, v]) => `<p><b>${k}</b>${v}</p>`).join('') + `<i>${tr('设置里可关闭提示')}</i>`; stage.appendChild(b);
   let x = (r.right - sr.left) / s + 8, y = (r.top - sr.top) / s; if (x + 230 > SW) x = (r.left - sr.left) / s - 238; y = Math.max(50, Math.min(y, 720 - b.offsetHeight - 8)); b.style.left = x + 'px'; b.style.top = y + 'px'; }
 function tipShow(el, text) { kwHide(); const s = stage._s || 1, sr = stage.getBoundingClientRect(), r = el.getBoundingClientRect(), b = document.createElement('div'); b.id = 'kwtip';
   b.innerHTML = text.split('\n').map(t => `<p>${esc(t)}</p>`).join(''); stage.appendChild(b);
   let x = (r.left + r.width / 2 - sr.left) / s - b.offsetWidth / 2, y = (r.bottom - sr.top) / s + 6; x = Math.max(8, Math.min(x, SW - b.offsetWidth - 8)); if (y + b.offsetHeight > 712) y = (r.top - sr.top) / s - b.offsetHeight - 6;
   b.style.left = x + 'px'; b.style.top = y + 'px'; kwTimer = setTimeout(kwHide, 4000); }
 if (TOUCH) stage.addEventListener('click', e => { const el = e.target.closest && e.target.closest('.sts b[title], .intent[title]'); if (!el) return; e.stopPropagation(); tipShow(el, el.title); }, true);
-function kwHide() { clearTimeout(kwTimer); $('#kwtip')?.remove(); }
+function kwHide() { clearTimeout(kwTimer); $('#kwtip')?.remove(); $('#cprev')?.remove(); }
 stage.addEventListener('mouseover', e => { const el = e.target.closest && e.target.closest('.card[data-cid]'); if (el && e.pointerType !== 'touch') kwShow(el); });
 stage.addEventListener('mouseout', e => { const el = e.target.closest && e.target.closest('.card[data-cid]'); if (el && !el.contains(e.relatedTarget)) kwHide(); });
-stage.addEventListener('touchstart', e => { const el = e.target.closest && e.target.closest('.card[data-cid]'); if (el) kwTimer = setTimeout(() => kwShow(el), 380); }, { passive: true });
+stage.addEventListener('touchstart', e => { const el = e.target.closest && e.target.closest('.card[data-cid]'); if (el) kwTimer = setTimeout(() => { kwShow(el); cardPrev(el); }, 380); }, { passive: true });
 stage.addEventListener('touchend', e => { if (e.target.closest && e.target.closest('.sts b[title], .intent[title]')) return; clearTimeout(kwTimer); setTimeout(kwHide, 1500); });
 stage.addEventListener('click', e => { if (!(TOUCH && e.target.closest && e.target.closest('.sts b[title], .intent[title]'))) kwHide(); }, true);
 

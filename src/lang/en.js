@@ -233,7 +233,7 @@ export default {
 "<b>格挡</b>能挡住伤害，但只挡这一轮，你的回合开始时会清零。血条下面会提示你这回合还会受到多少伤害。": "<b>Block</b> stops damage but resets at the start of your turn. Under your HP bar you'll see how much damage is coming.",
 "有的攻击牌要选目标：点牌，再点敌人。出完牌，点右边的「结束回合」。": "Some attacks need a target: tap the card, then an enemy. When done, press \"End Turn\" on the right.",
 "请把手机横过来玩": "Please rotate your phone",
-"设置里可关闭提示": "Can be turned off in Settings",
+"设置里可关闭提示": "You can turn these off in Settings",
 "输入你的名字（可不填）": "Your name (optional)",
 "重看新手教程": "Replay tutorial",
 "下一场战斗开始时会重新显示教程": "The tutorial will show at the next battle",
