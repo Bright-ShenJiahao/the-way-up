@@ -1,9 +1,9 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11141335';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11141335';
-import { createAudio } from './audio.js?v=live2_11141335';
-import { BLESS_FREE, BLESS_COST, ASC2, MODS, ACH, hashSeed, mulberry, todayKey, dailyOf } from './meta.js?v=live2_11141335';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11141335';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11141345';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11141345';
+import { createAudio } from './audio.js?v=live2_11141345';
+import { BLESS_FREE, BLESS_COST, ASC2, MODS, ACH, hashSeed, mulberry, todayKey, dailyOf } from './meta.js?v=live2_11141345';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11141345';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -878,7 +878,7 @@ function render() {
     return `<div class="unit enemy ${hd ? 'hd' : ''} ${tg ? 'tg' : ''} ${hs.has(e.id) ? 'hit' : ''} ${B.lunge === e.id ? 'lunge' : ''} ${e.dead ? 'dead' : ''}" data-id="${e.id}" data-eid="${e.id}">
       ${e.dead ? '<div class="intent"></div>' : intentHTML(e)}
       <div class="sprw" ${ENEMIES[e.key].hdw ? `style="width:${ENEMIES[e.key].hdw}px"` : ''}>${hd ? `<img class="spr" decoding="async" data-eid="${e.id}" src="${eFrame(e)}" style="height:${hd}px${tint ? ';filter:' + tint : ''}">` : `<img class="spr px" data-k="${e.key}" src="assets/enemies/${e.key}/${img}.png" style="zoom:${h}">`}<i class="shd"></i></div>
-      ${barHTML(e.hp, e.max, e.block)}${stsHTML(e.st)}<div class="uname">${e.d.name}</div>${(e.key === 'dev_boss' || e.key === 'dev_debug') && !e.dead && !e.bugT ? `<div class="crashc">${tr('离崩溃：出牌')} ${e.cc || 0}/6 · ${tr('0 费牌')} ${Math.min(3, B.p.zc || 0)}/3</div>` : ''}</div>`;
+      ${barHTML(e.hp, e.max, e.block)}${stsHTML(e.st)}<div class="uname">${e.d.name}</div>${(e.key === 'dev_boss' || e.key === 'dev_debug') && !e.dead && !e.bugT ? `<div class="crashc">${e.rbT ? `${tr('重启保护：还剩回合')} ${e.rbT}` : `${tr('离崩溃：出牌')} ${e.cc || 0}/6 · ${tr('0 费牌')} ${Math.min(3, B.p.zc || 0)}/3`}</div>` : ''}</div>`;
   }).join('');
   const HZ = TOUCH ? 1.45 : 1, energy = B.p.energy, n = B.hand.length, W = TOUCH ? (SW - 560) / HZ : SW - 300, cw = 150, gap = Math.min(cw + 6, (W - cw) / Math.max(1, n - 1));
   const x0 = TOUCH ? (SW / HZ - (gap * (n - 1) + cw)) / 2 : (W - (gap * (n - 1) + cw)) / 2;

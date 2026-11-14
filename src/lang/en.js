@@ -3660,5 +3660,7 @@ export default {
 "矮人请你喝了口热汤，你坐着歇了一会儿。": "The dwarf shares some hot soup, and you sit and rest a while.",
 "商人连声道谢，塞给你一袋零钱。": "The merchant thanks you again and again and presses a pouch of coins into your hand.",
 "开局金币 {0}": "Starting gold {0}",
-"所有 Boss 开局有 {0} 点力量、生命 {1}": "All bosses start with {0} Strength and {1} HP"
+"所有 Boss 开局有 {0} 点力量、生命 {1}": "All bosses start with {0} Strength and {1} HP",
+"重启保护：还剩回合": "Rebooting — turns left:",
+"打开了调试模式的开发者。会给一种牌下「{0}」（你手里那种牌有一张这回合打不出），「{1}」会把你一张手牌删到本场战斗结束，「{2}」一回合后打出 {3} 点——编译那回合打他 {4} 点以上就能打断。半血进入蓝屏：力量 {5}，每回合往你弃牌堆塞「{6}」。弱点不变：一回合打出 {7} 张 {8} 费牌或 {9} 张牌，他会程序崩溃晕一回合；但崩溃后会自动重启，之后 {10} 回合不会再崩溃。": "The Developer with debug mode on. He sets a 「{0}」 on a card type (one such card in your hand can't be played this turn), 「{1}」 removes a card from your hand for the rest of the combat, and 「{2}」 hits for {3} a turn later—deal {4}+ damage during the compile turn to interrupt it. At half HP he bluescreens: {5} Strength, and adds an 「{6}」 to your discard pile every turn. Same weakness: play {7} cards costing {8} or {9} cards in one turn and he crashes, stunned for a turn. But he reboots after a crash and can't crash again for the next {10} turns."
 };
