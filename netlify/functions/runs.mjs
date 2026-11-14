@@ -19,6 +19,8 @@ export default async function handler(req) {
   if (req.method === 'GET') { try { const k = new URL(req.url).searchParams.get('since') || ''; if (SUM[k] && Date.now() - SUM[k].t < 300000) return json(SUM[k].v); const v = await summary(store, k); SUM[k] = { t: Date.now(), v }; return json(v); } catch (e) { return json({ ok: false }, 500); } }
   if (+(req.headers.get('content-length') || 0) > 20000) return json({ ok: false }, 413);
   if (req.method !== 'POST') return json({ ok: false }, 405);
+  /* 只收本游戏页面发来的 JSON（挡掉跨站的简单表单请求） */
+  if (!ok(o) || !/application\/json/.test(req.headers.get('content-type') || '')) return json({ ok: false }, 403);
   let b; try { const tx = await req.text(); if (tx.length > 20000) return json({ ok: false }, 413); b = JSON.parse(tx); } catch { return json({ ok: false }, 400); }
   /* 频率限制：同一 IP 每分钟最多 6 条 */
   const ip = (req.headers.get('x-nf-client-connection-ip') || req.headers.get('x-forwarded-for') || 'x').split(',')[0].trim(), rk = `rl:${ip}`, now = Date.now();
@@ -29,6 +31,8 @@ export default async function handler(req) {
     win: !!b.win, act: int(b.act, 1, 5), king: !!b.king, trueEnd: !!b.trueEnd, endless: int(b.endless, 0, 50), floor: int(b.floor, 0, 400), by: ids(b.by, 6), deck: ids(b.deck, 90), relics: ids(b.relics, 60),
     picks: (Array.isArray(b.picks) ? b.picks : []).slice(-80).map(p => ({ f: int(p && p.f, 0, 400), o: ids(p && p.o, 5), p: p && p.p ? id(p.p) : null })),
     hp: (Array.isArray(b.hp) ? b.hp : []).slice(-80).map(x => [int(x && x[0], 0, 400), int(x && x[1], 0, 400), id(x && x[2])]), dur: int(b.dur, 0, 86400 * 3), keys: ids(b.keys, 3), at: now };
+  /* 前后矛盾的数据不收：真结局必须是通关；通关至少爬过一整章；章节和层数要对得上 */
+  if ((r.trueEnd && !r.win) || (r.king && !r.win) || (r.win && r.floor < 15) || r.floor < (r.act - 1) * 15 || r.floor > r.act * 20 + r.endless * 20) return json({ ok: false }, 422);
   const d = new Date(now).toISOString().slice(0, 10).replace(/-/g, '');
   await store.set(`r:${d}:${now}-${Math.random().toString(36).slice(2, 8)}`, JSON.stringify(r));
   return json({ ok: true });

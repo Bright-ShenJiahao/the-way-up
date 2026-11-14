@@ -678,11 +678,13 @@ export const MECH = {
   },
   /* 敌人攻击打到玩家：格挡之前（团子护卫） */
   /* 只读估算：下回合敌人攻击扣掉护卫、式神、血骑士、减伤之后还剩多少（不改任何状态，给血条提示用） */
-  estimate(g, hits) { const p = P(g), c = p.cat; let shiki = p.st.shiki || 0, knight = p.big && p.big.kind === 'knight' && !p.bigG ? p.big.hp : 0, guard = c && !c.down && !c.merged && (c.cmd === 'guard' || p.st.mtwin) && c.guardOn ? Math.min(5 + (c.gB || 0) + (c.gP || 0) + (p.st.mgate ? 3 : 0) + (p.mount ? p.mountB || 8 : 0), c.hp) : 0, t = 0;
-    for (const { amt: a0, e } of hits) { let amt = a0; if (p.rage && amt > 0) amt = Math.ceil(amt * 1.5); if (shiki > 0 && amt > 0) { shiki--; continue; }
+  /* 只读的伤害预估；传 blk 时返回扣完格挡后真正掉的血 */
+  estimate(g, hits, blk) { const p = P(g), c = p.cat; let sc = p.st.scale || 0, loss = 0, shiki = p.st.shiki || 0, knight = p.big && p.big.kind === 'knight' && !p.bigG ? p.big.hp : 0, guard = c && !c.down && !c.merged && (c.cmd === 'guard' || p.st.mtwin) && c.guardOn ? Math.min(5 + (c.gB || 0) + (c.gP || 0) + (p.st.mgate ? 3 : 0) + (p.mount ? p.mountB || 8 : 0), c.hp) : 0, t = 0;
+    for (const { amt: a0, e, br } of hits) { let amt = a0; if (sc && amt > 0) { const raw = amt; amt = Math.max(Math.ceil(amt / 2), amt - sc); if (raw >= 10) sc--; } if (p.rage && amt > 0) amt = Math.ceil(amt * 1.5); if (shiki > 0 && amt > 0) { shiki--; continue; }
       if (e) { if (e.cutH) amt = Math.floor(amt / 2); if (e.cutS) amt = Math.max(0, amt - e.cutS); if (p.st.permaf && e.st && e.st.fburn) amt = Math.max(0, amt - p.st.permaf); }
-      if (p.flhsD) amt = Math.floor(amt * .8); if (knight > 0 && amt > 0) { knight = 0; continue; } if (guard > 0 && amt > 0) { const k = Math.min(amt, guard); amt -= k; guard = 0; } t += amt; }
-    if (p.st.dragon && !p.drHit && t > 0) t = Math.max(0, t - 4); return t; },
+      if (p.flhsD) amt = Math.floor(amt * .8); if (knight > 0 && amt > 0) { knight = 0; continue; } if (guard > 0 && amt > 0) { const k = Math.min(amt, guard); amt -= k; guard = 0; } t += amt;
+      if (blk != null) { const hf = br && blk > 1 ? Math.floor(blk / 2) : 0, use = Math.min(blk - hf, amt); blk -= use; loss += amt - use; } }
+    if (blk != null) t = loss; if (p.st.dragon && !p.drHit && t > 0) t = Math.max(0, t - 4); return t; },
   preBlock(g, amt, e) { const p = P(g), c = p.cat;
     if (p.rage && amt > 0) amt = Math.ceil(amt * 1.5);
     if (e && amt > 0 && p.st.shiki) { p.st.shiki--; if (!p.st.shiki) delete p.st.shiki; g.note(`式神挡下了 ${amt}`); if (p.st.shikiR) g.kek(2); return 0; }

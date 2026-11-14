@@ -1,9 +1,9 @@
 // 异世界幸存者 · 卡牌篇 —— 主逻辑（玩法照搬杀戮尖塔第一幕）
-import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11141420';
-import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11141420';
-import { createAudio } from './audio.js?v=live2_11141420';
-import { BLESS_FREE, BLESS_COST, ASC2, MODS, ACH, hashSeed, mulberry, todayKey, dailyOf } from './meta.js?v=live2_11141420';
-import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11141420';
+import { ENC3, EV3, FINAL3, TRIALS, CORE3, endlessMul, RIFT, ENC3X, GATE3 } from './data.js?v=live2_11141600';
+import { MECH, STARTRELIC, RULES, isFury, EVENTS2, ENCOUNTERS2, CARDS, STARTERS, RELICS, POTIONS, STATUS, ENEMIES, ENCOUNTERS, EVENTS } from './data.js?v=live2_11141600';
+import { createAudio } from './audio.js?v=live2_11141600';
+import { BLESS_FREE, BLESS_COST, ASC2, MODS, ACH, hashSeed, mulberry, todayKey, dailyOf } from './meta.js?v=live2_11141600';
+import { t, tr, getLanguage, setLanguage, onLanguageChange, watch, missing } from './i18n.js?v=live2_11141600';
 
 const $ = s => document.querySelector(s);
 const view = $('#view'), fxl = $('#fx'), stage = $('#stage');
@@ -77,11 +77,11 @@ function achScreen() { const got = metaGet().ach || {}, n = ACH.filter(a => got[
 /* ---------- 开局祝福 ---------- */
 const CHARKW = { hero: ['光弹'], heroine: ['共鸣', '爆音'], miko: ['结界'], witch: ['炼金瓶', '中毒'], erin: [], gu: ['飞剑'], sylvie: ['龙血', '霜灼'], mia: ['团子'], feiyue: ['血蝠'] };
 /* 每个角色第一次出发时弹一页机制说明（之后可以在图鉴里看） */
-function charIntro(done) { const M = metaGet(); M.cintro = M.cintro || {}; if (M.cintro[R.char] || !CHARINFO[R.char]) return done(); M.cintro[R.char] = 1; metaSet(M);
+function charIntro(done) { const M = metaGet(); M.cintro = M.cintro || {}; if (M.cintro[R.char] || !CHARINFO[R.char]) return done();
   const i = CHARINFO[R.char], kws = (CHARKW[R.char] || []).filter(k => KW[k]);
   const o = overlay(`<div class="panel" style="width:min(680px,92vw);max-height:92vh;overflow-y:auto;text-align:left"><h2 style="text-align:center">${tr(CHARS[R.char].name)}</h2><p>${tr(i.tip)}</p>${kws.map(k => `<p><b style="color:#ffd35a">${tr(k)}</b>：${tr(KW[k])}</p>`).join('')}
    ${i.builds ? `<p style="margin-top:8px"><b>${tr('推荐流派')}</b></p>${i.builds.map(b => `<p>· <b>${tr(b[0])}</b>：${tr(b[1])}</p>`).join('')}` : ''}<div class="row" style="justify-content:center"><button class="btn gold" id="cix">${tr('明白了')}</button></div></div>`);
-  o.querySelector('#cix').onclick = () => { o.remove(); done(); }; }
+  o.querySelector('#cix').onclick = () => { const M2 = metaGet(); M2.cintro = M2.cintro || {}; M2.cintro[R.char] = 1; metaSet(M2); o.remove(); done(); }; }
 function blessScreen() { if (!R.ciShown) { R.ciShown = 1; return charIntro(blessScreen); } SCREEN = 'bless'; B = null; R.wait = 'bless';
   if (!R.blessOpts) R.blessOpts = SR(() => { const f = shuffle(Object.keys(BLESS_FREE)).slice(0, 2), c = pickOne(Object.keys(BLESS_COST)); return [...f, c]; });
   save(); setMusic('menu');
@@ -112,7 +112,9 @@ const mine = d => (!d.ch || d.ch === (R.char || 'hero')) && (!d.act2 || (R && R.
 addEventListener('storage', e => { if (e.key === 'theway_run_v2' && R && SCREEN !== 'menu' && SCREEN !== 'title') { tip(tr('存档在另一个标签页里被改动了，这里先回到主菜单')); B = null; R = null; mainMenu(); } }); /* 同一存档开两个标签页时不互相覆盖 */
 function save() { try { localStorage.setItem('theway_run_v2', JSON.stringify(R)); } catch (e) {} }
 function clearSave() { try { localStorage.removeItem('theway_run_v2'); } catch (e) {} }
-function load() { try { const s = JSON.parse(localStorage.getItem('theway_run_v2')); if (s) { if (!CHARS[s.char] || !Array.isArray(s.deck) || !Array.isArray(s.map)) return null; s.potions = (s.potions || []).filter(p => POTIONS[p]); s.deck = s.deck.filter(c => CARDS[c.id]); s.relics = (s.relics || []).filter(r => RELICS[r]); uidN = 1 + Math.max(0, ...s.deck.map(c => c.uid)); s.act = [1, 2, 3, 4].includes(s.act) ? s.act : 1; if (!ENEMIES[s.boss] || !ENEMIES[s.boss].boss) { const bl = (s.act === 4 ? ENCX() : s.act === 3 ? (s.rift ? RIFT : ENC3) : s.act === 2 ? ENCOUNTERS2 : ENCOUNTERS).boss.map(b => b[0]); s.boss = pickOne(bl); } s.floor = Math.max(0, Math.min((s.rows || ROWS) + 1, s.floor | 0)); } return s; } catch (e) { return null; } }
+/* 结局剧情期间先存成「待结算」：中途刷新也能回到结算页，结算完才真正清档 */
+function finSave(w) { delete R.pending; delete R.snap; delete R.loot; R.wait = 'fin'; R.finWin = w ? 1 : 0; save(); }
+function load() { try { const s = JSON.parse(localStorage.getItem('theway_run_v2')); if (s) { if (!CHARS[s.char] || !Array.isArray(s.deck) || !Array.isArray(s.map)) return null; s.potions = (s.potions || []).filter(p => POTIONS[p]); s.deck = s.deck.filter(c => CARDS[c.id]); s.relics = (s.relics || []).filter(r => RELICS[r]); uidN = 1 + Math.max(0, ...[...s.deck, ...((s.shopStock && s.shopStock.cards) || []).map(x => x && x.c).filter(Boolean)].map(c => Number(c.uid) || 0)); s.act = [1, 2, 3, 4].includes(s.act) ? s.act : 1; if (!ENEMIES[s.boss] || !ENEMIES[s.boss].boss) { const bl = (s.act === 4 ? ENCX() : s.act === 3 ? (s.rift ? RIFT : ENC3) : s.act === 2 ? ENCOUNTERS2 : ENCOUNTERS).boss.map(b => b[0]); s.boss = pickOne(bl); } s.floor = Math.max(0, Math.min((s.rows || ROWS) + 3, s.floor | 0)); } return s; } catch (e) { return null; } }
 
 // ---------- 地图生成 ----------
 const ROWS = 15, COLS = 7;
@@ -264,7 +266,7 @@ function chooseBossRelic(ids, done) { /* Boss 秘宝三选一 */
 // ---------- 玩家名字 / 口令（存在浏览器里） ----------
 const LS = (k, v) => { try { if (v === undefined) return localStorage.getItem(k) || ''; localStorage.setItem(k, v); } catch (e) { return ''; } };
 // ---------- 局外成长：进阶难度 + 解锁 ----------
-const ASC = ['标准难度', '精英血量 +15%', '普通怪血量 +10%', '敌人伤害 +10%', '开局最大生命 -8', '营火只回复 20% 生命', 'Boss 血量 +15%', '战斗金币 -30%', '敌人伤害再 +10%', '开局牌组多一张「懊悔」', '精英开局有 1 点力量', '商店价格 +20%', '药水栏只有 2 格', '每场战斗第一回合少抽 1 张牌', '营火回血再少 5 点', '所有敌人血量再 +10%'];
+const ASC = ['标准难度', '精英血量 +15%', '普通怪血量 +10%', '敌人伤害 +10%', '开局最大生命 -8', '营火只回复 20% 生命', 'Boss 血量 +15%', '战斗金币 -30%', '敌人伤害再 +10%', '开局牌组多一张「悔意」', '精英开局有 1 点力量', '商店价格 +20%', '药水栏只有 2 格', '每场战斗第一回合少抽 1 张牌', '营火回血再少 5 点', '所有敌人血量再 +10%'];
 const UNLOCKS = [
   { xp: 300, cards: ['dual', 'concert'], relics: [] },
   { xp: 800, cards: ['shinboku', 'sage'], relics: ['mic'] },
@@ -323,7 +325,7 @@ function mainMenu() {
   $('#start').onclick = () => askName(() => { if (!sv) return pickChar();
     const y = overlay(`<h2>开始新的冒险？</h2><p>当前存档（${CHARS[sv.char || 'hero'].name} · 第 ${sv.floor} 层）会被放弃。</p><div class="row"><button class="btn red" id="y1">放弃旧档，重新开始</button><button class="btn" id="y0">取消</button></div>`);
     y.querySelector('#y0').onclick = () => y.remove(); y.querySelector('#y1').onclick = () => { y.remove(); clearSave(); pickChar(); }; });
-  $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending && R.snap && ['fight', 'elite', 'boss', 'final', 'trueb'].includes(R.pending)) { try { const o = JSON.parse(R.snap); R = Object.assign(o, { snap: R.snap }); } catch (e) {} } if (R.wait === 'bless') blessScreen(); else if (R.wait === 'true') trueGate(); else if (R.act2wait) act2Choice(); else if (R.wait === 'act3') act3Choice(); else if (R.wait === 'rift') riftChoice(); else if (R.wait === 'final') finalPrep(); else if (R.wait === 'ending') endingChoice(); else if (R.wait === 'trial') pickTrial(); else if (R.wait === 'layer') layerEnd(); else if (R.wait === 'trialR') trialReward(R.trialK); else if (R.loot) rewardScreen(); else if (R.pending) enterNode(R.pending); else mapScreen(); });
+  $('#cont')?.addEventListener('click', () => { R = sv; if (R.pending && R.snap && ['fight', 'elite', 'boss', 'final', 'trueb'].includes(R.pending)) { try { const o = JSON.parse(R.snap); R = Object.assign(o, { snap: R.snap }); } catch (e) {} } if (R.wait === 'bless') blessScreen(); else if (R.wait === 'fin') endScreen(!!R.finWin); else if (R.wait === 'true') trueGate(); else if (R.act2wait) act2Choice(); else if (R.wait === 'act3') act3Choice(); else if (R.wait === 'rift') riftChoice(); else if (R.wait === 'final') finalPrep(); else if (R.wait === 'ending') endingChoice(); else if (R.wait === 'trial') pickTrial(); else if (R.wait === 'layer') layerEnd(); else if (R.wait === 'trialR') trialReward(R.trialK); else if (R.loot) rewardScreen(); else if (R.pending) enterNode(R.pending); else mapScreen(); });
   $('#book').onclick = () => book();
   $('#hist').onclick = runHistory; $('#achb').onclick = achScreen;
   if (!LS('tw_teleNote')) { LS('tw_teleNote', '1'); setTimeout(() => tip(tr('为了调整平衡，游戏会匿名上传每局的数据（不含名字），可以在设置里关闭')), 1200); }
@@ -410,7 +412,7 @@ function pickChar() {
   const M = metaGet(); let asc = 0, cur = 'miko';
   const mx = k => 20; /* 全部解锁 */
   const show = () => { asc = Math.min(asc, mx(cur)); $('#av').textContent = asc; $('#ad').textContent = asc ? tr(ASC[asc]) + (asc > 1 ? tr('（并包含之前所有进阶）') : '') : tr('标准难度'); };
-  view.querySelectorAll('[data-c]').forEach(el => { el.onmouseenter = () => { cur = el.dataset.c; show(); }; el.onclick = () => { newRun(el.dataset.c, Math.min(asc, mx(el.dataset.c)), opt); save(); story('story_intro', ['放学路上，三个互不相识的少年少女，被一道光卷进了异世界。', '迎接他们的，是本地的小魔女莉泽——她的村民被哥布林抓上了山。', '“回家的方法，也许就在山顶。”四个人，一起出发吧。'], blessScreen, 'introSeen'); }; });
+  view.querySelectorAll('[data-c]').forEach(el => { el.onmouseenter = () => { cur = el.dataset.c; show(); }; el.onclick = () => { newRun(el.dataset.c, Math.min(asc, mx(el.dataset.c)), opt); R.wait = 'bless'; save(); story('story_intro', ['放学路上，三个互不相识的少年少女，被一道光卷进了异世界。', '迎接他们的，是本地的小魔女莉泽——她的村民被哥布林抓上了山。', '“回家的方法，也许就在山顶。”四个人，一起出发吧。'], blessScreen, 'introSeen'); }; });
   $('#am').onclick = () => { asc = Math.max(0, asc - 1); show(); }; $('#ap').onclick = () => { asc = Math.min(mx(cur), asc + 1); show(); }; show();
   $('#back').onclick = mainMenu;
 }
@@ -713,7 +715,7 @@ async function playCard(i, tgt) {
   if (c.flip) { delete c.flip; if (d.type === 'atk') { alive().forEach(e => BE.healE(e, 8)); } else G.loseHp(5); fx('hero', tr('正负反转！'), 'dmg'); }
   else { const reps = 1 + (cost === 0 && B.p.thr > 0 ? (B.p.thr--, 1) : 0) + (cost === 0 && B.p.st.vloop && !B.p.loopU ? (B.p.loopU = 1, 1) : 0);
   for (let r = 0; r < reps; r++) { if (r && (tgt && tgt.dead)) tgt = alive()[0]; B.p.fh = d.type === 'atk' ? 1 : 0; B.p.ptP = c.pt || 0;
-  try { d.play(G, c.up, tgt, c, pk); } catch (err) { console.error(err); tip(tr('这张牌出错了，已跳过')); } } }
+  B.p.lastT = tgt || null; try { d.play(G, c.up, tgt, c, pk); } catch (err) { console.error(err); tip(tr('这张牌出错了，已跳过')); } } }
   delete c.rc; B.p.fh = 0; B.p.ptP = 0;
 
   postPlay(d);
@@ -799,7 +801,7 @@ async function endTurn() {
     if (e.st.intang) e.st.intang = 0; /* 虚化同理 */
     if (e.st.poison && !e.st.aegis) { const pz = e.st.poison; e.hp -= pz; fx(e.id, `-${pz}`, 'dmg'); B.hitSet.add(e.id); addSt(e, 'poison', -1); if (e.hp <= 0) { e.diedPoison = 1; killE(e); render(); await sleep(300); if (await checkEnd()) return; continue; } }
     { const cc = MECH.enemyAct ? MECH.enemyAct(G, e) : null; if (e.dead) { render(); await sleep(300); if (await checkEnd()) return; continue; } if (cc === 'skip') { fx(e.id, tr('无法行动'), 'st'); e.hist.push(e.move); render(); await sleep(380); continue; } }
-    const otr = e.d.onTurn && e.d.onTurn(e, BE); if (otr) { if (otr === 'skip' && !e.dead && !e.fled) fx(e.id, e.d.key === 'dev_boss' || e.key === 'dev_boss' ? tr('程序报错·无法行动') : '坠地·无法行动', 'st'); e.hist.push(e.move); render(); await sleep(300); if (await checkEnd()) return; continue; }
+    const otr = e.d.onTurn && e.d.onTurn(e, BE); if (otr) { if (otr === 'skip' && !e.dead && !e.fled) fx(e.id, ['dev_boss', 'dev_debug'].includes(e.d.key || e.key) ? tr('程序报错·无法行动') : '坠地·无法行动', 'st'); e.hist.push(e.move); render(); await sleep(300); if (await checkEnd()) return; continue; }
     e.hitT = 0; e.enT = 0;
     const mv = e.d.moves[e.move]; B.lunge = mv.d != null && mv.i.startsWith('atk') && mv.d > 0 ? e.id : null;
     if (mv.d) { eAct(e, 'atk', mv.af); gv(e, 'atk'); } else if (/buff|summon/.test(mv.i)) gv(e, 'buff');
@@ -831,7 +833,7 @@ async function checkEnd() {
     if (B.en.some(e => (e.st.hostage || 0) > 0)) { R.gold += 40; say(tr('（被救下的村民塞给你 40 金币：“谢谢你们！”）')); }
     if (B.kind === 'elite') R.elites = (R.elites || 0) + 1; if (B.burn) gotKey('g');
     if (B.kind === 'boss' && !B.hurtT) ach('a_bossclean'); if (B.en.some(e => e.key === 'dev_boss')) ach('a_dev');
-    if (B.trueB) { B = null; clearSave(); R.trueEnd = 1; ach('a_true'); return story('story_gate', ['门的后面，是一间亮着屏幕的小房间。', '开发者摘下眼镜，揉了揉眼睛：“……好吧，你们赢了。”', '屏幕上跳出一行字：「游戏结束——这次是真的。」', '光涌了上来。再睁开眼时，是放学路上的那条街。'], () => story(trueArt(), [...(TRUEEND[R.char] || []), '开发者在屏幕前敲下最后一行注释：// 谢谢你们，陪我把这个游戏打通。'], () => endScreen(true))); }
+    if (B.trueB) { B = null; R.trueEnd = 1; finSave(true); ach('a_true'); return story('story_gate', ['门的后面，是一间亮着屏幕的小房间。', '开发者摘下眼镜，揉了揉眼睛：“……好吧，你们赢了。”', '屏幕上跳出一行字：「游戏结束——这次是真的。」', '光涌了上来。再睁开眼时，是放学路上的那条街。'], () => story(trueArt(), [...(TRUEEND[R.char] || []), '开发者在屏幕前敲下最后一行注释：// 谢谢你们，陪我把这个游戏打通。'], () => endScreen(true))); }
     if (B.kind === 'boss') { R.bosses = (R.bosses || 0) + 1; if (ACT() === 1) { delete R.pending; delete R.pendEnc; delete R.snap; R.after = 'act2'; save(); rewardScreen(); return true; }
       if (ACT() >= 2) { delete R.pending; delete R.pendEnc; delete R.snap;
         if (ACT() === 2) R.after = 'act3';
@@ -840,7 +842,7 @@ async function checkEnd() {
         else if (ACT() === 3) { B = null; R.kingDown = 1; R.wait = 'ending'; save(); return endingChoice(); }
         else R.after = 'layer';
         save(); rewardScreen(); return true; }
-      clearSave(); B = null; return story('story_end2', [R.boss === 'vamp_count' ? '伯爵化为了灰烬，天终于亮了。被关押的村民们，终于重获自由。' : t('{0}倒下了。古堡的血月熄灭，天终于亮了。被关押的村民们重获自由。', tr((ENEMIES[R.boss] || {}).name || '')), '可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。', '“回家的路……还在更高的地方。”'], () => story('story_party', ['天亮了。大家并肩站在晨光里，笑得满脸是灰。', '“走吧，往上。”'], () => endScreen(true))); }
+      B = null; finSave(true); return story('story_end2', [R.boss === 'vamp_count' ? '伯爵化为了灰烬，天终于亮了。被关押的村民们，终于重获自由。' : t('{0}倒下了。古堡的血月熄灭，天终于亮了。被关押的村民们重获自由。', tr((ENEMIES[R.boss] || {}).name || '')), '可是窗外，更高的雪山顶上，一双紫色的眼睛睁开了。', '“回家的路……还在更高的地方。”'], () => story('story_party', ['天亮了。大家并肩站在晨光里，笑得满脸是灰。', '“走吧，往上。”'], () => endScreen(true))); }
     delete R.pending; delete R.pendEnc; delete R.snap; save(); /* 打赢后不能刷新重打 */
     rewardScreen(); return true;
   }
@@ -850,23 +852,23 @@ function tip(t) { const o = document.createElement('div'); o.id = 'tip'; o.textC
 
 // 意图文字
 const II = n => `<img src="assets/ui2/int_${n}.png">`;
-const ICON = { atk: II('atk'), def: II('def'), buff: II('buff'), debuff: II('debuff'), atkdef: II('atk') + II('def'), atkdebuff: II('atk') + II('debuff'), atkbuff: II('atk') + II('buff'), summon: II('summon'), unknown: II('unknown') };
+const ICON = { atk: II('atk'), def: II('def'), buff: II('buff'), debuff: II('debuff'), atkdef: II('atk') + II('def'), atkdebuff: II('atk') + II('debuff'), atkbuff: II('atk') + II('buff'), defdebuff: II('def') + II('debuff'), summon: II('summon'), unknown: II('unknown') };
 function intentHTML(e) {
   const mv = e.d.moves[e.move]; let num = '';
   if (mv.d != null && mv.i.startsWith('atk') && mv.d > 0) { const v = atkVal(e, B.p, mv.d); num = mv.x ? `${v}×${hitsOf(e, mv)}` : `${v}`; }
-  const IT = { atk: '攻击你', def: '给自己或队友加格挡', buff: '强化自己', debuff: '给你施加负面状态', atkdef: '攻击你并加格挡', atkdebuff: '攻击你并施加负面状态', atkbuff: '攻击你并强化队友', summon: '召唤援兵', unknown: '意图不明' };
+  const IT = { atk: '攻击你', def: '给自己或队友加格挡', buff: '强化自己', debuff: '给你施加负面状态', atkdef: '攻击你并加格挡', atkdebuff: '攻击你并施加负面状态', atkbuff: '攻击你并强化队友', defdebuff: '给自己加格挡，并给你施加负面状态', summon: '召唤援兵', unknown: '意图不明' };
   const tip = `${mv.n}：下回合将${IT[mv.i]}${num ? `，伤害 ${num}` : ''}`;
   return `<div class="intent" title="${esc(tip)}">${ICON[mv.i]}${num}<small>${mv.n}</small></div>`;
 }
 const stsLabel = (k, n, st) => k === 'res' ? `共鸣${n}/10${n >= 9 ? '⚠' : ''}` : k === 'kek' ? `结界${n}（下回合+${st.shinboku ? n + Math.min(n, 8) : n}挡）` : k === 'poison' ? `中毒${n}（下回合-${n}）` : k === 'ammo' ? `光弹${n}（回合末${n}发）` : STATUS[k][0] + n;
 const stsHTML = st => `<div class="sts">${Object.entries(st).filter(([k, n]) => n && STATUS[k]).map(([k, n]) => `<b style="border-color:${STATUS[k][2]};color:${STATUS[k][2]}" title="${esc(STATUS[k][0] + '：' + STATUS[k][1])}">${STATUS[k][3] ? `<img class="sti" src="assets/${STATUS[k][3]}.png" alt="">` : ''}${stsLabel(k, n, st)}</b>`).join('')}</div>`;
-function incoming() { const hits = []; for (const e of alive()) { const mv = e.d.moves[e.move]; if (mv.d && mv.i.startsWith('atk')) { const a = atkVal(e, B.p, mv.d); for (let k = 0; k < hitsOf(e, mv); k++) hits.push({ amt: a, e }); } } try { return MECH.estimate ? MECH.estimate(G, hits) : hits.reduce((s, h) => s + h.amt, 0); } catch (err) { return hits.reduce((s, h) => s + h.amt, 0); } }
+function incoming() { const hits = []; for (const e of alive()) { const mv = e.d.moves[e.move]; if (mv.d && mv.i.startsWith('atk')) { const a = atkVal(e, B.p, mv.d); for (let k = 0; k < hitsOf(e, mv); k++) hits.push({ amt: a, e, br: mv.br }); } } try { return MECH.estimate ? MECH.estimate(G, hits) : hits.reduce((s, h) => s + h.amt, 0); } catch (err) { return hits.reduce((s, h) => s + h.amt, 0); } }
 function hitsOf(e, mv) { return mv.x ? mv.x + (e.xb || 0) : 1; }
 function barHTML(hp, max, blk, me) {
   let cls = '', tip = '';
   if (me && TIPS && B && !B.busy) { const inc = incoming(); if (inc > 0) { cls = blk >= inc ? 'ok' : 'low'; tip = `敌人下回合共 ${inc} 点伤害，你有 ${blk} 格挡${blk >= inc ? '，足够' : `，还差 ${inc - blk}`}`; } }
   return `<div class="bar ${blk ? 'blk' : ''}" title="${tip}"><i style="width:${Math.max(0, hp) / max * 100}%"></i><span>${Math.max(0, hp)}/${max}</span>${blk || cls === 'low' ? `<div class="blkv ${cls}">${blk}</div>` : ''}</div>${cls ? `<div class="inc ${cls}">受到 ${inc_(blk)}</div>` : ''}`;
-  function inc_(b) { let loss = 0; for (const e of alive()) { const mv = e.d.moves[e.move]; if (!(mv.d && mv.i.startsWith('atk'))) continue; for (let k = 0; k < hitsOf(e, mv); k++) { const d = atkVal(e, B.p, mv.d); const h = mv.br && b > 1 ? Math.floor(b / 2) : 0; const use = Math.min(b - h, d); b -= use; loss += d - use; } } return loss; } /* 龙息只吃一半格挡 */
+  function inc_(b) { const hits = []; for (const e of alive()) { const mv = e.d.moves[e.move]; if (mv.d && mv.i.startsWith('atk')) { const a = atkVal(e, B.p, mv.d); for (let k = 0; k < hitsOf(e, mv); k++) hits.push({ amt: a, e, br: mv.br }); } } try { if (MECH.estimate) return MECH.estimate(G, hits, b); } catch (err) { } let loss = 0; for (const e of alive()) { const mv = e.d.moves[e.move]; if (!(mv.d && mv.i.startsWith('atk'))) continue; for (let k = 0; k < hitsOf(e, mv); k++) { const d = atkVal(e, B.p, mv.d); const h = mv.br && b > 1 ? Math.floor(b / 2) : 0; const use = Math.min(b - h, d); b -= use; loss += d - use; } } return loss; } /* 龙息只吃一半格挡 */
 }
 let frame = 0;
 function render() {
@@ -1099,16 +1101,18 @@ function eventScreen() {
   const A = {
     heal: n => { R.hp = Math.min(R.maxHp, R.hp + n); }, gold: n => { R.gold += n; }, hurt: n => { R.hp = Math.max(1, R.hp - n); },
     maxHp: n => { R.maxHp += n; R.hp = Math.min(R.hp, R.maxHp); }, relic: () => { const id = rollRelic(); gainRelic(id); return id ? RELICS[id].name : '（空）'; },
-    pick: (m, n = 1) => setTimeout(() => { const go = k => pickDeck(m, () => k > 1 ? go(k - 1) : draw2()); go(n); }, 50), curse: id => { R.deck.push(mkCard(id)); }, rareCard: () => setTimeout(() => chooseCard(rollCards(3, 0, true), () => draw2()), 50), card: () => setTimeout(() => chooseCard(rollCards(3), () => draw2()), 50),
+    pick: (m, n = 1) => { wait = 1; setTimeout(() => { const go = k => pickDeck(m, () => k > 1 ? go(k - 1) : fin()); go(n); }, 50); }, curse: id => { R.deck.push(mkCard(id)); }, rareCard: () => { wait = 1; setTimeout(() => chooseCard(rollCards(3, 0, true), fin), 50); }, card: () => { wait = 1; setTimeout(() => chooseCard(rollCards(3), fin), 50); },
     potion: () => { const id = rollPotion(); return gainPotion(id) ? POTIONS[id].name : '（药水栏满了，没拿上）'; },
   };
-  let result = null;
+  let result = null, wait = 0;
+  /* 要选牌的选项：选完才算这个事件结束（选到一半刷新，会回到事件开头，代价也会退回） */
+  const fin = () => { delete R.evPick; delete R.pending; delete R.snap; save(); draw2(); };
   const img = ev.img === 'gb' ? 'assets/icons/gb.png' : `assets/icons/${ev.img}.png`;
   const draw2 = () => {
     view.innerHTML = `${bgHTML()}${topBar()}<div class="panel evp" style="width:620px"><h2>${ev.title}</h2><img src="${ev.pic ? 'assets/events/' + ev.pic + '.jpg' : img}" style="${ev.pic ? 'width:360px;border-radius:10px;border:3px solid #c9a35a;margin:-4px 0 6px' : 'width:110px;margin-bottom:8px'}">
-     <p>${result || ev.text}</p>${result ? '<button class="btn" id="go">继续前进</button>' : ev.opts.map((o, i) => `<button class="btn opt" data-i="${i}" ${(o.ok && !o.ok(R)) || !evOk(o.t) ? 'disabled' : ''}>${o.t}</button>`).join('')}</div>`;
+     <p>${result || ev.text}</p>${result ? '<button class="btn" id="go">继续前进</button>' : ev.opts.map((o, i) => `<button class="btn opt" data-i="${i}" ${(o.ok && !o.ok(R)) || !evOk(o._t || o.t) ? 'disabled' : ''}>${o.t}</button>`).join('')}</div>`;
     bindTop();
-    view.querySelectorAll('.opt').forEach(el => el.onclick = () => { result = SR(() => ev.opts[+el.dataset.i].go(R, A)); delete R.evPick; delete R.pending; delete R.snap; save(); draw2(); });
+    view.querySelectorAll('.opt').forEach(el => el.onclick = () => { wait = 0; result = SR(() => ev.opts[+el.dataset.i].go(R, A)); if (!wait) fin(); else draw2(); });
     $('#go')?.addEventListener('click', mapScreen);
   };
   draw2();
@@ -1144,7 +1148,7 @@ function act2Choice() { sting('act2', 2600);
    <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="go2">${t('前往古堡')}</button><button class="btn" id="end1">${t('到此为止')}</button></div></div>`;
   $('#go2').onclick = () => { delete R.act2wait; R.floor0 = R.floor; R.floor = 0; R.act = 2; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * (A_(16) ? .4 : .5))); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = SR(() => pickOne(ENCOUNTERS2.boss)[0]);
     delete R.pending; delete R.pendEnc; delete R.snap; save(); mapScreen(); };
-  $('#end1').onclick = () => { delete R.act2wait; clearSave(); endScreen(true); };
+  $('#end1').onclick = () => { delete R.act2wait; finSave(true); endScreen(true); };
   /* 第二章通关结局：先看结局插图 */
 }
 
@@ -1157,7 +1161,7 @@ function act3Choice() { sting('act2', 2600);
    <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="go3">${t('前往雪山')}</button><button class="btn" id="end2">${t('到此为止')}</button></div></div>`;
   $('#go3').onclick = () => { delete R.wait; delete R.rift; delete R.rows; R.floor0 = (R.floor0 || 0) + R.floor; R.floor = 0; R.act = 3; R.hp = Math.min(R.maxHp, R.hp + Math.floor(R.maxHp * (A_(16) ? .4 : .5))); R.map = genMap(); delete R.pos; R.path = []; R.fights = 0; R.boss = ENC3.boss[0][0];
     save(); story('story_snow', ['古堡后面的山路，一直通向终年不化的雪峰。', '风里传来龙的长啸，一声接着一声。', '“那双紫色的眼睛……就在山顶。”'], mapScreen); };
-  $('#end2').onclick = () => { delete R.wait; clearSave(); story('story_end2', END2(), () => story('story_party', ['天亮了。大家并肩站在晨光里，笑得满脸是灰。', '“走吧，往上。”'], () => endScreen(true))); };
+  $('#end2').onclick = () => { finSave(true); story('story_end2', END2(), () => story('story_party', ['天亮了。大家并肩站在晨光里，笑得满脸是灰。', '“走吧，往上。”'], () => endScreen(true))); };
 }
 const RIFTBG = 'c3_rift';
 function riftChoice() { sting('act2', 2600);
@@ -1183,7 +1187,7 @@ function endingChoice() {
    <div class="row" style="justify-content:center;gap:16px;margin-top:14px"><button class="btn gold" id="home">${t('回家')}</button><button class="btn" id="up">${t('继续往上（无尽模式）')}</button>${R.keys && R.keys.g && R.keys.r && R.keys.b ? `<button class="btn red" id="tru">${t('用三把钥匙打开更上面的门')}</button>` : ''}</div></div>`;
   $('#tru')?.addEventListener('click', trueGate);
   { const k = R.keys || {}, miss = [['g', '翡翠钥匙（第一章燃烧的精英）'], ['r', '血月钥匙（第二章营火放弃休息）'], ['b', '龙鳞钥匙（第三章宝箱放弃秘宝）']].filter(([x]) => !k[x]); if (Object.keys(k).length && miss.length) { const pp = document.createElement('p'); pp.style.cssText = 'color:#9fb4d8;font-size:14px;margin-top:8px'; pp.textContent = tr('门的更上方还有一道锁。还差：') + miss.map(m => tr(m[1])).join('、'); view.querySelector('.panel')?.appendChild(pp); } }
-  $('#home').onclick = () => { delete R.wait; R.home = 1; clearSave(); story(homeArt(), ['门对面，是放学路上的那条街。', '大家互相看了一眼，谁也没先迈步。', '“……走吧，回家。”'], () => endScreen(true)); };
+  $('#home').onclick = () => { R.home = 1; finSave(true); story(homeArt(), ['门对面，是放学路上的那条街。', '大家互相看了一眼，谁也没先迈步。', '“……走吧，回家。”'], () => endScreen(true)); };
   $('#up').onclick = () => { delete R.wait; startEndless(); };
 }
 /* 真结局：三把钥匙打开「源代码之间」（真 Boss 待定，先用加强版开发者占位） */
@@ -1253,7 +1257,7 @@ function sendRun(win, killer) { try { if (DEBUG || !ONLINE || SET.tele === 0 || 
     floor: (R.floor0 || 0) + R.floor, by: killer || [], deck: R.deck.map(c => c.id + (c.up ? '+' : '')), relics: R.relics, picks: (R.log && R.log.picks || []).slice(-80), hp: (R.log && R.log.hp || []).slice(-80), dur: R.log ? Math.round((Date.now() - R.log.t0) / 1000) : 0, keys: Object.keys(R.keys || {}) };
   fetch(API.replace('/scores', '/runs'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), keepalive: true }).catch(() => {}); } catch (e) {} }
 function endScreen(win) {
-  stage.querySelectorAll('.say').forEach(x => x.remove());
+  clearSave(); stage.querySelectorAll('.say').forEach(x => x.remove());
   if (!DEBUG && !R.histed) { R.histed = 1; try { const H = JSON.parse(localStorage.getItem('tw_hist') || '[]'); H.unshift({ c: R.char, w: (win || ACT() === 4) ? 1 : 0, a: ACT(), f: (R.floor0 || 0) + R.floor, asc: R.asc || 0, by: !win && B ? B.en.filter(e => !e.dead).map(e => e.d.name).join(' + ') : '', t: Date.now() }); localStorage.setItem('tw_hist', JSON.stringify(H.slice(0, 50))); } catch (e) {} }
   const killer = !win && B ? B.en.filter(e => !e.dead).map(e => e.key) : [];
   B = null; setMusic('menu'); endAch(win); sendRun(win, killer);
@@ -1269,7 +1273,7 @@ function endScreen(win) {
   if (!DEBUG) { M.xp += total; if (win && ACT() >= 2 && (R.asc || 0) >= (M.asc[R.char] || 0) && (M.asc[R.char] || 0) < 15) { M.asc[R.char] = (R.asc || 0) + 1; } metaSet(M); }
   const nx = UNLOCKS.find(u => M.xp < u.xp), left = UNLOCKS.filter(u => M.xp < u.xp).length;
   view.innerHTML = `${win && ACT() === 3 ? bgHTML(true, R.trueEnd ? trueArt() : homeArt()) : win && ACT() === 2 ? bgHTML(true, 'story_end2') : bgHTML(true)}<div class="endw"><div class="ribbon ${win ? 'win' : ''}">${win ? '胜利' : '失败'}</div>
-   <p class="endsub" data-noi18n>${R.trueEnd ? `${t('开发者合上了电脑。这一次，是真的回家了。')}<br><b style="color:#ffe08a">${t('真结局 · 感谢游玩！')}</b>` : ACT() === 4 ? `${t('在天外之塔爬到了第 {0} 轮。', R.endless || 1)}<br><b style="color:#ffe08a">${t('感谢游玩！')}</b>` : win && ACT() === 3 ? `${t('深渊之主倒下了，回家的门打开了。')}<br><b style="color:#ffe08a">${t('全部通关 · 感谢游玩！')}</b>` : win && ACT() === 2 ? `${t('{0}化为了灰烬，古堡的血月熄灭了。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第二章完 · 感谢游玩！')}</b>${t('山顶上，还有更深的黑暗在等待……')}` : win ? `${t('{0}倒下了，翠绿之地恢复了平静。', ENEMIES[R.boss].name)}<br><b style="color:#ffe08a">${t('第一章完 · 感谢游玩！')}</b>${t('远处山顶的古堡，亮起了血红的光……')}` : t(ACT() === 3 ? '{0}倒在了永冬之巅第 {1} 层。' : ACT() === 2 ? '{0}倒在了血月古堡第 {1} 层。' : '{0}倒在了翠绿之地第 {1} 层。', tr(CHARS[R.char || 'hero'].name), R.floor)}</p>
+   <p class="endsub" data-noi18n>${R.trueEnd ? `${t('开发者合上了电脑。这一次，是真的回家了。')}<br><b style="color:#ffe08a">${t('真结局 · 感谢游玩！')}</b>` : ACT() === 4 ? `${t('在天外之塔爬到了第 {0} 轮。', R.endless || 1)}<br><b style="color:#ffe08a">${t('感谢游玩！')}</b>` : win && ACT() === 3 ? `${t('深渊之主倒下了，回家的门打开了。')}<br><b style="color:#ffe08a">${t('全部通关 · 感谢游玩！')}</b>` : win && ACT() === 2 ? `${t('{0}化为了灰烬，古堡的血月熄灭了。', tr(ENEMIES[R.boss].name))}<br><b style="color:#ffe08a">${t('第二章完 · 感谢游玩！')}</b>${t('山顶上，还有更深的黑暗在等待……')}` : win ? `${t('{0}倒下了，翠绿之地恢复了平静。', tr(ENEMIES[R.boss].name))}<br><b style="color:#ffe08a">${t('第一章完 · 感谢游玩！')}</b>${t('远处山顶的古堡，亮起了血红的光……')}` : t(ACT() === 3 ? '{0}倒在了永冬之巅第 {1} 层。' : ACT() === 2 ? '{0}倒在了血月古堡第 {1} 层。' : '{0}倒在了翠绿之地第 {1} 层。', tr(CHARS[R.char || 'hero'].name), R.floor)}</p>
    ${win && ACT() === 3 && CH3END[R.char] ? `<p class="endsub endq"><b>${CHARS[R.char].name}</b>：“<span>${tr(CH3END[R.char])}</span>”</p>` : ''}${win && ACT() === 2 && CHARINFO[R.char] && CHARINFO[R.char].end ? `<p class="endsub endq"><b>${CHARS[R.char].name}</b>：“<span>${CHARINFO[R.char].end}</span>”</p>` : ''}
    <table class="score">${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}<tr class="tot"><td>分数</td><td>${total}</td></tr></table>
    ${news.map(t => `<p class="endsub" style="color:#7fe07f">★ ${t}</p>`).join('')}
@@ -1301,8 +1305,14 @@ if (TOUCH) stage.addEventListener('click', e => { const el = e.target.closest &&
 function kwHide() { clearTimeout(kwTimer); $('#kwtip')?.remove(); $('#cprev')?.remove(); }
 stage.addEventListener('mouseover', e => { const el = e.target.closest && e.target.closest('.card[data-cid]'); if (el && e.pointerType !== 'touch') kwShow(el); });
 stage.addEventListener('mouseout', e => { const el = e.target.closest && e.target.closest('.card[data-cid]'); if (el && !el.contains(e.relatedTarget)) kwHide(); });
-stage.addEventListener('touchstart', e => { const el = e.target.closest && e.target.closest('.card[data-cid]'); if (el) kwTimer = setTimeout(() => { kwShow(el); cardPrev(el); }, 380); }, { passive: true });
-stage.addEventListener('touchend', e => { if (e.target.closest && e.target.closest('.sts b[title], .intent[title]')) return; clearTimeout(kwTimer); setTimeout(kwHide, 1500); });
+/* 长按 = 只看不动：长按后松手产生的那次点击会被拦下，不会买走 / 选走 / 打出这张牌 */
+let LP = 0, LPon = 0, LPxy = null;
+stage.addEventListener('touchstart', e => { const el = e.target.closest && e.target.closest('.card[data-cid]'); LPon = 0; const t = e.touches[0]; LPxy = t ? [t.clientX, t.clientY] : null; if (el) kwTimer = setTimeout(() => { kwShow(el); cardPrev(el); LPon = 1; }, 380); }, { passive: true });
+stage.addEventListener('touchmove', e => { const t = e.touches[0]; if (LPxy && t && Math.hypot(t.clientX - LPxy[0], t.clientY - LPxy[1]) > 12) { clearTimeout(kwTimer); $('#cprev')?.remove(); } }, { passive: true });
+stage.addEventListener('touchcancel', () => { clearTimeout(kwTimer); LP = 0; kwHide(); });
+addEventListener('visibilitychange', () => { if (document.hidden) { clearTimeout(kwTimer); kwHide(); } });
+stage.addEventListener('click', e => { if (LP && performance.now() - LP < 700 && e.target.closest && e.target.closest('.card[data-cid]')) { e.stopPropagation(); e.preventDefault(); LP = 0; kwHide(); } }, true);
+stage.addEventListener('touchend', e => { if (LPon) { LPon = 0; LP = performance.now(); } if (e.target.closest && e.target.closest('.sts b[title], .intent[title]')) return; clearTimeout(kwTimer); setTimeout(kwHide, 1500); });
 stage.addEventListener('click', e => { if (!(TOUCH && e.target.closest && e.target.closest('.sts b[title], .intent[title]'))) kwHide(); }, true);
 
 // ---------- 药水 ----------
@@ -1355,7 +1365,7 @@ const CONCEPTS = [
 function moveText(m, key) {
   const SELF = { me: 1 }, ALLY = { al: 1 }, ALL = { all: 1 }, out = [];
   const who = x => x === SELF ? '自身' : x === ALLY ? '一个同伴' : '所有怪物';
-  const SN = k => STATUS[k] ? STATUS[k][0] : k;
+  const SN = k => STATUS[k] ? (STATUS[k]._0 || STATUS[k][0]) : k;
   if (m.d) out.push(m.x > 1 ? t('造成 {0} 点伤害 × {1} 次', m.d, m.x) : t('造成 {0} 点伤害', m.d));
   const add = x => { if (!out.includes(x)) out.push(x); };
   const MB = { applyP: (k, n) => add(t(`给你 {0} 层${SN(k)}`, n)), addSt: (x, k, n) => add(k === 'str' ? t(`${who(x)}力量 +{0}`, n) : t(`${who(x)}获得${SN(k)}`)),
@@ -1377,14 +1387,14 @@ function book(tab = 'card', sub = 'miko', up = 0) {
     body = `<div class="bsub">${subs.map(([k, n]) => `<b class="${k === sub ? 'on' : ''}" data-sub="${k}">${n}</b>`).join('')}<label class="ck"><input type="checkbox" id="bup" ${up ? 'checked' : ''}><span>查看升级后</span></label></div>
      <div class="bgrid cards">${list.map(d => `<div class="bc">${cardHTML({ id: d.id, up, uid: 0 })}<small>${{ start: '初始', c: '普通', u: '罕见', r: '稀有', gen: '炼金瓶（由其他牌生成）' }[d.rar]}${lockedSet().has(d.id) ? ' · 🔒 ' + UNLOCKS.find(u => u.cards.includes(d.id)).xp + ' 分解锁' : ''}</small></div>`).join('')}</div>`;
   } else if (tab === 'relic') {
-    const who = r => r.ch ? CHARS[r.ch].name + ' 专属' : '通用';
-    body = `<div class="bgrid">${Object.values(RELICS).map(r => `<div class="bi"><img src="${r.img}"><div><b>${r.name}</b><small>${who(r)} · ${{ start: '初始', c: '普通', u: '罕见', r: '稀有' }[r.rar]}${lockedSet().has(r.id) ? ' · 🔒 ' + UNLOCKS.find(u => u.relics.includes(r.id)).xp + ' 分解锁' : ''}</small><p>${kwify(r.desc)}</p></div></div>`).join('')}</div>`;
+    const who = r => r.ch ? t('{0} 专属', tr(CHARS[r.ch].name)) : tr('通用');
+    body = `<div class="bgrid">${Object.values(RELICS).map(r => `<div class="bi"><img src="${r.img}"><div><b>${r.name}</b><small>${who(r)} · ${tr({ start: '初始', c: '普通', u: '罕见', r: '稀有' }[r.rar])}${lockedSet().has(r.id) ? ' · 🔒 ' + UNLOCKS.find(u => u.relics.includes(r.id)).xp + ' 分解锁' : ''}</small><p>${kwify(r.desc)}</p></div></div>`).join('')}</div>`;
   } else if (tab === 'pot') {
     body = `<p style="margin:0 0 10px">所有角色通用。最多带 3 瓶，战斗中点左上角的药水使用，不花能量。打完战斗有机会掉落，商店也卖。</p><div class="bgrid">${Object.values(POTIONS).map(x => `<div class="bi"><img src="${x.img}"><div><b>${x.name}</b><small>${x.rar === 'r' ? '稀有' : '普通'}</small><p>${x.desc}</p></div></div>`).join('')}</div>`;
   } else if (tab === 'mon') {
     const hpOf = k => [].concat(ENEMIES[k].hp)[0], elite = new Set([...ENCOUNTERS.elite, ...ENCOUNTERS2.elite].map(g => g.reduce((x, y) => hpOf(y) > hpOf(x) ? y : x))), boss = new Set([...ENCOUNTERS.boss.flat(), ...ENCOUNTERS2.boss.flat()]);
     const seen = metaGet().seen || {}, ents = Object.entries(ENEMIES), nSeen = ents.filter(([k]) => seen[k] || DEBUG).length;
-    body = `<p style="margin:0 0 10px">${t('已遇到 {0} / {1} 种怪物', nSeen, ents.length)}</p><div class="bgrid">${ents.map(([k, e]) => !(seen[k] || DEBUG) ? `<div class="bi mon unk"><div class="qm">?</div><div><b>？？？</b><small>${t('尚未遇到')}</small></div></div>` : `<div class="bi mon"><img src="assets/enemies2/${e.art || k}/portrait.png" onerror="this.src='assets/enemies2/${e.art || k}/idle0.png'"${e.tint ? ` style="filter:${e.tint}"` : ''}><div><b>${e.name}</b><small>${boss.has(k) ? 'Boss' : elite.has(k) ? '精英' : '普通'} · 生命 ${Array.isArray(e.hp) ? e.hp.join('～') : e.hp}</small>
+    body = `<p style="margin:0 0 10px">${t('已遇到 {0} / {1} 种怪物', nSeen, ents.length)}</p><div class="bgrid">${ents.map(([k, e]) => !(seen[k] || DEBUG) ? `<div class="bi mon unk"><div class="qm">?</div><div><b>？？？</b><small>${t('尚未遇到')}</small></div></div>` : `<div class="bi mon"><img src="assets/enemies2/${e.art || k}/portrait.png" onerror="this.src='assets/enemies2/${e.art || k}/idle0.png'"${e.tint ? ` style="filter:${e.tint}"` : ''}><div><b>${e.name}</b><small>${boss.has(k) ? 'Boss' : elite.has(k) ? tr('精英') : tr('普通')} · ${tr('生命')} ${Array.isArray(e.hp) ? e.hp.join('～') : e.hp}</small>
       ${Object.values(e.moves).map(m => `<p class="mvl"><span class="mv">${m.n}</span>：${moveText(m, k) || t('无')}</p>`).join('')}${e.onDie ? (x => x ? `<p class="mvl"><span class="mv">${t('死亡时')}</span>：${x}</p>` : '')(moveText({ f: e.onDie }, k)) : ''}${e.lore ? `<p class="lore">${e.lore}</p>` : ''}</div></div>`).join('')}</div>`;
   } else {
     body = `<div class="rules">${CONCEPTS.map(([h, rows]) => `<h3>${h}</h3><table>${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>`).join('')}</div>`;

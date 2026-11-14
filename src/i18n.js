@@ -1,6 +1,6 @@
 /* 多语言：中文原文就是 key（数字和「」里的名字会自动变成 {0}{1} 占位符），英文 / 日文词表在 src/lang/ */
-import EN from './lang/en.js?v=live2_11141420';
-import JA from './lang/ja.js?v=live2_11141420';
+import EN from './lang/en.js?v=live2_11141600';
+import JA from './lang/ja.js?v=live2_11141600';
 const DICT = { en: EN, ja: JA };
 const CJK = /[㐀-鿿]/;
 let lang = 'zh';
@@ -30,7 +30,7 @@ export function tr(s) {
 /* 自动翻译页面上新出现的文字和 placeholder / title（带 data-noi18n 的跳过） */
 function walk(n) {
   if (lang === 'zh') return;
-  if (n.nodeType === 3) { const s = n.nodeValue, x = s.trim(); if (x && CJK.test(x)) { const y = tr(x); if (y !== x) n.nodeValue = s.replace(x, y); } return; }
+  if (n.nodeType === 3) { const s = n.nodeValue, x = s.trim(); if (x && CJK.test(x)) { let y = tr(x); if (y === x) { const m = x.match(/^([：:·・\s]+)(.+)$/); if (m) { const z = tr(m[2]); if (z !== m[2]) y = m[1] + z; } } if (y !== x) n.nodeValue = s.replace(x, y); } return; }
   if (n.nodeType !== 1 || n.closest?.('[data-noi18n]') || n.tagName === 'SCRIPT' || n.tagName === 'STYLE') return;
   for (const a of ['placeholder', 'title']) { const v = n.getAttribute(a); if (v && CJK.test(v)) n.setAttribute(a, tr(v)); }
   for (const c of n.childNodes) walk(c);

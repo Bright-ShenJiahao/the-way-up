@@ -40,6 +40,7 @@ export default async function handler(req) {
     } catch { return json({ ok: false, error: '读取失败' }, 500); }
   }
   if (req.method !== 'POST') return json({ ok: false, error: 'method not allowed' }, 405);
+  if (!corsFor(req)['access-control-allow-origin'] || !/application\/json/.test(req.headers.get('content-type') || '')) return json({ ok: false, error: 'forbidden' }, 403);
   let b; try { const tx = await req.text(); if (tx.length > 4096) return json({ ok: false, error: '数据太大' }, 413); b = JSON.parse(tx); } catch { return json({ ok: false, error: 'bad json' }, 400); }
   const name = cleanName(b.name); if (!name) return json({ ok: false, error: '没有名字' }, 400);
   const pin = String(b.pin || '');

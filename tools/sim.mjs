@@ -148,7 +148,7 @@ function play(i, t) {
   let pk; if (d.pick) { const opts = d.pick === 1 ? B.hand.map(x => ({ val: x.uid, c: x })) : d.pick(G, c.up); if (opts.length) pk = (d.bot ? d.bot(G, opts) : botPick(opts)).val; }
   B.p.cpt = (B.p.cpt || 0) + 1; B.p.lastZero = k === 0; if (k === 0) B.p.zc = (B.p.zc || 0) + 1; B.pc = B.pc || {}; B.pc[c.id] = (B.pc[c.id] || 0) + 1; B.p.lastC = c;
   const reps = 1 + (k === 0 && B.p.thr > 0 ? (B.p.thr--, 1) : 0) + (k === 0 && B.p.st.vloop && !B.p.loopU ? (B.p.loopU = 1, 1) : 0);
-  for (let r = 0; r < reps; r++) { if (r && t && t.dead) t = alive()[0]; B.p.fh = d.type === 'atk' ? 1 : 0; B.p.ptP = c.pt || 0; d.play(G, c.up, t, c, pk); }
+  for (let r = 0; r < reps; r++) { if (r && t && t.dead) t = alive()[0]; B.p.fh = d.type === 'atk' ? 1 : 0; B.p.ptP = c.pt || 0; B.p.lastT = t || null; d.play(G, c.up, t, c, pk); }
   delete c.rc; B.p.fh = 0; B.p.ptP = 0;
   postPlay(d);
   if (d.type !== 'power') (d.exhaust || c.tmpEx ? B.exh : B.disc).push(c);
@@ -173,7 +173,7 @@ function usePots() {
   if (big && B.turn <= 1) for (const id of ['str', 'dex', 'weak', 'energy', 'draw', 'bomb', 'fire', 'rage', 'fear', 'vulnp', 'toxin', 'time', 'essence', 'swift', 'holy', 'bolt', 'steam']) use(id);
 }
 function botTurn() { usePots(); if (!alive().length) return; MECH.bot(G, incoming() - B.p.block);
-  for (let guard = 0; guard < 30 && alive().length; guard++) {
+  for (let guard = 0; guard < 25 && alive().length; guard++) {
     const need = incoming() - B.p.block;
     const opts = B.hand.map((c, i) => ({ c, i, d: CARDS[c.id], k: cost(c) === 'X' ? B.p.energy : cost(c) })).filter(o => !o.d.unplay && !o.c.flip && !o.c.seal && (!o.d.can || o.d.can(G, o.c.up)) && o.k <= B.p.energy && !(o.k === 'X' && B.p.energy === 0));
     if (!opts.length) break;
