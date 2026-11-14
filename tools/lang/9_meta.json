@@ -1378,5 +1378,13 @@
  "设置里可关闭提示": [
   "You can turn these off in Settings",
   "設定でオフにできます"
+ ],
+ "打开了调试模式的开发者。会给一种牌下「{0}」（你手里那种牌有一张这回合打不出），「{1}」会把你一张手牌删到本场战斗结束，「{2}」一回合后打出 {3} 点——编译那回合打他 {4} 点以上就能打断。每 {5} 回合力量 {6}（加班）。半血进入蓝屏：力量 {7}，每回合往你弃牌堆塞「{8}」。弱点不变：一回合打出 {9} 张 {10} 费牌或 {11} 张牌，他会程序崩溃晕一回合；但崩溃后会自动重启，之后 {12} 回合不会再崩溃。": [
+  "The developer, in debug mode. He sets a 「{0}」 on a card type (one card of that type in your hand can't be played this turn); 「{1}」 deletes one card in your hand for the rest of the fight; 「{2}」 hits for {3} a turn later — deal {4}+ damage to him on the compiling turn to interrupt it. Every {5} turns he gains {6} Strength (overtime). At half HP he bluescreens: Strength {7}, and he shuffles an 「{8}」 into your discard pile each turn. His weakness is unchanged: play {9} cards costing {10} or {11} cards in one turn and he crashes, stunned for a turn; but he reboots after a crash and can't crash again for the next {12} turns.",
+  "デバッグモードの開発者。カードの種類に「{0}」を仕掛ける（手札のその種類のカード1枚がこのターン使えない）。「{1}」は手札1枚を戦闘終了まで削除する。「{2}」は1ターン後に{3}ダメージ——コンパイル中のターンに{4}以上与えれば中断できる。{5}ターンごとに筋力{6}（残業）。HP半分でブルースクリーン：筋力{7}、毎ターン捨て札に「{8}」を入れる。弱点は同じ：1ターンに{10}コストのカードを{9}枚、またはカードを{11}枚使うとクラッシュして1ターン気絶。ただしクラッシュ後は自動で再起動し、その後{12}ターンはクラッシュしない。"
+ ],
+ "「又改了一版需求……」": [
+  "\"The requirements changed again...\"",
+  "「また仕様変更か……」"
  ]
 }
